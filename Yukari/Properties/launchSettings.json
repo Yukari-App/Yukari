@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Yukari (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Yukari (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
