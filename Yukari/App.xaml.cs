@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Xaml;
+using Yukari.Views;
 
 namespace Yukari
 {
