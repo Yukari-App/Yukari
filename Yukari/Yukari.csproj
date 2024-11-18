@@ -15,6 +15,7 @@
 	  <WindowsAppSDKSelfContained>True</WindowsAppSDKSelfContained>
 	<DefaultLanguage>en-US</DefaultLanguage>
 	<ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <Target Name="RemoveFoldersWithMuiFiles" AfterTargets="Build">
@@ -24,6 +25,14 @@
     </ItemGroup>
     <RemoveDir Directories="@(RemovingFolders)" />
 	</Target>
+
+  <ItemGroup>
+    <None Remove="Views\DiscoverPage.xaml" />
+    <None Remove="Views\DownloadsPage.xaml" />
+    <None Remove="Views\FavoritesPage.xaml" />
+    <None Remove="Views\HelpPage.xaml" />
+    <None Remove="Views\SettingsPage.xaml" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -45,9 +54,38 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-    <Folder Include="Services\" />
-    <Folder Include="Views\" />
-    <Folder Include="ViewModels\" />
+    <Page Update="Views\FavoritesPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\DiscoverPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\DownloadsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\HelpPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\SettingsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 </Project>
