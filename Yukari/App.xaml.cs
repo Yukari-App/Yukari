@@ -8,7 +8,7 @@ namespace Yukari
     public partial class App : Application
     {
         private static Window? MainWindow;
-
+        
         public App()
         {
             InitializeComponent();
