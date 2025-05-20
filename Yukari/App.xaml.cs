@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
+using Windows.Graphics;
 using Yukari.Services;
 using Yukari.Views;
 
@@ -31,6 +32,9 @@ namespace Yukari
 
             var win32WindowService = new Win32WindowService(MainWindow);
             win32WindowService.SetWindowMinMaxSize(new Win32WindowService.POINT() { x = 600, y = 500 });
+
+            var scaleFactor = win32WindowService.GetSystemDPI() / 96.0;
+            MainWindow.AppWindow.Resize(new SizeInt32((int)(1200 * scaleFactor), (int)(700 * scaleFactor)));
 
             MainWindow.Activate();
         }
