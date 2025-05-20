@@ -8,17 +8,17 @@ namespace Yukari
     public partial class App : Application
     {
         private static Window? MainWindow;
-        
+
         public App()
         {
             InitializeComponent();
-            Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US"; // Altera o Idioma padrão da aplicação
+            Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US"; // Change the default language of the application
         }
-            
-        
+
+
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            // Carrega a janela principal
+            // Load Main Window
             MainWindow = new Window
             {
                 SystemBackdrop = new MicaBackdrop(),
