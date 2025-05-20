@@ -27,6 +27,15 @@
 	</Target>
 
   <ItemGroup>
+    <Compile Remove="Utilities\**" />
+    <Content Remove="Utilities\**" />
+    <EmbeddedResource Remove="Utilities\**" />
+    <None Remove="Utilities\**" />
+    <Page Remove="Utilities\**" />
+    <PRIResource Remove="Utilities\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Views\DiscoverPage.xaml" />
     <None Remove="Views\DownloadsPage.xaml" />
     <None Remove="Views\FavoritesPage.xaml" />
@@ -90,6 +99,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Utilities\" />
+    <Folder Include="Models\" />
+    <Folder Include="ViewModels\" />
   </ItemGroup>
 </Project>
