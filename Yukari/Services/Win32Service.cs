@@ -19,6 +19,11 @@ namespace Yukari.Services
             this.window = window;
         }
 
+        public int GetSystemDPI()
+        {
+            return GetDpiForWindow(GetWindowHandleForCurrentWindow(window));
+        }
+
         public void SetWindowMinMaxSize(POINT? minWindowSize = null, POINT? maxWindowSize = null)
         {
             this.minWindowSize = minWindowSize;
@@ -70,7 +75,7 @@ namespace Yukari.Services
         internal struct POINT
         {
             public int x;
-            public int y; 
+            public int y;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -82,9 +87,6 @@ namespace Yukari.Services
             public POINT ptMinTrackSize;
             public POINT ptMaxTrackSize;
         }
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr GetModuleHandle(IntPtr moduleName);
 
         [DllImport("User32.dll")]
         internal static extern int GetDpiForWindow(IntPtr hwnd);
@@ -98,14 +100,7 @@ namespace Yukari.Services
         [DllImport("user32.dll")]
         internal static extern IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, WindowMessage Msg, IntPtr wParam, IntPtr lParam);
 
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        private static extern int SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hInstance, int threadId);
-
-        [DllImport("User32.dll", SetLastError = true, CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        public static extern int CallNextHookEx(int idHook, int nCode, IntPtr wParam, IntPtr lParam);
-
         internal delegate IntPtr WinProc(IntPtr hWnd, WindowMessage Msg, IntPtr wParam, IntPtr lParam);
-        public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
         [Flags]
         internal enum WindowLongIndexFlags : int
