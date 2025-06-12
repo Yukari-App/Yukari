@@ -1,0 +1,30 @@
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
+
+namespace Yukari.Services
+{
+    public class NavigationService : INavigationService
+    {
+        private Frame _frame;
+
+        public void Initialize(Frame frame)
+        {
+            _frame = frame;
+        }
+
+        public bool CanGoBack => _frame.CanGoBack;
+
+        public void Navigate(Type pageType, object parameter = null)
+        {
+            if (_frame.CurrentSourcePageType != pageType)
+                _frame.Navigate(pageType, parameter);
+        }
+
+        public bool GoBack()
+        {
+            if (!CanGoBack) return false;
+            _frame.GoBack();
+            return true;
+        }
+    }
+}
