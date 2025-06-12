@@ -38,7 +38,6 @@
             x:Name="NavigationViewControl"
             BackRequested="NavigationViewControl_BackRequested"
             DisplayModeChanged="NavigationViewControl_DisplayModeChanged"
-            IsBackEnabled="{Binding IsBackEnabled}"
             ItemInvoked="NavigationViewControl_ItemInvoked"
             PaneDisplayMode="Auto">
             <NavigationView.Resources>

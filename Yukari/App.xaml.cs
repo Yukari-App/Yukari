@@ -1,10 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-using System;
 using Windows.Graphics;
 using Yukari.Services;
-using Yukari.ViewModels;
 using Yukari.Views;
 
 namespace Yukari
@@ -13,20 +10,10 @@ namespace Yukari
     {
         private static Window? MainWindow;
 
-        public IServiceProvider Services { get; }
-
         public App()
         {
             InitializeComponent();
             Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US"; // Change the default language of the application
-
-            var services = new ServiceCollection();
-
-            // Registrar seus serviços
-            services.AddSingleton<INavigationService, NavigationService>();
-            services.AddTransient<MainPageViewModel>();
-
-            Services = services.BuildServiceProvider();
         }
 
 
@@ -51,7 +38,5 @@ namespace Yukari
 
             MainWindow.Activate();
         }
-
-        public INavigationService NavigationService => Services.GetService<INavigationService>();
     }
 }
