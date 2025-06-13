@@ -12,22 +12,22 @@ namespace Yukari.Views
         public MainPage()
         {
             this.InitializeComponent();
-            var navigationService = (App.Current as App).NavigationService;
+            var navigationService = ((App)App.Current).NavigationService;
             navigationService.Initialize(ContentFrame);
 
-            DataContext = (App.Current as App).Services.GetService<MainPageViewModel>();
+            DataContext = ((App)App.Current).Services.GetService<MainPageViewModel>();
         }
 
         private void NavigationViewControl_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
             var tag = args.IsSettingsInvoked ? "Yukari.Views.SettingsPage" : args.InvokedItemContainer?.Tag?.ToString();
             if (!string.IsNullOrEmpty(tag))
-                (DataContext as MainPageViewModel).NavigateCommand.Execute(tag);
+                ((MainPageViewModel)DataContext).NavigateCommand.Execute(tag);
         }
 
         private void NavigationViewControl_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
-            (DataContext as MainPageViewModel).BackCommand.Execute(null);
+            ((MainPageViewModel)DataContext).BackCommand.Execute(null);
         }
 
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
