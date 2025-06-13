@@ -20,7 +20,6 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Image
-                x:Name="AppFontIcon"
                 Width="19"
                 Height="19"
                 HorizontalAlignment="Left"
