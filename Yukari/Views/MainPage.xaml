@@ -40,6 +40,7 @@
             DisplayModeChanged="NavigationViewControl_DisplayModeChanged"
             IsBackEnabled="{Binding IsBackEnabled}"
             ItemInvoked="NavigationViewControl_ItemInvoked"
+            OpenPaneLength="200"
             PaneDisplayMode="Auto">
             <NavigationView.Resources>
                 <Thickness x:Key="NavigationViewContentMargin">0,48,0,0</Thickness>
