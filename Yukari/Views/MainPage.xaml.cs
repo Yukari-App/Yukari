@@ -16,6 +16,8 @@ namespace Yukari.Views
             navigationService.Initialize(ContentFrame);
 
             DataContext = ((App)App.Current).Services.GetService<MainPageViewModel>();
+
+            ((MainPageViewModel)DataContext).NavigateCommand.Execute("Yukari.Views.FavoritesPage");
         }
 
         private void NavigationViewControl_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)

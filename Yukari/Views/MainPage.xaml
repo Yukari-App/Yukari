@@ -53,6 +53,7 @@
                 <NavigationViewItem
                     Content="Favorites"
                     Icon="Favorite"
+                    IsSelected="True"
                     Tag="Yukari.Views.FavoritesPage" />
                 <NavigationViewItem
                     Content="Discover"
