@@ -16,18 +16,15 @@ namespace Yukari.ViewModels
 
             NavigateCommand = new RelayCommand<object>(OnNavigate);
             BackCommand = new RelayCommand(OnBack, () => _nav.CanGoBack);
-
-            // inicializa estado
+            
             IsBackEnabled = _nav.CanGoBack;
         }
 
         [ObservableProperty] private bool _isBackEnabled;
 
-        // --- Commands ---
         public ICommand NavigateCommand { get; }
         public ICommand BackCommand { get; }
 
-        // --- Métodos de Command ---
         private void OnNavigate(object param)
         {
             var pageTypeName = param as string;
@@ -44,5 +41,4 @@ namespace Yukari.ViewModels
                 IsBackEnabled = _nav.CanGoBack;
         }
     }
-
 }
