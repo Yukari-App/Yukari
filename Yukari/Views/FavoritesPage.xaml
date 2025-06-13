@@ -6,7 +6,23 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Yukari.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Yukari.Models"
     mc:Ignorable="d">
 
-    <Grid />
+    <Page.Resources>
+        <DataTemplate x:Key="MangaTemplate" x:DataType="models:Manga">
+            <Image
+                Width="130"
+                Height="200"
+                Source="{x:Bind CoverImageUrl}"
+                Stretch="UniformToFill" />
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid>
+        <GridView
+            IsItemClickEnabled="True"
+            ItemTemplate="{StaticResource MangaTemplate}"
+            SelectionMode="Single" />
+    </Grid>
 </Page>
