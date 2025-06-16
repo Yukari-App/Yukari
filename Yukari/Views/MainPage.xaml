@@ -75,7 +75,10 @@
                     Tag="Yukari.Views.HelpPage" />
             </NavigationView.FooterMenuItems>
 
-            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated">
+            <Frame
+                x:Name="ContentFrame"
+                Padding="16"
+                Navigated="ContentFrame_Navigated">
                 <Frame.ContentTransitions>
                     <TransitionCollection>
                         <NavigationThemeTransition />
