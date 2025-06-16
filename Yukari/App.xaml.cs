@@ -52,7 +52,5 @@ namespace Yukari
 
             MainWindow.Activate();
         }
-
-        public INavigationService NavigationService => Services.GetService<INavigationService>();
     }
 }
