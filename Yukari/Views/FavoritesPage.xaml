@@ -12,10 +12,10 @@
     <Page.Resources>
         <DataTemplate x:Key="MangaTemplate" x:DataType="models:Manga">
             <Image
-                Width="130"
-                Height="200"
+                Width="200"
+                Height="280"
                 Source="{x:Bind CoverImageUrl}"
-                Stretch="UniformToFill" />
+                Stretch="Fill" />
         </DataTemplate>
     </Page.Resources>
 
