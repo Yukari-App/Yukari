@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System.Linq;
+using Yukari.Services;
 using Yukari.ViewModels;
 
 namespace Yukari.Views
@@ -12,8 +13,7 @@ namespace Yukari.Views
         public MainPage()
         {
             this.InitializeComponent();
-            var navigationService = ((App)App.Current).NavigationService;
-            navigationService.Initialize(ContentFrame);
+            ((App)App.Current).Services.GetService<INavigationService>().Initialize(ContentFrame);
 
             DataContext = ((App)App.Current).Services.GetService<MainPageViewModel>();
 
