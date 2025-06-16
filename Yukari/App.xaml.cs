@@ -25,6 +25,7 @@ namespace Yukari
             // Registrar seus serviços
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddTransient<MainPageViewModel>();
+            services.AddTransient<FavoritesPageViewModel>();
 
             Services = services.BuildServiceProvider();
         }
