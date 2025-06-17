@@ -45,6 +45,7 @@
                 <Thickness x:Key="NavigationViewContentMargin">0,48,0,0</Thickness>
                 <Thickness x:Key="NavigationViewMinimalContentMargin">0,48,0,0</Thickness>
                 <Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
+                <Thickness x:Key="NavigationViewHeaderMargin">36,30,36,0</Thickness>
                 <!--  This is the rounded corner on the Top left of the L Pattern  -->
                 <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
             </NavigationView.Resources>
