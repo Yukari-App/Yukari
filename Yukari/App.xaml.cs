@@ -44,7 +44,7 @@ namespace Yukari
             MainWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
 
             var win32WindowService = new Win32WindowService(MainWindow);
-            win32WindowService.SetWindowMinMaxSize(new Win32WindowService.POINT() { x = 600, y = 500 });
+            win32WindowService.SetWindowMinMaxSize(new Win32WindowService.POINT() { x = 720, y = 500 });
 
             var scaleFactor = win32WindowService.GetSystemDPI() / 96.0;
             MainWindow.AppWindow.Resize(new SizeInt32((int)(1200 * scaleFactor), (int)(700 * scaleFactor)));
