@@ -11,11 +11,52 @@
 
     <Page.Resources>
         <DataTemplate x:Key="MangaTemplate" x:DataType="models:Manga">
-            <Image
-                Width="200"
-                Height="280"
-                Source="{x:Bind CoverImageUrl}"
-                Stretch="Fill" />
+            <Grid Width="200" Height="280">
+                <Image Source="{x:Bind CoverImageUrl}" Stretch="Fill" />
+
+                <Grid
+                    Height="30"
+                    Margin="2"
+                    Padding="8,0,4,0"
+                    VerticalAlignment="Bottom"
+                    Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+                    ColumnDefinitions="*, Auto"
+                    ColumnSpacing="4"
+                    CornerRadius="4">
+                    <TextBlock
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Text="{x:Bind Title}"
+                        ToolTipService.ToolTip="{x:Bind Title}" />
+
+                    <Button
+                        Grid.Column="1"
+                        Width="28"
+                        Height="24"
+                        Padding="0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <Button.Content>
+                            <FontIcon FontSize="16" Glyph="&#xE712;" />
+                        </Button.Content>
+                        <Button.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Icon="Pin" Text="Pin" />
+                                <MenuFlyoutItem Icon="Delete" Text="Remove" />
+                                <MenuFlyoutItem Text="Select">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE73A;" />
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+
+                </Grid>
+
+            </Grid>
         </DataTemplate>
     </Page.Resources>
 
