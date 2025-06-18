@@ -61,7 +61,7 @@
     </Page.Resources>
 
     <Grid RowDefinitions="Auto, *">
-        <Grid Padding="20,14,36,16" ColumnDefinitions="Auto, *, Auto">
+        <Grid Grid.Row="0" Padding="20,14,36,16" ColumnDefinitions="Auto, *, Auto">
             <StackPanel
                 Grid.Column="0"
                 HorizontalAlignment="Left"
