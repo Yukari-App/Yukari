@@ -45,8 +45,6 @@ namespace Yukari.Views
                     .Concat(NavigationViewControl.FooterMenuItems.OfType<NavigationViewItem>())
                     .First(n => n.Tag.Equals(ContentFrame.SourcePageType.FullName.ToString()));
             }
-
-            NavigationViewControl.Header = ((NavigationViewItem)NavigationViewControl.SelectedItem)?.Content?.ToString();
         }
 
         private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
