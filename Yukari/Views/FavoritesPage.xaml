@@ -63,8 +63,8 @@
     <Grid>
         <GridView
             IsItemClickEnabled="True"
-            ItemsSource="{Binding FavoriteMangas}"
             ItemTemplate="{StaticResource MangaTemplate}"
-            SelectionMode="Single" />
+            ItemsSource="{Binding FavoriteMangas}"
+            SelectionMode="None" />
     </Grid>
 </Page>
