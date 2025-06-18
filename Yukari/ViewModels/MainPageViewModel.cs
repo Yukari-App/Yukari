@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Windows.Input;
+using Yukari.Models;
 using Yukari.Services;
 
 namespace Yukari.ViewModels
@@ -14,7 +15,7 @@ namespace Yukari.ViewModels
         {
             _nav = navService;
 
-            NavigateCommand = new RelayCommand<object>(OnNavigate);
+            NavigateCommand = new RelayCommand<NavigationRequest>(OnNavigate);
             BackCommand = new RelayCommand(OnBack, () => _nav.CanGoBack);
             
             IsBackEnabled = _nav.CanGoBack;
@@ -25,13 +26,11 @@ namespace Yukari.ViewModels
         public ICommand NavigateCommand { get; }
         public ICommand BackCommand { get; }
 
-        private void OnNavigate(object param)
+        private void OnNavigate(NavigationRequest request)
         {
-            var pageTypeName = param as string;
-            if (pageTypeName is null) return;
+            if (String.IsNullOrEmpty(request.PageTypeName)) return;
 
-            var pageType = Type.GetType(pageTypeName);
-            _nav.Navigate(pageType);
+            _nav.Navigate(Type.GetType(request.PageTypeName), request.Parameter);
             IsBackEnabled = _nav.CanGoBack;
         }
 
