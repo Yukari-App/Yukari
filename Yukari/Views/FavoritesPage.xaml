@@ -60,8 +60,104 @@
         </DataTemplate>
     </Page.Resources>
 
-    <Grid>
+    <Grid RowDefinitions="Auto, *">
+        <Grid Padding="20,14,36,16" ColumnDefinitions="Auto, *, Auto">
+            <StackPanel
+                Grid.Column="0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Orientation="Horizontal">
+                <FontIcon FontSize="24" Glyph="&#xE734;" />
+                <TextBlock
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource TitleTextBlockStyle}"
+                    Text="Favorites" />
+            </StackPanel>
+
+            <StackPanel
+                Grid.Column="2"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Orientation="Horizontal">
+
+                <DropDownButton Background="Transparent" BorderBrush="Transparent">
+                    <DropDownButton.Content>
+                        <FontIcon Glyph="&#xE8CB;" />
+                    </DropDownButton.Content>
+                    <DropDownButton.Flyout>
+                        <MenuFlyout Placement="Bottom">
+
+                            <RadioMenuFlyoutItem
+                                GroupName="Classification"
+                                IsChecked="True"
+                                Text="Alphabetical">
+                                <RadioMenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE97E;" />
+                                </RadioMenuFlyoutItem.Icon>
+                            </RadioMenuFlyoutItem>
+
+                            <RadioMenuFlyoutItem GroupName="Classification" Text="Last read">
+                                <RadioMenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE823;" />
+                                </RadioMenuFlyoutItem.Icon>
+                            </RadioMenuFlyoutItem>
+
+                            <RadioMenuFlyoutItem GroupName="Classification" Text="Recently updated">
+                                <RadioMenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE895;" />
+                                </RadioMenuFlyoutItem.Icon>
+                            </RadioMenuFlyoutItem>
+
+                            <MenuFlyoutSeparator />
+
+                            <RadioMenuFlyoutItem
+                                GroupName="Orientation"
+                                Icon="Up"
+                                Text="Ascendant" />
+
+                            <RadioMenuFlyoutItem
+                                GroupName="Orientation"
+                                IsChecked="True"
+                                Text="Descending">
+                                <RadioMenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE74B;" />
+                                </RadioMenuFlyoutItem.Icon>
+                            </RadioMenuFlyoutItem>
+
+                        </MenuFlyout>
+                    </DropDownButton.Flyout>
+                </DropDownButton>
+
+                <DropDownButton Background="Transparent" BorderBrush="Transparent">
+                    <DropDownButton.Content>
+                        <FontIcon Glyph="&#xE71C;" />
+                    </DropDownButton.Content>
+                    <DropDownButton.Flyout>
+                        <MenuFlyout Placement="Bottom">
+
+                            <RadioMenuFlyoutItem
+                                GroupName="Filter"
+                                Icon="AllApps"
+                                IsChecked="True"
+                                Text="All" />
+
+                            <RadioMenuFlyoutItem GroupName="Filter" Text="Action" />
+                            <RadioMenuFlyoutItem GroupName="Filter" Text="Horror" />
+
+                            <MenuFlyoutSeparator />
+
+                            <MenuFlyoutItem Icon="Tag" Text="Manage Tags" />
+
+                        </MenuFlyout>
+                    </DropDownButton.Flyout>
+                </DropDownButton>
+
+            </StackPanel>
+        </Grid>
+
         <GridView
+            Grid.Row="1"
             IsItemClickEnabled="True"
             ItemTemplate="{StaticResource MangaTemplate}"
             ItemsSource="{Binding FavoriteMangas}"
