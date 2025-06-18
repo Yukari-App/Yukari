@@ -78,7 +78,7 @@
 
             <Frame
                 x:Name="ContentFrame"
-                Padding="16"
+                Padding="16,16,0,0"
                 Navigated="ContentFrame_Navigated">
                 <Frame.ContentTransitions>
                     <TransitionCollection>
