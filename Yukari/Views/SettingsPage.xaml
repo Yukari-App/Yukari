@@ -6,7 +6,91 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Yukari.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
-    <Grid />
+    <Page.Resources>
+        <x:Double x:Key="SettingsCardSpacing">4</x:Double>
+
+        <Style
+            x:Key="SettingsSectionHeaderTextBlockStyle"
+            BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+            TargetType="TextBlock">
+            <Style.Setters>
+                <Setter Property="Margin" Value="1,30,0,6" />
+            </Style.Setters>
+        </Style>
+
+    </Page.Resources>
+
+    <Grid RowDefinitions="Auto, *">
+        <StackPanel
+            Grid.Column="0"
+            Padding="20,14,36,16"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            Orientation="Horizontal">
+            <FontIcon FontSize="24" Glyph="&#xE713;" />
+            <TextBlock
+                Margin="8,0,0,0"
+                VerticalAlignment="Center"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="Settings" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1">
+            <Grid Padding="0,0,16,0">
+                <StackPanel HorizontalAlignment="Stretch" Spacing="{StaticResource SettingsCardSpacing}">
+                    <StackPanel.ChildrenTransitions>
+                        <EntranceThemeTransition FromVerticalOffset="50" />
+                        <RepositionThemeTransition IsStaggeringEnabled="False" />
+                    </StackPanel.ChildrenTransitions>
+
+                    <!--  Appearance Section  -->
+                    <TextBlock Margin="1,0,0,6" Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
+                        <Span><Bold>Appearance</Bold></Span>
+                    </TextBlock>
+                    <toolkit:SettingsCard
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Description="Select the application theme"
+                        Header="Application Theme"
+                        HeaderIcon="{ui:FontIcon Glyph=}">
+                        <ComboBox SelectedIndex="0">
+                            <ComboBoxItem>Light</ComboBoxItem>
+                            <ComboBoxItem>Dark</ComboBoxItem>
+                            <ComboBoxItem>System</ComboBoxItem>
+                        </ComboBox>
+                    </toolkit:SettingsCard>
+
+                    <!--  About Section  -->
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
+                        <Span><Bold>About</Bold></Span>
+                    </TextBlock>
+                    <toolkit:SettingsExpander
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Description="© 2025 TXG0Fk3. All rights reserved."
+                        Header="Yukari"
+                        HeaderIcon="{ui:BitmapIcon Source=ms-appx:///Assets/Square44x44Logo.altform-lightunplated_targetsize-32.png}">
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            IsTextSelectionEnabled="True"
+                            Text="Version 1.0" />
+                        <toolkit:SettingsExpander.Items>
+                            <toolkit:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
+                                <StackPanel Margin="-12,0,0,0" Orientation="Vertical">
+                                    <HyperlinkButton Content="TXG0Fk3 GitHub" NavigateUri="https://github.com/Yukari" />
+                                    <HyperlinkButton Content="Project Repository" NavigateUri="https://github.com/Yukari/YT-Downloader" />
+                                    <HyperlinkButton Content="Send FeedBack" NavigateUri="https://github.com/TXG0Fk3/Yukari/issues" />
+                                </StackPanel>
+                            </toolkit:SettingsCard>
+                        </toolkit:SettingsExpander.Items>
+                    </toolkit:SettingsExpander>
+
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
 </Page>
