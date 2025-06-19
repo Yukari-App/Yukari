@@ -41,6 +41,7 @@ namespace Yukari
                 Content = new MainPage()
             };
 
+            MainWindow.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
             MainWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
 
             var win32WindowService = new Win32WindowService(MainWindow);
