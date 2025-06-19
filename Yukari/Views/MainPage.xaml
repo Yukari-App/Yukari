@@ -14,11 +14,8 @@
             Height="48"
             Padding="0"
             VerticalAlignment="Top"
-            AutomationProperties.AutomationId="AppTitleBar">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+            AutomationProperties.AutomationId="AppTitleBar"
+            ColumnDefinitions="Auto, Auto, *, 144">
             <Image
                 Width="19"
                 Height="19"
@@ -31,6 +28,14 @@
                 VerticalAlignment="Center"
                 Style="{StaticResource CaptionTextBlockStyle}"
                 Text="Yukari" />
+            <AutoSuggestBox
+                Grid.Column="2"
+                MaxWidth="300"
+                Margin="8,0,8,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                PlaceholderText="Search for Mangas"
+                QueryIcon="Find" />
         </Grid>
 
         <NavigationView
