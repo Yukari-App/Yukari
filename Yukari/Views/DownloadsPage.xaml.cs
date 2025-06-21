@@ -1,4 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
+using Yukari.ViewModels;
 
 namespace Yukari.Views
 {
@@ -7,6 +9,7 @@ namespace Yukari.Views
         public DownloadsPage()
         {
             this.InitializeComponent();
+            DataContext = ((App)App.Current).Services.GetService<DownloadsPageViewModel>();
         }
     }
 }
