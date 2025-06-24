@@ -2,8 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using System;
 using System.Linq;
-using Yukari.Models;
+using Yukari.Messages;
 using Yukari.Services;
 using Yukari.ViewModels;
 
@@ -18,14 +19,14 @@ namespace Yukari.Views
 
             DataContext = ((App)App.Current).Services.GetService<MainPageViewModel>();
 
-            ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigationRequest("Yukari.Views.FavoritesPage", null));
+            ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
         }
 
         private void NavigationViewControl_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
             var tag = args.IsSettingsInvoked ? "Yukari.Views.SettingsPage" : args.InvokedItemContainer?.Tag?.ToString();
             if (!string.IsNullOrEmpty(tag))
-                ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigationRequest(tag, null));
+                ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(Type.GetType(tag), null));
         }
 
         private void NavigationViewControl_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)

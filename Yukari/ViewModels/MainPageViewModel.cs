@@ -18,6 +18,7 @@ namespace Yukari.ViewModels
 
             WeakReferenceMessenger.Default.Register<NavigateMessage>(this);
 
+            NavigateCommand = new RelayCommand<NavigateMessage>(OnNavigate);
             BackCommand = new RelayCommand(OnBack, () => _nav.CanGoBack);
             
             IsBackEnabled = _nav.CanGoBack;
@@ -30,10 +31,12 @@ namespace Yukari.ViewModels
 
         public void Receive(NavigateMessage message) => 
             OnNavigate(message);
-        {
-            if (String.IsNullOrEmpty(request.PageTypeName)) return;
 
-            _nav.Navigate(Type.GetType(request.PageTypeName), request.Parameter);
+        private void OnNavigate(NavigateMessage request)
+        {
+            if (request.PageType == null) return;
+
+            _nav.Navigate(request.PageType, request.Parameter);
             IsBackEnabled = _nav.CanGoBack;
         }
 
