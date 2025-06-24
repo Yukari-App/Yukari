@@ -1,13 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Windows.Input;
-using Yukari.Models;
+using Yukari.Messages;
 using Yukari.Services;
 
 namespace Yukari.ViewModels
 {
-    public partial class MainPageViewModel : ObservableObject
+    public partial class MainPageViewModel : ObservableObject, IRecipient<NavigateMessage>
     {
         private readonly INavigationService _nav;
 
@@ -15,7 +16,8 @@ namespace Yukari.ViewModels
         {
             _nav = navService;
 
-            NavigateCommand = new RelayCommand<NavigationRequest>(OnNavigate);
+            WeakReferenceMessenger.Default.Register<NavigateMessage>(this);
+
             BackCommand = new RelayCommand(OnBack, () => _nav.CanGoBack);
             
             IsBackEnabled = _nav.CanGoBack;
@@ -26,7 +28,8 @@ namespace Yukari.ViewModels
         public ICommand NavigateCommand { get; }
         public ICommand BackCommand { get; }
 
-        private void OnNavigate(NavigationRequest request)
+        public void Receive(NavigateMessage message) => 
+            OnNavigate(message);
         {
             if (String.IsNullOrEmpty(request.PageTypeName)) return;
 
