@@ -6,7 +6,138 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Yukari.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Yukari.Models"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
-    <Grid />
+    <Page.Resources>
+        <DataTemplate x:Key="MangaTemplate" x:DataType="models:Manga">
+            <Grid Width="200" Height="280">
+                <Image Source="{x:Bind CoverImageUrl}" Stretch="Fill" />
+
+                <Grid
+                    Height="30"
+                    Margin="2"
+                    Padding="8,0,4,0"
+                    VerticalAlignment="Bottom"
+                    Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+                    ColumnDefinitions="*, Auto"
+                    ColumnSpacing="4"
+                    CornerRadius="4">
+                    <TextBlock
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Text="{x:Bind Title}"
+                        ToolTipService.ToolTip="{x:Bind Title}" />
+
+                    <Button
+                        Grid.Column="1"
+                        Width="28"
+                        Height="24"
+                        Padding="0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <Button.Content>
+                            <FontIcon FontSize="16" Glyph="&#xE712;" />
+                        </Button.Content>
+                        <Button.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE734;}" Text="Favorite" />
+                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE73A;}" Text="Select" />
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+
+                </Grid>
+
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
+
+    <Grid RowDefinitions="Auto, *">
+        <Grid
+            Grid.Row="0"
+            Padding="20,14,36,16"
+            ColumnDefinitions="Auto, *, Auto">
+            <StackPanel
+                Grid.Column="0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Orientation="Horizontal">
+                <FontIcon FontSize="24" Glyph="&#xE8F1;" />
+                <TextBlock
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource TitleTextBlockStyle}"
+                    Text="Discover" />
+            </StackPanel>
+
+            <StackPanel
+                Grid.Column="2"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="2">
+
+                <ComboBox SelectedIndex="0">
+                    <x:String>ComicK</x:String>
+                    <x:String>MangaDex</x:String>
+                </ComboBox>
+
+                <DropDownButton
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    Content="{ui:FontIcon Glyph=&#xE71C;}">
+                    <DropDownButton.Flyout>
+                        <MenuFlyout Placement="Bottom">
+                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xEA18;}" Text="Age Rating">
+                                <ToggleMenuFlyoutItem Text="Secure" />
+                                <ToggleMenuFlyoutItem Text="Suggestive" />
+                                <ToggleMenuFlyoutItem Text="Erotic" />
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE930;}" Text="Status">
+                                <ToggleMenuFlyoutItem Text="Ongoing" />
+                                <ToggleMenuFlyoutItem Text="Completed" />
+                                <ToggleMenuFlyoutItem Text="Canceled" />
+                                <ToggleMenuFlyoutItem Text="Paused" />
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE909;}" Text="Origination">
+                                <ToggleMenuFlyoutItem Text="Manga" />
+                                <ToggleMenuFlyoutItem Text="Manhwa" />
+                                <ToggleMenuFlyoutItem Text="Manhua" />
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE716;}" Text="Demographic">
+                                <ToggleMenuFlyoutItem Text="Shounen" />
+                                <ToggleMenuFlyoutItem Text="Shoujo" />
+                                <ToggleMenuFlyoutItem Text="Seinen" />
+                                <ToggleMenuFlyoutItem Text="Josei" />
+                                <ToggleMenuFlyoutItem Text="None" />
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE8EC;}" Text="Tags">
+                                <ToggleMenuFlyoutItem Text="Ex1" />
+                                <ToggleMenuFlyoutItem Text="Ex2" />
+                                <ToggleMenuFlyoutItem Text="Ex3" />
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE8FD;}" Text="Genre">
+                                <ToggleMenuFlyoutItem Text="Ex1" />
+                                <ToggleMenuFlyoutItem Text="Ex2" />
+                                <ToggleMenuFlyoutItem Text="Ex3" />
+                            </MenuFlyoutSubItem>
+
+                        </MenuFlyout>
+                    </DropDownButton.Flyout>
+                </DropDownButton>
+
+            </StackPanel>
+        </Grid>
+
+        <GridView
+            Grid.Row="1"
+            IsItemClickEnabled="True"
+            ItemTemplate="{StaticResource MangaTemplate}"
+            SelectionMode="None" />
+    </Grid>
 </Page>
