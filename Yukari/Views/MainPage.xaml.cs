@@ -19,7 +19,7 @@ namespace Yukari.Views
 
             DataContext = ((App)App.Current).Services.GetService<MainPageViewModel>();
 
-            ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
+            ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(typeof(MangaPage), null));
         }
 
         private void NavigationViewControl_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
@@ -36,16 +36,18 @@ namespace Yukari.Views
 
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
-            if (ContentFrame.SourcePageType == typeof(SettingsPage))
+            if (ContentFrame.SourcePageType != null && ContentFrame.SourcePageType == typeof(SettingsPage))
             {
-                NavigationViewControl.SelectedItem = (NavigationViewItem)NavigationViewControl.SettingsItem;
+                NavigationViewControl.SelectedItem = NavigationViewControl.SettingsItem;
+                return;
             }
-            else if (ContentFrame.SourcePageType != null)
-            {
-                NavigationViewControl.SelectedItem = NavigationViewControl.MenuItems.OfType<NavigationViewItem>()
-                    .Concat(NavigationViewControl.FooterMenuItems.OfType<NavigationViewItem>())
-                    .First(n => n.Tag.Equals(ContentFrame.SourcePageType.FullName.ToString()));
-            }
+
+            var selectedMenuItem = NavigationViewControl.MenuItems.OfType<NavigationViewItem>()
+                .Concat(NavigationViewControl.FooterMenuItems.OfType<NavigationViewItem>())
+                .FirstOrDefault(item => item.Tag?.ToString() == ContentFrame.SourcePageType.FullName);
+
+            if (selectedMenuItem != null)
+                NavigationViewControl.SelectedItem = selectedMenuItem;
         }
 
         private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
