@@ -18,6 +18,14 @@ namespace Yukari.Models
         public Guid MangaId { get; set; }
         public string Title { get; set; }
         public string ChapterUrl { get; set; }
+        public string _chapterVolume;
+        public string _groups;
+        public DateOnly _chapterRelease;
+        public int _chapterNumber;
+        public int _chapterPagesNumber;
+        public int _lastPageReaded;
+        public bool IsDownloaded;
+        public bool IsRead;
     }
 
     public class MangaPage
