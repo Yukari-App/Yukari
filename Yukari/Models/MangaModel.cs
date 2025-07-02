@@ -22,7 +22,7 @@ namespace Yukari.Models
         public string CoverImageUrl { get; set; }
         public string Volume { get; set; }
         public string Groups { get; set; }
-        public DateOnly Release { get; set; }
+        public DateOnly LastUpdate { get; set; }
         public int PagesNumber { get; set; }
         public int LastPageRead { get; set; }
         public bool IsDownloaded { get; set; }
