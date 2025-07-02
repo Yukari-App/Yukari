@@ -9,7 +9,7 @@ namespace Yukari.ViewModels
         private MangaChapter _chapter;
 
         public Guid ChapterId => _chapter.Id;
-        public string ChapterTitle => _chapter.Title;
+        public string? ChapterTitle => _chapter.Title;
         public int ChapterNumber => _chapter.Number;
         public string ChapterCoverImageUrl => _chapter.CoverImageUrl;
         public string ChapterVolume => _chapter.Volume;
