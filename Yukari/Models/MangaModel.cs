@@ -16,7 +16,7 @@ namespace Yukari.Models
     {
         public Guid Id { get; set; }
         public Guid MangaId { get; set; }
-        public string Title { get; set; }
+        public string? Title { get; set; }
         public string ChapterUrl { get; set; }
         public int Number { get; set; }
         public string CoverImageUrl { get; set; }
