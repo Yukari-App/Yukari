@@ -19,6 +19,7 @@ namespace Yukari.Models
         public string Title { get; set; }
         public string ChapterUrl { get; set; }
         public int Number { get; set; }
+        public string CoverImageUrl { get; set; }
         public string Volume { get; set; }
         public string Groups { get; set; }
         public DateOnly Release { get; set; }
