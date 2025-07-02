@@ -14,7 +14,7 @@ namespace Yukari.ViewModels
         public string ChapterCoverImageUrl => _chapter.CoverImageUrl;
         public string ChapterVolume => _chapter.Volume;
         public string ChapterGroups => _chapter.Groups;
-        public DateOnly ChapterRelease => _chapter.Release;
+        public DateOnly ChapterLastUpdate => _chapter.LastUpdate;
         public int ChapterPagesNumber => _chapter.PagesNumber;
 
         [ObservableProperty]
