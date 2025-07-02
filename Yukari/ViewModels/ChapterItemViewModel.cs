@@ -33,7 +33,7 @@ namespace Yukari.ViewModels
         [NotifyPropertyChangedFor(nameof(ReadIcon))] 
         private bool _isRead;
 
-        public string DownloadIcon => IsDownloaded ? "\uE74D" : IsDownloading ? "\uE978" : "\uE896";
+        public string DownloadIcon => IsDownloaded ? "\uE74D" : IsDownloading ? "\uF78A" : "\uE896";
         public string ReadIcon => IsRead ? "\uED1A" : "\uE890";
 
         public ChapterItemViewModel(MangaChapter chapter)
