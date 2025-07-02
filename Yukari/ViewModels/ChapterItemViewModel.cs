@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using Yukari.Models;
 
@@ -43,6 +44,18 @@ namespace Yukari.ViewModels
 
             _isDownloaded = chapter.IsDownloaded;
             _isRead = chapter.IsRead;
+        }
+
+        [RelayCommand]
+        public void ToggleDownload()
+        {
+            IsDownloaded = !IsDownloaded;
+        }
+
+        [RelayCommand]
+        public void ToggleRead()
+        {
+            IsRead = !IsRead;
         }
     }
 }
