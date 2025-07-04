@@ -5,7 +5,7 @@ using Yukari.Models;
 
 namespace Yukari.Services
 {
-    internal interface ISqliteService
+    public interface ISqliteService
     {
         Task<Manga?> GetMangaByIdAsync(Guid id);
         Task<List<Manga>> GetFavoriteMangasAsync();

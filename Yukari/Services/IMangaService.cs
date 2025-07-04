@@ -5,7 +5,7 @@ using Yukari.Models;
 
 namespace Yukari.Services
 {
-    internal interface IMangaService
+    public interface IMangaService
     {
         Task<Manga?> GetMangaAsync(Guid id);
         Task<List<Manga>> GetFavoriteMangasAsync();
