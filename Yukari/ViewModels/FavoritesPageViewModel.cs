@@ -16,5 +16,24 @@ namespace Yukari.ViewModels
         {
             _mangaService = mangaService;
         }
+
+        public async Task LoadFavoriteMangasAsync()
+        {
+            FavoriteMangas.Clear();
+
+            try
+            {
+                var mangas = await _mangaService.GetFavoriteMangasAsync();
+
+                foreach (var manga in mangas)
+                {
+                    FavoriteMangas.Add(manga);
+                }
+            }
+            finally
+            {
+                
+            }
+        }
     }
 }
