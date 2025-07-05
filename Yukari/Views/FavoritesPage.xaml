@@ -162,6 +162,7 @@
         <GridView
             Grid.Row="1"
             IsItemClickEnabled="True"
+            ItemClick="GridView_ItemClick"
             ItemTemplate="{StaticResource MangaTemplate}"
             ItemsSource="{Binding FavoriteMangas}"
             SelectionMode="None" />

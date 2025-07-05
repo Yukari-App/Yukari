@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+using Yukari.Models;
 using Yukari.ViewModels;
 
 namespace Yukari.Views
@@ -20,5 +22,8 @@ namespace Yukari.Views
 
             await viewModel.LoadFavoriteMangasAsync();
         }
+
+        private void GridView_ItemClick(object sender, ItemClickEventArgs e) =>
+            ((FavoritesPageViewModel)DataContext).NavigateToMangaCommand.Execute(((Manga)e.ClickedItem).Id);
     }
 }
