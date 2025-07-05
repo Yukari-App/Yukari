@@ -9,7 +9,16 @@ namespace Yukari.Views
         public FavoritesPage()
         {
             this.InitializeComponent();
-            DataContext = ((App)App.Current).Services.GetService<FavoritesPageViewModel>();
+        }
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            var viewModel = ((App)App.Current).Services.GetRequiredService<FavoritesPageViewModel>();
+            this.DataContext = viewModel;
+
+            await viewModel.LoadFavoriteMangasAsync();
         }
     }
 }
