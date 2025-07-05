@@ -1,6 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Composition.Interactions;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Services;
 
@@ -34,6 +38,12 @@ namespace Yukari.ViewModels
             {
                 
             }
+        }
+
+        [RelayCommand]
+        private void NavigateToManga(Guid mangaId)
+        {
+            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.MangaPage), mangaId));
         }
     }
 }
