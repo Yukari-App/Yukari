@@ -19,7 +19,7 @@ namespace Yukari.Views
 
             DataContext = ((App)App.Current).Services.GetService<MainPageViewModel>();
 
-            ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(typeof(MangaPage), null));
+            ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
         }
 
         private void NavigationViewControl_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
