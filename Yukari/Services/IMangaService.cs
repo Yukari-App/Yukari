@@ -7,7 +7,7 @@ namespace Yukari.Services
 {
     public interface IMangaService
     {
-        Task<Manga?> GetMangaAsync(Guid id);
+        Task<Manga?> GetMangaByIdAsync(Guid id);
         Task<List<Manga>> GetFavoriteMangasAsync();
     }
 }
