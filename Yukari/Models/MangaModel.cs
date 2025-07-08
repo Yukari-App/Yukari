@@ -12,6 +12,7 @@ namespace Yukari.Models
         public string[] Tags { get; set; }
         public int Year { get; set; }
         public string CoverImageUrl { get; set; }
+        public string[] Langs { get; set; }
         public bool IsFavorite { get; set; }
     }
 
