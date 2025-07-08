@@ -13,7 +13,7 @@ namespace Yukari.Models
         public int Year { get; set; }
         public string CoverImageUrl { get; set; }
         public string[] Langs { get; set; }
-        public string? LastSelectedLang { get; set; };
+        public string? LastSelectedLang { get; set; }
         public bool IsFavorite { get; set; }
     }
 
