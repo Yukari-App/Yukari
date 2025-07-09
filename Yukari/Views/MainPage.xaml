@@ -34,6 +34,7 @@
                 Margin="8,0,8,0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
+                IsEnabled="{Binding IsSearchEnabled}"
                 PlaceholderText="Search for Mangas"
                 QueryIcon="Find" />
         </Grid>

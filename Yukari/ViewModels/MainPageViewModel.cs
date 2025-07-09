@@ -5,12 +5,15 @@ using System;
 using System.Windows.Input;
 using Yukari.Messages;
 using Yukari.Services;
+using Yukari.Views;
 
 namespace Yukari.ViewModels
 {
     public partial class MainPageViewModel : ObservableObject, IRecipient<NavigateMessage>
     {
         private readonly INavigationService _nav;
+
+        public bool IsSearchEnabled => _nav.CurrentPageType == typeof(FavoritesPage) || _nav.CurrentPageType == typeof(DiscoverPage);
 
         public MainPageViewModel(INavigationService navService)
         {
@@ -38,6 +41,8 @@ namespace Yukari.ViewModels
 
             _nav.Navigate(request.PageType, request.Parameter);
             IsBackEnabled = _nav.CanGoBack;
+
+            OnPropertyChanged(nameof(IsSearchEnabled));
         }
 
         private void OnBack()
