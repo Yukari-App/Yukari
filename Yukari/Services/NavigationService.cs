@@ -6,6 +6,7 @@ namespace Yukari.Services
     public class NavigationService : INavigationService
     {
         private Frame _frame;
+        public Type? CurrentPageType => _frame.CurrentSourcePageType;
 
         public void Initialize(Frame frame)
         {

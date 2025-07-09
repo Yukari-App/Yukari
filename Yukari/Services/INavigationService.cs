@@ -5,6 +5,7 @@ namespace Yukari.Services
 {
     public interface INavigationService
     {
+        Type? CurrentPageType { get; }
         void Initialize(Frame frame);
         bool CanGoBack { get; }
         void Navigate(Type pageType, object parameter = null);
