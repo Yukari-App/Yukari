@@ -21,20 +21,15 @@ namespace Yukari.ViewModels
 
             WeakReferenceMessenger.Default.Register<NavigateMessage>(this);
 
-            NavigateCommand = new RelayCommand<NavigateMessage>(OnNavigate);
-            BackCommand = new RelayCommand(OnBack, () => _nav.CanGoBack);
-            
             IsBackEnabled = _nav.CanGoBack;
         }
 
         [ObservableProperty] private bool _isBackEnabled;
 
-        public ICommand NavigateCommand { get; }
-        public ICommand BackCommand { get; }
-
         public void Receive(NavigateMessage message) => 
             OnNavigate(message);
 
+        [RelayCommand]
         private void OnNavigate(NavigateMessage request)
         {
             if (request.PageType == null) return;
@@ -45,6 +40,10 @@ namespace Yukari.ViewModels
             OnPropertyChanged(nameof(IsSearchEnabled));
         }
 
+        public bool CanNavigateBack =>
+            _nav.CanGoBack;
+
+        [RelayCommand(CanExecute = nameof(CanNavigateBack))]
         private void OnBack()
         {
             if (_nav.GoBack())
