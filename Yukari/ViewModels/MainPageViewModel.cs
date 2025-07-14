@@ -49,6 +49,8 @@ namespace Yukari.ViewModels
         {
             if (_nav.GoBack())
                 IsBackEnabled = _nav.CanGoBack;
+
+            OnPropertyChanged(nameof(IsSearchEnabled));
         }
     }
 }
