@@ -13,6 +13,8 @@ namespace Yukari.ViewModels
     {
         private readonly INavigationService _nav;
 
+        [ObservableProperty] private bool _isBackEnabled;
+
         public bool IsSearchEnabled => _nav.CurrentPageType == typeof(FavoritesPage) || _nav.CurrentPageType == typeof(DiscoverPage);
 
         public MainPageViewModel(INavigationService navService)
@@ -23,8 +25,6 @@ namespace Yukari.ViewModels
 
             IsBackEnabled = _nav.CanGoBack;
         }
-
-        [ObservableProperty] private bool _isBackEnabled;
 
         public void Receive(NavigateMessage message) => 
             OnNavigate(message);
