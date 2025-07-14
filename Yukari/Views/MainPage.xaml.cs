@@ -50,16 +50,7 @@ namespace Yukari.Views
                 NavigationViewControl.SelectedItem = selectedMenuItem;
         }
 
-        private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
-        {
-            if (args.DisplayMode == NavigationViewDisplayMode.Minimal)
-            {
-                AppTitleBar.Margin = new Thickness { Left = 96 };
-            }
-            else
-            {
-                AppTitleBar.Margin = new Thickness { Left = 48 };
-            }
-        }
+        private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args) =>
+            AppTitleBar.Margin = args.DisplayMode == NavigationViewDisplayMode.Minimal ? new Thickness { Left = 96 } : new Thickness { Left = 48 };
     }
 }
