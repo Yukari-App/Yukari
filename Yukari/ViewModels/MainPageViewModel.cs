@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Windows.Input;
 using Yukari.Messages;
@@ -29,7 +30,7 @@ namespace Yukari.ViewModels
             IsBackEnabled = _nav.CanGoBack;
         }
 
-        public void Receive(NavigateMessage message) => 
+        public void Receive(NavigateMessage message) =>
             OnNavigate(message);
 
         [RelayCommand]
@@ -54,6 +55,14 @@ namespace Yukari.ViewModels
 
             ResetSearchBox();
         }
+
+        [RelayCommand]
+        private void OnSearchTextChanged(AutoSuggestionBoxTextChangeReason Reason)
+        {
+            if (Reason != AutoSuggestionBoxTextChangeReason.ProgrammaticChange)
+                WeakReferenceMessenger.Default.Send(new SearchMessage(SearchText));
+        }
+
         private void ResetSearchBox()
         {
             SearchText = string.Empty;
