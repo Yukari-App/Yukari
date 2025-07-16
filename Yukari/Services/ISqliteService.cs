@@ -11,5 +11,7 @@ namespace Yukari.Services
         Task<List<Manga>> GetFavoriteMangasAsync();
         Task<MangaChapter> GetMangaChapterAsync(Guid chapterId);
         Task<List<MangaChapter>> GetAllMangaChaptersAsync(Guid mangaId);
+        Task<List<Manga>> SearchFavoriteMangasAsync(string? queryText);
+        Task<List<Manga>> SearchMangasAsync(string? queryText);
     }
 }
