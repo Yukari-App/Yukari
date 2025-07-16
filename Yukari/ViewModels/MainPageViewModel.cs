@@ -17,6 +17,9 @@ namespace Yukari.ViewModels
 
         public bool IsSearchEnabled => _nav.CurrentPageType == typeof(FavoritesPage) || _nav.CurrentPageType == typeof(DiscoverPage);
 
+        [ObservableProperty]
+        private string _searchText = String.Empty;
+
         public MainPageViewModel(INavigationService navService)
         {
             _nav = navService;
@@ -37,7 +40,7 @@ namespace Yukari.ViewModels
             _nav.Navigate(request.PageType, request.Parameter);
             IsBackEnabled = _nav.CanGoBack;
 
-            OnPropertyChanged(nameof(IsSearchEnabled));
+            ResetSearchBox();
         }
 
         public bool CanNavigateBack() =>
@@ -49,6 +52,11 @@ namespace Yukari.ViewModels
             if (_nav.GoBack())
                 IsBackEnabled = _nav.CanGoBack;
 
+            ResetSearchBox();
+        }
+        private void ResetSearchBox()
+        {
+            SearchText = string.Empty;
             OnPropertyChanged(nameof(IsSearchEnabled));
         }
     }
