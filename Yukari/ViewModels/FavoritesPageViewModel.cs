@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Yukari.Messages;
@@ -10,7 +11,7 @@ using Yukari.Services;
 
 namespace Yukari.ViewModels
 {
-    public partial class FavoritesPageViewModel : ObservableObject
+    public partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchMessage>
     {
         private IMangaService _mangaService;
 
@@ -18,26 +19,28 @@ namespace Yukari.ViewModels
 
         public FavoritesPageViewModel(IMangaService mangaService)
         {
+            WeakReferenceMessenger.Default.Register<SearchMessage>(this);
+
             _mangaService = mangaService;
         }
 
-        public async Task LoadFavoriteMangasAsync()
+        public void Receive(SearchMessage message)
         {
-            FavoriteMangas.Clear();
+            _ = UpdateDisplayedMangas(message.SearchText);
+        }
 
-            try
+        private async Task UpdateDisplayedMangas(string? searchText = null)
             {
-                var mangas = await _mangaService.GetFavoriteMangasAsync();
+            List<Manga> resultMangas = await _mangaService.SearchFavoriteMangasAsync(searchText);
 
-                foreach (var manga in mangas)
-                {
-                    FavoriteMangas.Add(manga);
+            FavoriteMangas = new ObservableCollection<Manga>(resultMangas);
                 }
-            }
-            finally
+
+        public async Task LoadFavoriteMangasAsync()
             {
+            List<Manga> mangas = await _mangaService.GetFavoriteMangasAsync();
                 
-            }
+            FavoriteMangas = new ObservableCollection<Manga>(mangas);
         }
 
         [RelayCommand]
