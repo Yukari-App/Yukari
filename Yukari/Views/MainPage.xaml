@@ -36,7 +36,9 @@
                 VerticalAlignment="Center"
                 IsEnabled="{Binding IsSearchEnabled}"
                 PlaceholderText="Search for Mangas"
-                QueryIcon="Find" />
+                QueryIcon="Find"
+                Text="{Binding SearchText, Mode=TwoWay}"
+                TextChanged="AutoSuggestBox_TextChanged" />
         </Grid>
 
         <NavigationView
