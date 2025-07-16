@@ -52,5 +52,8 @@ namespace Yukari.Views
 
         private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args) =>
             AppTitleBar.Margin = args.DisplayMode == NavigationViewDisplayMode.Minimal ? new Thickness { Left = 96 } : new Thickness { Left = 48 };
+
+        private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args) => 
+            ((MainPageViewModel)DataContext).SearchTextChangedCommand.Execute(args.Reason);
     }
 }
