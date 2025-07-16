@@ -40,7 +40,7 @@ namespace Yukari.ViewModels
             OnPropertyChanged(nameof(IsSearchEnabled));
         }
 
-        public bool CanNavigateBack =>
+        public bool CanNavigateBack() =>
             _nav.CanGoBack;
 
         [RelayCommand(CanExecute = nameof(CanNavigateBack))]
