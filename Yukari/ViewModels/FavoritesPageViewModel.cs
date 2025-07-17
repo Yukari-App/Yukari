@@ -22,6 +22,7 @@ namespace Yukari.ViewModels
             WeakReferenceMessenger.Default.Register<SearchMessage>(this);
 
             _mangaService = mangaService;
+            _ = UpdateDisplayedMangas();
         }
 
         public void Receive(SearchMessage message)
@@ -30,17 +31,10 @@ namespace Yukari.ViewModels
         }
 
         private async Task UpdateDisplayedMangas(string? searchText = null)
-            {
-            List<Manga> resultMangas = await _mangaService.SearchFavoriteMangasAsync(searchText);
+        {
+            List<Manga> resultMangas = await _mangaService.GetFavoriteMangasAsync(searchText);
 
             FavoriteMangas = new ObservableCollection<Manga>(resultMangas);
-                }
-
-        public async Task LoadFavoriteMangasAsync()
-            {
-            List<Manga> mangas = await _mangaService.GetFavoriteMangasAsync();
-                
-            FavoriteMangas = new ObservableCollection<Manga>(mangas);
         }
 
         [RelayCommand]
