@@ -2,11 +2,9 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Yukari.Messages;
-using Yukari.Models;
 using Yukari.Services;
 
 namespace Yukari.ViewModels
@@ -15,7 +13,7 @@ namespace Yukari.ViewModels
     {
         private IMangaService _mangaService;
 
-        [ObservableProperty] private ObservableCollection<Manga> _favoriteMangas = new();
+        [ObservableProperty] private ObservableCollection<MangaItemViewModel> _favoriteMangas = new();
 
         public FavoritesPageViewModel(IMangaService mangaService)
         {
@@ -32,9 +30,10 @@ namespace Yukari.ViewModels
 
         private async Task UpdateDisplayedMangas(string? searchText = null)
         {
-            List<Manga> resultMangas = await _mangaService.GetFavoriteMangasAsync(searchText);
-
-            FavoriteMangas = new ObservableCollection<Manga>(resultMangas);
+            foreach (var chapter in await _mangaService.GetFavoriteMangasAsync(searchText))
+            {
+                FavoriteMangas.Add(new MangaItemViewModel(chapter, _mangaService));
+            }
         }
 
         [RelayCommand]

@@ -12,9 +12,9 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <DataTemplate x:Key="MangaTemplate" x:DataType="models:Manga">
+        <DataTemplate x:Key="MangaTemplate" x:DataType="viewmodels:MangaItemViewModel">
             <Grid Width="200" Height="280">
-                <Image Source="{x:Bind CoverImageUrl}" Stretch="Fill" />
+                <Image Source="{Binding CoverImageUrl}" Stretch="Fill" />
 
                 <Grid
                     Height="30"
@@ -28,8 +28,8 @@
                     <TextBlock
                         Grid.Column="0"
                         VerticalAlignment="Center"
-                        Text="{x:Bind Title}"
-                        ToolTipService.ToolTip="{x:Bind Title}" />
+                        Text="{Binding Title}"
+                        ToolTipService.ToolTip="{Binding Title}" />
 
                     <Button
                         Grid.Column="1"
@@ -43,7 +43,11 @@
                         Content="{ui:FontIcon Glyph=&#xE712;}">
                         <Button.Flyout>
                             <MenuFlyout>
-                                <MenuFlyoutItem Icon="Pin" Text="Pin" />
+                                <MenuFlyoutItem Command="{Binding TogglePinCommand}" Text="{Binding PinText}">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="{Binding PinIcon}" />
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
                                 <MenuFlyoutItem Icon="Delete" Text="Remove" />
                                 <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE73A;}" Text="Select" />
                             </MenuFlyout>
