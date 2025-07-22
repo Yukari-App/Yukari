@@ -38,10 +38,8 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Background="Transparent"
-                        BorderBrush="Transparent">
-                        <Button.Content>
-                            <FontIcon FontSize="16" Glyph="&#xE712;" />
-                        </Button.Content>
+                        BorderBrush="Transparent"
+                        Content="{ui:FontIcon Glyph=&#xE712;}">
                         <Button.Flyout>
                             <MenuFlyout>
                                 <MenuFlyoutItem Icon="Pin" Text="Pin" />
