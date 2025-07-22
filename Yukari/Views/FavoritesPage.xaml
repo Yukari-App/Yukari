@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Yukari.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:models="using:Yukari.Models"
     mc:Ignorable="d">
 
@@ -45,11 +46,7 @@
                             <MenuFlyout>
                                 <MenuFlyoutItem Icon="Pin" Text="Pin" />
                                 <MenuFlyoutItem Icon="Delete" Text="Remove" />
-                                <MenuFlyoutItem Text="Select">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE73A;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE73A;}" Text="Select" />
                             </MenuFlyout>
                         </Button.Flyout>
                     </Button>
@@ -93,24 +90,19 @@
 
                             <RadioMenuFlyoutItem
                                 GroupName="Classification"
+                                Icon="{ui:FontIcon Glyph=&#xE97E;}"
                                 IsChecked="True"
-                                Text="Alphabetical">
-                                <RadioMenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xE97E;" />
-                                </RadioMenuFlyoutItem.Icon>
-                            </RadioMenuFlyoutItem>
+                                Text="Alphabetical" />
 
-                            <RadioMenuFlyoutItem GroupName="Classification" Text="Last read">
-                                <RadioMenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xE823;" />
-                                </RadioMenuFlyoutItem.Icon>
-                            </RadioMenuFlyoutItem>
+                            <RadioMenuFlyoutItem
+                                GroupName="Classification"
+                                Icon="{ui:FontIcon Glyph=&#xE823;}"
+                                Text="Last read" />
 
-                            <RadioMenuFlyoutItem GroupName="Classification" Text="Recently updated">
-                                <RadioMenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xE895;" />
-                                </RadioMenuFlyoutItem.Icon>
-                            </RadioMenuFlyoutItem>
+                            <RadioMenuFlyoutItem
+                                GroupName="Classification"
+                                Icon="{ui:FontIcon Glyph=&#xE895;}"
+                                Text="Recently updated" />
 
                             <MenuFlyoutSeparator />
 
@@ -121,21 +113,15 @@
 
                             <RadioMenuFlyoutItem
                                 GroupName="Orientation"
+                                Icon="{ui:FontIcon Glyph=&#xE74B;}"
                                 IsChecked="True"
-                                Text="Descending">
-                                <RadioMenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xE74B;" />
-                                </RadioMenuFlyoutItem.Icon>
-                            </RadioMenuFlyoutItem>
+                                Text="Descending" />
 
                         </MenuFlyout>
                     </DropDownButton.Flyout>
                 </DropDownButton>
 
-                <DropDownButton Background="Transparent" BorderBrush="Transparent">
-                    <DropDownButton.Content>
-                        <FontIcon Glyph="&#xE71C;" />
-                    </DropDownButton.Content>
+                <DropDownButton Background="Transparent" BorderBrush="Transparent" Icon="{ui:FontIcon Glyph=&#xE71C;}">
                     <DropDownButton.Flyout>
                         <MenuFlyout Placement="Bottom">
 
