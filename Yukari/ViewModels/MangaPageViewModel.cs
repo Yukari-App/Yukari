@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Models;
 using Yukari.Services;
@@ -35,7 +36,7 @@ namespace Yukari.ViewModels
 
         public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
 
-        public ObservableCollection<ChapterItemViewModel> Chapters { get; } = new();
+        [ObservableProperty] private ObservableCollection<ChapterItemViewModel> _chapters = new();
 
         public MangaPageViewModel(IMangaService mangaService)
         {
@@ -51,10 +52,11 @@ namespace Yukari.ViewModels
             IsFavorite = _manga?.IsFavorite ?? false;
             SelectedLang = _manga?.LastSelectedLang ?? Langs[0];
 
-            foreach (var chapter in await _mangaService.GetAllMangaChaptersAsync(mangaId))
-            {
-                Chapters.Add(new ChapterItemViewModel(chapter));
-            }
+            var chapters = await _mangaService.GetAllMangaChaptersAsync(mangaId);
+
+            Chapters = new ObservableCollection<ChapterItemViewModel>(
+                chapters.Select(chapter => new ChapterItemViewModel(chapter))
+            );
         }
 
         [RelayCommand]
