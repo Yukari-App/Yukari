@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Messages;
 using Yukari.Services;
@@ -30,10 +31,11 @@ namespace Yukari.ViewModels
 
         private async Task UpdateDisplayedMangas(string? searchText = null)
         {
-            foreach (var chapter in await _mangaService.GetFavoriteMangasAsync(searchText))
-            {
-                FavoriteMangas.Add(new MangaItemViewModel(chapter, _mangaService));
-            }
+            var mangas = await _mangaService.GetFavoriteMangasAsync(searchText);
+
+            FavoriteMangas = new ObservableCollection<MangaItemViewModel>(
+                mangas.Select(manga => new MangaItemViewModel(manga, _mangaService))
+            );
         }
 
         [RelayCommand]
