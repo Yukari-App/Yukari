@@ -40,7 +40,7 @@
         </StackPanel>
 
         <ScrollViewer Grid.Row="1">
-            <Grid Padding="0,0,16,0">
+            <Grid Padding="0,0,16,16">
                 <StackPanel HorizontalAlignment="Stretch" Spacing="{StaticResource SettingsCardSpacing}">
                     <StackPanel.ChildrenTransitions>
                         <EntranceThemeTransition FromVerticalOffset="50" />
