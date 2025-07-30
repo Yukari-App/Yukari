@@ -88,6 +88,70 @@
                         HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">
                         <ToggleSwitch />
                     </toolkit:SettingsCard>
+
+                    <!--  Reader Section  -->
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
+                        <Span><Bold>Reader</Bold></Span>
+                    </TextBlock>
+                    <toolkit:SettingsCard
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Description="Change the direction and flow of reading"
+                        Header="Reading Mode"
+                        HeaderIcon="{ui:FontIcon Glyph=&#xE736;}">
+                        <ComboBox SelectedIndex="0">
+                            <ComboBoxItem>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon
+                                        VerticalAlignment="Center"
+                                        FontSize="14"
+                                        Glyph="&#xF0B0;" />
+                                    <TextBlock VerticalAlignment="Center" Text="right-to-left" />
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon
+                                        VerticalAlignment="Center"
+                                        FontSize="14"
+                                        Glyph="&#xF0AF;" />
+                                    <TextBlock VerticalAlignment="Center" Text="left-to-right" />
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon
+                                        VerticalAlignment="Center"
+                                        FontSize="14"
+                                        Glyph="&#xF0AE;" />
+                                    <TextBlock VerticalAlignment="Center" Text="Vertical" />
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon
+                                        VerticalAlignment="Center"
+                                        FontSize="14"
+                                        Glyph="&#xF0AE;" />
+                                    <TextBlock VerticalAlignment="Center" Text="Webtoon" />
+                                </StackPanel>
+                            </ComboBoxItem>
+                        </ComboBox>
+                    </toolkit:SettingsCard>
+
+                    <toolkit:SettingsCard
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Description="Adjust how manga pages fit your screen"
+                        Header="Scaling Mode"
+                        HeaderIcon="{ui:FontIcon Glyph=&#xE9A6;}">
+                        <ComboBox SelectedIndex="0">
+                            <ComboBoxItem>Fit screen</ComboBoxItem>
+                            <ComboBoxItem>Fit width</ComboBoxItem>
+                            <ComboBoxItem>Fit height</ComboBoxItem>
+                            <ComboBoxItem>Original size</ComboBoxItem>
+                        </ComboBox>
+                    </toolkit:SettingsCard>
                     <!--  About Section  -->
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Span><Bold>About</Bold></Span>
