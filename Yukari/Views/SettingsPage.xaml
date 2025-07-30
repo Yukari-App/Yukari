@@ -64,6 +64,30 @@
                         </ComboBox>
                     </toolkit:SettingsCard>
 
+                    <!--  Preferences Section  -->
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
+                        <Span><Bold>Preferences</Bold></Span>
+                    </TextBlock>
+                    <toolkit:SettingsCard
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Description="Select the default language for chapters"
+                        Header="Default Language"
+                        HeaderIcon="{ui:FontIcon Glyph=&#xF2B7;}">
+                        <ComboBox SelectedIndex="0">
+                            <ComboBoxItem>en-US</ComboBoxItem>
+                            <ComboBoxItem>pt-BR</ComboBoxItem>
+                        </ComboBox>
+                    </toolkit:SettingsCard>
+
+                    <toolkit:SettingsCard
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Description="Synchronizes manga data and chapters on startup"
+                        Header="Update Mangas on Startup"
+                        HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">
+                        <ToggleSwitch />
+                    </toolkit:SettingsCard>
                     <!--  About Section  -->
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Span><Bold>About</Bold></Span>
