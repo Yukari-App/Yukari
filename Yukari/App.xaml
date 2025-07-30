@@ -12,7 +12,7 @@
                 <!--  Other merged dictionaries here  -->
             </ResourceDictionary.MergedDictionaries>
             <!--  Other app resources here  -->
-            <converters:ToggleIconConverter x:Key="ToggleIconConverter" />
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
