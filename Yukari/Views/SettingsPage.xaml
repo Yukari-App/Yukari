@@ -3,14 +3,19 @@
     x:Class="Yukari.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Yukari.Helpers.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Yukari.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Yukari.Models"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
     <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+
         <x:Double x:Key="SettingsCardSpacing">4</x:Double>
 
         <Style
@@ -152,6 +157,82 @@
                             <ComboBoxItem>Original size</ComboBoxItem>
                         </ComboBox>
                     </toolkit:SettingsCard>
+
+                    <!--  Sources Section  -->
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
+                        <Span><Bold>Sources</Bold></Span>
+                    </TextBlock>
+                    <toolkit:SettingsExpander
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Description="Sources from which the manga will be extracted"
+                        Header="Manga Sources"
+                        HeaderIcon="{ui:FontIcon Glyph=&#xE753;}"
+                        ItemsSource="{Binding MangaSources}">
+                        <Button Content="Add New Source" />
+                        <toolkit:SettingsExpander.ItemsHeader>
+                            <InfoBar
+                                Title="You haven't added any sources yet"
+                                BorderThickness="0"
+                                CornerRadius="0"
+                                IsClosable="False"
+                                IsOpen="True"
+                                Severity="Informational"
+                                Visibility="{Binding IsMangaSourcesEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        </toolkit:SettingsExpander.ItemsHeader>
+                        <toolkit:SettingsExpander.ItemTemplate>
+                            <DataTemplate x:DataType="models:MangaSourceModel">
+                                <toolkit:SettingsCard Description="{x:Bind Description}" Header="{x:Bind Name}">
+                                    <toolkit:SettingsCard.HeaderIcon>
+                                        <ImageIcon Source="{x:Bind IconUrl}" />
+                                    </toolkit:SettingsCard.HeaderIcon>
+                                    <StackPanel
+                                        HorizontalAlignment="Stretch"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
+                                        <Button
+                                            Width="35"
+                                            Height="35"
+                                            Padding="0"
+                                            Background="Transparent"
+                                            BorderBrush="Transparent"
+                                            Content="{ui:FontIcon Glyph=&#xE712;}">
+                                            <Button.Flyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem Icon="Delete" Text="Delete" />
+                                                </MenuFlyout>
+                                            </Button.Flyout>
+                                        </Button>
+                                    </StackPanel>
+                                </toolkit:SettingsCard>
+                            </DataTemplate>
+                        </toolkit:SettingsExpander.ItemTemplate>
+                    </toolkit:SettingsExpander>
+
+                    <toolkit:SettingsCard
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Description="Set default manga source"
+                        Header="Default Source"
+                        HeaderIcon="{ui:FontIcon Glyph=&#xE930;}"
+                        IsEnabled="{Binding IsMangaSourcesEmpty, Converter={StaticResource BooleanNegationConverter}}">
+                        <ComboBox ItemsSource="{Binding MangaSources}" SelectedItem="{Binding DefaultMangaSource}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="models:MangaSourceModel">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <ImageIcon
+                                            Width="22"
+                                            Height="22"
+                                            VerticalAlignment="Center"
+                                            Source="{x:Bind IconUrl}" />
+                                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </toolkit:SettingsCard>
+
                     <!--  About Section  -->
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Span><Bold>About</Bold></Span>
