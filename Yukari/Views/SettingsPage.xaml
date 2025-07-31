@@ -88,7 +88,7 @@
                     <toolkit:SettingsCard
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
-                        Description="Synchronizes manga data and chapters on startup"
+                        Description="Synchronizes favorite manga data and chapters on startup"
                         Header="Update Mangas on Startup"
                         HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">
                         <ToggleSwitch />
