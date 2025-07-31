@@ -32,9 +32,17 @@ namespace Yukari.ViewModels
         private bool _isFavorite;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
+        private bool _isAllChaptersDownloaded;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
         private bool _isDownloadingAllChapters;
 
         public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
+
+        public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : IsDownloadingAllChapters ? "\uF78A" : "\uE896";
+        public string DownloadAllText => IsAllChaptersDownloaded ? "Delete All" : IsDownloadingAllChapters ? "Downloading..." : "Download All";
 
         [ObservableProperty] private ObservableCollection<ChapterItemViewModel> _chapters = new();
 
