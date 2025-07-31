@@ -1,4 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
+using Yukari.ViewModels;
 
 namespace Yukari.Views
 {
@@ -6,7 +8,8 @@ namespace Yukari.Views
     {
         public SettingsPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+            DataContext = ((App)App.Current).Services.GetService<SettingsPageViewModel>();
         }
     }
 }
