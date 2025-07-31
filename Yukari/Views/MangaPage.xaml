@@ -334,7 +334,12 @@
                                 Visibility="{Binding IsDownloadingAllChapters, Converter={StaticResource BooleanToVisibilityConverter}}"
                                 Value="45" />
 
-                            <ToggleButton Content="{Binding IsChecked, RelativeSource={RelativeSource Mode=Self}, Converter={StaticResource ToggleIconConverter}, ConverterParameter='&#xE896;,&#xE74D;,Download All,Delete All'}" />
+                            <ToggleButton IsChecked="{Binding IsAllChaptersDownloaded, Mode=TwoWay}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon FontSize="16" Glyph="{Binding DownloadAllIcon}" />
+                                    <TextBlock Text="{Binding DownloadAllText}" />
+                                </StackPanel>
+                            </ToggleButton>
 
                             <ComboBox ItemsSource="{Binding Langs}" SelectedItem="{Binding SelectedLang}" />
 
