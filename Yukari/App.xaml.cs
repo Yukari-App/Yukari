@@ -14,7 +14,7 @@ namespace Yukari
     {
         private static Window? MainWindow;
 
-        public IServiceProvider Services { get; }
+        public readonly IServiceProvider Services;
 
         public App()
         {
