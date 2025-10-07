@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Yukari.Models;
 
 namespace Yukari.Services
 {
-    internal interface ISqliteService
+    internal interface IComicService
     {
         Task<ComicModel?> GetComicByIdAsync(string id);
         Task<List<ComicModel>> GetComicsAsync(string? queryText = null);

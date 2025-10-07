@@ -1,7 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,38 +9,38 @@ using Yukari.Services;
 
 namespace Yukari.ViewModels
 {
-    public partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchMessage>
+    internal partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchMessage>
     {
-        private IMangaService _mangaService;
+        private IComicService _comicService;
 
-        [ObservableProperty] private ObservableCollection<MangaItemViewModel> _favoriteMangas = new();
+        [ObservableProperty] private ObservableCollection<ComicItemViewModel> _favoriteComics = new();
 
-        public FavoritesPageViewModel(IMangaService mangaService)
+        public FavoritesPageViewModel(IComicService comicService)
         {
             WeakReferenceMessenger.Default.Register<SearchMessage>(this);
 
-            _mangaService = mangaService;
-            _ = UpdateDisplayedMangas();
+            _comicService = comicService;
+            _ = UpdateDisplayedComics();
         }
 
         public void Receive(SearchMessage message)
         {
-            _ = UpdateDisplayedMangas(message.SearchText);
+            _ = UpdateDisplayedComics(message.SearchText);
         }
 
-        private async Task UpdateDisplayedMangas(string? searchText = null)
+        private async Task UpdateDisplayedComics(string? searchText = null)
         {
-            var mangas = await _mangaService.GetFavoriteMangasAsync(searchText);
+            var comics = await _comicService.GetFavoriteComicsAsync(searchText);
 
-            FavoriteMangas = new ObservableCollection<MangaItemViewModel>(
-                mangas.Select(manga => new MangaItemViewModel(manga, _mangaService))
+            FavoriteComics = new ObservableCollection<ComicItemViewModel>(
+                comics.Select(comic => new ComicItemViewModel(comic, _comicService))
             );
         }
 
         [RelayCommand]
-        private void NavigateToManga(Guid mangaId)
+        private void NavigateToComic(string comicId)
         {
-            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.MangaPage), mangaId));
+            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.ComicPage), comicId));
         }
     }
 }

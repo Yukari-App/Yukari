@@ -1,6 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,20 +8,20 @@ using Yukari.Services;
 
 namespace Yukari.ViewModels
 {
-    public partial class MangaPageViewModel : ObservableObject
+    internal partial class ComicPageViewModel : ObservableObject
     {
-        private readonly IMangaService _mangaService;
+        private readonly IComicService _comicService;
 
-        private Guid _mangaId;
-        private Manga _manga;
+        private string _comicId;
+        private ComicModel _comic;
 
-        public string Title => _manga?.Title ?? "Loading...";
-        public string Author => _manga?.Author ?? "Unknown Author";
-        public string Description => _manga?.Description ?? "No description available.";
-        public string[] Tags => _manga?.Tags ?? ["N/A"];
-        public int Year => _manga?.Year ?? 0;
-        public string CoverImageUrl => _manga?.CoverImageUrl;
-        public string[] Langs => _manga?.Langs ?? ["N/A"];
+        public string Title => _comic?.Title ?? "Loading...";
+        public string Author => _comic?.Author ?? "Unknown Author";
+        public string Description => _comic?.Description ?? "No description available.";
+        public string[] Tags => _comic?.Tags ?? ["N/A"];
+        public int Year => _comic?.Year ?? 0;
+        public string? CoverImageUrl => _comic?.CoverImageUrl;
+        public string[] Langs => _comic?.Langs ?? ["N/A"];
 
         [ObservableProperty]
         private string _selectedLang;
@@ -46,21 +45,21 @@ namespace Yukari.ViewModels
 
         [ObservableProperty] private ObservableCollection<ChapterItemViewModel> _chapters = new();
 
-        public MangaPageViewModel(IMangaService mangaService)
+        public ComicPageViewModel(IComicService comicService)
         {
-            _mangaService = mangaService;
+            _comicService = comicService;
         }
 
-        public async Task InitializeAsync(Guid mangaId)
+        public async Task InitializeAsync(string comicId)
         {
-            _mangaId = mangaId;
+            _comicId = comicId;
 
-            _manga = await _mangaService.GetMangaByIdAsync(mangaId);
+            _comic = await _comicService.GetComicByIdAsync(comicId);
 
-            IsFavorite = _manga?.IsFavorite ?? false;
-            SelectedLang = _manga?.LastSelectedLang ?? Langs[0];
+            IsFavorite = _comic?.IsFavorite ?? false;
+            SelectedLang = _comic?.LastSelectedLang ?? Langs[0];
 
-            var chapters = await _mangaService.GetAllMangaChaptersAsync(mangaId);
+            var chapters = await _comicService.GetAllChaptersAsync(comicId);
 
             Chapters = new ObservableCollection<ChapterItemViewModel>(
                 chapters.Select(chapter => new ChapterItemViewModel(chapter))

@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Yukari.Models;
@@ -6,29 +6,29 @@ using Yukari.Services;
 
 namespace Yukari.ViewModels
 {
-    public partial class SettingsPageViewModel : ObservableObject
+    internal partial class SettingsPageViewModel : ObservableObject
     {
-        private readonly IMangaService _mangaService;
+        private readonly IComicService _comicService;
 
         [ObservableProperty]
-        private MangaSourceModel _defaultMangaSource;
+        private ComicSourceModel _defaultComicSource;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsMangaSourcesEmpty))]
-        private ObservableCollection<MangaSourceModel> _mangaSources = new();
+        [NotifyPropertyChangedFor(nameof(IsComicSourcesEmpty))]
+        private ObservableCollection<ComicSourceModel> _comicSources = new();
 
-        public bool IsMangaSourcesEmpty => MangaSources.Count == 0;
+        public bool IsComicSourcesEmpty => ComicSources.Count == 0;
 
-        public SettingsPageViewModel(IMangaService mangaService)
+        public SettingsPageViewModel(IComicService comicService)
         {
-            _mangaService = mangaService;
+            _comicService = comicService;
 
-            _ = LoadMangaSourcesAsync();
+            _ = LoadComicSourcesAsync();
         }
 
-        private async Task LoadMangaSourcesAsync()
+        private async Task LoadComicSourcesAsync()
         {
-            MangaSources = new(await _mangaService.GetMangaSourcesAsync());
+            ComicSources = new(await _comicService.GetComicSourcesAsync());
         }
     }
 }

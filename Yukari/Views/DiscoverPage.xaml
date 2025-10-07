@@ -11,7 +11,7 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <DataTemplate x:Key="MangaTemplate" x:DataType="models:Manga">
+        <DataTemplate x:Key="ComicTemplate" x:DataType="models:ComicModel">
             <Grid Width="200" Height="280">
                 <Image Source="{x:Bind CoverImageUrl}" Stretch="Fill" />
 
@@ -137,7 +137,7 @@
         <GridView
             Grid.Row="1"
             IsItemClickEnabled="True"
-            ItemTemplate="{StaticResource MangaTemplate}"
+            ItemTemplate="{StaticResource ComicTemplate}"
             SelectionMode="None" />
     </Grid>
 </Page>

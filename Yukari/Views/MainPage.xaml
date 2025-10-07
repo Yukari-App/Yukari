@@ -35,7 +35,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 IsEnabled="{Binding IsSearchEnabled}"
-                PlaceholderText="Search for Mangas"
+                PlaceholderText="Search for Comics"
                 QueryIcon="Find"
                 Text="{Binding SearchText, Mode=TwoWay}"
                 TextChanged="AutoSuggestBox_TextChanged" />

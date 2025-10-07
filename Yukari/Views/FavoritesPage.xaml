@@ -12,7 +12,7 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <DataTemplate x:Key="MangaTemplate" x:DataType="viewmodels:MangaItemViewModel">
+        <DataTemplate x:Key="ComicTemplate" x:DataType="viewmodels:ComicItemViewModel">
             <Grid Width="200" Height="280">
                 <Image Source="{Binding CoverImageUrl}" Stretch="Fill" />
 
@@ -155,8 +155,8 @@
             Grid.Row="1"
             IsItemClickEnabled="True"
             ItemClick="GridView_ItemClick"
-            ItemTemplate="{StaticResource MangaTemplate}"
-            ItemsSource="{Binding FavoriteMangas}"
+            ItemTemplate="{StaticResource ComicTemplate}"
+            ItemsSource="{Binding FavoriteComics}"
             SelectionMode="None" />
     </Grid>
 </Page>

@@ -28,7 +28,7 @@ namespace Yukari
             services.AddTransient<FavoritesPageViewModel>();
             services.AddTransient<DownloadsPageViewModel>();
             services.AddTransient<SettingsPageViewModel>();
-            services.AddTransient<MangaPageViewModel>();
+            services.AddTransient<ComicPageViewModel>();
 
             Services = services.BuildServiceProvider();
         }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Page
-    x:Class="Yukari.Views.MangaPage"
+    x:Class="Yukari.Views.ComicPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="using:Yukari.Helpers.Converters"
@@ -39,17 +39,10 @@
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
-                    ColumnDefinitions="Auto, Auto, *"
+                    ColumnDefinitions="Auto, *"
                     ColumnSpacing="8"
                     CornerRadius="4">
-                    <Border
-                        Grid.Column="0"
-                        Width="60"
-                        Height="78"
-                        CornerRadius="4">
-                        <Image Source="{Binding ChapterCoverImageUrl}" Stretch="Fill" />
-                    </Border>
-                    <Grid Grid.Column="1" RowDefinitions="Auto, Auto, *">
+                    <Grid Grid.Column="0" RowDefinitions="Auto, Auto, *">
                         <TextBlock
                             Grid.Row="0"
                             FontSize="18"
@@ -69,7 +62,7 @@
                             Text="{Binding ChapterLastUpdate}" />
                     </Grid>
                     <StackPanel
-                        Grid.Column="2"
+                        Grid.Column="1"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Top"
                         Orientation="Horizontal"
@@ -122,7 +115,7 @@
                         Grid.Column="2"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom">
-                        <Run Text="{Binding LastPageRead}" /><Run CharacterSpacing="0" Text="/" /><Run Text="{Binding ChapterPagesNumber}" />
+                        <Run Text="{Binding LastPageRead}" /><Run CharacterSpacing="0" Text="/" /><Run Text="{Binding ChapterPages}" />
                     </TextBlock>
                 </Grid>
             </ItemContainer>

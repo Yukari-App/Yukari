@@ -1,6 +1,6 @@
 namespace Yukari.Models
 {
-    public class MangaSourceModel
+    public class ComicSourceModel
     {
         public string Name { get; set; }
         public string Version { get; set; }

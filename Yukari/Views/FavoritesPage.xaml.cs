@@ -15,6 +15,6 @@ namespace Yukari.Views
         }
 
         private void GridView_ItemClick(object sender, ItemClickEventArgs e) =>
-            ((FavoritesPageViewModel)DataContext).NavigateToMangaCommand.Execute(((MangaItemViewModel)e.ClickedItem).Id);
+            ((FavoritesPageViewModel)DataContext).NavigateToComicCommand.Execute(((ComicItemViewModel)e.ClickedItem).Id);
     }
 }

@@ -88,8 +88,8 @@
                     <toolkit:SettingsCard
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
-                        Description="Synchronizes favorite manga data and chapters on startup"
-                        Header="Update Mangas on Startup"
+                        Description="Synchronizes favorite comic data and chapters on startup"
+                        Header="Update Comics on Startup"
                         HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">
                         <ToggleSwitch />
                     </toolkit:SettingsCard>
@@ -147,7 +147,7 @@
                     <toolkit:SettingsCard
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
-                        Description="Adjust how manga pages fit your screen"
+                        Description="Adjust how comic pages fit your screen"
                         Header="Scaling Mode"
                         HeaderIcon="{ui:FontIcon Glyph=&#xE9A6;}">
                         <ComboBox SelectedIndex="0">
@@ -165,10 +165,10 @@
                     <toolkit:SettingsExpander
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
-                        Description="Sources from which the manga will be extracted"
-                        Header="Manga Sources"
+                        Description="Sources from which the comic will be extracted"
+                        Header="Comic Sources"
                         HeaderIcon="{ui:FontIcon Glyph=&#xE753;}"
-                        ItemsSource="{Binding MangaSources}">
+                        ItemsSource="{Binding ComicSources}">
                         <Button Content="Add New Source" />
                         <toolkit:SettingsExpander.ItemsHeader>
                             <InfoBar
@@ -178,13 +178,13 @@
                                 IsClosable="False"
                                 IsOpen="True"
                                 Severity="Informational"
-                                Visibility="{Binding IsMangaSourcesEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                Visibility="{Binding IsComicSourcesEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         </toolkit:SettingsExpander.ItemsHeader>
                         <toolkit:SettingsExpander.ItemTemplate>
-                            <DataTemplate x:DataType="models:MangaSourceModel">
+                            <DataTemplate x:DataType="models:ComicSourceModel">
                                 <toolkit:SettingsCard Description="{x:Bind Description}" Header="{x:Bind Name}">
                                     <toolkit:SettingsCard.HeaderIcon>
-                                        <ImageIcon Source="{x:Bind IconUrl}" />
+                                        <ImageIcon Source="{x:Bind LogoUrl}" />
                                     </toolkit:SettingsCard.HeaderIcon>
                                     <StackPanel
                                         HorizontalAlignment="Stretch"
@@ -213,19 +213,19 @@
                     <toolkit:SettingsCard
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
-                        Description="Set default manga source"
+                        Description="Set default comic source"
                         Header="Default Source"
                         HeaderIcon="{ui:FontIcon Glyph=&#xE930;}"
-                        IsEnabled="{Binding IsMangaSourcesEmpty, Converter={StaticResource BooleanNegationConverter}}">
-                        <ComboBox ItemsSource="{Binding MangaSources}" SelectedItem="{Binding DefaultMangaSource}">
+                        IsEnabled="{Binding IsComicSourcesEmpty, Converter={StaticResource BooleanNegationConverter}}">
+                        <ComboBox ItemsSource="{Binding ComicSources}" SelectedItem="{Binding DefaultComicSource}">
                             <ComboBox.ItemTemplate>
-                                <DataTemplate x:DataType="models:MangaSourceModel">
+                                <DataTemplate x:DataType="models:ComicSourceModel">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
                                         <ImageIcon
                                             Width="22"
                                             Height="22"
                                             VerticalAlignment="Center"
-                                            Source="{x:Bind IconUrl}" />
+                                            Source="{x:Bind LogoUrl}" />
                                         <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
                                     </StackPanel>
                                 </DataTemplate>

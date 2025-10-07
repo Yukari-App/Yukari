@@ -27,20 +27,10 @@
 	</Target>
 
   <ItemGroup>
-    <Compile Remove="Utilities\**" />
-    <Content Remove="Utilities\**" />
-    <EmbeddedResource Remove="Utilities\**" />
-    <None Remove="Utilities\**" />
-    <Page Remove="Utilities\**" />
-    <PRIResource Remove="Utilities\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="Views\DiscoverPage.xaml" />
     <None Remove="Views\DownloadsPage.xaml" />
     <None Remove="Views\FavoritesPage.xaml" />
     <None Remove="Views\HelpPage.xaml" />
-    <None Remove="Views\MangaPage.xaml" />
     <None Remove="Views\SettingsPage.xaml" />
   </ItemGroup>
 
@@ -68,7 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="Views\MangaPage.xaml">
+    <Page Update="Views\ComicPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
