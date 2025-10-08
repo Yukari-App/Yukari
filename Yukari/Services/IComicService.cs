@@ -14,4 +14,11 @@ namespace Yukari.Services
         Task<List<ChapterModel>> GetAllChaptersAsync(string mangaId);
         Task<List<ComicSourceModel>> GetComicSourcesAsync();
     }
+
+    enum ComicSourceType
+    {
+        Auto,
+        Local,
+        Remote
+    }
 }
