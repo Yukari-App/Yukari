@@ -11,6 +11,7 @@ namespace Yukari.Services
 
         IReadOnlyList<Filter> GetFilters();
         IReadOnlyDictionary<string, string> GetLanguages();
+
         Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string query, Dictionary<string, List<string>> filters);
         Task<IReadOnlyList<ComicModel>> GetTrendingComicsAsync(Dictionary<string, List<string>> filters);
         Task<ComicModel?> GetComicDetailsAsync(string mangaId);
