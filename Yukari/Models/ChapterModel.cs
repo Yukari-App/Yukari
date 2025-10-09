@@ -8,7 +8,7 @@ namespace Yukari.Models
         public string ComicId { get; set; }
         public string Source { get; set; }
         public string? Title { get; set; }
-        public int Number { get; set; }
+        public string Number { get; set; }
         public string Volume { get; set; }
         public string Language { get; set; }
         public string? Groups { get; set; }

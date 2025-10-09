@@ -11,7 +11,7 @@ namespace Yukari.ViewModels
 
         public string ChapterId => _chapter.Id;
         public string? ChapterTitle => _chapter.Title;
-        public int ChapterNumber => _chapter.Number;
+        public string ChapterNumber => _chapter.Number;
         public string ChapterVolume => _chapter.Volume;
         public string ChapterGroups => _chapter.Groups;
         public DateOnly ChapterLastUpdate => _chapter.LastUpdate;
