@@ -1,6 +1,6 @@
 namespace Yukari.Models
 {
-    public record ComicIdentifier(
+    public record ContentIdentifier(
             string Id,
             string Source
         );
