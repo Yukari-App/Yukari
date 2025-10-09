@@ -7,9 +7,9 @@ namespace Yukari.Services
     internal interface ISqliteService
     {
         Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText = null);
-        Task<ComicModel?> GetComicDetailsAsync(string comicId);
-        Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(string mangaId, string language);
-        Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(string chapterId);
+        Task<ComicModel?> GetComicDetailsAsync(ContentIdentifier comicIdentifier);
+        Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(ContentIdentifier comicIdentifier, string language);
+        Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentIdentifier chapterIdentifier);
 
         Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync();
         ComicSourceModel? GetComicSourceDetails(string sourceName);
