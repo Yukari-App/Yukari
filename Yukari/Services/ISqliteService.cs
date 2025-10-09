@@ -10,6 +10,7 @@ namespace Yukari.Services
         Task<ComicModel?> GetComicDetailsAsync(string comicId);
         Task<ChapterModel> GetChapterAsync(string chapterId);
         Task<List<ChapterModel>> GetAllChaptersAsync(string mangaId);
+        Task<List<ChapterPageModel>> GetChapterPagesAsync(string chapterId);
 
         Task<List<ComicSourceModel>> GetComicSourcesAsync();
         ComicSourceModel? GetComicSourceDetails(string sourceName);
