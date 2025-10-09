@@ -7,11 +7,11 @@ namespace Yukari.Services
 {
     internal interface IComicService
     {
-        Task<List<ComicModel>> SearchComicsAsync(string? queryText, Dictionary<string, List<string>> filters);
-        Task<List<ComicModel>> GetFavoriteComicsAsync(string? queryText, string filter);
+        Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string? queryText, Dictionary<string, List<string>> filters);
+        Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText, string filter);
         Task<ComicModel?> GetComicDetailsAsync(string id, ComicSourceType sourceType = ComicSourceType.Auto);
-        Task<List<ChapterModel>> GetAllChaptersAsync(string comicId, string language, ComicSourceType sourceType = ComicSourceType.Auto);
-        Task<List<ChapterPageModel>> GetChapterPagesAsync(string chapterId, ComicSourceType sourceType = ComicSourceType.Auto);
-        Task<List<ComicSourceModel>> GetComicSourcesAsync();
+        Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(string comicId, string language, ComicSourceType sourceType = ComicSourceType.Auto);
+        Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(string chapterId, ComicSourceType sourceType = ComicSourceType.Auto);
+        Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync();
     }
 }
