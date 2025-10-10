@@ -11,7 +11,7 @@ namespace Yukari.ViewModels
 
         private ComicModel _comic;
 
-        public string? Id => _comic?.Id;
+        public ContentIdentifier? Identifier => new(_comic?.Id, _comic.Source);
         public string Title => _comic?.Title ?? "Loading...";
         public string CoverImageUrl => _comic?.CoverImageUrl;
 

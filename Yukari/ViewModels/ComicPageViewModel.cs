@@ -12,7 +12,7 @@ namespace Yukari.ViewModels
     {
         private readonly IComicService _comicService;
 
-        private string _comicId;
+        private ContentIdentifier _comicIdentifier;
         private ComicModel _comic;
 
         public string Title => _comic?.Title ?? "Loading...";
@@ -50,16 +50,17 @@ namespace Yukari.ViewModels
             _comicService = comicService;
         }
 
-        public async Task InitializeAsync(string comicId)
+        public async Task InitializeAsync(ContentIdentifier comicIdentifier)
         {
-            _comicId = comicId;
+            _comicIdentifier = comicIdentifier;
 
-            _comic = await _comicService.GetComicByIdAsync(comicId);
+            _comic = await _comicService.GetComicDetailsAsync(comicIdentifier);
 
             IsFavorite = _comic?.IsFavorite ?? false;
             SelectedLang = _comic?.LastSelectedLang ?? Langs[0];
 
-            var chapters = await _comicService.GetAllChaptersAsync(comicId);
+            var chapters = await _comicService.GetAllChaptersAsync(comicIdentifier, _comic.LastSelectedLang ?? Langs[0]);
+            SelectedLang = _comic?.LastSelectedLang ?? Langs[0];
 
             Chapters = new ObservableCollection<ChapterItemViewModel>(
                 chapters.Select(chapter => new ChapterItemViewModel(chapter))

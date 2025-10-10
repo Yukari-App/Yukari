@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Messages;
+using Yukari.Models;
 using Yukari.Services;
 
 namespace Yukari.ViewModels
@@ -30,7 +31,7 @@ namespace Yukari.ViewModels
 
         private async Task UpdateDisplayedComics(string? searchText = null)
         {
-            var comics = await _comicService.GetFavoriteComicsAsync(searchText);
+            var comics = await _comicService.GetFavoriteComicsAsync(searchText, "all");
 
             FavoriteComics = new ObservableCollection<ComicItemViewModel>(
                 comics.Select(comic => new ComicItemViewModel(comic, _comicService))
@@ -38,9 +39,9 @@ namespace Yukari.ViewModels
         }
 
         [RelayCommand]
-        private void NavigateToComic(string comicId)
+        private void NavigateToComic(ContentIdentifier comicIdentifier)
         {
-            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.ComicPage), comicId));
+            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.ComicPage), comicIdentifier));
         }
     }
 }

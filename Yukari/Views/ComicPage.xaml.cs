@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Yukari.Models;
 using Yukari.ViewModels;
 
 namespace Yukari.Views
@@ -16,10 +17,10 @@ namespace Yukari.Views
         {
             base.OnNavigatedTo(e);
 
-            if (e.Parameter is string comicId)
+            if (e.Parameter is ContentIdentifier comicIdentifier)
             {
                 var viewModel = ((App)App.Current).Services.GetRequiredService<ComicPageViewModel>();
-                await viewModel.InitializeAsync(comicId);
+                await viewModel.InitializeAsync(comicIdentifier);
 
                 DataContext = viewModel;
             }
