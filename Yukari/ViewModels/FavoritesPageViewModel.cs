@@ -40,7 +40,7 @@ namespace Yukari.ViewModels
             FavoriteComics.Clear();
 
             IsContentLoading = true;
-            var comics = await _comicService.SearchComicsAsync("MangaDex", searchText, new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>());
+            var comics = await _comicService.GetFavoriteComicsAsync(searchText, "all");
 
             FavoriteComics = new ObservableCollection<ComicItemViewModel>(
                comics.Select(comic => new ComicItemViewModel(comic, _comicService))
