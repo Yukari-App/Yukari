@@ -7,7 +7,7 @@ namespace Yukari.Services
 {
     internal interface ISourceService
     {
-        Task LoadSource(string sourceName);
+        Task LoadSourceAsync(string sourceName);
 
         IReadOnlyList<Filter> GetFilters();
         IReadOnlyDictionary<string, string> GetLanguages();
