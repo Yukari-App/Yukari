@@ -14,7 +14,13 @@ namespace Yukari.ViewModels
     {
         private IComicService _comicService;
 
-        [ObservableProperty] private ObservableCollection<ComicItemViewModel> _favoriteComics = new();
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(NoFavorites))]
+        private ObservableCollection<ComicItemViewModel> _favoriteComics = new();
+
+        [ObservableProperty] private bool _isContentLoading = true;
+
+        public bool NoFavorites => !FavoriteComics.Any();
 
         public FavoritesPageViewModel(IComicService comicService)
         {
@@ -31,11 +37,15 @@ namespace Yukari.ViewModels
 
         private async Task UpdateDisplayedComics(string? searchText = null)
         {
-            var comics = await _comicService.GetFavoriteComicsAsync(searchText, "all");
+            FavoriteComics.Clear();
+
+            IsContentLoading = true;
+            var comics = await _comicService.SearchComicsAsync("MangaDex", searchText, new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>());
 
             FavoriteComics = new ObservableCollection<ComicItemViewModel>(
-                comics.Select(comic => new ComicItemViewModel(comic, _comicService))
+               comics.Select(comic => new ComicItemViewModel(comic, _comicService))
             );
+            IsContentLoading = false;
         }
 
         [RelayCommand]
