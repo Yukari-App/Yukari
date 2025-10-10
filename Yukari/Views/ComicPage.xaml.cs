@@ -20,9 +20,8 @@ namespace Yukari.Views
             if (e.Parameter is ContentIdentifier comicIdentifier)
             {
                 var viewModel = ((App)App.Current).Services.GetRequiredService<ComicPageViewModel>();
-                await viewModel.InitializeAsync(comicIdentifier);
-
                 DataContext = viewModel;
+                await viewModel.InitializeAsync(comicIdentifier);
             }
         }
     }
