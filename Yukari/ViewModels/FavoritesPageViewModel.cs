@@ -14,13 +14,13 @@ namespace Yukari.ViewModels
     {
         private IComicService _comicService;
 
+        [ObservableProperty] private ObservableCollection<ComicItemViewModel> _favoriteComics = new();
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(NoFavorites))]
-        private ObservableCollection<ComicItemViewModel> _favoriteComics = new();
+        private bool _isContentLoading = true;
 
-        [ObservableProperty] private bool _isContentLoading = true;
-
-        public bool NoFavorites => !FavoriteComics.Any();
+        public bool NoFavorites => !IsContentLoading && !FavoriteComics.Any();
 
         public FavoritesPageViewModel(IComicService comicService)
         {
