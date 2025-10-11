@@ -7,7 +7,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Yukari.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:Yukari.Models"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:viewmodels="using:Yukari.ViewModels"
     mc:Ignorable="d">
