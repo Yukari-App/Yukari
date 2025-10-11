@@ -46,11 +46,8 @@
                         <TextBlock
                             Grid.Row="0"
                             FontSize="18"
-                            Style="{StaticResource BodyStrongTextBlockStyle}">
-                            <Run Text="[" /><Run Text="{Binding ChapterVolume}" /><Run Text="]" />
-                            <Run Text="#" /><Run Text="{Binding ChapterNumber}" />
-                            <Run Text="{Binding ChapterTitle}" />
-                        </TextBlock>
+                            Style="{StaticResource BodyStrongTextBlockStyle}" 
+                            Text="{Binding DisplayTitle}"/>
                         <TextBlock
                             Grid.Row="1"
                             FontSize="14"

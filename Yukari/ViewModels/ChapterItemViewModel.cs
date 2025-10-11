@@ -7,31 +7,24 @@ namespace Yukari.ViewModels
 {
     public partial class ChapterItemViewModel : ObservableObject
     {
-        private ChapterModel _chapter;
+        private readonly ChapterModel _chapter;
 
-        public string ChapterId => _chapter.Id;
-        public string? ChapterTitle => _chapter.Title;
-        public string ChapterNumber => _chapter.Number;
-        public string ChapterVolume => _chapter.Volume;
-        public string ChapterGroups => _chapter.Groups;
-        public DateOnly ChapterLastUpdate => _chapter.LastUpdate;
-        public int ChapterPages => _chapter.Pages;
+        [ObservableProperty] private string? _displayTitle = "No Title";
+        [ObservableProperty] private string _chapterGroups = "N/A";
+        [ObservableProperty] private DateOnly _chapterLastUpdate = DateOnly.MinValue;
+        [ObservableProperty] private int _chapterPages = 0;
+        [ObservableProperty] private int _lastPageRead = 0;
 
-        [ObservableProperty]
-        private int _lastPageRead;
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(DownloadIcon))]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(DownloadIcon))]
         private bool _isDownloaded;
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(DownloadIcon))]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(DownloadIcon))]
         private bool _isDownloading;
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(ReadIcon))] 
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(ReadIcon))] 
         private bool _isRead;
 
+        public ContentIdentifier Identifier => new(_chapter.Id, _chapter.Source);
         public string DownloadIcon => IsDownloaded ? "\uE74D" : IsDownloading ? "\uF78A" : "\uE896";
         public string ReadIcon => IsRead ? "\uED1A" : "\uE890";
 
@@ -39,6 +32,13 @@ namespace Yukari.ViewModels
         {
             _chapter = chapter;
 
+            DisplayTitle = (chapter?.Volume != null ? $"[{chapter.Volume}] " : string.Empty) +
+                (chapter?.Number != null ? $"#{chapter.Number} " : "#N/A ") +
+                (chapter?.Title ?? string.Empty);
+
+            ChapterGroups = chapter?.Groups ?? "N/A";
+            ChapterLastUpdate = chapter?.LastUpdate ?? DateOnly.FromDateTime(DateTime.MinValue);
+            ChapterPages = chapter?.Pages ?? 0;
             LastPageRead = chapter?.LastPageRead ?? 0;
 
             IsDownloaded = chapter?.IsDownloaded ?? false;
