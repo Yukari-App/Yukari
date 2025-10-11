@@ -5,7 +5,7 @@ using Yukari.Services;
 
 namespace Yukari.ViewModels
 {
-    internal partial class ComicItemViewModel : ObservableObject
+    public partial class ComicItemViewModel : ObservableObject
     {
         private readonly IComicService _comicService;
 

@@ -5,7 +5,7 @@ using Yukari.Models;
 
 namespace Yukari.ViewModels
 {
-    internal partial class ChapterItemViewModel : ObservableObject
+    public partial class ChapterItemViewModel : ObservableObject
     {
         private ChapterModel _chapter;
 
