@@ -16,7 +16,10 @@
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <DataTemplate x:Key="ComicTemplate" x:DataType="viewmodels:ComicItemViewModel">
-            <Grid Width="200" Height="280">
+            <Grid
+                Width="200"
+                Height="280"
+                Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
                 <Image Source="{Binding CoverImageUrl}" Stretch="Fill" />
 
                 <Grid
