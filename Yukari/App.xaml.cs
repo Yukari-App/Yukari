@@ -14,7 +14,7 @@ namespace Yukari
     {
         private static Window? MainWindow;
 
-        public readonly IServiceProvider Services;
+        private readonly IServiceProvider _services;
 
         public App()
         {
@@ -30,7 +30,7 @@ namespace Yukari
             services.AddTransient<SettingsPageViewModel>();
             services.AddTransient<ComicPageViewModel>();
 
-            Services = services.BuildServiceProvider();
+            _services = services.BuildServiceProvider();
         }
 
 
@@ -56,5 +56,7 @@ namespace Yukari
 
             MainWindow.Activate();
         }
+
+        public static T GetService<T>() where T : class => ((App)Current)._services.GetRequiredService<T>();
     }
 }

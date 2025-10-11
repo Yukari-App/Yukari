@@ -15,9 +15,9 @@ namespace Yukari.Views
         public MainPage()
         {
             this.InitializeComponent();
-            ((App)App.Current).Services.GetService<INavigationService>().Initialize(ContentFrame);
+            App.GetService<INavigationService>().Initialize(ContentFrame);
 
-            DataContext = ((App)App.Current).Services.GetService<MainPageViewModel>();
+            DataContext = App.GetService<MainPageViewModel>();
 
             ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
         }
