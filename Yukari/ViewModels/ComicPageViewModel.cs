@@ -15,13 +15,13 @@ namespace Yukari.ViewModels
         private ContentIdentifier _comicIdentifier;
         private ComicModel _comic;
 
-        public string Title => _comic?.Title ?? "Loading...";
-        public string Author => _comic?.Author ?? "Unknown Author";
-        public string Description => _comic?.Description ?? "No description available.";
-        public string[] Tags => _comic?.Tags ?? ["N/A"];
-        public int Year => _comic?.Year ?? 0;
-        public string? CoverImageUrl => _comic?.CoverImageUrl;
-        public string[] Langs => _comic?.Langs ?? ["N/A"];
+        [ObservableProperty] private string _title = "Loading...";
+        [ObservableProperty] private string _author = "Unknown Author";
+        [ObservableProperty] private string _description = "No description available.";
+        [ObservableProperty] private string[] _tags = new[] { "N/A" };
+        [ObservableProperty] private int _year;
+        [ObservableProperty] private string? _coverImageUrl;
+        [ObservableProperty] private string[] _langs = new[] { "N/A" };
 
         [ObservableProperty]
         private string _selectedLang;
@@ -55,6 +55,14 @@ namespace Yukari.ViewModels
             _comicIdentifier = comicIdentifier;
 
             _comic = await _comicService.GetComicDetailsAsync(comicIdentifier);
+
+            Title = _comic?.Title ?? "Loading...";
+            Author = _comic?.Author ?? "Unknown Author";
+            Description = _comic?.Description ?? "No description available.";
+            Tags = _comic?.Tags ?? new[] { "N/A" };
+            Year = _comic?.Year ?? 0;
+            CoverImageUrl = _comic?.CoverImageUrl;
+            Langs = _comic?.Langs ?? new[] { "N/A" };
 
             IsFavorite = _comic?.IsFavorite ?? false;
             SelectedLang = _comic?.LastSelectedLang ?? Langs[0];
