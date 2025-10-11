@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -14,12 +13,13 @@ namespace Yukari.Views
     {
         public MainPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             App.GetService<INavigationService>().Initialize(ContentFrame);
 
-            DataContext = App.GetService<MainPageViewModel>();
+            var viewModel = App.GetService<MainPageViewModel>();
 
-            ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
+            DataContext = viewModel;
+            viewModel.NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
         }
 
         private void NavigationViewControl_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
