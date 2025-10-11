@@ -10,7 +10,8 @@ namespace Yukari.Views
     {
         public ComicPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+            DataContext = App.GetService<ComicPageViewModel>();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -19,9 +20,8 @@ namespace Yukari.Views
 
             if (e.Parameter is ContentIdentifier comicIdentifier)
             {
-                var viewModel = ((App)App.Current).Services.GetRequiredService<ComicPageViewModel>();
-                DataContext = viewModel;
-                await viewModel.InitializeAsync(comicIdentifier);
+                if (DataContext is ComicPageViewModel viewModel)
+                    await viewModel.InitializeAsync(comicIdentifier);
             }
         }
     }

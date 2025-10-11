@@ -9,7 +9,7 @@ namespace Yukari.Views
         public SettingsPage()
         {
             InitializeComponent();
-            DataContext = ((App)App.Current).Services.GetService<SettingsPageViewModel>();
+            DataContext = App.GetService<SettingsPageViewModel>();
         }
     }
 }

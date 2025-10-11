@@ -8,10 +8,8 @@ namespace Yukari.Views
     {
         public FavoritesPage()
         {
-            this.InitializeComponent();
-
-            var viewModel = ((App)App.Current).Services.GetRequiredService<FavoritesPageViewModel>();
-            this.DataContext = viewModel;
+            InitializeComponent();
+            DataContext = App.GetService<FavoritesPageViewModel>(); ;
         }
 
         private void GridView_ItemClick(object sender, ItemClickEventArgs e) =>

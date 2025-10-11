@@ -8,8 +8,8 @@ namespace Yukari.Views
     {
         public DownloadsPage()
         {
-            this.InitializeComponent();
-            DataContext = ((App)App.Current).Services.GetService<DownloadsPageViewModel>();
+            InitializeComponent();
+            DataContext = App.GetService<DownloadsPageViewModel>();
         }
     }
 }
