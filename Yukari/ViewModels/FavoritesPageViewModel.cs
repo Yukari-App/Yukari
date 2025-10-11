@@ -27,12 +27,11 @@ namespace Yukari.ViewModels
             WeakReferenceMessenger.Default.Register<SearchMessage>(this);
 
             _comicService = comicService;
-            _ = UpdateDisplayedComics();
         }
 
-        public async void Receive(SearchMessage message) => await UpdateDisplayedComics(message.SearchText);
+        public async void Receive(SearchMessage message) => await UpdateDisplayedComicsAsync(message.SearchText);
 
-        private async Task UpdateDisplayedComics(string? searchText = null)
+        public async Task UpdateDisplayedComicsAsync(string? searchText = null)
         {
             FavoriteComics.Clear();
 

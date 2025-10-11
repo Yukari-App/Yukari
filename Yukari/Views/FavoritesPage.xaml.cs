@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using Yukari.ViewModels;
 
 namespace Yukari.Views
@@ -11,7 +12,18 @@ namespace Yukari.Views
             DataContext = App.GetService<FavoritesPageViewModel>(); ;
         }
 
-        private void GridView_ItemClick(object sender, ItemClickEventArgs e) =>
-            ((FavoritesPageViewModel)DataContext).NavigateToComicCommand.Execute(((ComicItemViewModel)e.ClickedItem).Identifier);
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            if (DataContext is FavoritesPageViewModel viewModel)
+                await viewModel.UpdateDisplayedComicsAsync();
+        }
+
+        private void GridView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (DataContext is FavoritesPageViewModel viewModel && e.ClickedItem is ComicItemViewModel comicItem)
+                viewModel.NavigateToComicCommand.Execute(comicItem.Identifier);
+        }
     }
 }
