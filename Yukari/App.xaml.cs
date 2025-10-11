@@ -26,6 +26,7 @@ namespace Yukari
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddTransient<MainPageViewModel>();
             services.AddTransient<FavoritesPageViewModel>();
+            services.AddTransient<DiscoverPageViewModel>();
             services.AddTransient<DownloadsPageViewModel>();
             services.AddTransient<SettingsPageViewModel>();
             services.AddTransient<ComicPageViewModel>();
