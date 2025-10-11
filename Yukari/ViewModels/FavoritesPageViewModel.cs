@@ -30,10 +30,7 @@ namespace Yukari.ViewModels
             _ = UpdateDisplayedComics();
         }
 
-        public void Receive(SearchMessage message)
-        {
-            _ = UpdateDisplayedComics(message.SearchText);
-        }
+        public async void Receive(SearchMessage message) => await UpdateDisplayedComics(message.SearchText);
 
         private async Task UpdateDisplayedComics(string? searchText = null)
         {
