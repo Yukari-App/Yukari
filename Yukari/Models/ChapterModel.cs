@@ -2,7 +2,7 @@ using System;
 
 namespace Yukari.Models
 {
-    internal class ChapterModel
+    public class ChapterModel
     {
         public string Id { get; set; }
         public string ComicId { get; set; }

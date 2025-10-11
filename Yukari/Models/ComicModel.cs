@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Yukari.Models
 {
-    internal class ComicModel
+    public class ComicModel
     {
         public string Id { get; set; }
         public string Source { get; set; }

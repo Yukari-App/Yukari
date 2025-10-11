@@ -10,7 +10,7 @@ using Yukari.Services;
 
 namespace Yukari.ViewModels
 {
-    internal partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchMessage>
+    public partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchMessage>
     {
         private IComicService _comicService;
 

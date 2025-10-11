@@ -1,6 +1,6 @@
 namespace Yukari.Enums
 {
-    enum ComicSourceType
+    public enum ComicSourceType
     {
         Auto,
         Local,

@@ -5,7 +5,7 @@ using Yukari.Models;
 
 namespace Yukari.Services
 {
-    internal interface ISourceService
+    public interface ISourceService
     {
         Task LoadSourceAsync(string sourceName);
 

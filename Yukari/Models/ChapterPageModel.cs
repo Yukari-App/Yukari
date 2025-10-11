@@ -1,6 +1,6 @@
 namespace Yukari.Models
 {
-    internal class ChapterPageModel
+    public class ChapterPageModel
     {
         public string? Id { get; set; }
         public string? ChapterId { get; set; }

@@ -5,7 +5,7 @@ using Yukari.Models;
 
 namespace Yukari.Services
 {
-    internal interface IComicService
+    public interface IComicService
     {
         Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string sourceName, string? queryText, Dictionary<string, List<string>> filters);
         Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText, string filter);
