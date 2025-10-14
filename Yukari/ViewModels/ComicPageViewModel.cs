@@ -67,18 +67,24 @@ namespace Yukari.ViewModels
             IsFavorite = _comic?.IsFavorite ?? false;
             SelectedLang = _comic?.LastSelectedLang ?? Langs[0];
 
-            var chapters = await _comicService.GetAllChaptersAsync(comicIdentifier, _comic.LastSelectedLang ?? Langs[0]);
-            SelectedLang = _comic?.LastSelectedLang ?? Langs[0];
-
-            Chapters = new ObservableCollection<ChapterItemViewModel>(
-                chapters.Select(chapter => new ChapterItemViewModel(chapter))
-            );
+            await UpdateDisplayedChaptersAsync();
         }
 
         [RelayCommand]
         public void ToggleFavorite()
         {
             IsFavorite = !IsFavorite;
+        }
+
+        private async Task UpdateDisplayedChaptersAsync()
+        {
+            if (_comicIdentifier == null || string.IsNullOrEmpty(SelectedLang))
+                return;
+
+            var chapters = await _comicService.GetAllChaptersAsync(_comicIdentifier, SelectedLang);
+            Chapters = new ObservableCollection<ChapterItemViewModel>(
+                chapters.Select(chapter => new ChapterItemViewModel(chapter))
+            );
         }
     }
 }
