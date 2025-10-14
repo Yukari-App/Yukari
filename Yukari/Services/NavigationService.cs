@@ -1,9 +1,9 @@
-﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls;
 using System;
 
 namespace Yukari.Services
 {
-    public class NavigationService : INavigationService
+    internal class NavigationService : INavigationService
     {
         private Frame _frame;
         public Type? CurrentPageType => _frame.CurrentSourcePageType;

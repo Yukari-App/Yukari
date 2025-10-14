@@ -1,10 +1,10 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using System;
 using System.Runtime.InteropServices;
 
 namespace Yukari.Services
 {
-    class Win32WindowService
+    internal class Win32WindowService
     {
         private static WinProc newWndProc = null;
         private static nint oldWndProc = nint.Zero;
