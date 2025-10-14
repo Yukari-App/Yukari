@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Collections;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -23,12 +24,17 @@ namespace Yukari.ViewModels
         [ObservableProperty] private string? _coverImageUrl;
         [ObservableProperty] private string[] _langs = new[] { "N/A" };
 
+        [ObservableProperty] private ObservableCollection<ChapterItemViewModel> _chapters = new();
+
         [ObservableProperty]
         private string _selectedLang;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(FavoriteIcon))]
         private bool _isFavorite;
+
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(NoChapters), nameof(IsDownloadAllEnabled))]
+        private bool _isChaptersLoading = true;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
@@ -40,10 +46,12 @@ namespace Yukari.ViewModels
 
         public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
 
+        public bool NoChapters => !IsChaptersLoading && !Chapters.Any();
+
+        public bool IsDownloadAllEnabled => !IsChaptersLoading && Chapters.Any();
+
         public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : IsDownloadingAllChapters ? "\uF78A" : "\uE896";
         public string DownloadAllText => IsAllChaptersDownloaded ? "Delete All" : IsDownloadingAllChapters ? "Downloading..." : "Download All";
-
-        [ObservableProperty] private ObservableCollection<ChapterItemViewModel> _chapters = new();
 
         public ComicPageViewModel(IComicService comicService)
         {
@@ -81,10 +89,16 @@ namespace Yukari.ViewModels
             if (_comicIdentifier == null || string.IsNullOrEmpty(SelectedLang))
                 return;
 
+            Chapters.Clear();
+
+            IsChaptersLoading = true;
             var chapters = await _comicService.GetAllChaptersAsync(_comicIdentifier, SelectedLang);
+
             Chapters = new ObservableCollection<ChapterItemViewModel>(
                 chapters.Select(chapter => new ChapterItemViewModel(chapter))
             );
+
+            IsChaptersLoading = false;
         }
 
         async partial void OnSelectedLangChanged(string value) =>

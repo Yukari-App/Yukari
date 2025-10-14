@@ -46,8 +46,8 @@
                         <TextBlock
                             Grid.Row="0"
                             FontSize="18"
-                            Style="{StaticResource BodyStrongTextBlockStyle}" 
-                            Text="{Binding DisplayTitle}"/>
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="{Binding DisplayTitle}" />
                         <TextBlock
                             Grid.Row="1"
                             FontSize="14"
@@ -324,7 +324,7 @@
                                 Visibility="{Binding IsDownloadingAllChapters, Converter={StaticResource BooleanToVisibilityConverter}}"
                                 Value="45" />
 
-                            <ToggleButton IsChecked="{Binding IsAllChaptersDownloaded, Mode=TwoWay}">
+                            <ToggleButton IsChecked="{Binding IsAllChaptersDownloaded, Mode=TwoWay}" IsEnabled="{Binding IsDownloadAllEnabled}">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon FontSize="16" Glyph="{Binding DownloadAllIcon}" />
                                     <TextBlock Text="{Binding DownloadAllText}" />
@@ -352,6 +352,24 @@
                         </StackPanel>
 
                     </Grid>
+
+                    <ProgressRing
+                        Grid.Row="1"
+                        Width="40"
+                        Height="40"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        IsActive="{Binding IsChaptersLoading}"
+                        Visibility="{Binding IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <TextBlock
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyLargeStrongTextBlockStyle}"
+                        Text="No chapters found in this language."
+                        Visibility="{Binding NoChapters, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
                     <ItemsView
                         Grid.Row="1"
                         IsItemInvokedEnabled="True"
