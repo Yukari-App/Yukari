@@ -31,7 +31,9 @@ namespace Yukari.ViewModels
 
         public async void Receive(SearchMessage message) => await UpdateDisplayedComicsAsync(message.SearchText);
 
-        public async Task UpdateDisplayedComicsAsync(string? searchText = null)
+        public async Task InitializeAsync() => await UpdateDisplayedComicsAsync();
+
+        private async Task UpdateDisplayedComicsAsync(string? searchText = null)
         {
             FavoriteComics.Clear();
 
