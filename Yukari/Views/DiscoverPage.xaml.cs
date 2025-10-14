@@ -18,7 +18,7 @@ namespace Yukari.Views
             base.OnNavigatedTo(e);
 
             if (DataContext is DiscoverPageViewModel viewModel)
-                await viewModel.UpdateDisplayedComicsAsync();
+                await viewModel.InitializeAsync();
         }
 
         private void GridView_ItemClick(object sender, ItemClickEventArgs e)

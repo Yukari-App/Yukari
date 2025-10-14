@@ -31,7 +31,15 @@ namespace Yukari.ViewModels
 
         public async void Receive(SearchMessage message) => await UpdateDisplayedComicsAsync(message.SearchText);
 
-        public async Task UpdateDisplayedComicsAsync(string? searchText = null)
+        public async Task InitializeAsync()
+        {
+            ComicSources = new ObservableCollection<ComicSourceModel>(await _comicService.GetComicSourcesAsync());
+            SelectedComicSource = ComicSources.FirstOrDefault();
+
+            await UpdateDisplayedComicsAsync();
+        }
+
+        private async Task UpdateDisplayedComicsAsync(string? searchText = null)
         {
             SearchedComics.Clear();
 
