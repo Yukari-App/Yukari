@@ -331,7 +331,7 @@
                                 </StackPanel>
                             </ToggleButton>
 
-                            <ComboBox ItemsSource="{Binding Langs}" SelectedItem="{Binding SelectedLang}" />
+                            <ComboBox ItemsSource="{Binding Langs}" SelectedItem="{Binding SelectedLang, Mode=TwoWay}" />
 
                             <Button
                                 Width="32"

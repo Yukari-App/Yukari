@@ -86,5 +86,8 @@ namespace Yukari.ViewModels
                 chapters.Select(chapter => new ChapterItemViewModel(chapter))
             );
         }
+
+        async partial void OnSelectedLangChanged(string value) =>
+            await UpdateDisplayedChaptersAsync();
     }
 }
