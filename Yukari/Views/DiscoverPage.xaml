@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Yukari.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Yukari.Models"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:viewmodels="using:Yukari.ViewModels"
     mc:Ignorable="d">
@@ -86,9 +87,19 @@
                 Orientation="Horizontal"
                 Spacing="2">
 
-                <ComboBox SelectedIndex="0">
-                    <x:String>ComicK</x:String>
-                    <x:String>MangaDex</x:String>
+                <ComboBox ItemsSource="{Binding ComicSources}" SelectedItem="{Binding SelectedComicSource, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:ComicSourceModel">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <ImageIcon
+                                    Width="22"
+                                    Height="22"
+                                    VerticalAlignment="Center"
+                                    Source="{x:Bind LogoUrl}" />
+                                <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
                 </ComboBox>
 
                 <DropDownButton

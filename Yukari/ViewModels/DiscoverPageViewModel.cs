@@ -14,10 +14,12 @@ namespace Yukari.ViewModels
     {
         private IComicService _comicService;
 
+        [ObservableProperty] private ObservableCollection<ComicSourceModel> _comicSources = new();
         [ObservableProperty] private ObservableCollection<ComicItemViewModel> _searchedComics = new();
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(NoResults))]
+        [ObservableProperty] private ComicSourceModel _selectedComicSource;
+
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults))]
         private bool _isContentLoading = true;
 
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
@@ -44,7 +46,7 @@ namespace Yukari.ViewModels
             SearchedComics.Clear();
 
             IsContentLoading = true;
-            var comics = await _comicService.SearchComicsAsync("MangaDex", searchText, []);
+            var comics = await _comicService.SearchComicsAsync(SelectedComicSource.Name, searchText, []);
 
             SearchedComics = new ObservableCollection<ComicItemViewModel>(
                comics.Select(comic => new ComicItemViewModel(comic, _comicService))
@@ -57,5 +59,8 @@ namespace Yukari.ViewModels
         {
             WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.ComicPage), comicIdentifier));
         }
+
+        async partial void OnSelectedComicSourceChanged(ComicSourceModel value) =>
+            await UpdateDisplayedComicsAsync();
     }
 }
