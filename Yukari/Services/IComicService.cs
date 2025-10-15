@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Yukari.Core.Models;
 using Yukari.Enums;
 using Yukari.Models;
 
@@ -7,6 +8,9 @@ namespace Yukari.Services
 {
     public interface IComicService
     {
+        Task<IReadOnlyList<Filter>> GetSourceFilters(string? sourceName = null);
+        Task<IReadOnlyDictionary<string, string>> GetSourceLanguages(string sourceName);
+
         Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string sourceName, string? queryText, Dictionary<string, List<string>> filters);
         Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText, string filter);
         Task<ComicModel?> GetComicDetailsAsync(ContentIdentifier comicIdentifier, ComicSourceType sourceType = ComicSourceType.Auto);
