@@ -12,7 +12,7 @@ namespace Yukari.ViewModels
         private ComicModel _comic;
 
         public ContentIdentifier? Identifier => new(_comic?.Id, _comic.Source);
-        public string Title => _comic?.Title ?? "Loading...";
+        public string Title => _comic?.Title ?? "Unknown Name";
         public string CoverImageUrl => _comic?.CoverImageUrl;
 
         [ObservableProperty]
