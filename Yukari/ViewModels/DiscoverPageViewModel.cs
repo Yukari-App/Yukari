@@ -22,6 +22,8 @@ namespace Yukari.ViewModels
         [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults))]
         private bool _isContentLoading = true;
 
+        public ObservableCollection<FilterViewModel> Filters = new();
+
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
 
         public DiscoverPageViewModel(IComicService comicService)
@@ -36,9 +38,7 @@ namespace Yukari.ViewModels
         public async Task InitializeAsync()
         {
             ComicSources = new ObservableCollection<ComicSourceModel>(await _comicService.GetComicSourcesAsync());
-            SelectedComicSource = ComicSources.FirstOrDefault();
-
-            await UpdateDisplayedComicsAsync();
+            SelectedComicSource = ComicSources.FirstOrDefault(); // will call OnSelectedComicSourceChanged
         }
 
         private async Task UpdateDisplayedComicsAsync(string? searchText = null)
@@ -60,7 +60,13 @@ namespace Yukari.ViewModels
             WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.ComicPage), comicIdentifier));
         }
 
-        async partial void OnSelectedComicSourceChanged(ComicSourceModel value) =>
+        async partial void OnSelectedComicSourceChanged(ComicSourceModel value)
+        {
+            Filters = new ObservableCollection<FilterViewModel>((await _comicService.GetSourceFiltersAsync(value.Name))
+                .Select(f => new FilterViewModel(f))
+            );
+
             await UpdateDisplayedComicsAsync();
+        }
     }
 }
