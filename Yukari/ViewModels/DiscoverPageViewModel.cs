@@ -22,7 +22,7 @@ namespace Yukari.ViewModels
         [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults))]
         private bool _isContentLoading = true;
 
-        public ObservableCollection<FilterViewModel> Filters = new();
+        public ObservableCollection<FilterViewModel> Filters { get; set; }  = new();
 
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
 
