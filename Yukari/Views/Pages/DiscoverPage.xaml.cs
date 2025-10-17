@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Yukari.ViewModels;
 
-namespace Yukari.Views
+namespace Yukari.Views.Pages
 {
     public sealed partial class DiscoverPage : Page
     {
@@ -18,7 +18,7 @@ namespace Yukari.Views
             base.OnNavigatedTo(e);
 
             if (DataContext is DiscoverPageViewModel viewModel)
-                await viewModel.InitializeAsync();
+                await viewModel.InitializeAsync();   
         }
 
         private void GridView_ItemClick(object sender, ItemClickEventArgs e)

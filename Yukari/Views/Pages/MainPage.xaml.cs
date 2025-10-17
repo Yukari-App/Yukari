@@ -7,7 +7,7 @@ using Yukari.Messages;
 using Yukari.Services;
 using Yukari.ViewModels;
 
-namespace Yukari.Views
+namespace Yukari.Views.Pages
 {
     public sealed partial class MainPage : Page
     {
@@ -24,7 +24,7 @@ namespace Yukari.Views
 
         private void NavigationViewControl_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            var tag = args.IsSettingsInvoked ? "Yukari.Views.SettingsPage" : args.InvokedItemContainer?.Tag?.ToString();
+            var tag = args.IsSettingsInvoked ? "Yukari.Views.Pages.SettingsPage" : args.InvokedItemContainer?.Tag?.ToString();
             if (!string.IsNullOrEmpty(tag))
                 ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(Type.GetType(tag), null));
         }

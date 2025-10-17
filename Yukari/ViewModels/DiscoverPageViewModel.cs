@@ -57,7 +57,7 @@ namespace Yukari.ViewModels
         [RelayCommand]
         private void NavigateToComic(ContentIdentifier comicIdentifier)
         {
-            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.ComicPage), comicIdentifier));
+            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
         }
 
         async partial void OnSelectedComicSourceChanged(ComicSourceModel value)

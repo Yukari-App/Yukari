@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Yukari.ViewModels;
 
-namespace Yukari.Views
+namespace Yukari.Views.Pages
 {
     public sealed partial class FavoritesPage : Page
     {

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Page
-    x:Class="Yukari.Views.MainPage"
+    x:Class="Yukari.Views.Pages.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:Yukari.Views"
+    xmlns:local="using:Yukari.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
@@ -63,11 +63,11 @@
                     Content="Favorites"
                     Icon="Favorite"
                     IsSelected="True"
-                    Tag="Yukari.Views.FavoritesPage" />
+                    Tag="Yukari.Views.Pages.FavoritesPage" />
                 <NavigationViewItem
                     Content="Discover"
                     Icon="Library"
-                    Tag="Yukari.Views.DiscoverPage" />
+                    Tag="Yukari.Views.Pages.DiscoverPage" />
 
                 <NavigationViewItemHeader Content="Pinned" />
 
@@ -77,11 +77,11 @@
                 <NavigationViewItem
                     Content="Downloads"
                     Icon="Download"
-                    Tag="Yukari.Views.DownloadsPage" />
+                    Tag="Yukari.Views.Pages.DownloadsPage" />
                 <NavigationViewItem
                     Content="Help"
                     Icon="Help"
-                    Tag="Yukari.Views.HelpPage" />
+                    Tag="Yukari.Views.Pages.HelpPage" />
             </NavigationView.FooterMenuItems>
 
             <Frame

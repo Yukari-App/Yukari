@@ -6,7 +6,7 @@ using System;
 using Windows.Graphics;
 using Yukari.Services;
 using Yukari.ViewModels;
-using Yukari.Views;
+using Yukari.Views.Pages;
 
 namespace Yukari
 {

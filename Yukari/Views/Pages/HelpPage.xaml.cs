@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 
-namespace Yukari.Views
+namespace Yukari.Views.Pages
 {
     public sealed partial class HelpPage : Page
     {

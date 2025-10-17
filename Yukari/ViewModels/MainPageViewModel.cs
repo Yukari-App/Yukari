@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls;
@@ -6,7 +6,7 @@ using System;
 using System.Windows.Input;
 using Yukari.Messages;
 using Yukari.Services;
-using Yukari.Views;
+using Yukari.Views.Pages;
 
 namespace Yukari.ViewModels
 {

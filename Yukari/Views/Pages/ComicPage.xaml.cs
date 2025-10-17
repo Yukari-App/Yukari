@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Yukari.Models;
 using Yukari.ViewModels;
 
-namespace Yukari.Views
+namespace Yukari.Views.Pages
 {
     public sealed partial class ComicPage : Page
     {

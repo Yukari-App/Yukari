@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Yukari.ViewModels;
 
-namespace Yukari.Views
+namespace Yukari.Views.Pages
 {
     public sealed partial class DownloadsPage : Page
     {
