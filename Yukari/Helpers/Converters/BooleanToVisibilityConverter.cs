@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using System;
 
@@ -10,8 +10,12 @@ namespace Yukari.Helpers.Converters
         {
             if (value is bool boolValue)
             {
+                if (parameter is string s && s.Equals("Invert", StringComparison.OrdinalIgnoreCase))
+                    boolValue = !boolValue;
+
                 return boolValue ? Visibility.Visible : Visibility.Collapsed;
             }
+
             return Visibility.Collapsed;
         }
 
