@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Windows.Input;
 using Yukari.Messages;
-using Yukari.Services;
+using Yukari.Services.UI;
 using Yukari.Views.Pages;
 
 namespace Yukari.ViewModels.Pages

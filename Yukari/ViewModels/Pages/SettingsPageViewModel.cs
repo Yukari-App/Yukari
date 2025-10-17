@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Yukari.Models;
-using Yukari.Services;
+using Yukari.Services.Comics;
 
 namespace Yukari.ViewModels.Pages
 {

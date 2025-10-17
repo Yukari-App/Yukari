@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Yukari.Models;
-using Yukari.Services;
+using Yukari.Services.Comics;
 
 namespace Yukari.ViewModels.Components
 {

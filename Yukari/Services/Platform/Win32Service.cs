@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml;
 using System;
 using System.Runtime.InteropServices;
 
-namespace Yukari.Services
+namespace Yukari.Services.Platform
 {
     internal class Win32WindowService
     {

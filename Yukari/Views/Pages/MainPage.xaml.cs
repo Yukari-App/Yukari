@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Linq;
 using Yukari.Messages;
-using Yukari.Services;
+using Yukari.Services.UI;
 using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages

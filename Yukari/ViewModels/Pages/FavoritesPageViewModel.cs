@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Messages;
 using Yukari.Models;
-using Yukari.Services;
+using Yukari.Services.Comics;
 using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages

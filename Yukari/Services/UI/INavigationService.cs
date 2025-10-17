@@ -1,7 +1,7 @@
-﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls;
 using System;
 
-namespace Yukari.Services
+namespace Yukari.Services.UI
 {
     public interface INavigationService
     {

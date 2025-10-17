@@ -4,7 +4,7 @@ using Yukari.Core.Models;
 using Yukari.Enums;
 using Yukari.Models;
 
-namespace Yukari.Services
+namespace Yukari.Services.Comics
 {
     public interface IComicService
     {

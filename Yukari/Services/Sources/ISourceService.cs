@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Yukari.Core.Models;
 using Yukari.Models;
 
-namespace Yukari.Services
+namespace Yukari.Services.Sources
 {
     public interface ISourceService
     {
