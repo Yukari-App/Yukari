@@ -1,13 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Collections;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Models;
 using Yukari.Services;
+using Yukari.ViewModels.Components;
 
-namespace Yukari.ViewModels
+namespace Yukari.ViewModels.Pages
 {
     public partial class ComicPageViewModel : ObservableObject
     {

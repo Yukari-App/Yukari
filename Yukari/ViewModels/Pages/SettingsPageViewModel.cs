@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Yukari.Models;
 using Yukari.Services;
 
-namespace Yukari.ViewModels
+namespace Yukari.ViewModels.Pages
 {
     internal partial class SettingsPageViewModel : ObservableObject
     {

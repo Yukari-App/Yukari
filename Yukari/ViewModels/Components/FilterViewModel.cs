@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Yukari.Core.Models;
 
-namespace Yukari.ViewModels
+namespace Yukari.ViewModels.Components
 {
     public partial class FilterViewModel : ObservableObject
     {

@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Yukari.Models;
 using Yukari.Services;
 
-namespace Yukari.ViewModels
+namespace Yukari.ViewModels.Components
 {
     public partial class ComicItemViewModel : ObservableObject
     {

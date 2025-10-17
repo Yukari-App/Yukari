@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using Yukari.Models;
 
-namespace Yukari.ViewModels
+namespace Yukari.ViewModels.Components
 {
     public partial class ChapterItemViewModel : ObservableObject
     {

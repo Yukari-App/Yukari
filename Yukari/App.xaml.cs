@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Media;
 using System;
 using Windows.Graphics;
 using Yukari.Services;
-using Yukari.ViewModels;
+using Yukari.ViewModels.Pages;
 using Yukari.Views.Pages;
 
 namespace Yukari

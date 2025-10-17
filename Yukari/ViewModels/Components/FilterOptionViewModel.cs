@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Yukari.Core.Models;
 
-namespace Yukari.ViewModels
+namespace Yukari.ViewModels.Components
 {
     public partial class FilterOptionViewModel : ObservableObject
     {

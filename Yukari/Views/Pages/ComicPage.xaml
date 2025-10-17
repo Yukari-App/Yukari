@@ -9,7 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:system="using:System"
     xmlns:ui="using:CommunityToolkit.WinUI"
-    xmlns:viewmodels="using:Yukari.ViewModels"
+    xmlns:vmc="using:Yukari.ViewModels.Components"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -32,7 +32,7 @@
             </ItemContainer>
         </DataTemplate>
 
-        <DataTemplate x:Key="ChaptersTemplate" x:DataType="viewmodels:ChapterItemViewModel">
+        <DataTemplate x:Key="ChaptersTemplate" x:DataType="vmc:ChapterItemViewModel">
             <ItemContainer>
                 <Grid
                     Padding="6"

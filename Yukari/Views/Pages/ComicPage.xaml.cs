@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Yukari.Models;
-using Yukari.ViewModels;
+using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages
 {

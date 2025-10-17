@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Services;
+using Yukari.ViewModels.Components;
 
-namespace Yukari.ViewModels
+namespace Yukari.ViewModels.Pages
 {
     public partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchMessage>
     {

@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Services;
+using Yukari.ViewModels.Components;
 
-namespace Yukari.ViewModels
+namespace Yukari.ViewModels.Pages
 {
     public partial class DiscoverPageViewModel : ObservableObject, IRecipient<SearchMessage>
     {
@@ -58,6 +59,12 @@ namespace Yukari.ViewModels
         private void NavigateToComic(ContentIdentifier comicIdentifier)
         {
             WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
+        }
+
+        [RelayCommand]
+        private async Task OpenFiltersDialogAsync()
+        {
+            throw new System.NotImplementedException();
         }
 
         async partial void OnSelectedComicSourceChanged(ComicSourceModel value)

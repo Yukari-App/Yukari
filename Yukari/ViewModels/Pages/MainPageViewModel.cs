@@ -8,7 +8,7 @@ using Yukari.Messages;
 using Yukari.Services;
 using Yukari.Views.Pages;
 
-namespace Yukari.ViewModels
+namespace Yukari.ViewModels.Pages
 {
     public partial class MainPageViewModel : ObservableObject, IRecipient<NavigateMessage>
     {

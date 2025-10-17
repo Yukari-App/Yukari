@@ -11,13 +11,13 @@
     xmlns:selectors="using:Yukari.Helpers.UI.Selectors"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
-    xmlns:viewmodels="using:Yukari.ViewModels"
+    xmlns:vmc="using:Yukari.ViewModels.Components"
     mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
-        <DataTemplate x:Key="ComicTemplate" x:DataType="viewmodels:ComicItemViewModel">
+        <DataTemplate x:Key="ComicTemplate" x:DataType="vmc:ComicItemViewModel">
             <Grid
                 Width="200"
                 Height="280"

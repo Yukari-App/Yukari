@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using Yukari.Messages;
 using Yukari.Services;
-using Yukari.ViewModels;
+using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages
 {

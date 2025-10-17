@@ -1,5 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
-using Yukari.ViewModels;
+using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages
 {
