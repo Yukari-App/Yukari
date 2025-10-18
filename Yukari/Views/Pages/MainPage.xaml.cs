@@ -15,6 +15,7 @@ namespace Yukari.Views.Pages
         {
             InitializeComponent();
             App.GetService<INavigationService>().Initialize(ContentFrame);
+            App.GetService<IDialogService>().Initialize(XamlRoot);
 
             var viewModel = App.GetService<MainPageViewModel>();
 
