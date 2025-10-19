@@ -44,10 +44,7 @@ namespace Yukari.ViewModels.Pages
             ResetSearchBox();
         }
 
-        public bool CanNavigateBack() =>
-            _nav.CanGoBack;
-
-        [RelayCommand(CanExecute = nameof(CanNavigateBack))]
+        [RelayCommand]
         private void OnBack()
         {
             if (_nav.GoBack())
