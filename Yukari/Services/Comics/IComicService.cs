@@ -11,7 +11,7 @@ namespace Yukari.Services.Comics
         Task<IReadOnlyList<Filter>> GetSourceFiltersAsync(string? sourceName = null);
         Task<IReadOnlyDictionary<string, string>> GetSourceLanguagesAsync(string sourceName);
 
-        Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string sourceName, string? queryText, Dictionary<string, List<string>> filters);
+        Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string sourceName, string? queryText, Dictionary<string, IReadOnlyList<string>> filters);
         Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText, string filter);
         Task<ComicModel?> GetComicDetailsAsync(ContentIdentifier comicIdentifier, ComicSourceType sourceType = ComicSourceType.Auto);
         Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(ContentIdentifier comicIdentifier, string language, ComicSourceType sourceType = ComicSourceType.Auto);
