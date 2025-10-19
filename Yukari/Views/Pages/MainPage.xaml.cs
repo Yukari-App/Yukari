@@ -14,13 +14,17 @@ namespace Yukari.Views.Pages
         public MainPage()
         {
             InitializeComponent();
-            App.GetService<INavigationService>().Initialize(ContentFrame);
-            App.GetService<IDialogService>().Initialize(XamlRoot);
 
-            var viewModel = App.GetService<MainPageViewModel>();
+            Loaded += (_, __) =>
+            {
+                App.GetService<INavigationService>().Initialize(ContentFrame);
+                App.GetService<IDialogService>().Initialize(XamlRoot);
 
-            DataContext = viewModel;
-            viewModel.NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
+                var viewModel = App.GetService<MainPageViewModel>();
+
+                DataContext = viewModel;
+                viewModel.NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
+            };
         }
 
         private void NavigationViewControl_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
