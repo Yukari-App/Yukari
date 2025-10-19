@@ -1,9 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Yukari.Core.Models;
 using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Services.Comics;
@@ -11,30 +13,37 @@ using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
 {
-    public partial class DiscoverPageViewModel : ObservableObject, IRecipient<SearchMessage>
+    public partial class DiscoverPageViewModel : ObservableObject, IRecipient<SearchMessage>, IRecipient<FiltersDialogResultMessage>
     {
         private IComicService _comicService;
 
         [ObservableProperty] private ObservableCollection<ComicSourceModel> _comicSources = new();
         [ObservableProperty] private ObservableCollection<ComicItemViewModel> _searchedComics = new();
+        private IReadOnlyList<Filter> _availableFilters;
+        private IReadOnlyDictionary<string, IReadOnlyList<string>> _appliedFilters = new Dictionary<string, IReadOnlyList<string>>();
 
         [ObservableProperty] private ComicSourceModel _selectedComicSource;
 
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults))]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults)), NotifyCanExecuteChangedFor(nameof(FilterCommand))]
         private bool _isContentLoading = true;
-
-        public ObservableCollection<FilterViewModel> Filters { get; set; }  = new();
 
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
 
         public DiscoverPageViewModel(IComicService comicService)
         {
             WeakReferenceMessenger.Default.Register<SearchMessage>(this);
+            WeakReferenceMessenger.Default.Register<FiltersDialogResultMessage>(this);
 
             _comicService = comicService;
         }
 
         public async void Receive(SearchMessage message) => await UpdateDisplayedComicsAsync(message.SearchText);
+
+        public async void Receive(FiltersDialogResultMessage message)
+        {
+            _appliedFilters = message.AppliedFilters;
+            await UpdateDisplayedComicsAsync();
+        }
 
         public async Task InitializeAsync()
         {
@@ -47,7 +56,7 @@ namespace Yukari.ViewModels.Pages
             SearchedComics.Clear();
 
             IsContentLoading = true;
-            var comics = await _comicService.SearchComicsAsync(SelectedComicSource.Name, searchText, []);
+            var comics = await _comicService.SearchComicsAsync(SelectedComicSource.Name, searchText, _appliedFilters);
 
             SearchedComics = new ObservableCollection<ComicItemViewModel>(
                comics.Select(comic => new ComicItemViewModel(comic, _comicService))
@@ -61,17 +70,16 @@ namespace Yukari.ViewModels.Pages
             WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
         }
 
-        [RelayCommand]
-        private async Task OpenFiltersDialogAsync()
-        {
-            throw new System.NotImplementedException();
-        }
+        [RelayCommand(CanExecute = nameof(CanFilter))]
+        private void OnFilter() =>
+            WeakReferenceMessenger.Default.Send(new RequestFiltersDialogMessage(_availableFilters, _appliedFilters));
+
+        private bool CanFilter() =>
+            (_availableFilters?.Count > 0) && !IsContentLoading;
 
         async partial void OnSelectedComicSourceChanged(ComicSourceModel value)
         {
-            Filters = new ObservableCollection<FilterViewModel>((await _comicService.GetSourceFiltersAsync(value.Name))
-                .Select(f => new FilterViewModel(f))
-            );
+            _availableFilters = await _comicService.GetSourceFiltersAsync(value.Name);
 
             await UpdateDisplayedComicsAsync();
         }

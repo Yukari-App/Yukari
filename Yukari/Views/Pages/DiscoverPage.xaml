@@ -104,49 +104,14 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
-                <DropDownButton
+                <Button
+                    Width="34"
+                    Height="34"
+                    Padding="0"
                     Background="Transparent"
                     BorderBrush="Transparent"
-                    Content="{ui:FontIcon Glyph=&#xE71C;}">
-                    <DropDownButton.Flyout>
-                        <MenuFlyout Placement="Bottom">
-                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xEA18;}" Text="Age Rating">
-                                <ToggleMenuFlyoutItem Text="Secure" />
-                                <ToggleMenuFlyoutItem Text="Suggestive" />
-                                <ToggleMenuFlyoutItem Text="Erotic" />
-                            </MenuFlyoutSubItem>
-                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE930;}" Text="Status">
-                                <ToggleMenuFlyoutItem Text="Ongoing" />
-                                <ToggleMenuFlyoutItem Text="Completed" />
-                                <ToggleMenuFlyoutItem Text="Canceled" />
-                                <ToggleMenuFlyoutItem Text="Paused" />
-                            </MenuFlyoutSubItem>
-                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE909;}" Text="Origination">
-                                <ToggleMenuFlyoutItem Text="Manga" />
-                                <ToggleMenuFlyoutItem Text="Manhwa" />
-                                <ToggleMenuFlyoutItem Text="Manhua" />
-                            </MenuFlyoutSubItem>
-                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE716;}" Text="Demographic">
-                                <ToggleMenuFlyoutItem Text="Shounen" />
-                                <ToggleMenuFlyoutItem Text="Shoujo" />
-                                <ToggleMenuFlyoutItem Text="Seinen" />
-                                <ToggleMenuFlyoutItem Text="Josei" />
-                                <ToggleMenuFlyoutItem Text="None" />
-                            </MenuFlyoutSubItem>
-                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE8EC;}" Text="Tags">
-                                <ToggleMenuFlyoutItem Text="Ex1" />
-                                <ToggleMenuFlyoutItem Text="Ex2" />
-                                <ToggleMenuFlyoutItem Text="Ex3" />
-                            </MenuFlyoutSubItem>
-                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE8FD;}" Text="Genre">
-                                <ToggleMenuFlyoutItem Text="Ex1" />
-                                <ToggleMenuFlyoutItem Text="Ex2" />
-                                <ToggleMenuFlyoutItem Text="Ex3" />
-                            </MenuFlyoutSubItem>
-
-                        </MenuFlyout>
-                    </DropDownButton.Flyout>
-                </DropDownButton>
+                    Command="{Binding FilterCommand}"
+                    Content="{ui:FontIcon Glyph=&#xE71C;}" />
 
             </StackPanel>
         </Grid>
