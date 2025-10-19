@@ -3,5 +3,5 @@ using Yukari.Core.Models;
 
 namespace Yukari.Messages
 {
-    public record RequestFiltersDialogMessage(IEnumerable<Filter> Filters);
+    public record RequestFiltersDialogMessage(IReadOnlyList<Filter> Filters, IReadOnlyDictionary<string, IReadOnlyList<string>> AppliedFilters);
 }
