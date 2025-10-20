@@ -13,6 +13,22 @@ namespace Yukari.ViewModels.Components
 
         public ObservableCollection<FilterOptionViewModel> Options { get; }
 
+        public FilterOptionViewModel? SelectedOptionIfNotAllowMultiple
+        {
+            get => Options.FirstOrDefault(o => o.IsSelected);
+            set
+            {
+                if (value is null) return;
+
+                foreach (var opt in Options)
+                    opt.IsSelected = false;
+
+                value.IsSelected = true;
+
+                OnPropertyChanged();
+            }
+        }
+
         public FilterViewModel(Filter filter)
         {
             Key = filter.Key;
