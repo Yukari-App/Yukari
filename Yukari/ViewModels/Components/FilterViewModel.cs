@@ -36,7 +36,8 @@ namespace Yukari.ViewModels.Components
             AllowMultiple = filter.AllowMultiple;
 
             Options = new ObservableCollection<FilterOptionViewModel>(
-                filter.Options.Select(o => new FilterOptionViewModel(o))
+                (filter.Options ?? Enumerable.Empty<FilterOption>())
+                    .Select(o => new FilterOptionViewModel(o))
             );
         }
     }
