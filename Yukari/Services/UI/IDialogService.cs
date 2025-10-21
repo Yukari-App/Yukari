@@ -8,6 +8,6 @@ namespace Yukari.Services.UI
     public interface IDialogService
     {
         void Initialize(XamlRoot root);
-        Task<IReadOnlyDictionary<string, IReadOnlyList<string>>?> ShowFiltersDialogAsync(IEnumerable<Filter> filters);
+        Task<IReadOnlyDictionary<string, IReadOnlyList<string>>?> ShowFiltersDialogAsync(IReadOnlyList<Filter> filters, IReadOnlyDictionary<string, IReadOnlyList<string>> appliedFilters);
     }
 }

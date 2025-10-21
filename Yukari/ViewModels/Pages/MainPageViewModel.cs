@@ -62,7 +62,7 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand]
         private async Task OnFiltersDialogRequested(RequestFiltersDialogMessage request)
         {
-            var selectedFilters = await _dialogService.ShowFiltersDialogAsync(request.Filters);
+            var selectedFilters = await _dialogService.ShowFiltersDialogAsync(request.Filters, request.AppliedFilters);
 
             if (selectedFilters != null)
                 WeakReferenceMessenger.Default.Send(new FiltersDialogResultMessage(selectedFilters));
