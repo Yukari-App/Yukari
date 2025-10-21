@@ -46,7 +46,7 @@ namespace Yukari.ViewModels.Pages
             _nav.Navigate(request.PageType, request.Parameter);
             IsBackEnabled = _nav.CanGoBack;
 
-            ResetSearchBox();
+            InitializeSearchBox();
         }
 
         [RelayCommand]
@@ -55,7 +55,7 @@ namespace Yukari.ViewModels.Pages
             if (_nav.GoBack())
                 IsBackEnabled = _nav.CanGoBack;
 
-            ResetSearchBox();
+            InitializeSearchBox();
         }
 
         [RelayCommand]
@@ -69,11 +69,13 @@ namespace Yukari.ViewModels.Pages
 
         [RelayCommand]
         private void OnSearchTextChanged() =>
-                WeakReferenceMessenger.Default.Send(new SearchMessage(SearchText));
+            WeakReferenceMessenger.Default.Send(new SearchMessage(SearchText));
 
-        private void ResetSearchBox()
+        private void InitializeSearchBox()
         {
-            SearchText = string.Empty;
+            if (_nav.CurrentPage is not (AppPage.FavoritesPage or AppPage.DiscoverPage or AppPage.ComicPage))
+                SearchText = string.Empty;
+
             OnPropertyChanged(nameof(IsSearchEnabled));
         }
     }
