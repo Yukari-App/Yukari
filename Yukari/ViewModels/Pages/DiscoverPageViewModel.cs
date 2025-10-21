@@ -20,12 +20,14 @@ namespace Yukari.ViewModels.Pages
         [ObservableProperty] private ObservableCollection<ComicSourceModel> _comicSources = new();
         [ObservableProperty] private ObservableCollection<ComicItemViewModel> _searchedComics = new();
         private IReadOnlyList<Filter> _availableFilters;
-        private IReadOnlyDictionary<string, IReadOnlyList<string>> _appliedFilters = new Dictionary<string, IReadOnlyList<string>>();
+        private IReadOnlyDictionary<string, IReadOnlyList<string>> _appliedFilters;
 
         [ObservableProperty] private ComicSourceModel _selectedComicSource;
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults)), NotifyCanExecuteChangedFor(nameof(FilterCommand))]
         private bool _isContentLoading = true;
+
+        private string _searchText;
 
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
 
@@ -37,8 +39,11 @@ namespace Yukari.ViewModels.Pages
             _comicService = comicService;
         }
 
-        public async void Receive(SearchMessage message) => await UpdateDisplayedComicsAsync(message.SearchText);
-
+        public async void Receive(SearchMessage message)
+        {
+            _searchText = message.SearchText ?? string.Empty;
+            await UpdateDisplayedComicsAsync();
+        }
         public async void Receive(FiltersDialogResultMessage message)
         {
             _appliedFilters = message.AppliedFilters;
@@ -51,12 +56,12 @@ namespace Yukari.ViewModels.Pages
             SelectedComicSource = ComicSources.FirstOrDefault(); // will call OnSelectedComicSourceChanged
         }
 
-        private async Task UpdateDisplayedComicsAsync(string? searchText = null)
+        private async Task UpdateDisplayedComicsAsync()
         {
             SearchedComics.Clear();
 
             IsContentLoading = true;
-            var comics = await _comicService.SearchComicsAsync(SelectedComicSource.Name, searchText, _appliedFilters);
+            var comics = await _comicService.SearchComicsAsync(SelectedComicSource.Name, _searchText, _appliedFilters);
 
             SearchedComics = new ObservableCollection<ComicItemViewModel>(
                comics.Select(comic => new ComicItemViewModel(comic, _comicService))
@@ -80,6 +85,7 @@ namespace Yukari.ViewModels.Pages
         async partial void OnSelectedComicSourceChanged(ComicSourceModel value)
         {
             _availableFilters = await _comicService.GetSourceFiltersAsync(value.Name);
+            _appliedFilters = new Dictionary<string, IReadOnlyList<string>>();
 
             await UpdateDisplayedComicsAsync();
         }

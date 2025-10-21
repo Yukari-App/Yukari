@@ -18,7 +18,7 @@ namespace Yukari.Views.Pages
         {
             base.OnNavigatedTo(e);
 
-            if (DataContext is DiscoverPageViewModel viewModel)
+            if (e.NavigationMode == NavigationMode.New && DataContext is DiscoverPageViewModel viewModel)
                 await viewModel.InitializeAsync();   
         }
 
