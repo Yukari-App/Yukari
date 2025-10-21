@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using System;
 
-namespace Yukari.Helpers.Converters
+namespace Yukari.Helpers.UI.Converters
 {
     public class BooleanToVisibilityConverter : IValueConverter
     {
