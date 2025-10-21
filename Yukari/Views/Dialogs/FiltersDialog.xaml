@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Yukari.Views.Dialogs.FiltersDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Yukari.Views.Dialogs"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:selectors="using:Yukari.Helpers.UI.Selectors"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    xmlns:vmc="using:Yukari.ViewModels.Components"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <selectors:FilterTemplateSelector
+            x:Key="FilterTemplateSelector"
+            MultipleFilterTemplate="{StaticResource MultipleFilterTemplate}"
+            SingleFilterTemplate="{StaticResource SingleFilterTemplate}" />
+
+        <DataTemplate x:Key="SingleFilterTemplate" x:DataType="vmc:FilterViewModel">
+            <Grid
+                Height="46"
+                Margin="0,0,0,3"
+                Padding="16,0,6,0"
+                HorizontalAlignment="Stretch"
+                Background="{StaticResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                ColumnDefinitions="*, Auto"
+                CornerRadius="4">
+                <TextBlock
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Text="{Binding DisplayName}" />
+                <ComboBox
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    ItemsSource="{Binding Options}"
+                    SelectedItem="{Binding SelectedOptionIfNotAllowMultiple, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vmc:FilterOptionViewModel">
+                            <TextBlock VerticalAlignment="Center" Text="{x:Bind DisplayName}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="MultipleFilterTemplate" x:DataType="vmc:FilterViewModel">
+            <Expander
+                Margin="0,0,0,3"
+                Padding="0"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                Header="{Binding DisplayName}">
+                <Expander.Content>
+                    <ItemsRepeater ItemsSource="{Binding Options}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="vmc:FilterOptionViewModel">
+                                <Grid
+                                    Padding="16,0,16,0"
+                                    HorizontalAlignment="Stretch"
+                                    BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="0,0,0,1"
+                                    ColumnDefinitions="*, 40">
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Text="{x:Bind DisplayName}" />
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        IsOn="{x:Bind IsSelected, Mode=TwoWay}"
+                                        OffContent=""
+                                        OnContent="" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </Expander.Content>
+            </Expander>
+        </DataTemplate>
+    </Page.Resources>
+
+    <ScrollViewer Width="320" MaxHeight="300">
+        <ItemsControl ItemTemplateSelector="{StaticResource FilterTemplateSelector}" ItemsSource="{Binding Filters}">
+            <ItemsControl.ItemContainerTransitions>
+                <EntranceThemeTransition FromVerticalOffset="50" />
+                <RepositionThemeTransition IsStaggeringEnabled="False" />
+            </ItemsControl.ItemContainerTransitions>
+        </ItemsControl>
+    </ScrollViewer>
+</Page>
