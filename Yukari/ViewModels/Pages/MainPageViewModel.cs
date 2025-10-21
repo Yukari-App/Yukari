@@ -1,12 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Threading.Tasks;
+using Yukari.Enums;
 using Yukari.Messages;
 using Yukari.Services.UI;
-using Yukari.Views.Pages;
 
 namespace Yukari.ViewModels.Pages
 {
@@ -17,7 +16,7 @@ namespace Yukari.ViewModels.Pages
 
         [ObservableProperty] private bool _isBackEnabled;
 
-        public bool IsSearchEnabled => _nav.CurrentPageType == typeof(FavoritesPage) || _nav.CurrentPageType == typeof(DiscoverPage);
+        public bool IsSearchEnabled => _nav.CurrentPage is Enums.AppPage.DiscoverPage or Enums.AppPage.FavoritesPage;
 
         [ObservableProperty]
         private string _searchText = String.Empty;
@@ -69,11 +68,8 @@ namespace Yukari.ViewModels.Pages
         }
 
         [RelayCommand]
-        private void OnSearchTextChanged(AutoSuggestionBoxTextChangeReason Reason)
-        {
-            if (Reason != AutoSuggestionBoxTextChangeReason.ProgrammaticChange)
+        private void OnSearchTextChanged() =>
                 WeakReferenceMessenger.Default.Send(new SearchMessage(SearchText));
-        }
 
         private void ResetSearchBox()
         {
