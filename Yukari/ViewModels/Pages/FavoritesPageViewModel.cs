@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Messages;
@@ -15,13 +15,13 @@ namespace Yukari.ViewModels.Pages
     {
         private IComicService _comicService;
 
-        [ObservableProperty] private ObservableCollection<ComicItemViewModel> _favoriteComics = new();
+        [ObservableProperty] private List<ComicItemViewModel> _favoriteComics = new();
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(NoFavorites))]
         private bool _isContentLoading = true;
 
-        public bool NoFavorites => !IsContentLoading && !FavoriteComics.Any();
+        public bool NoFavorites => !IsContentLoading && FavoriteComics.Count == 0;
 
         public FavoritesPageViewModel(IComicService comicService)
         {
@@ -36,21 +36,16 @@ namespace Yukari.ViewModels.Pages
 
         private async Task UpdateDisplayedComicsAsync(string? searchText = null)
         {
-            FavoriteComics.Clear();
-
             IsContentLoading = true;
-            var comics = await _comicService.GetFavoriteComicsAsync(searchText, "all");
 
-            FavoriteComics = new ObservableCollection<ComicItemViewModel>(
-               comics.Select(comic => new ComicItemViewModel(comic, _comicService))
-            );
+            FavoriteComics = (await _comicService.GetFavoriteComicsAsync(searchText, "all"))
+                .Select(comic => new ComicItemViewModel(comic, _comicService)).ToList();
+
             IsContentLoading = false;
         }
 
         [RelayCommand]
-        private void NavigateToComic(ContentIdentifier comicIdentifier)
-        {
+        private void NavigateToComic(ContentIdentifier comicIdentifier) =>
             WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
-        }
     }
 }

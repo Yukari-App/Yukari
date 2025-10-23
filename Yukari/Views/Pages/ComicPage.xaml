@@ -324,7 +324,7 @@
                                 Visibility="{Binding IsDownloadingAllChapters, Converter={StaticResource BooleanToVisibilityConverter}}"
                                 Value="45" />
 
-                            <ToggleButton IsChecked="{Binding IsAllChaptersDownloaded, Mode=TwoWay}" IsEnabled="{Binding IsDownloadAllEnabled}">
+                            <ToggleButton IsChecked="{Binding IsAllChaptersDownloaded, Mode=TwoWay}" IsEnabled="{Binding IsChapterOptionsAvailable}">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon FontSize="16" Glyph="{Binding DownloadAllIcon}" />
                                     <TextBlock Text="{Binding DownloadAllText}" />
@@ -333,6 +333,7 @@
 
                             <ComboBox
                                 DisplayMemberPath="DisplayName"
+                                IsEnabled="{Binding IsLanguageSelectionAvailable}"
                                 ItemsSource="{Binding Langs}"
                                 SelectedValue="{Binding SelectedLang, Mode=TwoWay}"
                                 SelectedValuePath="Code" />
@@ -343,7 +344,8 @@
                                 Padding="0"
                                 Background="Transparent"
                                 BorderBrush="Transparent"
-                                Content="{ui:FontIcon Glyph=&#xE712;}">
+                                Content="{ui:FontIcon Glyph=&#xE712;}"
+                                IsEnabled="{Binding IsChapterOptionsAvailable}">
                                 <Button.Flyout>
                                     <MenuFlyout Placement="Bottom">
                                         <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark all as read" />
@@ -379,7 +381,8 @@
                         IsItemInvokedEnabled="True"
                         ItemTemplate="{StaticResource ChaptersTemplate}"
                         ItemsSource="{Binding Chapters}"
-                        SelectionMode="None" />
+                        SelectionMode="None"
+                        Visibility="{Binding IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />
                 </Grid>
             </Grid>
         </ScrollViewer>

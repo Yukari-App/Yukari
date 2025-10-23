@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
@@ -17,8 +16,8 @@ namespace Yukari.ViewModels.Pages
     {
         private IComicService _comicService;
 
-        [ObservableProperty] private ObservableCollection<ComicSourceModel> _comicSources = new();
-        [ObservableProperty] private ObservableCollection<ComicItemViewModel> _searchedComics = new();
+        [ObservableProperty] private List<ComicSourceModel> _comicSources = new();
+        [ObservableProperty] private List<ComicItemViewModel> _searchedComics = new();
         private IReadOnlyList<Filter> _availableFilters;
         private IReadOnlyDictionary<string, IReadOnlyList<string>> _appliedFilters;
 
@@ -52,20 +51,19 @@ namespace Yukari.ViewModels.Pages
 
         public async Task InitializeAsync()
         {
-            ComicSources = new ObservableCollection<ComicSourceModel>(await _comicService.GetComicSourcesAsync());
+            if (!ComicSources.Any())
+                ComicSources = new(await _comicService.GetComicSourcesAsync());
+
             SelectedComicSource = ComicSources.FirstOrDefault(); // will call OnSelectedComicSourceChanged
         }
 
         private async Task UpdateDisplayedComicsAsync()
         {
-            SearchedComics.Clear();
-
             IsContentLoading = true;
-            var comics = await _comicService.SearchComicsAsync(SelectedComicSource.Name, _searchText, _appliedFilters);
 
-            SearchedComics = new ObservableCollection<ComicItemViewModel>(
-               comics.Select(comic => new ComicItemViewModel(comic, _comicService))
-            );
+            SearchedComics = (await _comicService.SearchComicsAsync(SelectedComicSource.Name, _searchText, _appliedFilters))
+                .Select(comic => new ComicItemViewModel(comic, _comicService)).ToList();
+
             IsContentLoading = false;
         }
 
