@@ -12,7 +12,7 @@ using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
 {
-    public partial class DiscoverPageViewModel : ObservableObject, IRecipient<SearchMessage>, IRecipient<FiltersDialogResultMessage>
+    public partial class DiscoverPageViewModel : ObservableObject, IRecipient<SearchChangedMessage>, IRecipient<FiltersDialogResultMessage>
     {
         private IComicService _comicService;
 
@@ -35,14 +35,14 @@ namespace Yukari.ViewModels.Pages
 
         public void RegisterMessages()
         {
-            WeakReferenceMessenger.Default.Register<SearchMessage>(this);
+            WeakReferenceMessenger.Default.Register<SearchChangedMessage>(this);
             WeakReferenceMessenger.Default.Register<FiltersDialogResultMessage>(this);
         }
 
         public void UnregisterMessages() =>
             WeakReferenceMessenger.Default.UnregisterAll(this);
 
-        public async void Receive(SearchMessage message)
+        public async void Receive(SearchChangedMessage message)
         {
             _searchText = message.SearchText ?? string.Empty;
             await UpdateDisplayedComicsAsync();

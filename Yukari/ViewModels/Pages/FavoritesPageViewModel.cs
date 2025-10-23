@@ -11,7 +11,7 @@ using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
 {
-    public partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchMessage>
+    public partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchChangedMessage>
     {
         private IComicService _comicService;
 
@@ -25,12 +25,12 @@ namespace Yukari.ViewModels.Pages
 
         public FavoritesPageViewModel(IComicService comicService)
         {
-            WeakReferenceMessenger.Default.Register<SearchMessage>(this);
+            WeakReferenceMessenger.Default.Register<SearchChangedMessage>(this);
 
             _comicService = comicService;
         }
 
-        public async void Receive(SearchMessage message) => await UpdateDisplayedComicsAsync(message.SearchText);
+        public async void Receive(SearchChangedMessage message) => await UpdateDisplayedComicsAsync(message.SearchText);
 
         public async Task InitializeAsync() => await UpdateDisplayedComicsAsync();
 

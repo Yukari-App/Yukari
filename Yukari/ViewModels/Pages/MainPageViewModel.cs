@@ -69,7 +69,7 @@ namespace Yukari.ViewModels.Pages
 
         [RelayCommand]
         private void OnSearchTextChanged() =>
-            WeakReferenceMessenger.Default.Send(new SearchMessage(SearchText));
+            WeakReferenceMessenger.Default.Send(new SearchChangedMessage(SearchText));
 
         private void InitializeSearchBox()
         {
