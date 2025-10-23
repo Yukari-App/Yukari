@@ -20,7 +20,7 @@ namespace Yukari.Views.Pages
 
             if (DataContext is DiscoverPageViewModel viewModel)
             {
-                viewModel.RegisterMessages();
+                viewModel.RegisterSearchMessages();
 
                 if (e.NavigationMode == NavigationMode.New)
                     await viewModel.InitializeAsync();
@@ -32,7 +32,7 @@ namespace Yukari.Views.Pages
             base.OnNavigatedFrom(e);
 
             if (DataContext is DiscoverPageViewModel viewModel)
-                viewModel.UnregisterMessages();
+                viewModel.UnregisterSearchMessages();
         }
 
         private void GridView_ItemClick(object sender, ItemClickEventArgs e)
