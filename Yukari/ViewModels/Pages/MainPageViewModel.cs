@@ -9,7 +9,8 @@ using Yukari.Services.UI;
 
 namespace Yukari.ViewModels.Pages
 {
-    public partial class MainPageViewModel : ObservableObject, IRecipient<NavigateMessage>, IRecipient<RequestFiltersDialogMessage>
+    public partial class MainPageViewModel : ObservableObject,
+        IRecipient<NavigateMessage>, IRecipient<RequestFiltersDialogMessage>, IRecipient<SetSearchTextMessage>
     {
         private readonly INavigationService _nav;
         private readonly IDialogService _dialogService;
@@ -28,6 +29,7 @@ namespace Yukari.ViewModels.Pages
 
             WeakReferenceMessenger.Default.Register<NavigateMessage>(this);
             WeakReferenceMessenger.Default.Register<RequestFiltersDialogMessage>(this);
+            WeakReferenceMessenger.Default.Register<SetSearchTextMessage>(this);
 
             IsBackEnabled = _nav.CanGoBack;
         }
@@ -37,6 +39,9 @@ namespace Yukari.ViewModels.Pages
 
         public async void Receive(RequestFiltersDialogMessage message) =>
             await OnFiltersDialogRequested(message);
+
+        public void Receive(SetSearchTextMessage message) =>
+            SearchText = message.SearchText ?? string.Empty;
 
         [RelayCommand]
         private void OnNavigate(NavigateMessage request)
