@@ -1,4 +1,4 @@
 namespace Yukari.Messages
 {
-    record SetSearchTextMessage(string? SearchText);
+    public record SetSearchTextMessage(string? SearchText);
 }
