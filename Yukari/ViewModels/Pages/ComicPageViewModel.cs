@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Models;
@@ -22,12 +22,12 @@ namespace Yukari.ViewModels.Pages
         [ObservableProperty] private string[] _tags = new[] { "N/A" };
         [ObservableProperty] private int _year;
         [ObservableProperty] private string? _coverImageUrl;
-        [ObservableProperty] private string[] _langs = new[] { "N/A" };
+        [ObservableProperty] private List<LanguageModel> _langs;
 
         [ObservableProperty] private ObservableCollection<ChapterItemViewModel> _chapters = new();
 
         [ObservableProperty]
-        private string _selectedLang;
+        private string? _selectedLang;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(FavoriteIcon))]
@@ -70,10 +70,10 @@ namespace Yukari.ViewModels.Pages
             Tags = _comic?.Tags ?? new[] { "N/A" };
             Year = _comic?.Year ?? 0;
             CoverImageUrl = _comic?.CoverImageUrl;
-            Langs = _comic?.Langs ?? new[] { "N/A" };
+            Langs = await LoadLangs();
 
             IsFavorite = _comic?.IsFavorite ?? false;
-            SelectedLang = _comic?.LastSelectedLang ?? Langs[0];
+            SelectedLang = _comic?.LastSelectedLang ?? Langs.FirstOrDefault()?.Code;
 
             await UpdateDisplayedChaptersAsync();
         }
@@ -99,6 +99,16 @@ namespace Yukari.ViewModels.Pages
             );
 
             IsChaptersLoading = false;
+        }
+
+        private async Task<List<LanguageModel>> LoadLangs()
+        {
+            var sourceLangs = await _comicService.GetSourceLanguagesAsync(_comicIdentifier.Source);
+
+            return _comic.Langs?.Select(code => new LanguageModel(
+                    code,
+                    sourceLangs.TryGetValue(code, out var displayName) ? displayName : code
+                )).ToList() ?? new List<LanguageModel>();
         }
 
         async partial void OnSelectedLangChanged(string value) =>
