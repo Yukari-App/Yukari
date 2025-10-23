@@ -18,8 +18,21 @@ namespace Yukari.Views.Pages
         {
             base.OnNavigatedTo(e);
 
-            if (e.NavigationMode == NavigationMode.New && DataContext is DiscoverPageViewModel viewModel)
-                await viewModel.InitializeAsync();   
+            if (DataContext is DiscoverPageViewModel viewModel)
+            {
+                viewModel.RegisterMessages();
+
+                if (e.NavigationMode == NavigationMode.New)
+                    await viewModel.InitializeAsync();
+            }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+
+            if (DataContext is DiscoverPageViewModel viewModel)
+                viewModel.UnregisterMessages();
         }
 
         private void GridView_ItemClick(object sender, ItemClickEventArgs e)

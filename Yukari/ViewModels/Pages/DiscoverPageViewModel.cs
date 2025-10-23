@@ -30,13 +30,17 @@ namespace Yukari.ViewModels.Pages
 
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
 
-        public DiscoverPageViewModel(IComicService comicService)
+        public DiscoverPageViewModel(IComicService comicService) =>
+            _comicService = comicService;
+
+        public void RegisterMessages()
         {
             WeakReferenceMessenger.Default.Register<SearchMessage>(this);
             WeakReferenceMessenger.Default.Register<FiltersDialogResultMessage>(this);
-
-            _comicService = comicService;
         }
+
+        public void UnregisterMessages() =>
+            WeakReferenceMessenger.Default.UnregisterAll(this);
 
         public async void Receive(SearchMessage message)
         {
