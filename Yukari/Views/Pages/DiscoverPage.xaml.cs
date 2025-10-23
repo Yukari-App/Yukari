@@ -21,9 +21,7 @@ namespace Yukari.Views.Pages
             if (DataContext is DiscoverPageViewModel viewModel)
             {
                 viewModel.RegisterSearchMessages();
-
-                if (e.NavigationMode == NavigationMode.New)
-                    await viewModel.InitializeAsync();
+                await viewModel.LoadDiscoverDataAsync();
             }
         }
 

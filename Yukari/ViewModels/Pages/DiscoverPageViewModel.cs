@@ -12,7 +12,8 @@ using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
 {
-    public partial class DiscoverPageViewModel : ObservableObject, IRecipient<SearchChangedMessage>, IRecipient<FiltersDialogResultMessage>
+    public partial class DiscoverPageViewModel : ObservableObject,
+        IRecipient<SearchChangedMessage>, IRecipient<FiltersDialogResultMessage>, IRecipient<ComicSourcesUpdatedMessage>
     {
         private IComicService _comicService;
 
@@ -21,12 +22,12 @@ namespace Yukari.ViewModels.Pages
         private IReadOnlyList<Filter> _availableFilters;
         private IReadOnlyDictionary<string, IReadOnlyList<string>> _appliedFilters;
 
-        [ObservableProperty] private ComicSourceModel _selectedComicSource;
+        [ObservableProperty] private ComicSourceModel? _selectedComicSource;
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults)), NotifyCanExecuteChangedFor(nameof(FilterCommand))]
         private bool _isContentLoading = true;
 
-        private string _searchText;
+        private string _searchText = "";
 
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
 
@@ -35,8 +36,9 @@ namespace Yukari.ViewModels.Pages
             _comicService = comicService;
 
             WeakReferenceMessenger.Default.Register<FiltersDialogResultMessage>(this);
+            WeakReferenceMessenger.Default.Register<ComicSourcesUpdatedMessage>(this);
         }
-
+            
         public void RegisterSearchMessages() =>
             WeakReferenceMessenger.Default.Register<SearchChangedMessage>(this);
 
@@ -48,16 +50,28 @@ namespace Yukari.ViewModels.Pages
             _searchText = message.SearchText ?? string.Empty;
             await UpdateDisplayedComicsAsync();
         }
+
         public async void Receive(FiltersDialogResultMessage message)
         {
             _appliedFilters = message.AppliedFilters;
             await UpdateDisplayedComicsAsync();
         }
 
-        public async Task InitializeAsync()
+        public async void Receive(ComicSourcesUpdatedMessage message) =>
+            await UpdateAvailableComicSources();
+
+        public async Task LoadDiscoverDataAsync()
         {
-            if (!ComicSources.Any())
-                ComicSources = new(await _comicService.GetComicSourcesAsync());
+            if (!string.IsNullOrEmpty(_searchText))
+                WeakReferenceMessenger.Default.Send(new SetSearchTextMessage(_searchText));
+
+            if (ComicSources.Count == 0)
+                await UpdateAvailableComicSources();
+        }
+
+        private async Task UpdateAvailableComicSources()
+        {
+            ComicSources = new(await _comicService.GetComicSourcesAsync());
 
             SelectedComicSource = ComicSources.FirstOrDefault(); // will call OnSelectedComicSourceChanged
         }
@@ -72,12 +86,6 @@ namespace Yukari.ViewModels.Pages
             IsContentLoading = false;
         }
 
-        [RelayCommand]
-        private void NavigateToComic(ContentIdentifier comicIdentifier)
-        {
-            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
-        }
-
         [RelayCommand(CanExecute = nameof(CanFilter))]
         private void OnFilter() =>
             WeakReferenceMessenger.Default.Send(new RequestFiltersDialogMessage(_availableFilters, _appliedFilters));
@@ -85,8 +93,14 @@ namespace Yukari.ViewModels.Pages
         private bool CanFilter() =>
             (_availableFilters?.Count > 0) && !IsContentLoading;
 
-        async partial void OnSelectedComicSourceChanged(ComicSourceModel value)
+        [RelayCommand]
+        private void NavigateToComic(ContentIdentifier comicIdentifier) =>
+            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
+
+        async partial void OnSelectedComicSourceChanged(ComicSourceModel? value)
         {
+            if (value == null) return;
+
             _availableFilters = await _comicService.GetSourceFiltersAsync(value.Name);
             _appliedFilters = new Dictionary<string, IReadOnlyList<string>>();
 
