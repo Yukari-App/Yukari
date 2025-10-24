@@ -139,7 +139,6 @@
             ItemClick="GridView_ItemClick"
             ItemTemplate="{StaticResource ComicTemplate}"
             ItemsSource="{Binding SearchedComics}"
-            SelectionMode="None"
-            Visibility="{Binding IsContentLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />
+            SelectionMode="None" />
     </Grid>
 </Page>

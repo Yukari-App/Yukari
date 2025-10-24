@@ -40,6 +40,7 @@ namespace Yukari.ViewModels.Pages
         {
             IsContentLoading = true;
 
+            FavoriteComics = new List<ComicItemViewModel>();
             FavoriteComics = (await _comicService.GetFavoriteComicsAsync(searchText, "all"))
                 .Select(comic => new ComicItemViewModel(comic, _comicService)).ToList();
 
