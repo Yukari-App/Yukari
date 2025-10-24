@@ -15,12 +15,13 @@ namespace Yukari.ViewModels.Pages
     public partial class DiscoverPageViewModel : ObservableObject,
         IRecipient<SearchChangedMessage>, IRecipient<FiltersDialogResultMessage>, IRecipient<ComicSourcesUpdatedMessage>
     {
-        private IComicService _comicService;
+        private readonly IComicService _comicService;
+        private readonly IMessenger _messenger;
 
         [ObservableProperty] private List<ComicSourceModel> _comicSources = new();
         [ObservableProperty] private List<ComicItemViewModel> _searchedComics = new();
-        private IReadOnlyList<Filter> _availableFilters;
-        private IReadOnlyDictionary<string, IReadOnlyList<string>> _appliedFilters;
+        private IReadOnlyList<Filter> _availableFilters = new List<Filter>();
+        private IReadOnlyDictionary<string, IReadOnlyList<string>> _appliedFilters = new Dictionary<string, IReadOnlyList<string>>();
 
         [ObservableProperty] private ComicSourceModel? _selectedComicSource;
 
@@ -31,19 +32,20 @@ namespace Yukari.ViewModels.Pages
 
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
 
-        public DiscoverPageViewModel(IComicService comicService)
+        public DiscoverPageViewModel(IComicService comicService, IMessenger messenger)
         {
             _comicService = comicService;
+            _messenger = messenger;
 
-            WeakReferenceMessenger.Default.Register<FiltersDialogResultMessage>(this);
-            WeakReferenceMessenger.Default.Register<ComicSourcesUpdatedMessage>(this);
+            _messenger.Register<FiltersDialogResultMessage>(this);
+            _messenger.Register<ComicSourcesUpdatedMessage>(this);
         }
             
         public void RegisterSearchMessages() =>
-            WeakReferenceMessenger.Default.Register<SearchChangedMessage>(this);
+            _messenger.Register<SearchChangedMessage>(this);
 
         public void UnregisterSearchMessages() =>
-            WeakReferenceMessenger.Default.Unregister<SearchChangedMessage>(this);
+            _messenger.Unregister<SearchChangedMessage>(this);
 
         public async void Receive(SearchChangedMessage message)
         {
@@ -63,7 +65,7 @@ namespace Yukari.ViewModels.Pages
         public async Task LoadDiscoverDataAsync()
         {
             if (!string.IsNullOrEmpty(_searchText))
-                WeakReferenceMessenger.Default.Send(new SetSearchTextMessage(_searchText));
+                _messenger.Send(new SetSearchTextMessage(_searchText));
 
             if (ComicSources.Count == 0)
                 await UpdateAvailableComicSources();
@@ -88,14 +90,14 @@ namespace Yukari.ViewModels.Pages
 
         [RelayCommand(CanExecute = nameof(CanFilter))]
         private void OnFilter() =>
-            WeakReferenceMessenger.Default.Send(new RequestFiltersDialogMessage(_availableFilters, _appliedFilters));
+            _messenger.Send(new RequestFiltersDialogMessage(_availableFilters, _appliedFilters));
 
         private bool CanFilter() =>
             (_availableFilters?.Count > 0) && !IsContentLoading;
 
         [RelayCommand]
         private void NavigateToComic(ContentIdentifier comicIdentifier) =>
-            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
+            _messenger.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
 
         async partial void OnSelectedComicSourceChanged(ComicSourceModel? value)
         {

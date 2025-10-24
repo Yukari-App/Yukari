@@ -13,7 +13,8 @@ namespace Yukari.ViewModels.Pages
 {
     public partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchChangedMessage>
     {
-        private IComicService _comicService;
+        private readonly IComicService _comicService;
+        private readonly IMessenger _messenger;
 
         [ObservableProperty] private List<ComicItemViewModel> _favoriteComics = new();
 
@@ -23,11 +24,12 @@ namespace Yukari.ViewModels.Pages
 
         public bool NoFavorites => !IsContentLoading && FavoriteComics.Count == 0;
 
-        public FavoritesPageViewModel(IComicService comicService)
+        public FavoritesPageViewModel(IComicService comicService, IMessenger messenger)
         {
-            WeakReferenceMessenger.Default.Register<SearchChangedMessage>(this);
-
             _comicService = comicService;
+            _messenger = messenger;
+
+            _messenger.RegisterAll(this);
         }
 
         public async void Receive(SearchChangedMessage message) => await UpdateDisplayedComicsAsync(message.SearchText);
@@ -46,6 +48,6 @@ namespace Yukari.ViewModels.Pages
 
         [RelayCommand]
         private void NavigateToComic(ContentIdentifier comicIdentifier) =>
-            WeakReferenceMessenger.Default.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
+            _messenger.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
     }
 }

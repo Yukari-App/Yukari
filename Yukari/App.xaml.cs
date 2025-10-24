@@ -36,6 +36,7 @@ namespace Yukari
             services.AddTransient<SettingsPageViewModel>();
             services.AddTransient<ComicPageViewModel>();
 
+            services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
             _services = services.BuildServiceProvider();
         }
 

@@ -14,6 +14,7 @@ namespace Yukari.ViewModels.Pages
     {
         private readonly INavigationService _navigationService;
         private readonly IDialogService _dialogService;
+        private readonly IMessenger _messenger;
 
         [ObservableProperty]
         private string _searchText = String.Empty;
@@ -21,14 +22,13 @@ namespace Yukari.ViewModels.Pages
         public bool IsBackEnabled => _navigationService.CanGoBack;
         public bool IsSearchEnabled => _navigationService.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;
 
-        public MainPageViewModel(INavigationService navigationService, IDialogService dialogService)
+        public MainPageViewModel(INavigationService navigationService, IDialogService dialogService, IMessenger messenger)
         {
             _navigationService = navigationService;
             _dialogService = dialogService;
+            _messenger = messenger;
 
-            WeakReferenceMessenger.Default.Register<NavigateMessage>(this);
-            WeakReferenceMessenger.Default.Register<RequestFiltersDialogMessage>(this);
-            WeakReferenceMessenger.Default.Register<SetSearchTextMessage>(this);
+            _messenger.RegisterAll(this);
         }
 
         public void Receive(NavigateMessage message) =>
@@ -66,12 +66,12 @@ namespace Yukari.ViewModels.Pages
             var selectedFilters = await _dialogService.ShowFiltersDialogAsync(request.Filters, request.AppliedFilters);
 
             if (selectedFilters != null)
-                WeakReferenceMessenger.Default.Send(new FiltersDialogResultMessage(selectedFilters));
+                _messenger.Send(new FiltersDialogResultMessage(selectedFilters));
         }
 
         [RelayCommand]
         private void OnSearchTextChanged() =>
-            WeakReferenceMessenger.Default.Send(new SearchChangedMessage(SearchText));
+            _messenger.Send(new SearchChangedMessage(SearchText));
 
         private void RefreshSearchBox()
         {
