@@ -28,7 +28,7 @@ namespace Yukari.ViewModels.Pages
         [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults)), NotifyCanExecuteChangedFor(nameof(FilterCommand))]
         private bool _isContentLoading = true;
 
-        private string _searchText = "";
+        private string _searchText = string.Empty;
 
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
 
