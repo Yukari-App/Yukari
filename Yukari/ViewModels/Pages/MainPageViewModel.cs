@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Yukari.Enums;
 using Yukari.Messages;
@@ -15,6 +16,8 @@ namespace Yukari.ViewModels.Pages
         private readonly INavigationService _navigationService;
         private readonly IDialogService _dialogService;
         private readonly IMessenger _messenger;
+
+        private CancellationTokenSource? _cts;
 
         [ObservableProperty]
         private string _searchText = String.Empty;
@@ -70,8 +73,18 @@ namespace Yukari.ViewModels.Pages
         }
 
         [RelayCommand]
-        private void OnSearchTextChanged() =>
-            _messenger.Send(new SearchChangedMessage(SearchText));
+        private async Task OnSearchTextChanged()
+        {
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+
+            try
+            {
+                await Task.Delay(400, _cts.Token);
+                _messenger.Send(new SearchChangedMessage(SearchText));
+            }
+            catch (TaskCanceledException) { }
+        }
 
         private void RefreshSearchBox()
         {
