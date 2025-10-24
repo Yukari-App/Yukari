@@ -64,8 +64,7 @@ namespace Yukari.ViewModels.Pages
 
         public async Task LoadDiscoverDataAsync()
         {
-            if (!string.IsNullOrEmpty(_searchText))
-                _messenger.Send(new SetSearchTextMessage(_searchText));
+            _messenger.Send(new SetSearchTextMessage(_searchText));
 
             if (ComicSources.Count == 0)
                 await UpdateAvailableComicSources();
