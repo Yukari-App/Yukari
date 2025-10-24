@@ -12,26 +12,23 @@ namespace Yukari.ViewModels.Pages
     public partial class MainPageViewModel : ObservableObject,
         IRecipient<NavigateMessage>, IRecipient<RequestFiltersDialogMessage>, IRecipient<SetSearchTextMessage>
     {
-        private readonly INavigationService _nav;
+        private readonly INavigationService _navigationService;
         private readonly IDialogService _dialogService;
-
-        [ObservableProperty] private bool _isBackEnabled;
-
-        public bool IsSearchEnabled => _nav.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;
 
         [ObservableProperty]
         private string _searchText = String.Empty;
 
-        public MainPageViewModel(INavigationService navService, IDialogService dialogService)
+        public bool IsBackEnabled => _navigationService.CanGoBack;
+        public bool IsSearchEnabled => _navigationService.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;
+
+        public MainPageViewModel(INavigationService navigationService, IDialogService dialogService)
         {
-            _nav = navService;
+            _navigationService = navigationService;
             _dialogService = dialogService;
 
             WeakReferenceMessenger.Default.Register<NavigateMessage>(this);
             WeakReferenceMessenger.Default.Register<RequestFiltersDialogMessage>(this);
             WeakReferenceMessenger.Default.Register<SetSearchTextMessage>(this);
-
-            IsBackEnabled = _nav.CanGoBack;
         }
 
         public void Receive(NavigateMessage message) =>
@@ -48,8 +45,8 @@ namespace Yukari.ViewModels.Pages
         {
             if (request.PageType == null) return;
 
-            _nav.Navigate(request.PageType, request.Parameter);
-            IsBackEnabled = _nav.CanGoBack;
+            _navigationService.Navigate(request.PageType, request.Parameter);
+            OnPropertyChanged(nameof(IsBackEnabled));
 
             RefreshSearchBox();
         }
@@ -57,8 +54,8 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand]
         private void OnBack()
         {
-            if (_nav.GoBack())
-                IsBackEnabled = _nav.CanGoBack;
+            if (_navigationService.GoBack())
+                OnPropertyChanged(nameof(IsBackEnabled));
 
             RefreshSearchBox();
         }
@@ -78,7 +75,7 @@ namespace Yukari.ViewModels.Pages
 
         private void RefreshSearchBox()
         {
-            if (_nav.CurrentPage != AppPage.DiscoverPage) SearchText = string.Empty;
+            if (_navigationService.CurrentPage != AppPage.DiscoverPage) SearchText = string.Empty;
             OnPropertyChanged(nameof(IsSearchEnabled));
         }
     }
