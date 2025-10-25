@@ -33,7 +33,8 @@ namespace Yukari.ViewModels.Pages
         [NotifyPropertyChangedFor(nameof(FavoriteIcon))]
         private bool _isFavorite;
 
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(NoChapters), nameof(IsChapterOptionsAvailable), nameof(IsLanguageSelectionAvailable))]
+        [ObservableProperty,NotifyPropertyChangedFor(
+            nameof(NoChapters), nameof(IsChapterOptionsAvailable), nameof(IsLanguageSelectionAvailable), nameof(IsContinueEnabled))]
         private bool _isChaptersLoading = true;
 
         [ObservableProperty]
@@ -46,6 +47,7 @@ namespace Yukari.ViewModels.Pages
 
         public bool NoChapters => !IsChaptersLoading && Chapters.Count == 0;
 
+        public bool IsContinueEnabled => !IsChaptersLoading && !NoChapters;
         public bool IsChapterOptionsAvailable => !IsChaptersLoading && Chapters.Count > 0;
         public bool IsLanguageSelectionAvailable => !IsChaptersLoading && Langs.Count > 0;
 

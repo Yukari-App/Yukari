@@ -151,7 +151,7 @@
                 VerticalAlignment="Center"
                 Orientation="Horizontal"
                 Spacing="4">
-                <Button Style="{StaticResource AccentButtonStyle}">
+                <Button IsEnabled="{Binding IsContinueEnabled}" Style="{StaticResource AccentButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="16" Glyph="&#xF5B0;" />
                         <TextBlock Text="Continue" />
