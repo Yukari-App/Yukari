@@ -31,33 +31,12 @@
                     Padding="8,0,4,0"
                     VerticalAlignment="Bottom"
                     Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
-                    ColumnDefinitions="*, Auto"
                     ColumnSpacing="4"
                     CornerRadius="4">
                     <TextBlock
-                        Grid.Column="0"
                         VerticalAlignment="Center"
                         Text="{Binding Title}"
                         ToolTipService.ToolTip="{Binding Title}" />
-
-                    <Button
-                        Grid.Column="1"
-                        Width="28"
-                        Height="24"
-                        Padding="0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Content="{ui:FontIcon Glyph=&#xE712;}">
-                        <Button.Flyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE734;}" Text="Favorite" />
-                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE73A;}" Text="Select" />
-                            </MenuFlyout>
-                        </Button.Flyout>
-                    </Button>
-
                 </Grid>
 
             </Grid>
