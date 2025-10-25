@@ -11,7 +11,7 @@ namespace Yukari.ViewModels.Pages
         private readonly IComicService _comicService;
 
         [ObservableProperty]
-        private ComicSourceModel _defaultComicSource;
+        private ComicSourceModel? _defaultComicSource;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsComicSourcesEmpty))]
