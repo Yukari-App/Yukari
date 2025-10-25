@@ -13,17 +13,17 @@ namespace Yukari.ViewModels.Pages
     {
         private readonly IComicService _comicService;
 
-        private ContentIdentifier _comicIdentifier;
-        private ComicModel _comic;
+        private ContentIdentifier? _comicIdentifier;
+        private ComicModel? _comic;
 
         [ObservableProperty] private string _title = "Loading...";
-        [ObservableProperty] private string _author = "Unknown Author";
-        [ObservableProperty] private string _description = "No description available.";
-        [ObservableProperty] private string[] _tags = new[] { "N/A" };
-        [ObservableProperty] private int _year;
+        [ObservableProperty] private string _author = "Loading Author...";
+        [ObservableProperty] private string _description = "Loading Description..";
+        [ObservableProperty] private string[] _tags = new[] { "Loading Tags..." };
+        [ObservableProperty] private int _year = 0;
         [ObservableProperty] private string? _coverImageUrl;
-        [ObservableProperty] private List<LanguageModel> _langs;
 
+        [ObservableProperty] private List<LanguageModel> _langs = new();
         [ObservableProperty] private List<ChapterItemViewModel> _chapters = new();
 
         [ObservableProperty]
@@ -44,13 +44,12 @@ namespace Yukari.ViewModels.Pages
         [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
         private bool _isDownloadingAllChapters;
 
-        public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
-
         public bool NoChapters => !IsChaptersLoading && Chapters.Count == 0;
 
         public bool IsChapterOptionsAvailable => !IsChaptersLoading && Chapters.Count > 0;
         public bool IsLanguageSelectionAvailable => !IsChaptersLoading && Langs.Count > 0;
 
+        public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
         public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : IsDownloadingAllChapters ? "\uF78A" : "\uE896";
         public string DownloadAllText => IsAllChaptersDownloaded ? "Delete All" : IsDownloadingAllChapters ? "Downloading..." : "Download All";
 
@@ -60,10 +59,9 @@ namespace Yukari.ViewModels.Pages
         public async Task InitializeAsync(ContentIdentifier comicIdentifier)
         {
             _comicIdentifier = comicIdentifier;
+            _comic = await _comicService.GetComicDetailsAsync(_comicIdentifier);
 
-            _comic = await _comicService.GetComicDetailsAsync(comicIdentifier);
-
-            Title = _comic?.Title ?? "Loading...";
+            Title = _comic?.Title ?? "Unknown Title";
             Author = _comic?.Author ?? "Unknown Author";
             Description = _comic?.Description ?? "No description available.";
             Tags = _comic?.Tags ?? new[] { "N/A" };
@@ -85,12 +83,15 @@ namespace Yukari.ViewModels.Pages
 
         private async Task UpdateDisplayedChaptersAsync()
         {
-            if (_comicIdentifier == null || string.IsNullOrEmpty(SelectedLang))
+            if (string.IsNullOrEmpty(SelectedLang))
+            {
+                if (IsChaptersLoading) IsChaptersLoading = false;
                 return;
+            }
 
             IsChaptersLoading = true;
 
-            Chapters = (await _comicService.GetAllChaptersAsync(_comicIdentifier, SelectedLang))
+            Chapters = (await _comicService.GetAllChaptersAsync(_comicIdentifier!, SelectedLang))
                 .Select(chapter => new ChapterItemViewModel(chapter)).ToList();
 
             IsChaptersLoading = false;
@@ -98,15 +99,15 @@ namespace Yukari.ViewModels.Pages
 
         private async Task<List<LanguageModel>> LoadLangs()
         {
-            var sourceLangs = await _comicService.GetSourceLanguagesAsync(_comicIdentifier.Source);
+            var sourceLangs = await _comicService.GetSourceLanguagesAsync(_comicIdentifier!.Source);
 
-            return _comic.Langs?.Select(code => new LanguageModel(
+            return _comic?.Langs?.Select(code => new LanguageModel(
                     code,
                     sourceLangs.TryGetValue(code, out var displayName) ? displayName : code
                 )).ToList() ?? new List<LanguageModel>();
         }
 
-        async partial void OnSelectedLangChanged(string value) =>
+        async partial void OnSelectedLangChanged(string? value) =>
             await UpdateDisplayedChaptersAsync();
     }
 }
