@@ -82,8 +82,8 @@ namespace Yukari.ViewModels.Pages
             IsContentLoading = true;
 
             SearchedComics = new List<ComicItemViewModel>();
-            SearchedComics = (await _comicService.SearchComicsAsync(SelectedComicSource.Name, _searchText, _appliedFilters))
-                .Select(comic => new ComicItemViewModel(comic, _comicService)).ToList();
+            SearchedComics = (await _comicService.SearchComicsAsync(SelectedComicSource!.Name, _searchText, _appliedFilters))
+                .Select(comic => new ComicItemViewModel(comic)).ToList();
 
             IsContentLoading = false;
         }
