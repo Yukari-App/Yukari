@@ -10,10 +10,10 @@
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:vmc="using:Yukari.ViewModels.Components"
-    Style="{StaticResource DefaultContentDialogStyle}"
     Title="Filters"
     CloseButtonText="Close &amp; Apply"
     DefaultButton="Close"
+    Style="{StaticResource DefaultContentDialogStyle}"
     mc:Ignorable="d">
 
     <ContentDialog.Resources>
