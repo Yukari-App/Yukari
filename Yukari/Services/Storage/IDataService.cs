@@ -4,7 +4,7 @@ using Yukari.Models;
 
 namespace Yukari.Services.Storage
 {
-    public interface ISqliteService
+    public interface IDataService
     {
         Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText = null);
         Task<ComicModel?> GetComicDetailsAsync(ContentIdentifier comicIdentifier);
