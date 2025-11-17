@@ -64,15 +64,6 @@ namespace Yukari.ViewModels.Pages
         }
 
         [RelayCommand]
-        private async Task OnFiltersDialogRequested(RequestFiltersDialogMessage request)
-        {
-            var selectedFilters = await _dialogService.ShowFiltersDialogAsync(request.Filters, request.AppliedFilters);
-
-            if (selectedFilters != null)
-                _messenger.Send(new FiltersDialogResultMessage(selectedFilters));
-        }
-
-        [RelayCommand]
         private async Task OnSearchTextChanged()
         {
             _cts?.Cancel();
@@ -90,6 +81,14 @@ namespace Yukari.ViewModels.Pages
         {
             if (_navigationService.CurrentPage != AppPage.DiscoverPage) SearchText = string.Empty;
             OnPropertyChanged(nameof(IsSearchEnabled));
+        }
+
+        private async Task OnFiltersDialogRequested(RequestFiltersDialogMessage request)
+        {
+            var selectedFilters = await _dialogService.ShowFiltersDialogAsync(request.Filters, request.AppliedFilters);
+
+            if (selectedFilters != null)
+                _messenger.Send(new FiltersDialogResultMessage(selectedFilters));
         }
     }
 }
