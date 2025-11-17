@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Page
+<ContentDialog
     x:Class="Yukari.Views.Dialogs.FiltersDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,9 +10,13 @@
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:vmc="using:Yukari.ViewModels.Components"
+    Style="{StaticResource DefaultContentDialogStyle}"
+    Title="Filters"
+    CloseButtonText="Close &amp; Apply"
+    DefaultButton="Close"
     mc:Ignorable="d">
 
-    <Page.Resources>
+    <ContentDialog.Resources>
         <selectors:FilterTemplateSelector
             x:Key="FilterTemplateSelector"
             MultipleFilterTemplate="{StaticResource MultipleFilterTemplate}"
@@ -81,7 +85,7 @@
                 </Expander.Content>
             </Expander>
         </DataTemplate>
-    </Page.Resources>
+    </ContentDialog.Resources>
 
     <ScrollViewer Width="320" MaxHeight="300">
         <ItemsControl ItemTemplateSelector="{StaticResource FilterTemplateSelector}" ItemsSource="{Binding Filters}">
@@ -91,4 +95,4 @@
             </ItemsControl.ItemContainerTransitions>
         </ItemsControl>
     </ScrollViewer>
-</Page>
+</ContentDialog>

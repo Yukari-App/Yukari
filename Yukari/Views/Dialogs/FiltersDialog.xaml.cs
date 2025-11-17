@@ -1,12 +1,14 @@
 using Microsoft.UI.Xaml.Controls;
+using Yukari.ViewModels.Dialogs;
 
 namespace Yukari.Views.Dialogs
 {
-    public sealed partial class FiltersDialog : Page
+    public sealed partial class FiltersDialog : ContentDialog
     {
-        public FiltersDialog()
+        public FiltersDialog(FiltersDialogViewModel viewModel)
         {
             InitializeComponent();
+            DataContext = viewModel;
         }
     }
 }
