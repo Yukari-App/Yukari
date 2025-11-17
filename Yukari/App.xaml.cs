@@ -28,7 +28,6 @@ namespace Yukari
 
             var services = new ServiceCollection();
 
-            services.AddSingleton<INavigationService, NavigationService>();
             services.AddTransient<MainPageViewModel>();
             services.AddTransient<FavoritesPageViewModel>();
             services.AddTransient<DiscoverPageViewModel>();
@@ -37,6 +36,8 @@ namespace Yukari
             services.AddTransient<ComicPageViewModel>();
 
             services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
+            services.AddSingleton<INavigationService, NavigationService>();
+            services.AddSingleton<IDialogService, DialogService>();
             _services = services.BuildServiceProvider();
         }
 
