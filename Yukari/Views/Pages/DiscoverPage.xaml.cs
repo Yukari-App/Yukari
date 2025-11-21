@@ -36,7 +36,7 @@ namespace Yukari.Views.Pages
         private void GridView_ItemClick(object sender, ItemClickEventArgs e)
         {
             if (DataContext is DiscoverPageViewModel viewModel && e.ClickedItem is ComicItemViewModel comicItem)
-                viewModel.NavigateToComicCommand.Execute(comicItem.Identifier);
+                viewModel.NavigateToComicCommand.Execute(comicItem.Key);
         }
     }
 }
