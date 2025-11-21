@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using Yukari.Models;
+using Yukari.Models.DTO;
 
 namespace Yukari.ViewModels.Components
 {
@@ -21,7 +22,7 @@ namespace Yukari.ViewModels.Components
         public string DownloadIcon => IsDownloaded ? "\uE74D" : IsDownloading ? "\uF78A" : "\uE896";
         public string ReadIcon => IsRead ? "\uED1A" : "\uE890";
 
-        public ContentIdentifier Identifier => new(_chapter.Id, _chapter.Source);
+        public ContentKey Key => new(_chapter.Id, _chapter.Source);
         public string? DisplayTitle { get; }
         public string ChapterGroups => _chapter.Groups ?? "N/A";
         public DateOnly ChapterLastUpdate => _chapter.LastUpdate;

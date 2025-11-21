@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using Yukari.Models;
+using Yukari.Models.DTO;
 
 namespace Yukari.Helpers
 {
@@ -18,12 +18,12 @@ namespace Yukari.Helpers
         public static string GetPluginsPath() => 
             EnsureDirectory(Path.Combine(GetAppDataPath(), "Plugins"));
 
-        public static string GetComicChapterDataPath(ContentIdentifier comicIdentifier, string chapterId) =>
-            EnsureDirectory(GetChapterPath(comicIdentifier, chapterId));
+        public static string GetComicChapterDataPath(ContentKey comicKey, string chapterId) =>
+            EnsureDirectory(GetChapterPath(comicKey, chapterId));
 
-        public static bool DeleteComicChapterDataPath(ContentIdentifier comicIdentifier, string chapterId)
+        public static bool DeleteComicChapterDataPath(ContentKey comicKey, string chapterId)
         {
-            string path = GetChapterPath(comicIdentifier, chapterId);
+            string path = GetChapterPath(comicKey, chapterId);
             try
             {
                 if (Directory.Exists(path))
@@ -39,8 +39,8 @@ namespace Yukari.Helpers
             }
         }
 
-        private static string GetChapterPath(ContentIdentifier comicIdentifier, string chapterId) =>
-            Path.Combine(GetDataPath(), comicIdentifier.Source, comicIdentifier.Id, chapterId);
+        private static string GetChapterPath(ContentKey comicKey, string chapterId) =>
+            Path.Combine(GetDataPath(), comicKey.Source, comicKey.Id, chapterId);
 
         private static string EnsureDirectory(string path)
         {

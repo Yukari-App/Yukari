@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using Yukari.Models;
+using Yukari.Models.DTO;
 using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages
@@ -17,10 +17,10 @@ namespace Yukari.Views.Pages
         {
             base.OnNavigatedTo(e);
 
-            if (e.Parameter is ContentIdentifier comicIdentifier)
+            if (e.Parameter is ContentKey ComicKey)
             {
                 if (DataContext is ComicPageViewModel viewModel)
-                    await viewModel.InitializeAsync(comicIdentifier);
+                    await viewModel.InitializeAsync(ComicKey);
             }
         }
     }

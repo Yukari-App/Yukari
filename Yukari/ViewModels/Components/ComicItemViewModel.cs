@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Yukari.Models;
+using Yukari.Models.DTO;
 
 namespace Yukari.ViewModels.Components
 {
@@ -15,7 +16,7 @@ namespace Yukari.ViewModels.Components
         public string PinText => IsPinned ? "Unpin" : "Pin";
         public string PinIcon => IsPinned ? "\uE77A" : "\uE718";
         
-        public ContentIdentifier? Identifier => new(_comic.Id, _comic.Source);
+        public ContentKey? Key => new(_comic.Id, _comic.Source);
         public string Title => _comic.Title;
         public string? CoverImageUrl => _comic.CoverImageUrl;
 

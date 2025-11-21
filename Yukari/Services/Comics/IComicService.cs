@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Yukari.Core.Models;
 using Yukari.Enums;
 using Yukari.Models;
+using Yukari.Models.DTO;
 
 namespace Yukari.Services.Comics
 {
@@ -13,9 +14,9 @@ namespace Yukari.Services.Comics
 
         Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string sourceName, string? queryText, IReadOnlyDictionary<string, IReadOnlyList<string>> filters);
         Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText, string filter);
-        Task<ComicModel?> GetComicDetailsAsync(ContentIdentifier comicIdentifier, ComicSourceType sourceType = ComicSourceType.Auto);
-        Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(ContentIdentifier comicIdentifier, string language, ComicSourceType sourceType = ComicSourceType.Auto);
-        Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentIdentifier chapterIdentifier, ComicSourceType sourceType = ComicSourceType.Auto);
+        Task<ComicModel?> GetComicDetailsAsync(ContentKey ComicKey, ComicSourceType sourceType = ComicSourceType.Auto);
+        Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(ContentKey ComicKey, string language, ComicSourceType sourceType = ComicSourceType.Auto);
+        Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKey, ComicSourceType sourceType = ComicSourceType.Auto);
         Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync();
     }
 }

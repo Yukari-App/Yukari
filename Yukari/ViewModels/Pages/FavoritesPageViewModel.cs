@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Messages;
-using Yukari.Models;
+using Yukari.Models.DTO;
 using Yukari.Services.Comics;
 using Yukari.ViewModels.Components;
 
@@ -48,7 +48,7 @@ namespace Yukari.ViewModels.Pages
         }
 
         [RelayCommand]
-        private void NavigateToComic(ContentIdentifier comicIdentifier) =>
-            _messenger.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicIdentifier));
+        private void NavigateToComic(ContentKey ComicKey) =>
+            _messenger.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), ComicKey));
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Models;
+using Yukari.Models.DTO;
 using Yukari.Services.Comics;
 using Yukari.ViewModels.Components;
 
@@ -13,7 +14,7 @@ namespace Yukari.ViewModels.Pages
     {
         private readonly IComicService _comicService;
 
-        private ContentIdentifier? _comicIdentifier;
+        private ContentKey? _ComicKey;
         private ComicModel? _comic;
 
         [ObservableProperty] private string _title = "Loading...";
@@ -58,10 +59,10 @@ namespace Yukari.ViewModels.Pages
         public ComicPageViewModel(IComicService comicService) =>
             _comicService = comicService;
 
-        public async Task InitializeAsync(ContentIdentifier comicIdentifier)
+        public async Task InitializeAsync(ContentKey ComicKey)
         {
-            _comicIdentifier = comicIdentifier;
-            _comic = await _comicService.GetComicDetailsAsync(_comicIdentifier);
+            _ComicKey = ComicKey;
+            _comic = await _comicService.GetComicDetailsAsync(_ComicKey);
 
             Title = _comic?.Title ?? "Unknown Title";
             Author = _comic?.Author ?? "Unknown Author";
@@ -93,7 +94,7 @@ namespace Yukari.ViewModels.Pages
 
             IsChaptersLoading = true;
 
-            Chapters = (await _comicService.GetAllChaptersAsync(_comicIdentifier!, SelectedLang))
+            Chapters = (await _comicService.GetAllChaptersAsync(_ComicKey!, SelectedLang))
                 .Select(chapter => new ChapterItemViewModel(chapter)).ToList();
 
             IsChaptersLoading = false;
@@ -101,7 +102,7 @@ namespace Yukari.ViewModels.Pages
 
         private async Task<List<LanguageModel>> LoadLangs()
         {
-            var sourceLangs = await _comicService.GetSourceLanguagesAsync(_comicIdentifier!.Source);
+            var sourceLangs = await _comicService.GetSourceLanguagesAsync(_ComicKey!.Source);
 
             return _comic?.Langs?.Select(code => new LanguageModel(
                     code,
