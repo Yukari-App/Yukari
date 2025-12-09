@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace Yukari.Models
 {
@@ -15,10 +14,5 @@ namespace Yukari.Models
         public int? Year { get; set; }
         public string? CoverImageUrl { get; set; }
         public string[] Langs { get; set; } = Array.Empty<string>();
-        public List<string> DownloadedLangs { get; set; } = new List<string>();
-        public string? LastSelectedLang { get; set; }
-        public bool IsFavorite { get; set; }
-
-        public bool IsLangDownloaded(string lang) => DownloadedLangs.Contains(lang);
     }
 }
