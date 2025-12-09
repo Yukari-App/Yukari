@@ -7,7 +7,7 @@ namespace Yukari.Services.Sources
 {
     public interface ISourceService
     {
-        Task LoadSourceAsync(string sourceName);
+        Task LoadSourceAsync(ComicSourceModel comicSource);
 
         IReadOnlyList<Filter> GetFilters();
         IReadOnlyDictionary<string, string> GetLanguages();
