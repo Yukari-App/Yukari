@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Models;
+using Yukari.Models.Data;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
 using Yukari.ViewModels.Components;
@@ -14,8 +15,9 @@ namespace Yukari.ViewModels.Pages
     {
         private readonly IComicService _comicService;
 
-        private ContentKey? _ComicKey;
+        private ContentKey? _comicKey;
         private ComicModel? _comic;
+        private ComicUserData _comicUserData;
 
         [ObservableProperty] private string _title = "Loading...";
         [ObservableProperty] private string _author = "Loading Author...";
@@ -61,8 +63,9 @@ namespace Yukari.ViewModels.Pages
 
         public async Task InitializeAsync(ContentKey ComicKey)
         {
-            _ComicKey = ComicKey;
-            _comic = await _comicService.GetComicDetailsAsync(_ComicKey);
+            _comicKey = ComicKey;
+
+            var comicAggregate = await _comicService.GetComicDetailsAsync(_comicKey);
 
             Title = _comic?.Title ?? "Unknown Title";
             Author = _comic?.Author ?? "Unknown Author";
@@ -72,8 +75,8 @@ namespace Yukari.ViewModels.Pages
             CoverImageUrl = _comic?.CoverImageUrl;
             Langs = await LoadLangs();
 
-            IsFavorite = _comic?.IsFavorite ?? false;
-            SelectedLang = _comic?.LastSelectedLang ?? Langs.FirstOrDefault()?.Code;
+            IsFavorite = _comicUserData?.IsFavorite ?? false;
+            SelectedLang = _comicUserData?.LastSelectedLang ?? Langs.FirstOrDefault()?.Code;
 
             await UpdateDisplayedChaptersAsync();
         }
@@ -94,7 +97,7 @@ namespace Yukari.ViewModels.Pages
 
             IsChaptersLoading = true;
 
-            Chapters = (await _comicService.GetAllChaptersAsync(_ComicKey!, SelectedLang))
+            Chapters = (await _comicService.GetAllChaptersAsync(_comicKey!, SelectedLang))
                 .Select(chapter => new ChapterItemViewModel(chapter)).ToList();
 
             IsChaptersLoading = false;
@@ -102,7 +105,7 @@ namespace Yukari.ViewModels.Pages
 
         private async Task<List<LanguageModel>> LoadLangs()
         {
-            var sourceLangs = await _comicService.GetSourceLanguagesAsync(_ComicKey!.Source);
+            var sourceLangs = await _comicService.GetSourceLanguagesAsync(_comicKey!.Source);
 
             return _comic?.Langs?.Select(code => new LanguageModel(
                     code,

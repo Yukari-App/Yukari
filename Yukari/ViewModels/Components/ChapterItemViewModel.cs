@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using Yukari.Models;
+using Yukari.Models.Data;
 using Yukari.Models.DTO;
 
 namespace Yukari.ViewModels.Components
@@ -9,6 +10,7 @@ namespace Yukari.ViewModels.Components
     public partial class ChapterItemViewModel : ObservableObject
     {
         private readonly ChapterModel _chapter;
+        private ChapterUserData _chapterUserData;
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(DownloadIcon))]
         private bool _isDownloaded;
@@ -27,15 +29,16 @@ namespace Yukari.ViewModels.Components
         public string ChapterGroups => _chapter.Groups ?? "N/A";
         public DateOnly ChapterLastUpdate => _chapter.LastUpdate;
         public int ChapterPages => _chapter.Pages;
-        public int LastPageRead => _chapter.LastPageRead ?? 0;
+        public int LastPageRead => _chapterUserData.LastPageRead ?? 0;
 
-        public ChapterItemViewModel(ChapterModel chapter)
+        public ChapterItemViewModel(ChapterAggregate chapterAggregate)
         {
-            _chapter = chapter;
+            _chapter = chapterAggregate.Chapter;
+            _chapterUserData = chapterAggregate.UserData;
 
             DisplayTitle = FormatDisplayTitle();
-            IsDownloaded = chapter.IsDownloaded ?? false;
-            IsRead = chapter.IsRead ?? false;
+            IsDownloaded = _chapterUserData.IsDownloaded ?? false;
+            IsRead = _chapterUserData.IsRead ?? false;
         }
 
         [RelayCommand]
