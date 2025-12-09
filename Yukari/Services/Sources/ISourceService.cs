@@ -17,5 +17,7 @@ namespace Yukari.Services.Sources
         Task<ComicModel?> GetComicDetailsAsync(string comicId);
         Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(string comicId, string language);
         Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(string chapterId);
+
+        ComicSourceModel GetComicSourceModelFromAssembly(string dllPath);
     }
 }
