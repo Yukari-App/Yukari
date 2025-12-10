@@ -17,7 +17,7 @@ namespace Yukari.ViewModels.Pages
 
         private ContentKey? _comicKey;
         private ComicModel? _comic;
-        private ComicUserData _comicUserData;
+        private ComicUserData? _comicUserData;
 
         [ObservableProperty] private string _title = "Loading...";
         [ObservableProperty] private string _author = "Loading Author...";
@@ -66,6 +66,8 @@ namespace Yukari.ViewModels.Pages
             _comicKey = ComicKey;
 
             var comicAggregate = await _comicService.GetComicDetailsAsync(_comicKey);
+            _comic = comicAggregate?.Comic;
+            _comicUserData = comicAggregate?.UserData;
 
             Title = _comic?.Title ?? "Unknown Title";
             Author = _comic?.Author ?? "Unknown Author";
