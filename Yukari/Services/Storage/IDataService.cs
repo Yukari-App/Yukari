@@ -12,7 +12,7 @@ namespace Yukari.Services.Storage
         Task<ComicModel?> GetComicDetailsAsync(ContentKey ComicKey);
         Task<ComicUserData> GetComicUserDataAsync(ContentKey ComicKey);
         Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(ContentKey ComicKey, string language);
-        Task<ChapterUserData> GetChapterUserData(ContentKey comicKey, ContentKey chapterKey);
+        Task<ChapterUserData> GetChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey);
         Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKey);
         Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync();
         Task<ComicSourceModel?> GetComicSourceDetailsAsync(string sourceName);
