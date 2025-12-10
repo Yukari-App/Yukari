@@ -37,7 +37,7 @@ namespace Yukari.ViewModels.Pages
         private bool _isFavorite;
 
         [ObservableProperty,NotifyPropertyChangedFor(
-            nameof(NoChapters), nameof(IsChapterOptionsAvailable), nameof(IsLanguageSelectionAvailable), nameof(IsContinueEnabled))]
+            nameof(NoChapters), nameof(IsContinueEnabled), nameof(IsDownloadAvailable), nameof(IsChapterOptionsAvailable), nameof(IsLanguageSelectionAvailable))]
         private bool _isChaptersLoading = true;
 
         [ObservableProperty]
@@ -51,6 +51,7 @@ namespace Yukari.ViewModels.Pages
         public bool NoChapters => !IsChaptersLoading && Chapters.Count == 0;
 
         public bool IsContinueEnabled => !IsChaptersLoading && !NoChapters;
+        public bool IsDownloadAvailable => IsFavorite && !NoChapters;
         public bool IsChapterOptionsAvailable => !IsChaptersLoading && Chapters.Count > 0;
         public bool IsLanguageSelectionAvailable => !IsChaptersLoading && Langs.Count > 0;
 
@@ -100,7 +101,7 @@ namespace Yukari.ViewModels.Pages
             IsChaptersLoading = true;
 
             Chapters = (await _comicService.GetAllChaptersAsync(_comicKey!, SelectedLang))
-                .Select(chapter => new ChapterItemViewModel(chapter)).ToList();
+                .Select(chapter => new ChapterItemViewModel(chapter, IsFavorite)).ToList();
 
             IsChaptersLoading = false;
         }
