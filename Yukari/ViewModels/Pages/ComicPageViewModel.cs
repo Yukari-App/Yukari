@@ -79,7 +79,7 @@ namespace Yukari.ViewModels.Pages
             Langs = await LoadLangs();
 
             IsFavorite = _comicUserData?.IsFavorite ?? false;
-            SelectedLang = _comicUserData?.LastSelectedLang ?? Langs.FirstOrDefault()?.Code;
+            SelectedLang = _comicUserData?.LastSelectedLang ?? Langs.FirstOrDefault()?.Key;
 
             await UpdateDisplayedChaptersAsync();
         }
@@ -110,9 +110,9 @@ namespace Yukari.ViewModels.Pages
         {
             var sourceLangs = await _comicService.GetSourceLanguagesAsync(_comicKey!.Source);
 
-            return _comic?.Langs?.Select(code => new LanguageModel(
-                    code,
-                    sourceLangs.TryGetValue(code, out var displayName) ? displayName : code
+            return _comic?.Langs?.Select(key => new LanguageModel(
+                    key,
+                    sourceLangs.TryGetValue(key, out var displayName) ? displayName : key
                 )).ToList() ?? new List<LanguageModel>();
         }
 

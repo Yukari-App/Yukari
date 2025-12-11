@@ -337,7 +337,7 @@
                                 IsEnabled="{Binding IsLanguageSelectionAvailable}"
                                 ItemsSource="{Binding Langs}"
                                 SelectedValue="{Binding SelectedLang, Mode=TwoWay}"
-                                SelectedValuePath="Code" />
+                                SelectedValuePath="Key" />
 
                             <Button
                                 Width="32"
