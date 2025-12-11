@@ -76,7 +76,7 @@ namespace Yukari.ViewModels.Pages
             Tags = _comic?.Tags ?? new[] { "N/A" };
             Year = _comic?.Year ?? 0;
             CoverImageUrl = _comic?.CoverImageUrl;
-            Langs = await LoadLangs();
+            Langs = _comic?.Langs.ToList() ?? new List<LanguageModel>();
 
             IsFavorite = _comicUserData?.IsFavorite ?? false;
             SelectedLang = _comicUserData?.LastSelectedLang ?? Langs.FirstOrDefault()?.Key;
@@ -104,16 +104,6 @@ namespace Yukari.ViewModels.Pages
                 .Select(chapter => new ChapterItemViewModel(chapter, IsFavorite)).ToList();
 
             IsChaptersLoading = false;
-        }
-
-        private async Task<List<LanguageModel>> LoadLangs()
-        {
-            var sourceLangs = await _comicService.GetSourceLanguagesAsync(_comicKey!.Source);
-
-            return _comic?.Langs?.Select(key => new LanguageModel(
-                    key,
-                    sourceLangs.TryGetValue(key, out var displayName) ? displayName : key
-                )).ToList() ?? new List<LanguageModel>();
         }
 
         async partial void OnSelectedLangChanged(string? value) =>

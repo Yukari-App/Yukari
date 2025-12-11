@@ -13,6 +13,6 @@ namespace Yukari.Models
         public string[] Tags { get; set; } = Array.Empty<string>();
         public int? Year { get; set; }
         public string? CoverImageUrl { get; set; }
-        public string[] Langs { get; set; } = Array.Empty<string>();
+        public LanguageModel[] Langs { get; set; } = Array.Empty<LanguageModel>();
     }
 }
