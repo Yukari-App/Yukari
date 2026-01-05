@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -39,6 +39,10 @@ namespace Yukari
             services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<IDataService, DataService>();
+            services.AddSingleton<ISourceService, SourceService>();
+            services.AddSingleton<IComicService, ComicService>();
+
             _services = services.BuildServiceProvider();
         }
 
