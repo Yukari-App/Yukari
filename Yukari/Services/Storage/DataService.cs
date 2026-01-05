@@ -114,6 +114,7 @@ namespace Yukari.Services.Storage
                 command.ExecuteNonQuery();
             }
 
+            // MOCK
             _ = UpsertComicSourceAsync(new ComicSourceModel()
             {
                 Name = "MangaDex",
@@ -173,6 +174,7 @@ namespace Yukari.Services.Storage
                 IsDownloaded = false,
                 IsRead = true
             });
+            // MOCK END
         }
 
         public async Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText = null)
