@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
 using Yukari.Core.Sources;
@@ -12,33 +13,42 @@ namespace Yukari.Services.Sources
 {
     internal class SourceService : ISourceService
     {
-        private Dictionary<string, Type> _loadedSources = new();
+        private Dictionary<string, Type> _sourceTypeCache = new();
 
-        private IComicSource _currentSource;
+        private IComicSource? _currentSource;
 
         public async Task LoadSourceAsync(ComicSourceModel comicSource)
         {
             if (_currentSource?.Name == comicSource.Name) return;
 
             if (_currentSource != null)
-                await _currentSource.DisposeAsync();
-
-            if (!IsSourceLoaded(comicSource.Name))
             {
-                if (!File.Exists(comicSource.DllPath))
-                    throw new FileNotFoundException();
-
-                _loadedSources[comicSource.Name] = GetSourceTypeFromAssembly(comicSource.DllPath);
+                await _currentSource.DisposeAsync();
+                _currentSource = null;
             }
 
-            _currentSource = InstantiateSource(_loadedSources[comicSource.Name])!;
+            try
+            {
+                if (!_sourceTypeCache.TryGetValue(comicSource.Name, out var type))
+                {
+                    type = GetSourceTypeFromAssembly(comicSource.DllPath);
+                    _sourceTypeCache[comicSource.Name] = type;
+                }
+
+                _currentSource = (IComicSource)Activator.CreateInstance(type)!;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to load source {comicSource.Name}", ex);
+            }
         }
 
-        public IReadOnlyList<Filter> GetFilters() => _currentSource.Filters;
-        public IReadOnlyDictionary<string, string> GetLanguages() => _currentSource.Languages;
+        public IReadOnlyList<Filter> GetFilters() => _currentSource?.Filters ?? Array.Empty<Filter>();
+        public IReadOnlyDictionary<string, string> GetLanguages() => _currentSource?.Languages ?? new Dictionary<string, string>();
 
         public async Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string query, IReadOnlyDictionary<string, IReadOnlyList<string>> filters)
         {
+            if (_currentSource == null) throw new InvalidOperationException("No source loaded.");
             var comics = await _currentSource.SearchAsync(query, filters);
 
             return comics.Select(c => MapToModel(c)).ToList();
@@ -46,6 +56,7 @@ namespace Yukari.Services.Sources
 
         public async Task<IReadOnlyList<ComicModel>> GetTrendingComicsAsync(IReadOnlyDictionary<string, IReadOnlyList<string>> filters)
         {
+            if (_currentSource == null) throw new InvalidOperationException("No source loaded.");
             var comics = await _currentSource.GetTrendingAsync(filters);
 
             return comics.Select(c => MapToModel(c)).ToList();
@@ -53,6 +64,7 @@ namespace Yukari.Services.Sources
 
         public async Task<ComicModel?> GetComicDetailsAsync(string comicId)
         {
+            if (_currentSource == null) throw new InvalidOperationException("No source loaded.");
             var comic = await _currentSource.GetDetailsAsync(comicId);
 
             if (comic == null) return null;
@@ -61,6 +73,7 @@ namespace Yukari.Services.Sources
 
         public async Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(string comicId, string language)
         {
+            if (_currentSource == null) throw new InvalidOperationException("No source loaded.");
             var chapters = await _currentSource.GetAllChaptersAsync(comicId, language);
 
             return chapters.Select(c =>
@@ -87,10 +100,11 @@ namespace Yukari.Services.Sources
 
         public ComicSourceModel GetComicSourceModelFromAssembly(string dllPath)
         {
-            if (!File.Exists(dllPath))
-                throw new FileNotFoundException();
+            var type = GetSourceTypeFromAssembly(dllPath);
+            var sourceInstance = (IComicSource)Activator.CreateInstance(type)!;
 
-            var sourceInstance = InstantiateSource(GetSourceTypeFromAssembly(dllPath));
+            if (!_sourceTypeCache.ContainsKey(sourceInstance.Name))
+                _sourceTypeCache[sourceInstance.Name] = type;
 
             return new ComicSourceModel
             {
@@ -117,8 +131,6 @@ namespace Yukari.Services.Sources
             Langs = CreateLanguageModelArray(coreComic.Langs)
         };
 
-        private bool IsSourceLoaded(string sourceName) => _sourceTypeCache.ContainsKey(sourceName);
-
         private LanguageModel[] CreateLanguageModelArray(string[] languageKeys)
         {
             var sourceLangs = GetLanguages();
@@ -134,14 +146,11 @@ namespace Yukari.Services.Sources
             if (!File.Exists(pluginPath))
                 throw new FileNotFoundException();
 
-            Assembly pluginAssembly = Assembly.LoadFrom(pluginPath);
+            Assembly pluginAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(pluginPath);
 
             return pluginAssembly.GetTypes()
                 .FirstOrDefault(t => typeof(IComicSource).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
                 ?? throw new InvalidOperationException($"{pluginPath} does not implement IComicSource.");
         }
-
-        private IComicSource InstantiateSource(Type pluginType) =>
-            (IComicSource)Activator.CreateInstance(pluginType)!;
     }
 }
