@@ -41,42 +41,14 @@ namespace Yukari.Services.Sources
         {
             var comics = await _currentSource.SearchAsync(query, filters);
 
-            return comics.Select(c =>
-                new ComicModel
-                {
-                    Id = c.Id,
-                    Source = c.Source,
-                    ComicUrl = c.ComicUrl,
-                    Title = c.Title,
-                    Author = c.Author,
-                    Description = c.Description,
-                    Tags = c.Tags,
-                    Year = c.Year,
-                    CoverImageUrl = c.CoverImageUrl,
-                    Langs = CreateLanguageModelArray(c.Langs)
-                }
-            ).ToList();
+            return comics.Select(c => MapToModel(c)).ToList();
         }
 
         public async Task<IReadOnlyList<ComicModel>> GetTrendingComicsAsync(IReadOnlyDictionary<string, IReadOnlyList<string>> filters)
         {
             var comics = await _currentSource.GetTrendingAsync(filters);
 
-            return comics.Select(c =>
-                new ComicModel
-                {
-                    Id = c.Id,
-                    Source = c.Source,
-                    ComicUrl = c.ComicUrl,
-                    Title = c.Title,
-                    Author = c.Author,
-                    Description = c.Description,
-                    Tags = c.Tags,
-                    Year = c.Year,
-                    CoverImageUrl = c.CoverImageUrl,
-                    Langs = CreateLanguageModelArray(c.Langs)
-                }
-            ).ToList();
+            return comics.Select(c => MapToModel(c)).ToList();
         }
 
         public async Task<ComicModel?> GetComicDetailsAsync(string comicId)
@@ -84,19 +56,7 @@ namespace Yukari.Services.Sources
             var comic = await _currentSource.GetDetailsAsync(comicId);
 
             if (comic == null) return null;
-            return new ComicModel
-            {
-                Id = comic.Id,
-                Source = comic.Source,
-                ComicUrl = comic.ComicUrl,
-                Title = comic.Title,
-                Author = comic.Author,
-                Description = comic.Description,
-                Tags = comic.Tags,
-                Year = comic.Year,
-                CoverImageUrl = comic.CoverImageUrl,
-                Langs = CreateLanguageModelArray(comic.Langs)
-            };
+            return MapToModel(comic);
         }
 
         public async Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(string comicId, string language)
@@ -143,7 +103,21 @@ namespace Yukari.Services.Sources
             };
         }
 
-        private bool IsSourceLoaded(string sourceName) => _loadedSources.ContainsKey(sourceName);
+        private ComicModel MapToModel(Comic coreComic) => new()
+        {
+            Id = coreComic.Id,
+            Source = coreComic.Source,
+            ComicUrl = coreComic.ComicUrl,
+            Title = coreComic.Title,
+            Author = coreComic.Author,
+            Description = coreComic.Description,
+            Tags = coreComic.Tags,
+            Year = coreComic.Year,
+            CoverImageUrl = coreComic.CoverImageUrl,
+            Langs = CreateLanguageModelArray(coreComic.Langs)
+        };
+
+        private bool IsSourceLoaded(string sourceName) => _sourceTypeCache.ContainsKey(sourceName);
 
         private LanguageModel[] CreateLanguageModelArray(string[] languageKeys)
         {
