@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
 using Yukari.Models;
+using Yukari.Models.Data;
 using Yukari.Models.DTO;
 using Yukari.Services.Sources;
 using Yukari.Services.Storage;
@@ -57,28 +59,32 @@ namespace Yukari.Services.Comics
             return null;
         }
 
-        public async Task<IReadOnlyList<ChapterAggregate>> GetAllChaptersAsync(ContentKey comicKey, string language)
+        public async Task<IReadOnlyList<ChapterAggregate>> GetAllChaptersAsync(ContentKey comicKey, string language, bool forceWeb = false)
         {
-            List<ChapterAggregate> chapters = new();
+            var userDataMap = await _dbService.GetAllChaptersUserDataMapAsync(comicKey);
 
+            IReadOnlyList<ChapterModel> chapters;
             var comicUserData = await _dbService.GetComicUserDataAsync(comicKey);
-            if (comicUserData.IsFavorite)
-            {
-                var dbChapters = await _dbService.GetAllChaptersAsync(comicKey, language);
-                if (dbChapters.Count > 0)
-                    foreach (var chapter in dbChapters)
-                        chapters.Add(new(chapter, await _dbService.GetChapterUserDataAsync(comicKey, new(chapter.Id, chapter.Source))));
 
-                return chapters;
+            if (comicUserData.IsFavorite && !forceWeb)
+            {
+                chapters = await _dbService.GetAllChaptersAsync(comicKey, language);
+            }
+            else
+            {
+                await LoadComicSourceAsync(comicKey.Source);
+                chapters = await _srcService.GetAllChaptersAsync(comicKey.Id, language);
             }
 
-            await LoadComicSourceAsync(comicKey.Source);
-            var sourceChapters = await _srcService.GetAllChaptersAsync(comicKey.Id, language);
-            if (sourceChapters.Count > 0)
-                foreach (var chapter in sourceChapters)
-                    chapters.Add(new(chapter, await _dbService.GetChapterUserDataAsync(comicKey, new(chapter.Id, chapter.Source))));
+            return chapters.Select(c =>
+            {
+                if (!userDataMap.TryGetValue(c.Id, out var userData))
+                {
+                    userData = new ChapterUserData();
+                }
 
-            return chapters;
+                return new ChapterAggregate(c, userData);
+            }).ToList();
         }
 
         public Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKey)
