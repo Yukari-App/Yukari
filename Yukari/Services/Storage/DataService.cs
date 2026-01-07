@@ -259,6 +259,26 @@ namespace Yukari.Services.Storage
             return result.ToList();
         }
 
+        public async Task<Dictionary<string, ChapterUserData>> GetAllChaptersUserDataMapAsync(ContentKey comicKey)
+        {
+            using var connection = await GetOpenConnectionAsync();
+
+            const string sql = @"
+                SELECT Id, LastPageRead, IsDownloaded, IsRead 
+                FROM ChapterUserData
+                WHERE ComicId = @Id AND Source = @Source
+            ";
+
+            var result = await connection.QueryAsync<string, ChapterUserData, (string Id, ChapterUserData Data)>(
+                sql,
+                (id, data) => (id, data),
+                new { Id = comicKey.Id, Source = comicKey.Source },
+                splitOn: "LastPageRead"
+            );
+
+            return result.ToDictionary(x => x.Id, x => x.Data);
+        }
+
         public async Task<ChapterUserData> GetChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey)
         {
             using var connection = await GetOpenConnectionAsync();
