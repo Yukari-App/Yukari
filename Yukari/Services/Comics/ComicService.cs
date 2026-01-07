@@ -45,16 +45,23 @@ namespace Yukari.Services.Comics
         public Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText, string filter) =>
             _dbService.GetFavoriteComicsAsync(queryText);
 
-        public async Task<ComicAggregate?> GetComicDetailsAsync(ContentKey comicKey)
+        public async Task<ComicAggregate?> GetComicDetailsAsync(ContentKey comicKey, bool forceWeb = false)
         {
-            var comic = await _dbService.GetComicDetailsAsync(comicKey);
-            if (comic != null)
-                return new(comic, await _dbService.GetComicUserDataAsync(comicKey));
+            var userData = await _dbService.GetComicUserDataAsync(comicKey);
+            ComicModel? comic;
 
-            await LoadComicSourceAsync(comicKey.Source);
-            comic = await _srcService.GetComicDetailsAsync(comicKey.Id);
+            if (userData.IsFavorite && !forceWeb)
+            {
+                comic = await _dbService.GetComicDetailsAsync(comicKey);
+            }
+            else
+            {
+                await LoadComicSourceAsync(comicKey.Source);
+                comic = await _srcService.GetComicDetailsAsync(comicKey.Id);
+            }
+
             if (comic != null)
-                return new(comic, await _dbService.GetComicUserDataAsync(comicKey));
+                return new(comic, userData);
 
             return null;
         }
