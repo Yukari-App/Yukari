@@ -8,7 +8,7 @@ namespace Yukari.Services.Comics
 {
     public interface IComicService
     {
-        Task<IReadOnlyList<Filter>> GetSourceFiltersAsync(string? sourceName = null);
+        Task<IReadOnlyList<Filter>> GetSourceFiltersAsync(string sourceName);
         Task<IReadOnlyDictionary<string, string>> GetSourceLanguagesAsync(string sourceName);
 
         Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string sourceName, string? queryText, IReadOnlyDictionary<string, IReadOnlyList<string>> filters);
