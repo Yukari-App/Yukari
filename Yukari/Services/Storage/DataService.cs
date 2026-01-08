@@ -115,7 +115,7 @@ namespace Yukari.Services.Storage
                 IsEnabled = true
             });
             
-            _ = InsertFavoriteComicAsync(new ComicModel
+            _ = UpsertFavoriteComicAsync(new ComicModel
             {
                 Id = "f8fed9b2-546f-446f-bd3f-3c7192019774",
                 Source = "MangaDex",
@@ -128,7 +128,7 @@ namespace Yukari.Services.Storage
                 Langs = [new("pt-br", "Português"), new("en", "English"), new("es", "Espanol")],
             });
 
-            _ = InsertFavoriteComicAsync(new ComicModel
+            _ = UpsertFavoriteComicAsync(new ComicModel
             {
                 Id = "2",
                 Source = "MangaDex",
@@ -331,7 +331,7 @@ namespace Yukari.Services.Storage
             });
         }
 
-        public async Task<bool> InsertFavoriteComicAsync(ComicModel comic)
+        public async Task<bool> UpsertFavoriteComicAsync(ComicModel comic)
         {
             try
             {
@@ -340,9 +340,18 @@ namespace Yukari.Services.Storage
                 using var transaction = connection.BeginTransaction();
 
                 const string sqlComic = @"
-                    INSERT OR IGNORE INTO Comics 
+                    INSERT INTO Comics 
                     (Id, Source, ComicUrl, Title, Author, Description, Tags, Year, CoverImageUrl, Langs)
-                    VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Tags, @Year, @CoverImageUrl, @Langs);
+                    VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Tags, @Year, @CoverImageUrl, @Langs)
+                    ON CONFLICT(Id, Source) DO UPDATE SET
+                        ComicUrl = excluded.ComicUrl,
+                        Title = excluded.Title,
+                        Author = excluded.Author,
+                        Description = excluded.Description,
+                        Tags = excluded.Tags,
+                        Year = excluded.Year,
+                        CoverImageUrl = excluded.CoverImageUrl,
+                        Langs = excluded.Langs;
                 ";
 
                 await connection.ExecuteAsync(sqlComic, comic, transaction);
@@ -351,8 +360,7 @@ namespace Yukari.Services.Storage
                     INSERT INTO ComicUserData (ComicId, Source, IsFavorite, DownloadedLangs)
                     VALUES (@ComicId, @Source, @IsFavorite, @DownloadedLangs)
                     ON CONFLICT(ComicId, Source) DO UPDATE SET
-                        IsFavorite = excluded.IsFavorite,
-                        DownloadedLangs = excluded.DownloadedLangs;
+                        IsFavorite = excluded.IsFavorite;
                 ";
 
                 await connection.ExecuteAsync(sqlUserData, new
@@ -360,7 +368,7 @@ namespace Yukari.Services.Storage
                     ComicId = comic.Id,
                     Source = comic.Source,
                     IsFavorite = true,
-                    DownloadedLangs = new List<string>()
+                    DownloadedLangs = "[]"
                 }, transaction);
 
                 transaction.Commit();
