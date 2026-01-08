@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Globalization;
 using Yukari.Core.Models;
 using Yukari.Models;
 using Yukari.Models.Data;
@@ -76,11 +77,13 @@ namespace Yukari.Services.Comics
             if (comicUserData.IsFavorite && !forceWeb)
             {
                 chapters = await _dbService.GetAllChaptersAsync(comicKey, language);
+
+                if (chapters.Count == 0)
+                    chapters = await FetchAndCacheChaptersAsync(comicKey, language);
             }
             else
             {
-                await LoadComicSourceAsync(comicKey.Source);
-                chapters = await _srcService.GetAllChaptersAsync(comicKey.Id, language);
+                chapters = await FetchAndCacheChaptersAsync(comicKey, language, comicUserData.IsFavorite);
             }
 
             return chapters.Select(c =>
@@ -101,6 +104,53 @@ namespace Yukari.Services.Comics
 
         public async Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync() =>
             await _dbService.GetComicSourcesAsync();
+
+        public async Task<bool> UpsertFavoriteComicAsync(ComicModel comic, string selectedLanguage)
+        {
+            var success = await _dbService.UpsertFavoriteComicAsync(comic);
+            if (!success) return false;
+
+            await LoadComicSourceAsync(comic.Source);
+            var chapters = await _srcService.GetAllChaptersAsync(comic.Id, selectedLanguage);
+
+            return await _dbService.UpsertChaptersAsync(chapters);
+        }
+
+        public async Task<bool> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData) =>
+            await _dbService.UpsertComicUserDataAsync(comicKey, comicUserData);
+
+        public async Task<bool> UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData) =>
+            await _dbService.UpsertChapterUserDataAsync(comicKey, chapterKey, chapterUserData);
+
+        public async Task<bool> UpsertComicSourceAsync(ComicSourceModel comicSource) =>
+            await _dbService.UpsertComicSourceAsync(comicSource);
+
+        public async Task<bool> RemoveFavoriteComicAsync(ContentKey comicKey)
+        {
+            var success = await _dbService.RemoveFavoriteComicAsync(comicKey);
+            if (!success) return false;
+
+            // TODO: In the future, scan the downloads folder and delete folders containing IDs that are no longer in the database.
+
+            return true;
+        }
+
+        public async Task<bool> RemoveComicSourceAsync(string sourceName) =>
+            await _dbService.RemoveComicSourceAsync(sourceName);
+
+        public async Task<bool> CleanupUnfavoriteComicsDataAsync() => 
+            await _dbService.CleanupUnfavoriteComicsDataAsync();
+
+        private async Task<IReadOnlyList<ChapterModel>> FetchAndCacheChaptersAsync(ContentKey comicKey, string language, bool shouldSave = true)
+        {
+            await LoadComicSourceAsync(comicKey.Source);
+            var chapters = await _srcService.GetAllChaptersAsync(comicKey.Id, language);
+
+            if (shouldSave && chapters.Count > 0)
+                await _dbService.UpsertChaptersAsync(chapters);
+
+            return chapters;
+        }
 
         private async Task LoadComicSourceAsync(string sourceName)
         {
