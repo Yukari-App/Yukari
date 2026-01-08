@@ -441,6 +441,40 @@ namespace Yukari.Services.Storage
             }
         }
 
+        public async Task<bool> UpsertChaptersAsync(IEnumerable<ChapterModel> chapters)
+        {
+            if (chapters == null || !chapters.Any()) return true;
+
+            try
+            {
+                using var connection = await GetOpenConnectionAsync();
+                using var transaction = connection.BeginTransaction();
+
+                const string sql = @"
+                    INSERT INTO Chapters 
+                    (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages)
+                    VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages)
+                    ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
+                        Title = excluded.Title,
+                        Number = excluded.Number,
+                        Volume = excluded.Volume,
+                        Language = excluded.Language,
+                        Groups = excluded.Groups,
+                        LastUpdate = excluded.LastUpdate,
+                        Pages = excluded.Pages;
+                ";
+
+                await connection.ExecuteAsync(sql, chapters, transaction);
+
+                transaction.Commit();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData)
         {
             try
