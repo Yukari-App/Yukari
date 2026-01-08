@@ -491,24 +491,128 @@ namespace Yukari.Services.Storage
             }
         }
 
-        public Task<bool> RemoveFavoriteComicAsync(ContentKey ComicKey)
+        public async Task<bool> RemoveFavoriteComicAsync(ContentKey comicKey)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using var connection = await GetOpenConnectionAsync();
+
+                const string sql = @"
+                    UPDATE ComicUserData 
+                    SET IsFavorite = 0 
+                    WHERE ComicId = @Id AND Source = @Source;
+                ";
+
+                var rowsAffected = await connection.ExecuteAsync(sql, new
+                {
+                    Id = comicKey.Id,
+                    Source = comicKey.Source
+                });
+
+                return rowsAffected > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        public Task<bool> RemoveChapterAsync(ContentKey chapterKey)
+        public async Task<bool> RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using var connection = await GetOpenConnectionAsync();
+                using var transaction = connection.BeginTransaction();
+
+                await connection.ExecuteAsync(
+                    "DELETE FROM ChapterUserData WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
+                    new { Id = chapterKey.Id, ComicId = comicKey.Id, Source = chapterKey.Source },
+                    transaction);
+
+                var rowsAffected = await connection.ExecuteAsync(
+                    "DELETE FROM Chapters WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
+                    new { Id = chapterKey.Id, ComicId = comicKey.Id, Source = chapterKey.Source },
+                    transaction);
+
+                transaction.Commit();
+                return rowsAffected > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        public Task<bool> RemoveComicSourceAsync(string sourceName)
+        public async Task<bool> RemoveComicSourceAsync(string sourceName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using var connection = await GetOpenConnectionAsync();
+
+                const string sql = "DELETE FROM ComicSources WHERE Name = @Name;";
+
+                var rowsAffected = await connection.ExecuteAsync(sql, new { Name = sourceName });
+                return rowsAffected > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        public Task<bool> CleanupUnfavoriteComicsDataAsync()
+        public async Task<bool> CleanupUnfavoriteComicsDataAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                using var connection = await GetOpenConnectionAsync();
+                using var transaction = connection.BeginTransaction();
+
+                const string sqlDeleteChapters = @"
+                    DELETE FROM Chapters 
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM ComicUserData u 
+                        WHERE u.ComicId = Chapters.ComicId 
+                          AND u.Source = Chapters.Source 
+                          AND u.IsFavorite = 1
+                    );
+                ";
+
+                const string sqlDeleteChapterUserData = @"
+                    DELETE FROM ChapterUserData 
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM ComicUserData u 
+                        WHERE u.ComicId = ChapterUserData.ComicId 
+                          AND u.Source = ChapterUserData.Source 
+                          AND u.IsFavorite = 1
+                    );
+                ";
+
+                const string sqlDeleteComics = @"
+                    DELETE FROM Comics 
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM ComicUserData u 
+                        WHERE u.ComicId = Comics.Id 
+                          AND u.Source = Comics.Source 
+                          AND u.IsFavorite = 1
+                    );
+                ";
+
+                const string sqlDeleteComicUserData = @"DELETE FROM ComicUserData WHERE IsFavorite = 0;";
+
+                await connection.ExecuteAsync(sqlDeleteChapters, transaction: transaction);
+                await connection.ExecuteAsync(sqlDeleteChapterUserData, transaction: transaction);
+                await connection.ExecuteAsync(sqlDeleteComics, transaction: transaction);
+                await connection.ExecuteAsync(sqlDeleteComicUserData, transaction: transaction);
+
+                transaction.Commit();
+                await connection.ExecuteAsync("VACUUM;");
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
