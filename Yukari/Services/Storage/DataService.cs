@@ -500,7 +500,8 @@ namespace Yukari.Services.Storage
 
                 const string sql = @"
                     UPDATE ComicUserData 
-                    SET IsFavorite = 0 
+                    SET IsFavorite = 0,
+                        DownloadedLangs = '[]'
                     WHERE ComicId = @Id AND Source = @Source;
                 ";
 
