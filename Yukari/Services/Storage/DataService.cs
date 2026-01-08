@@ -100,68 +100,6 @@ namespace Yukari.Services.Storage
                     IsEnabled INTEGER NOT NULL DEFAULT 1
                 );
             ");
-
-            // MOCK
-            _ = UpsertComicSourceAsync(new ComicSourceModel()
-            {
-                Name = "MangaDex",
-                Version = "1.2.0+core1.2.0",
-                Description = "A community-driven Comic database and reader.",
-                LogoUrl = "https://mangadex.org/img/brand/mangadex-logo.svg",
-                DllPath = Path.Combine(
-                    AppDataHelper.GetPluginsPath(),
-                    "Yukari.Plugin.MangaDex.dll"
-                ),
-                IsEnabled = true
-            });
-            
-            _ = UpsertFavoriteComicAsync(new ComicModel
-            {
-                Id = "f8fed9b2-546f-446f-bd3f-3c7192019774",
-                Source = "MangaDex",
-                Title = "Nazo no Kanojo X",
-                Author = "Ueshiba Riichi",
-                Description = "One day, a strange transfer student appears before Tsubaki. Urabe Mikoto is an antisocial girl, whose hobby is just sleeping during class-breaks. \nOne day, Tsubaki goes to wake her up and accidentally tastes her drool… And gets hooked on that!  \n  \nAfter that, he starts going out with her and gets to know her better. Her second hobby, as it turns out, is carrying around scissors in her panties \nand cutting paper into flowers… or whatever else is getting on her nerves…",
-                Tags = ["Comedy", "Ecchi", "Mystery", "Romance", "School Life", "Supernatural"],
-                Year = 2006,
-                CoverImageUrl = @"https://mangadex.org/covers/f8fed9b2-546f-446f-bd3f-3c7192019774/7ae6a847-c337-42c1-b725-b7f25bae7c54.jpg",
-                Langs = [new("pt-br", "Português"), new("en", "English"), new("es", "Espanol")],
-            });
-
-            _ = UpsertFavoriteComicAsync(new ComicModel
-            {
-                Id = "2",
-                Source = "MangaDex",
-                Title = "Mahou Shoujo ni Akogarete",
-                Author = "Akihiro Ononaka",
-                Description = "Utena, uma estudante comum do ensino médio e que adora garotas mágicas se encontra com uma criatura chamada Venalita e adquire poderes. Mas, diferente do esperado, ela não se torna uma garota mágica, mas uma vilã que, agora, deverá perseguir e derrotar suas ídolas.",
-                Tags = ["Action", "Comedy", "Demons", "Ecchi", "Fantasy", "Magic", "Magical Girls", "Sexual Violence", "Superhero", "Yuri"],
-                Year = 2019,
-                CoverImageUrl = @"https://meo.comick.pictures/8yKOQe.jpg",
-                Langs = [new("pt-br", "Português"), new("en", "English")],
-            });
-
-            _ = UpsertChapterAsync(new ChapterModel
-            {
-                Id = "1",
-                ComicId = "2",
-                Source = "MangaDex",
-                Title = "",
-                Number = "1",
-                Volume = "1",
-                Language = "pt-br",
-                Groups = "White Wolves",
-                LastUpdate = new DateOnly(2019, 02, 06),
-                Pages = 29
-            });
-
-            _ = UpsertChapterUserDataAsync(new ContentKey("f8fed9b2-546f-446f-bd3f-3c7192019774", "MangaDex"), new ContentKey("23e4f77c-7906-4221-9a2d-28b8dabffc22", "MangaDex"), new ChapterUserData
-            {
-                LastPageRead = 6,
-                IsDownloaded = false,
-                IsRead = true
-            });
-            // MOCK END
         }
 
         private async Task<SqliteConnection> GetOpenConnectionAsync()
