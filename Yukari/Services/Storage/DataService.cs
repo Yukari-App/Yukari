@@ -168,6 +168,7 @@ namespace Yukari.Services.Storage
         {
             var connection = new SqliteConnection(_connectionString);
             await connection.OpenAsync();
+            await connection.ExecuteAsync("PRAGMA foreign_keys = ON;");
             return connection;
         }
 
