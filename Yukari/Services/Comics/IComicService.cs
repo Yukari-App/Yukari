@@ -15,7 +15,7 @@ namespace Yukari.Services.Comics
         Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText, string filter);
         Task<ComicAggregate?> GetComicDetailsAsync(ContentKey ComicKey, bool forceWeb = false);
         Task<IReadOnlyList<ChapterAggregate>> GetAllChaptersAsync(ContentKey ComicKey, string language, bool forceWeb = false);
-        Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKey);
+        Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKey, bool forceWeb = false);
         Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync();
     }
 }

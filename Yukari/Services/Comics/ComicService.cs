@@ -94,7 +94,7 @@ namespace Yukari.Services.Comics
             }).ToList();
         }
 
-        public Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKey)
+        public Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKe, bool forceWeb = false)
         {
             throw new NotImplementedException();
         }
