@@ -54,11 +54,11 @@ namespace Yukari.ViewModels.Pages
         [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
         public partial bool IsDownloadingAllChapters { get; set; }
 
-        public bool NoChapters => !IsChaptersLoading && Chapters?.Count == 0;
+        public bool NoChapters => !IsChaptersLoading && (Chapters is not { Count: > 0 });
 
         public bool IsContinueEnabled => !IsChaptersLoading && !NoChapters;
         public bool IsDownloadAvailable => IsFavorite && !NoChapters;
-        public bool IsChapterOptionsAvailable => !IsChaptersLoading && Chapters?.Count > 0;
+        public bool IsChapterOptionsAvailable => !NoChapters;
         public bool IsLanguageSelectionAvailable => !IsChaptersLoading && Langs?.Count > 0;
 
         public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
