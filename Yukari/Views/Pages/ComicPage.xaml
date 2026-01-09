@@ -179,10 +179,16 @@
                     Content="{ui:FontIcon Glyph=&#xE712;}">
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
-                            <MenuFlyoutItem Icon="Pin" Text="Pin" />
-                            <MenuFlyoutSeparator />
-                            <MenuFlyoutItem Icon="Refresh" Text="Update" />
-                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem
+                                Icon="Pin"
+                                Text="Pin"
+                                Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <MenuFlyoutItem
+                                Icon="Refresh"
+                                Text="Update"
+                                Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <MenuFlyoutItem Icon="Globe" Text="Open in browser" />
                         </MenuFlyout>
                     </Button.Flyout>
