@@ -130,16 +130,11 @@ namespace Yukari.ViewModels.Pages
             try
             {
                 bool success;
-                if (IsFavorite)
-                {
-                    success = await _comicService.UpsertFavoriteComicAsync(_comic, SelectedLang ?? "");
-                }
-                else
-                {
-                    success = await _comicService.RemoveFavoriteComicAsync(_comicKey);
-                }
+                if (IsFavorite) success = await _comicService.UpsertFavoriteComicAsync(_comic, SelectedLang ?? "");
+                else success = await _comicService.RemoveFavoriteComicAsync(_comicKey);
 
-                if (!success)
+                if (success) await UpdateDisplayedChaptersAsync();
+                else
                 {
                     IsFavorite = previousState;
                     // TO-DO: Trigger a visual error notification here
@@ -148,6 +143,7 @@ namespace Yukari.ViewModels.Pages
             catch (Exception)
             {
                 IsFavorite = previousState;
+                // TO-DO: Trigger a visual error notification here
             }
         }
 
@@ -169,6 +165,7 @@ namespace Yukari.ViewModels.Pages
             catch (Exception)
             {
                 // TO-DO: Trigger a visual error notification here
+                Chapters = new List<ChapterItemViewModel>();
             }
             finally
             {
