@@ -269,7 +269,7 @@ namespace Yukari.Services.Storage
             });
         }
 
-        public async Task<bool> UpsertFavoriteComicAsync(ComicModel comic)
+        public async Task<bool> UpsertFavoriteComicAsync(ComicModel comic, string? selectedLang)
         {
             try
             {
@@ -295,10 +295,11 @@ namespace Yukari.Services.Storage
                 await connection.ExecuteAsync(sqlComic, comic, transaction);
 
                 const string sqlUserData = @"
-                    INSERT INTO ComicUserData (ComicId, Source, IsFavorite, DownloadedLangs)
-                    VALUES (@ComicId, @Source, @IsFavorite, @DownloadedLangs)
+                    INSERT INTO ComicUserData (ComicId, Source, IsFavorite, LastSelectedLang, DownloadedLangs)
+                    VALUES (@ComicId, @Source, @IsFavorite, @LastSelectedLang, @DownloadedLangs)
                     ON CONFLICT(ComicId, Source) DO UPDATE SET
-                        IsFavorite = excluded.IsFavorite;
+                        IsFavorite = excluded.IsFavorite,
+                        LastSelectedLang = excluded.LastSelectedLang;
                 ";
 
                 await connection.ExecuteAsync(sqlUserData, new
@@ -306,6 +307,7 @@ namespace Yukari.Services.Storage
                     ComicId = comic.Id,
                     Source = comic.Source,
                     IsFavorite = true,
+                    LastSelectedLang = selectedLang,
                     DownloadedLangs = "[]"
                 }, transaction);
 

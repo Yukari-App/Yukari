@@ -107,7 +107,7 @@ namespace Yukari.Services.Comics
 
         public async Task<bool> UpsertFavoriteComicAsync(ComicModel comic, string selectedLanguage)
         {
-            var success = await _dbService.UpsertFavoriteComicAsync(comic);
+            var success = await _dbService.UpsertFavoriteComicAsync(comic, selectedLanguage);
             if (!success) return false;
 
             await LoadComicSourceAsync(comic.Source);
