@@ -189,7 +189,7 @@
                                 Text="Update"
                                 Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <MenuFlyoutItem Icon="Globe" Text="Open in browser" />
+                            <MenuFlyoutItem Icon="Globe" Text="Open in browser" Command="{Binding OpenInBrowserCommand}"/>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>

@@ -147,6 +147,12 @@ namespace Yukari.ViewModels.Pages
             }
         }
 
+        private bool CanOpenInBrowser() => !string.IsNullOrEmpty(_comic?.ComicUrl);
+
+        [RelayCommand(CanExecute = nameof(CanOpenInBrowser))]
+        public async Task OpenInBrowserAsync() =>
+            await Windows.System.Launcher.LaunchUriAsync(new Uri(_comic!.ComicUrl!));
+
         private async Task UpdateDisplayedChaptersAsync()
         {
             if (_isInitializing || _comicKey == null || string.IsNullOrEmpty(SelectedLang))
