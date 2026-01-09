@@ -14,5 +14,7 @@ namespace Yukari.Models
         public int? Year { get; set; }
         public string? CoverImageUrl { get; set; }
         public LanguageModel[] Langs { get; set; } = Array.Empty<LanguageModel>();
+
+        public bool IsAvailable { get; set; } = true;
     }
 }

@@ -14,5 +14,7 @@ namespace Yukari.Models
         public string? Groups { get; set; }
         public DateOnly LastUpdate { get; set; }
         public int Pages { get; set; }
+
+        public bool IsAvailable { get; set; } = true;
     }
 }
