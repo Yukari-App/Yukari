@@ -107,7 +107,7 @@ namespace Yukari.ViewModels.Pages
                 SelectedLang = userData.LastSelectedLang ?? Langs.FirstOrDefault()?.Key;
 
                 _isInitializing = false;
-                await UpdateDisplayedChaptersAsync();
+                await RefreshDisplayedChaptersAsync();
             }
             catch
             {
@@ -133,7 +133,7 @@ namespace Yukari.ViewModels.Pages
                 if (IsFavorite) success = await _comicService.UpsertFavoriteComicAsync(_comic, SelectedLang ?? "");
                 else success = await _comicService.RemoveFavoriteComicAsync(_comicKey);
 
-                if (success) await UpdateDisplayedChaptersAsync();
+                if (success) await RefreshDisplayedChaptersAsync();
                 else
                 {
                     IsFavorite = previousState;
@@ -182,7 +182,7 @@ namespace Yukari.ViewModels.Pages
         async partial void OnSelectedLangChanged(string? value)
         {
             if (!_isInitializing)
-                await UpdateDisplayedChaptersAsync();
+                await RefreshDisplayedChaptersAsync();
         }
     }
 }
