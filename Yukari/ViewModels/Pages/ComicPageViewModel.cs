@@ -62,7 +62,7 @@ namespace Yukari.ViewModels.Pages
 
         public bool IsContinueEnabled => !IsChaptersLoading && !NoChapters;
         public bool IsDownloadAvailable => IsFavorite && !NoChapters;
-        public bool IsChapterOptionsAvailable => !NoChapters;
+        public bool IsChapterOptionsAvailable => !IsChaptersLoading && Chapters?.Count > 0;
         public bool IsLanguageSelectionAvailable => !IsChaptersLoading && Langs?.Count > 0;
 
         public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
