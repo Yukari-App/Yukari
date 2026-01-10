@@ -17,13 +17,12 @@ namespace Yukari.ViewModels.Pages
 
         private ContentKey? _comicKey;
         private ComicModel? _comic;
-        private bool _isInitializing;
 
-        [ObservableProperty] public partial string Title { get; set; } = "Loading...";
-        [ObservableProperty] public partial string Author { get; set; } = "Loading Author...";
-        [ObservableProperty] public partial string Description { get; set; } = "Loading Description...";
-        [ObservableProperty] public partial string[] Tags { get; set; } = new[] { "Loading Tags..." };
-        [ObservableProperty] public partial int? Year { get; set; } = 0;
+        [ObservableProperty] public partial string? Title { get; set; }
+        [ObservableProperty] public partial string? Author { get; set; }
+        [ObservableProperty] public partial string? Description { get; set; }
+        [ObservableProperty] public partial string[]? Tags { get; set; }
+        [ObservableProperty] public partial int? Year { get; set; }
         [ObservableProperty] public partial string? CoverImageUrl { get; set; }
 
         [ObservableProperty] public partial List<LanguageModel>? Langs { get; set; }
@@ -35,6 +34,11 @@ namespace Yukari.ViewModels.Pages
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(FavoriteIcon), nameof(IsDownloadAvailable))]
         public partial bool IsFavorite { get; set; }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsContinueEnabled))]
+        [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand))]
+        public partial bool IsComicLoading { get; set; } = true;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(
@@ -70,51 +74,10 @@ namespace Yukari.ViewModels.Pages
 
         public async Task InitializeAsync(ContentKey ComicKey)
         {
-            _isInitializing = true;
             _comicKey = ComicKey;
 
-            try
-            {
-                var comicAggregate = await _comicService.GetComicDetailsAsync(_comicKey);
-                if (comicAggregate == null)
-                {
-                    // TO-DO: Trigger a visual error notification here
-                    Title = "Comic Not Found";
-                    Author = "";
-                    Description = "The requested comic could not be found.";
-                    Tags = new[] { "N/A" };
-                    Year = 0;
-                    CoverImageUrl = null;
-                    Langs = new List<LanguageModel>();
-                    Chapters = new List<ChapterItemViewModel>();
-                    IsChaptersLoading = false;
-                    _isInitializing = false;
-                    return;
-                }
-
-                _comic = comicAggregate.Comic;
-                var userData = comicAggregate.UserData;
-
-                Title = _comic.Title;
-                Author = _comic.Author ?? "Unknown Author";
-                Description = _comic.Description ?? "No description available.";
-                Tags = _comic.Tags;
-                Year = _comic.Year;
-                CoverImageUrl = _comic.CoverImageUrl;
-                Langs = _comic.Langs.ToList();
-
-                IsFavorite = userData.IsFavorite;
-                SelectedLang = userData.LastSelectedLang ?? Langs.FirstOrDefault()?.Key;
-
-                _isInitializing = false;
-                await RefreshDisplayedChaptersAsync();
-            }
-            catch
-            {
-                // TO-DO: Trigger a visual error notification here
-                IsChaptersLoading = false;
-                _isInitializing = false;
-            }
+            await RefreshComicAsync();
+            await RefreshChaptersAsync();
         }
 
         private bool CanToggleFavorite() => _comic != null && !IsChaptersLoading;
@@ -153,16 +116,67 @@ namespace Yukari.ViewModels.Pages
         public async Task OpenInBrowserAsync() =>
             await Windows.System.Launcher.LaunchUriAsync(new Uri(_comic!.ComicUrl!));
 
-        private async Task UpdateDisplayedChaptersAsync()
+        private async Task RefreshComicAsync()
         {
-            if (_isInitializing || _comicKey == null || string.IsNullOrEmpty(SelectedLang))
+            if (_comicKey == null) return;
+            IsComicLoading = true;
+
+            Title = Author = Description = "Loading...";
+            Tags = new[] { "Loading..." };
+            Year = 0;
+
+            try
+            {
+                var comicAggregate = await _comicService.GetComicDetailsAsync(_comicKey);
+                if (comicAggregate == null)
+        {
+                    SetErrorStateForComics();
                 return;
+                }
+
+                _comic = comicAggregate.Comic;
+                var userData = comicAggregate.UserData;
+                Title = _comic.Title;
+                Author = _comic.Author ?? "Unknown Author";
+                Description = _comic.Description ?? "No description available.";
+                Tags = _comic.Tags;
+                Year = _comic.Year ?? 0;
+                CoverImageUrl = _comic.CoverImageUrl;
+                Langs = _comic.Langs.ToList();
+
+                IsFavorite = userData.IsFavorite;
+                SelectedLang = userData.LastSelectedLang ?? Langs.FirstOrDefault()?.Key;
+            }
+            catch
+            {
+                SetErrorStateForComics();
+                // TO-DO: Trigger a visual error notification here
+            }
+            finally
+            {
+                IsComicLoading = false;
+            }
+        }
+
+        private void SetErrorStateForComics()
+        {
+            Title = "Error Loading Comic";
+            Author = "Error";
+            Description = "An error occurred while loading the comic.";
+            Tags = new[] { "N/A" };
+            Year = 0;
+            CoverImageUrl = null;
+        }
 
         private async Task RefreshChaptersAsync()
+        {
+            if (IsComicLoading || _comicKey == null) return;
             IsChaptersLoading = true;
 
             try
             {
+                if (string.IsNullOrEmpty(SelectedLang)) return;
+
                 var chapterAggregates = await _comicService.GetAllChaptersAsync(_comicKey, SelectedLang);
 
                 Chapters = chapterAggregates
@@ -172,7 +186,6 @@ namespace Yukari.ViewModels.Pages
             catch (Exception)
             {
                 // TO-DO: Trigger a visual error notification here
-                Chapters = new List<ChapterItemViewModel>();
             }
             finally
             {
@@ -182,7 +195,7 @@ namespace Yukari.ViewModels.Pages
 
         async partial void OnSelectedLangChanged(string? value)
         {
-            if (!_isInitializing)
+            if (!IsComicLoading)
                 await RefreshChaptersAsync();
         }
     }
