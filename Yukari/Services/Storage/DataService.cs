@@ -359,8 +359,6 @@ namespace Yukari.Services.Storage
 
         public async Task UpsertChaptersAsync(ContentKey comicKey, string language, IEnumerable<ChapterModel> chapters)
         {
-            if (chapters == null || !chapters.Any()) return;
-
                 using var connection = await GetOpenConnectionAsync();
                 using var transaction = connection.BeginTransaction();
 
