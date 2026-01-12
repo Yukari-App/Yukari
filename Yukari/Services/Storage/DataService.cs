@@ -322,8 +322,8 @@ namespace Yukari.Services.Storage
                     VALUES (@ComicId, @Source, @IsFavorite, @LastSelectedLang, @DownloadedLangs)
                     ON CONFLICT(ComicId, Source) DO UPDATE SET
                         IsFavorite = excluded.IsFavorite,
-                        LastSelectedLang = excluded.LastSelectedLang,
-                        DownloadedLangs = excluded.DownloadedLangs;
+                    LastSelectedLang = COALESCE(excluded.LastSelectedLang, ComicUserData.LastSelectedLang),
+                    DownloadedLangs = COALESCE(excluded.DownloadedLangs, ComicUserData.DownloadedLangs);
                 ";
 
                 await connection.ExecuteAsync(sql, new
