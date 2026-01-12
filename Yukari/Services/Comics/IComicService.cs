@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
 using Yukari.Models;
+using Yukari.Models.Common;
 using Yukari.Models.Data;
 using Yukari.Models.DTO;
 
@@ -19,13 +20,14 @@ namespace Yukari.Services.Comics
         Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKey, bool forceWeb = false);
         Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync();
 
-        Task<bool> UpsertFavoriteComicAsync(ComicModel comic, string selectedLanguage);
-        Task<bool> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
-        Task<bool> UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData);
-        Task<bool> UpsertComicSourceAsync(ComicSourceModel comicSource);
+        Task<Result> UpsertFavoriteComicAsync(ContentKey comic);
+        Task<Result> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
+        Task<Result> UpsertChaptersAsync(ContentKey comicKey, string language);
+        Task<Result> UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData);
+        Task<Result> UpsertComicSourceAsync(ComicSourceModel comicSource);
 
-        Task<bool> RemoveFavoriteComicAsync(ContentKey comicKey);
-        Task<bool> RemoveComicSourceAsync(string sourceName);
-        Task<bool> CleanupUnfavoriteComicsDataAsync();
+        Task<Result> RemoveFavoriteComicAsync(ContentKey comicKey);
+        Task<Result> RemoveComicSourceAsync(string sourceName);
+        Task<Result> CleanupUnfavoriteComicsDataAsync();
     }
 }

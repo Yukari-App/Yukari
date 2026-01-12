@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Globalization;
 using Yukari.Core.Models;
 using Yukari.Models;
+using Yukari.Models.Common;
 using Yukari.Models.Data;
 using Yukari.Models.DTO;
 using Yukari.Services.Sources;
@@ -105,48 +105,141 @@ namespace Yukari.Services.Comics
         public async Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync() =>
             await _dbService.GetComicSourcesAsync();
 
-        public async Task<bool> UpsertFavoriteComicAsync(ComicModel comic, string selectedLanguage)
+        public async Task<Result> UpsertFavoriteComicAsync(ContentKey comicKey)
         {
-            var success = await _dbService.UpsertFavoriteComicAsync(comic, selectedLanguage);
-            if (!success) return false;
+            try
+            {
+                await LoadComicSourceAsync(comicKey.Source);
+                var comicDetails = await _srcService.GetComicDetailsAsync(comicKey.Id);
 
-            await LoadComicSourceAsync(comic.Source);
-            var chapters = await _srcService.GetAllChaptersAsync(comic.Id, selectedLanguage);
+                if (comicDetails == null)
+                {
+                    var comicUserData = await _dbService.GetComicUserDataAsync(comicKey);
+                    if (comicUserData.IsFavorite)
+                    {
+                        comicDetails = await _dbService.GetComicDetailsAsync(comicKey);
+                        if (comicDetails == null)
+                            return Result.Failure("Comic not found locally for update.");
 
-            return await _dbService.UpsertChaptersAsync(new(comic.Id, comic.Source), selectedLanguage, chapters);
+                        comicDetails.IsAvailable = false;
+                    }
+                    else
+                    {
+                        return Result.Failure("The comic doesn't exist in the source and cannot be favorited.");
+                    }
+                }
+
+                await _dbService.UpsertFavoriteComicAsync(comicDetails);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Failed to add to favorites: {ex.Message}");
+            }
+        }
+            
+        public async Task<Result> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData)
+        {
+            try
+            {
+                await _dbService.UpsertComicUserDataAsync(comicKey, comicUserData);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Error saving progress: {ex.Message}");
+            }
         }
 
-        public async Task<bool> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData) =>
-            await _dbService.UpsertComicUserDataAsync(comicKey, comicUserData);
-
-        public async Task<bool> UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData) =>
-            await _dbService.UpsertChapterUserDataAsync(comicKey, chapterKey, chapterUserData);
-
-        public async Task<bool> UpsertComicSourceAsync(ComicSourceModel comicSource) =>
-            await _dbService.UpsertComicSourceAsync(comicSource);
-
-        public async Task<bool> RemoveFavoriteComicAsync(ContentKey comicKey)
+        public async Task<Result> UpsertChaptersAsync(ContentKey comicKey, string language)
         {
-            var success = await _dbService.RemoveFavoriteComicAsync(comicKey);
-            if (!success) return false;
-
-            // TODO: In the future, scan the downloads folder and delete folders containing IDs that are no longer in the database.
-
-            return true;
+            try
+            {
+                await FetchAndCacheChaptersAsync(comicKey, language);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Error persisting chapters: {ex.Message}");
+            }
         }
 
-        public async Task<bool> RemoveComicSourceAsync(string sourceName) =>
-            await _dbService.RemoveComicSourceAsync(sourceName);
+        public async Task<Result> UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData)
+        {
+            try
+            {
+                await _dbService.UpsertChapterUserDataAsync(comicKey, chapterKey, chapterUserData);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Error saving chapter progress: {ex.Message}");
+            }
+        }
 
-        public async Task<bool> CleanupUnfavoriteComicsDataAsync() => 
-            await _dbService.CleanupUnfavoriteComicsDataAsync();
+        public async Task<Result> UpsertComicSourceAsync(ComicSourceModel comicSource)
+        {
+            try
+            {
+                await _dbService.UpsertComicSourceAsync(comicSource);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Error saving comic source: {ex.Message}");
+            }
+        }
+
+        public async Task<Result> RemoveFavoriteComicAsync(ContentKey comicKey)
+        {
+            try
+            {
+                await _dbService.RemoveFavoriteComicAsync(comicKey);
+
+                // TODO: In the future, scan the downloads folder and delete folders containing IDs that are no longer in the database.
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Error removing from favorites: {ex.Message}");
+            }
+        }
+
+        public async Task<Result> RemoveComicSourceAsync(string sourceName)
+        {
+            try
+            {
+                await _dbService.RemoveComicSourceAsync(sourceName);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Error removing comic source: {ex.Message}");
+            }
+        }
+            
+
+        public async Task<Result> CleanupUnfavoriteComicsDataAsync()
+        {
+            try
+            {
+                await _dbService.CleanupUnfavoriteComicsDataAsync();
+                return Result.Success();
+
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Error cleaning up data: {ex.Message}");
+            }
+        }
 
         private async Task<IReadOnlyList<ChapterModel>> FetchAndCacheChaptersAsync(ContentKey comicKey, string language, bool shouldSave = true)
         {
             await LoadComicSourceAsync(comicKey.Source);
             var chapters = await _srcService.GetAllChaptersAsync(comicKey.Id, language);
 
-            if (shouldSave && chapters.Count > 0)
+            if (shouldSave)
                 await _dbService.UpsertChaptersAsync(comicKey, language, chapters);
 
             return chapters;

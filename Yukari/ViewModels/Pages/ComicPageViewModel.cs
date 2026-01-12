@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Models;
+using Yukari.Models.Common;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
 using Yukari.ViewModels.Components;
@@ -85,30 +86,26 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanToggleFavorite))]
         public async Task ToggleFavoriteAsync()
         {
-            if (_comic == null || _comicKey == null) return;
+            if (_comicKey == null) return;
 
             var previousState = IsFavorite;
             IsFavorite = !IsFavorite;
 
-            try
+            Result result;
+            if (IsFavorite)
             {
-                bool success;
-                if (IsFavorite) success = await _comicService.UpsertFavoriteComicAsync(_comic, SelectedLang ?? "");
-                else success = await _comicService.RemoveFavoriteComicAsync(_comicKey);
+                result = await _comicService.UpsertFavoriteComicAsync(_comicKey);
+                if (result.IsSuccess) await _comicService.UpsertChaptersAsync(_comicKey, SelectedLang ?? "");
+            }
+            else result = await _comicService.RemoveFavoriteComicAsync(_comicKey);
 
-                if (success) await RefreshChaptersAsync();
+            if (result.IsSuccess) await RefreshChaptersAsync();
                 else
                 {
                     IsFavorite = previousState;
                     // TO-DO: Trigger a visual error notification here
                 }
             }
-            catch (Exception)
-            {
-                IsFavorite = previousState;
-                // TO-DO: Trigger a visual error notification here
-            }
-        }
 
         private bool CanOpenInBrowser() => !string.IsNullOrEmpty(_comic?.ComicUrl);
 
