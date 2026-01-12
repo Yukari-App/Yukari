@@ -271,9 +271,7 @@ namespace Yukari.Services.Storage
             });
         }
 
-        public async Task<bool> UpsertFavoriteComicAsync(ComicModel comic, string? selectedLang)
-        {
-            try
+        public async Task UpsertFavoriteComicAsync(ComicModel comic)
             {
                 using var connection = await GetOpenConnectionAsync();
 
@@ -313,17 +311,9 @@ namespace Yukari.Services.Storage
                 }, transaction);
 
                 transaction.Commit();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
-        public async Task<bool> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData)
-        {
-            try
+        public async Task UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData)
             {
                 using var connection = await GetOpenConnectionAsync();
 
@@ -344,18 +334,9 @@ namespace Yukari.Services.Storage
                     comicUserData.LastSelectedLang,
                     comicUserData.DownloadedLangs
                 });
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
-        public async Task<bool> UpsertChapterAsync(ChapterModel chapter)
-        {
-            try
+        public async Task UpsertChapterAsync(ChapterModel chapter)
             {
                 using var connection = await GetOpenConnectionAsync();
 
@@ -374,20 +355,12 @@ namespace Yukari.Services.Storage
                 ";
 
                 await connection.ExecuteAsync(sql, chapter);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
-        public async Task<bool> UpsertChaptersAsync(ContentKey comicKey, string language, IEnumerable<ChapterModel> chapters)
+        public async Task UpsertChaptersAsync(ContentKey comicKey, string language, IEnumerable<ChapterModel> chapters)
         {
-            if (chapters == null || !chapters.Any()) return false;
+            if (chapters == null || !chapters.Any()) return;
 
-            try
-            {
                 using var connection = await GetOpenConnectionAsync();
                 using var transaction = connection.BeginTransaction();
 
@@ -422,17 +395,9 @@ namespace Yukari.Services.Storage
                 await connection.ExecuteAsync(sqlUpsert, chapters, transaction);
 
                 transaction.Commit();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
-        public async Task<bool> UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData)
-        {
-            try
+        public async Task UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData)
             {
                 using var connection = await GetOpenConnectionAsync();
 
@@ -454,23 +419,14 @@ namespace Yukari.Services.Storage
                     chapterUserData.IsDownloaded,
                     chapterUserData.IsRead
                 });
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
-        public Task<bool> UpsertChapterPagesAsync(IReadOnlyList<ChapterPageModel> chapterPages)
+        public Task UpsertChapterPagesAsync(IReadOnlyList<ChapterPageModel> chapterPages)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<bool> UpsertComicSourceAsync(ComicSourceModel comicSource)
-        {
-            try
+        public async Task UpsertComicSourceAsync(ComicSourceModel comicSource)
             {
                 using var connection = await GetOpenConnectionAsync();
 
@@ -481,17 +437,9 @@ namespace Yukari.Services.Storage
                 ";
 
                 await connection.ExecuteAsync(sql, comicSource);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
-        public async Task<bool> RemoveFavoriteComicAsync(ContentKey comicKey)
-        {
-            try
+        public async Task RemoveFavoriteComicAsync(ContentKey comicKey)
             {
                 using var connection = await GetOpenConnectionAsync();
 
@@ -507,18 +455,9 @@ namespace Yukari.Services.Storage
                     Id = comicKey.Id,
                     Source = comicKey.Source
                 });
-
-                return rowsAffected > 0;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
-        public async Task<bool> RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey)
-        {
-            try
+        public async Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey)
             {
                 using var connection = await GetOpenConnectionAsync();
                 using var transaction = connection.BeginTransaction();
@@ -534,35 +473,19 @@ namespace Yukari.Services.Storage
                     transaction);
 
                 transaction.Commit();
-                return rowsAffected > 0;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
-        public async Task<bool> RemoveComicSourceAsync(string sourceName)
+        public async Task RemoveComicSourceAsync(string sourceName)
         {
-            try
-            {
                 using var connection = await GetOpenConnectionAsync();
 
                 const string sql = "DELETE FROM ComicSources WHERE Name = @Name;";
 
                 var rowsAffected = await connection.ExecuteAsync(sql, new { Name = sourceName });
-                return rowsAffected > 0;
             }
-            catch
-            {
-                return false;
-            }
-        }
 
-        public async Task<bool> CleanupUnfavoriteComicsDataAsync()
+        public async Task CleanupUnfavoriteComicsDataAsync()
         {
-            try
-            {
                 using var connection = await GetOpenConnectionAsync();
                 using var transaction = connection.BeginTransaction();
 
@@ -605,13 +528,6 @@ namespace Yukari.Services.Storage
 
                 transaction.Commit();
                 await connection.ExecuteAsync("VACUUM;");
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
     }
 }

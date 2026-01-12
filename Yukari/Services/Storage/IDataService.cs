@@ -18,17 +18,17 @@ namespace Yukari.Services.Storage
         Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync();
         Task<ComicSourceModel?> GetComicSourceDetailsAsync(string sourceName);
 
-        Task<bool> UpsertFavoriteComicAsync(ComicModel comic);
-        Task<bool> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
-        Task<bool> UpsertChapterAsync(ChapterModel chapter);
-        Task<bool> UpsertChaptersAsync(ContentKey comicKey, string language, IEnumerable<ChapterModel> chapters);
-        Task<bool> UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData);
-        Task<bool> UpsertChapterPagesAsync(IReadOnlyList<ChapterPageModel> chapterPages);
-        Task<bool> UpsertComicSourceAsync(ComicSourceModel comicSource);
+        Task UpsertFavoriteComicAsync(ComicModel comic);
+        Task UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
+        Task UpsertChapterAsync(ChapterModel chapter);
+        Task UpsertChaptersAsync(ContentKey comicKey, string language, IEnumerable<ChapterModel> chapters);
+        Task UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData);
+        Task UpsertChapterPagesAsync(IReadOnlyList<ChapterPageModel> chapterPages);
+        Task UpsertComicSourceAsync(ComicSourceModel comicSource);
 
-        Task<bool> RemoveFavoriteComicAsync(ContentKey comicKey);
-        Task<bool> RemoveChapterAsync(ContentKey comicKey,ContentKey chapterKey);
-        Task<bool> RemoveComicSourceAsync(string sourceName);
-        Task<bool> CleanupUnfavoriteComicsDataAsync();
+        Task RemoveFavoriteComicAsync(ContentKey comicKey);
+        Task RemoveChapterAsync(ContentKey comicKey,ContentKey chapterKey);
+        Task RemoveComicSourceAsync(string sourceName);
+        Task CleanupUnfavoriteComicsDataAsync();
     }
 }
