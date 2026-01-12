@@ -185,6 +185,7 @@
                                 Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <MenuFlyoutItem
+                                Command="{Binding UpdateCommand}"
                                 Icon="Refresh"
                                 Text="Update"
                                 Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />

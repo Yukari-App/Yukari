@@ -38,7 +38,7 @@ namespace Yukari.ViewModels.Pages
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsContinueEnabled))]
-        [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand))]
+        [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand), nameof(UpdateCommand))]
         public partial bool IsComicLoading { get; set; } = true;
 
         [ObservableProperty]
@@ -48,7 +48,7 @@ namespace Yukari.ViewModels.Pages
             nameof(IsDownloadAvailable),
             nameof(IsChapterOptionsAvailable),
             nameof(IsLanguageSelectionAvailable))]
-        [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand))]
+        [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand), nameof(UpdateCommand))]
         public partial bool IsChaptersLoading { get; set; } = true;
 
         [ObservableProperty]
@@ -100,12 +100,34 @@ namespace Yukari.ViewModels.Pages
             else result = await _comicService.RemoveFavoriteComicAsync(_comicKey);
 
             if (result.IsSuccess) await RefreshChaptersAsync();
-                else
-                {
-                    IsFavorite = previousState;
-                    // TO-DO: Trigger a visual error notification here
-                }
+            else
+            {
+                IsFavorite = previousState;
+                // TO-DO: Trigger a visual error notification here
             }
+        }
+
+        private bool CanUpdate() => _comic != null && !IsChaptersLoading;
+
+        [RelayCommand(CanExecute = nameof(CanUpdate))]
+        public async Task UpdateAsync()
+        {
+            if (_comicKey == null) return;
+
+            var result = await _comicService.UpsertFavoriteComicAsync(_comicKey);
+            if (!result.IsSuccess)
+            {
+                // TO-DO: Trigger a visual error notification here
+                return;
+            }
+
+            await _comicService.UpsertChaptersAsync(_comicKey, SelectedLang ?? "");
+
+            await RefreshComicAsync();
+            await RefreshChaptersAsync();
+
+            // TO-DO: Trigger a visual notification indicating the update is complete
+        }
 
         private bool CanOpenInBrowser() => !string.IsNullOrEmpty(_comic?.ComicUrl);
 
@@ -126,9 +148,9 @@ namespace Yukari.ViewModels.Pages
             {
                 var comicAggregate = await _comicService.GetComicDetailsAsync(_comicKey);
                 if (comicAggregate == null)
-        {
+                {
                     SetErrorStateForComics();
-                return;
+                    return;
                 }
 
                 _comic = comicAggregate.Comic;
