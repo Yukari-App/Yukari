@@ -193,7 +193,19 @@ namespace Yukari.ViewModels.Pages
         async partial void OnSelectedLangChanged(string? value)
         {
             if (!IsComicLoading)
+            {
                 await RefreshChaptersAsync();
+                var result = await _comicService.UpsertComicUserDataAsync(_comicKey!, new()
+                {
+                    IsFavorite = IsFavorite,
+                    LastSelectedLang = value
+                });
+
+                if (!result.IsSuccess)
+                {
+                    // TO-DO: Trigger a visual error notification here
+                }
+            }
         }
     }
 }
