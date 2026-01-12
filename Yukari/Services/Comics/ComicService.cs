@@ -113,7 +113,7 @@ namespace Yukari.Services.Comics
             await LoadComicSourceAsync(comic.Source);
             var chapters = await _srcService.GetAllChaptersAsync(comic.Id, selectedLanguage);
 
-            return await _dbService.UpsertChaptersAsync(chapters);
+            return await _dbService.UpsertChaptersAsync(new(comic.Id, comic.Source), selectedLanguage, chapters);
         }
 
         public async Task<bool> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData) =>
@@ -147,7 +147,7 @@ namespace Yukari.Services.Comics
             var chapters = await _srcService.GetAllChaptersAsync(comicKey.Id, language);
 
             if (shouldSave && chapters.Count > 0)
-                await _dbService.UpsertChaptersAsync(chapters);
+                await _dbService.UpsertChaptersAsync(comicKey, language, chapters);
 
             return chapters;
         }

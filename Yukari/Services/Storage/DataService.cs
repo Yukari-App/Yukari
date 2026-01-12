@@ -45,6 +45,7 @@ namespace Yukari.Services.Storage
                     Year INTEGER,
                     CoverImageUrl TEXT,
                     Langs TEXT,
+                    IsAvailable INTEGER NOT NULL DEFAULT 1,
                     PRIMARY KEY (Id, Source)
                 );
 
@@ -68,6 +69,7 @@ namespace Yukari.Services.Storage
                     Groups TEXT,
                     LastUpdate TEXT,
                     Pages INTEGER NOT NULL,
+                    IsAvailable INTEGER NOT NULL DEFAULT 1,
                     PRIMARY KEY (Id, ComicId, Source)
                 );
 
@@ -279,8 +281,8 @@ namespace Yukari.Services.Storage
 
                 const string sqlComic = @"
                     INSERT INTO Comics 
-                    (Id, Source, ComicUrl, Title, Author, Description, Tags, Year, CoverImageUrl, Langs)
-                    VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Tags, @Year, @CoverImageUrl, @Langs)
+                    (Id, Source, ComicUrl, Title, Author, Description, Tags, Year, CoverImageUrl, Langs, IsAvailable)
+                    VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Tags, @Year, @CoverImageUrl, @Langs, @IsAvailable)
                     ON CONFLICT(Id, Source) DO UPDATE SET
                         ComicUrl = excluded.ComicUrl,
                         Title = excluded.Title,
@@ -289,7 +291,8 @@ namespace Yukari.Services.Storage
                         Tags = excluded.Tags,
                         Year = excluded.Year,
                         CoverImageUrl = excluded.CoverImageUrl,
-                        Langs = excluded.Langs;
+                        Langs = excluded.Langs,
+                        IsAvailable = excluded.IsAvailable;
                 ";
 
                 await connection.ExecuteAsync(sqlComic, comic, transaction);
@@ -381,19 +384,32 @@ namespace Yukari.Services.Storage
             }
         }
 
-        public async Task<bool> UpsertChaptersAsync(IEnumerable<ChapterModel> chapters)
+        public async Task<bool> UpsertChaptersAsync(ContentKey comicKey, string language, IEnumerable<ChapterModel> chapters)
         {
-            if (chapters == null || !chapters.Any()) return true;
+            if (chapters == null || !chapters.Any()) return false;
 
             try
             {
                 using var connection = await GetOpenConnectionAsync();
                 using var transaction = connection.BeginTransaction();
 
-                const string sql = @"
+                const string sqlReset = @"
+                    UPDATE Chapters 
+                    SET IsAvailable = 0 
+                    WHERE ComicId = @ComicId AND Source = @Source AND Language = @Language;
+                ";
+
+                await connection.ExecuteAsync(sqlReset, new
+                {
+                    ComicId = comicKey.Id,
+                    Source = comicKey.Source,
+                    Language = language 
+                }, transaction);
+
+                const string sqlUpsert = @"
                     INSERT INTO Chapters 
-                    (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages)
-                    VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages)
+                    (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages, IsAvailable)
+                    VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages, 1)
                     ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
                         Title = excluded.Title,
                         Number = excluded.Number,
@@ -401,10 +417,11 @@ namespace Yukari.Services.Storage
                         Language = excluded.Language,
                         Groups = excluded.Groups,
                         LastUpdate = excluded.LastUpdate,
-                        Pages = excluded.Pages;
+                        Pages = excluded.Pages,
+                        IsAvailable = 1;
                 ";
 
-                await connection.ExecuteAsync(sql, chapters, transaction);
+                await connection.ExecuteAsync(sqlUpsert, chapters, transaction);
 
                 transaction.Commit();
                 return true;

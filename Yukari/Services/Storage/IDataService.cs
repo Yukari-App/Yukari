@@ -21,7 +21,7 @@ namespace Yukari.Services.Storage
         Task<bool> UpsertFavoriteComicAsync(ComicModel comic, string? selectedLang);
         Task<bool> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
         Task<bool> UpsertChapterAsync(ChapterModel chapter);
-        Task<bool> UpsertChaptersAsync(IEnumerable<ChapterModel> chapters);
+        Task<bool> UpsertChaptersAsync(ContentKey comicKey, string language, IEnumerable<ChapterModel> chapters);
         Task<bool> UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData);
         Task<bool> UpsertChapterPagesAsync(IReadOnlyList<ChapterPageModel> chapterPages);
         Task<bool> UpsertComicSourceAsync(ComicSourceModel comicSource);
