@@ -62,7 +62,7 @@ namespace Yukari.ViewModels.Pages
         public bool NoChapters => !IsChaptersLoading && (Chapters is not { Count: > 0 });
 
         public bool IsContinueEnabled => !IsChaptersLoading && !NoChapters;
-        public bool IsDownloadAvailable => IsFavorite && !NoChapters;
+        public bool IsDownloadAvailable => IsFavorite && !NoChapters && !IsChaptersLoading;
         public bool IsChapterOptionsAvailable => !IsChaptersLoading && Chapters?.Count > 0;
         public bool IsLanguageSelectionAvailable => !IsChaptersLoading && Langs?.Count > 0;
 
