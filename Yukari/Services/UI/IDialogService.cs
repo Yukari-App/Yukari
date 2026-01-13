@@ -9,5 +9,6 @@ namespace Yukari.Services.UI
     {
         void Initialize(XamlRoot root);
         Task<IReadOnlyDictionary<string, IReadOnlyList<string>>?> ShowFiltersDialogAsync(IReadOnlyList<Filter> filters, IReadOnlyDictionary<string, IReadOnlyList<string>> appliedFilters);
+        Task<string?> OpenFilePickerAsync(string fileTypeFilter = "*");
     }
 }

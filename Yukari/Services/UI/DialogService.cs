@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Microsoft.Windows.Storage.Pickers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -27,6 +28,21 @@ namespace Yukari.Services.UI
 
             await dialog.ShowAsync();
             return viewModel.GetAppliedFilters();
+        }
+
+        public async Task<string?> OpenFilePickerAsync(string fileTypeFilter = "*")
+        {
+            if (_xamlRoot == null) throw new InvalidOperationException("XamlRoot must be initialized.");
+
+            var picker = new FileOpenPicker(_xamlRoot.ContentIslandEnvironment.AppWindowId)
+            {
+                FileTypeFilter = { fileTypeFilter },
+                SuggestedStartLocation = PickerLocationId.Downloads,
+                ViewMode = PickerViewMode.List,
+            };
+
+            var file = await picker.PickSingleFileAsync();
+            return file?.Path;
         }
     }
 }
