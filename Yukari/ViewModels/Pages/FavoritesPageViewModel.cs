@@ -16,11 +16,11 @@ namespace Yukari.ViewModels.Pages
         private readonly IComicService _comicService;
         private readonly IMessenger _messenger;
 
-        [ObservableProperty] private List<ComicItemViewModel> _favoriteComics = new();
+        [ObservableProperty] public partial List<ComicItemViewModel> FavoriteComics { get; set; } = new();
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(NoFavorites))]
-        private bool _isContentLoading = true;
+        public partial bool IsContentLoading { get; set; } = true;
 
         public bool NoFavorites => !IsContentLoading && FavoriteComics.Count == 0;
 

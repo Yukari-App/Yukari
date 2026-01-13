@@ -15,13 +15,13 @@ namespace Yukari.ViewModels.Components
         private bool _isComicFavorite = false;
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(DownloadIcon))]
-        private bool _isDownloaded;
+        public partial bool IsDownloaded { get; set; }
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(DownloadIcon))]
-        private bool _isDownloading;
+        public partial bool IsDownloading { get; set; }
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(ReadIcon))] 
-        private bool _isRead;
+        public partial bool IsRead { get; set; }
 
         public ContentKey Key => new(_chapter.Id, _chapter.Source);
         public string? DisplayTitle { get; }

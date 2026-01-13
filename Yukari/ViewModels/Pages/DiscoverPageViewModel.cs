@@ -19,17 +19,18 @@ namespace Yukari.ViewModels.Pages
         private readonly IComicService _comicService;
         private readonly IMessenger _messenger;
 
-        [ObservableProperty] private List<ComicSourceModel> _comicSources = new();
-        [ObservableProperty] private List<ComicItemViewModel> _searchedComics = new();
         private IReadOnlyList<Filter> _availableFilters = new List<Filter>();
         private IReadOnlyDictionary<string, IReadOnlyList<string>> _appliedFilters = new Dictionary<string, IReadOnlyList<string>>();
 
-        [ObservableProperty] private ComicSourceModel? _selectedComicSource;
+        private string _searchText = string.Empty;
+
+        [ObservableProperty] public partial List<ComicSourceModel> ComicSources { get; set; } = new();
+        [ObservableProperty] public partial List<ComicItemViewModel> SearchedComics { get; set; } = new();
+        
+        [ObservableProperty] public partial ComicSourceModel? SelectedComicSource { get; set; }
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults)), NotifyCanExecuteChangedFor(nameof(FilterCommand))]
-        private bool _isContentLoading = true;
-
-        private string _searchText = string.Empty;
+        public partial bool IsContentLoading { get; set; } = true;
 
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
 

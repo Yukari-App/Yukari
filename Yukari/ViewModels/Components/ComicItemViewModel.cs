@@ -11,7 +11,7 @@ namespace Yukari.ViewModels.Components
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(PinText), nameof(PinIcon))]
-        private bool _isPinned;
+        public partial bool IsPinned { get; set; }
 
         public string PinText => IsPinned ? "Unpin" : "Pin";
         public string PinIcon => IsPinned ? "\uE77A" : "\uE718";

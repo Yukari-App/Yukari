@@ -19,8 +19,7 @@ namespace Yukari.ViewModels.Pages
 
         private CancellationTokenSource? _cts;
 
-        [ObservableProperty]
-        private string _searchText = String.Empty;
+        [ObservableProperty] public partial string SearchText { get; set; } = String.Empty;
 
         public bool IsBackEnabled => _navigationService.CanGoBack;
         public bool IsSearchEnabled => _navigationService.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;

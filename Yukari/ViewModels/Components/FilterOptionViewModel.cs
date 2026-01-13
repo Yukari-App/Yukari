@@ -8,8 +8,7 @@ namespace Yukari.ViewModels.Components
         public string Key { get; }
         public string DisplayName { get; }
 
-        [ObservableProperty]
-        private bool _isSelected;
+        [ObservableProperty] public partial bool IsSelected { get; set; }
 
         public FilterOptionViewModel(FilterOption option)
         {

@@ -10,12 +10,11 @@ namespace Yukari.ViewModels.Pages
     {
         private readonly IComicService _comicService;
 
-        [ObservableProperty]
-        private ComicSourceModel? _defaultComicSource;
+        [ObservableProperty] public partial ComicSourceModel? DefaultComicSource { get; set; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsComicSourcesEmpty))]
-        private ObservableCollection<ComicSourceModel> _comicSources = new();
+        public partial ObservableCollection<ComicSourceModel> ComicSources { get; set; } = new();
 
         public bool IsComicSourcesEmpty => ComicSources.Count == 0;
 

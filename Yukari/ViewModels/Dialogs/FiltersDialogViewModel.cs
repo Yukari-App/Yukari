@@ -8,7 +8,7 @@ namespace Yukari.ViewModels.Dialogs
 {
     public partial class FiltersDialogViewModel : ObservableObject
     {
-        [ObservableProperty] private List<FilterViewModel> _filters;
+        [ObservableProperty] public partial List<FilterViewModel> Filters { get; set; }
 
         public FiltersDialogViewModel(IReadOnlyList<Filter> filters, IReadOnlyDictionary<string, IReadOnlyList<string>> appliedFilters)
         {
