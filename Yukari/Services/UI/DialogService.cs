@@ -10,7 +10,7 @@ namespace Yukari.Services.UI
 {
     internal class DialogService : IDialogService
     {
-        private XamlRoot _xamlRoot;
+        private XamlRoot? _xamlRoot;
 
         public void Initialize(XamlRoot root) =>
             _xamlRoot = root;
@@ -22,11 +22,10 @@ namespace Yukari.Services.UI
 
             var dialog = new FiltersDialog(viewModel)
             {
-                XamlRoot = _xamlRoot
+                XamlRoot = _xamlRoot ?? throw new InvalidOperationException("XamlRoot must be initialized.")
             };
 
             await dialog.ShowAsync();
-
             return viewModel.GetAppliedFilters();
         }
     }
