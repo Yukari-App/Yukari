@@ -240,19 +240,19 @@
                     <toolkit:SettingsExpander
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
-                        Description="© 2025 TXG0Fk3. All rights reserved."
+                        Description="© 2026 TXG0Fk3. All rights reserved."
                         Header="Yukari"
                         HeaderIcon="{ui:BitmapIcon Source=ms-appx:///Assets/Square44x44Logo.altform-lightunplated_targetsize-32.png}">
                         <TextBlock
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             IsTextSelectionEnabled="True"
-                            Text="Version 1.0" />
+                            Text="Version 0.1.0-Alpha" />
                         <toolkit:SettingsExpander.Items>
                             <toolkit:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
                                 <StackPanel Margin="-12,0,0,0" Orientation="Vertical">
-                                    <HyperlinkButton Content="TXG0Fk3 GitHub" NavigateUri="https://github.com/Yukari" />
-                                    <HyperlinkButton Content="Project Repository" NavigateUri="https://github.com/Yukari/YT-Downloader" />
-                                    <HyperlinkButton Content="Send FeedBack" NavigateUri="https://github.com/TXG0Fk3/Yukari/issues" />
+                                    <HyperlinkButton Content="TXG0Fk3 GitHub" NavigateUri="https://github.com/TXG0Fk3" />
+                                    <HyperlinkButton Content="Project Repository" NavigateUri="https://github.com/Yukari-App/Yukari" />
+                                    <HyperlinkButton Content="Send FeedBack" NavigateUri="https://github.com/Yukari-App/Yukari/issues" />
                                 </StackPanel>
                             </toolkit:SettingsCard>
                         </toolkit:SettingsExpander.Items>
