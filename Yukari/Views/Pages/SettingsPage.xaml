@@ -169,7 +169,7 @@
                         Header="Comic Sources"
                         HeaderIcon="{ui:FontIcon Glyph=&#xE753;}"
                         ItemsSource="{Binding ComicSources}">
-                        <Button Content="Add New Source" />
+                        <Button Content="Add New Source" Command="{Binding AddComicSourceCommand}" />
                         <toolkit:SettingsExpander.ItemsHeader>
                             <InfoBar
                                 Title="You haven't added any sources yet"
