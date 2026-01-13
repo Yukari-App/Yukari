@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
+using Yukari.Helpers;
 using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Models.Data;
@@ -177,15 +179,24 @@ namespace Yukari.Services.Comics
             }
         }
 
-        public async Task<Result> UpsertComicSourceAsync(ComicSourceModel comicSource)
+        public async Task<Result> UpsertComicSourceAsync(string pluginPath, bool isEnabled = true)
         {
             try
             {
+                var comicSource = _srcService.GetComicSourceModelFromAssembly(pluginPath);
+
+                comicSource.DllPath = AppDataHelper.CopyDllToPluginsDirectory(pluginPath);
+                comicSource.IsEnabled = isEnabled;
+
                 await _dbService.UpsertComicSourceAsync(comicSource);
                 return Result.Success();
             }
             catch (Exception ex)
             {
+                if (ex is IOException)
+                {
+                    return Result.Failure("The source is already in use and cannot be updated now. Restart Yukari and try again.");
+                }
                 return Result.Failure($"Error saving comic source: {ex.Message}");
             }
         }
