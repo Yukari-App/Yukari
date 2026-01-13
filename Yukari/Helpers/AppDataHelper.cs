@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Yukari.Models.Common;
 using Yukari.Models.DTO;
 
 namespace Yukari.Helpers
@@ -37,6 +38,14 @@ namespace Yukari.Helpers
             {
                 return false;
             }
+        }
+
+        public static string CopyDllToPluginsDirectory(string sourceDllPath)
+        {
+            string fileName = Path.GetFileName(sourceDllPath);
+            string destPath = Path.Combine(GetPluginsPath(), fileName);
+            File.Copy(sourceDllPath, destPath, true);
+            return destPath;
         }
 
         private static string GetChapterPath(ContentKey comicKey, string chapterId) =>
