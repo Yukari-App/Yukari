@@ -429,9 +429,14 @@ namespace Yukari.Services.Storage
                 using var connection = await GetOpenConnectionAsync();
 
                 const string sql = @"
-                    INSERT OR IGNORE INTO ComicSources
-                    (Name, Version, LogoUrl, Description, DllPath, IsEnabled)
-                    VALUES (@Name, @Version, @LogoUrl, @Description, @DllPath, @IsEnabled);
+                INSERT INTO ComicSources (Name, Version, LogoUrl, Description, DllPath, IsEnabled)
+                VALUES (@Name, @Version, @LogoUrl, @Description, @DllPath, @IsEnabled)
+                ON CONFLICT(Name) DO UPDATE SET
+                    Version = excluded.Version,
+                    LogoUrl = excluded.LogoUrl,
+                    Description = excluded.Description,
+                    DllPath = excluded.DllPath,
+                    IsEnabled = excluded.IsEnabled;
                 ";
 
                 await connection.ExecuteAsync(sql, comicSource);
