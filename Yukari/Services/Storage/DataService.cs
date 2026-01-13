@@ -448,7 +448,7 @@ namespace Yukari.Services.Storage
                     WHERE ComicId = @Id AND Source = @Source;
                 ";
 
-                var rowsAffected = await connection.ExecuteAsync(sql, new
+            await connection.ExecuteAsync(sql, new
                 {
                     Id = comicKey.Id,
                     Source = comicKey.Source
@@ -465,7 +465,7 @@ namespace Yukari.Services.Storage
                     new { Id = chapterKey.Id, ComicId = comicKey.Id, Source = chapterKey.Source },
                     transaction);
 
-                var rowsAffected = await connection.ExecuteAsync(
+            await connection.ExecuteAsync(
                     "DELETE FROM Chapters WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
                     new { Id = chapterKey.Id, ComicId = comicKey.Id, Source = chapterKey.Source },
                     transaction);
@@ -479,7 +479,7 @@ namespace Yukari.Services.Storage
 
                 const string sql = "DELETE FROM ComicSources WHERE Name = @Name;";
 
-                var rowsAffected = await connection.ExecuteAsync(sql, new { Name = sourceName });
+            await connection.ExecuteAsync(sql, new { Name = sourceName });
             }
 
         public async Task CleanupUnfavoriteComicsDataAsync()
