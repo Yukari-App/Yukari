@@ -68,7 +68,7 @@ namespace Yukari
 
             await Task.Delay(400);
             MainWindow.SystemBackdrop = new MicaBackdrop();
-            rootFrame.Navigate(typeof(NavigationPage), null, new DrillInNavigationTransitionInfo());
+            rootFrame.Navigate(typeof(ShellPage), null, new DrillInNavigationTransitionInfo());
         }
 
         public static T GetService<T>() where T : class => ((App)Current)._services.GetRequiredService<T>();
