@@ -61,6 +61,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Views\Pages\SplashPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="Views\ComicPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -2,8 +2,11 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using System;
+using System.Threading.Tasks;
 using Windows.Graphics;
 using Yukari.Services;
 using Yukari.Services.Comics;
@@ -46,30 +49,40 @@ namespace Yukari
             _services = services.BuildServiceProvider();
         }
 
-
-        protected override void OnLaunched(LaunchActivatedEventArgs args)
+        protected async override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            // Load Main Window
+            Frame rootFrame = new Frame();
+            rootFrame.Content = new SplashPage();
+
             MainWindow = new Window
             {
-                SystemBackdrop = new MicaBackdrop(),
                 ExtendsContentIntoTitleBar = true,
                 Title = "Yukari",
-                Content = new MainPage()
+                Content = rootFrame
             };
 
-            MainWindow.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-            MainWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
+            ConfigureWindowSizeAndIcons(MainWindow);
 
-            var win32WindowService = new Win32WindowService(MainWindow);
-            win32WindowService.SetWindowMinMaxSize(new Win32WindowService.POINT() { x = 656, y = 500 });
-
-            var scaleFactor = win32WindowService.GetSystemDPI() / 96.0;
-            MainWindow.AppWindow.Resize(new SizeInt32((int)(1200 * scaleFactor), (int)(700 * scaleFactor)));
-
+            await Task.Delay(100);
             MainWindow.Activate();
+
+            await Task.Delay(400);
+            MainWindow.SystemBackdrop = new MicaBackdrop();
+            rootFrame.Navigate(typeof(MainPage), null, new DrillInNavigationTransitionInfo());
         }
 
         public static T GetService<T>() where T : class => ((App)Current)._services.GetRequiredService<T>();
+
+        private void ConfigureWindowSizeAndIcons(Window window)
+        {
+            window.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
+            window.AppWindow.SetIcon("Assets/AppIcon.ico");
+
+            var win32Service = new Win32WindowService(window);
+            win32Service.SetWindowMinMaxSize(new Win32WindowService.POINT() { x = 656, y = 500 });
+
+            var scaleFactor = win32Service.GetSystemDPI() / 96.0;
+            window.AppWindow.Resize(new SizeInt32((int)(1200 * scaleFactor), (int)(700 * scaleFactor)));
+        }
     }
 }
