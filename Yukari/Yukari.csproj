@@ -61,6 +61,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Views\Pages\ReaderPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
     <Page Update="Views\Pages\SplashPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
