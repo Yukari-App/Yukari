@@ -23,7 +23,14 @@
                 Width="200"
                 Height="280"
                 Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
-                <Image Source="{Binding CoverImageUrl}" Stretch="Fill" />
+                <Image Stretch="UniformToFill">
+                    <Image.Source>
+                        <BitmapImage
+                            DecodePixelType="Logical"
+                            DecodePixelWidth="200"
+                            UriSource="{Binding CoverImageUrl}" />
+                    </Image.Source>
+                </Image>
 
                 <Grid
                     Height="30"
