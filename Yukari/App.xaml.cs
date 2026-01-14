@@ -32,7 +32,7 @@ namespace Yukari
 
             var services = new ServiceCollection();
 
-            services.AddTransient<MainPageViewModel>();
+            services.AddTransient<NavigationPageViewModel>();
             services.AddTransient<FavoritesPageViewModel>();
             services.AddTransient<DiscoverPageViewModel>();
             services.AddTransient<DownloadsPageViewModel>();
@@ -68,7 +68,7 @@ namespace Yukari
 
             await Task.Delay(400);
             MainWindow.SystemBackdrop = new MicaBackdrop();
-            rootFrame.Navigate(typeof(MainPage), null, new DrillInNavigationTransitionInfo());
+            rootFrame.Navigate(typeof(NavigationPage), null, new DrillInNavigationTransitionInfo());
         }
 
         public static T GetService<T>() where T : class => ((App)Current)._services.GetRequiredService<T>();

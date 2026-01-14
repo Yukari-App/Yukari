@@ -10,7 +10,7 @@ using Yukari.Services.UI;
 
 namespace Yukari.ViewModels.Pages
 {
-    public partial class MainPageViewModel : ObservableObject,
+    public partial class NavigationPageViewModel : ObservableObject,
         IRecipient<NavigateMessage>, IRecipient<RequestFiltersDialogMessage>, IRecipient<SetSearchTextMessage>
     {
         private readonly INavigationService _navigationService;
@@ -24,7 +24,7 @@ namespace Yukari.ViewModels.Pages
         public bool IsBackEnabled => _navigationService.CanGoBack;
         public bool IsSearchEnabled => _navigationService.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;
 
-        public MainPageViewModel(INavigationService navigationService, IDialogService dialogService, IMessenger messenger)
+        public NavigationPageViewModel(INavigationService navigationService, IDialogService dialogService, IMessenger messenger)
         {
             _navigationService = navigationService;
             _dialogService = dialogService;

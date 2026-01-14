@@ -9,9 +9,9 @@ using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages
 {
-    public sealed partial class MainPage : Page
+    public sealed partial class NavigationPage : Page
     {
-        public MainPage()
+        public NavigationPage()
         {
             InitializeComponent();
 
@@ -20,7 +20,7 @@ namespace Yukari.Views.Pages
                 App.GetService<INavigationService>().Initialize(ContentFrame);
                 App.GetService<IDialogService>().Initialize(XamlRoot);
 
-                var viewModel = App.GetService<MainPageViewModel>();
+                var viewModel = App.GetService<NavigationPageViewModel>();
 
                 DataContext = viewModel;
                 viewModel.NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
@@ -31,12 +31,12 @@ namespace Yukari.Views.Pages
         {
             var tag = args.IsSettingsInvoked ? "Yukari.Views.Pages.SettingsPage" : args.InvokedItemContainer?.Tag?.ToString();
             if (!string.IsNullOrEmpty(tag))
-                ((MainPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(Type.GetType(tag), null));
+                ((NavigationPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(Type.GetType(tag), null));
         }
 
         private void NavigationViewControl_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
-            ((MainPageViewModel)DataContext).BackCommand.Execute(null);
+            ((NavigationPageViewModel)DataContext).BackCommand.Execute(null);
         }
 
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
@@ -60,7 +60,7 @@ namespace Yukari.Views.Pages
 
         private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            if (args.Reason != AutoSuggestionBoxTextChangeReason.ProgrammaticChange && DataContext is MainPageViewModel viewModel)
+            if (args.Reason != AutoSuggestionBoxTextChangeReason.ProgrammaticChange && DataContext is NavigationPageViewModel viewModel)
                 viewModel.SearchTextChangedCommand.Execute(null);
         }
     }
