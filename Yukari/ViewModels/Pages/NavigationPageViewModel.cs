@@ -66,6 +66,7 @@ namespace Yukari.ViewModels.Pages
         private async Task OnSearchTextChanged()
         {
             _cts?.Cancel();
+            _cts?.Dispose();
             _cts = new CancellationTokenSource();
 
             try
