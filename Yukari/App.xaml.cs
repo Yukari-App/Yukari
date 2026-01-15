@@ -22,7 +22,6 @@ namespace Yukari
     public partial class App : Application
     {
         private static Window? MainWindow;
-
         private readonly IServiceProvider _services;
 
         public App()
@@ -49,10 +48,9 @@ namespace Yukari
             _services = services.BuildServiceProvider();
         }
 
-        protected async override void OnLaunched(LaunchActivatedEventArgs args)
+        protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
-            Frame rootFrame = new Frame();
-            rootFrame.Content = new SplashPage();
+            var rootFrame = new Frame { Content = new SplashPage() };
 
             MainWindow = new Window
             {
@@ -63,10 +61,11 @@ namespace Yukari
 
             ConfigureWindowSizeAndIcons(MainWindow);
 
-            await Task.Delay(100);
+            await Task.Delay(75);
             MainWindow.Activate();
 
-            await Task.Delay(400);
+            await InitializeAppAsync();
+
             MainWindow.SystemBackdrop = new MicaBackdrop();
             rootFrame.Navigate(typeof(ShellPage), null, new DrillInNavigationTransitionInfo());
         }
@@ -83,6 +82,11 @@ namespace Yukari
 
             var scaleFactor = win32Service.GetSystemDPI() / 96.0;
             window.AppWindow.Resize(new SizeInt32((int)(1200 * scaleFactor), (int)(700 * scaleFactor)));
+        }
+
+        private async Task InitializeAppAsync()
+        {
+            await Task.Delay(400);
         }
     }
 }
