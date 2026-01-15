@@ -6,7 +6,71 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Yukari.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
-    <Grid />
+    <Grid>
+        <Grid
+            x:Name="AppTitleBar"
+            Height="48"
+            Margin="4,0,0,0"
+            Padding="0"
+            VerticalAlignment="Top"
+            AutomationProperties.AutomationId="AppTitleBar"
+            ColumnDefinitions="Auto, Auto, Auto, Auto, *, Auto, Auto, 144">
+            <Button
+                Grid.Column="0"
+                Width="40"
+                Height="36"
+                Padding="0"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                Command="{Binding GoBackCommand}"
+                Content="{ui:FontIcon Glyph=&#xE72B;,
+                                      FontSize=11}"
+                ToolTipService.ToolTip="Back to Navigation" />
+            <FontIcon
+                Grid.Column="1"
+                Margin="4,0,0,0"
+                VerticalAlignment="Center"
+                FontSize="20"
+                Glyph="&#xE736;" />
+            <TextBlock
+                Grid.Column="2"
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="Kimetsu no Yaiba" />
+            <TextBlock
+                Grid.Column="3"
+                Margin="8,0,0,0"
+                VerticalAlignment="Center"
+                FontSize="10"
+                Foreground="{StaticResource TextFillColorSecondaryBrush}"
+                Text="[2] #14 Crueldade" />
+            <StackPanel
+                Grid.Column="5"
+                Orientation="Horizontal"
+                Spacing="4">
+                <Button
+                    Width="40"
+                    Height="36"
+                    Padding="0"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    Content="{ui:FontIcon Glyph=&#xE740;,
+                                          FontSize=16}"
+                    ToolTipService.ToolTip="Fullscreen" />
+                <Button
+                    Width="40"
+                    Height="36"
+                    Padding="0"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    Content="{ui:FontIcon Glyph=&#xE712;}"
+                    ToolTipService.ToolTip="Options" />
+            </StackPanel>
+            <AppBarSeparator Grid.Column="6" Margin="4,0,4,0" />
+        </Grid>
+    </Grid>
 </Page>
