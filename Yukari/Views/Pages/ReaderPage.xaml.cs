@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages
 {
@@ -7,6 +8,8 @@ namespace Yukari.Views.Pages
         public ReaderPage()
         {
             InitializeComponent();
+
+            DataContext = App.GetService<ReaderPageViewModel>();
         }
     }
 }
