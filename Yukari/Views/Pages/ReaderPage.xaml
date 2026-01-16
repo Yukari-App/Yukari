@@ -9,6 +9,20 @@
     xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <Style
+            x:Key="TitleBarButtonStyle"
+            BasedOn="{StaticResource DefaultButtonStyle}"
+            TargetType="Button">
+            <Setter Property="Width" Value="40" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+    </Page.Resources>
+
+
     <Grid>
         <Grid
             x:Name="AppTitleBar"
@@ -17,17 +31,18 @@
             Padding="0"
             VerticalAlignment="Top"
             AutomationProperties.AutomationId="AppTitleBar"
-            ColumnDefinitions="Auto, Auto, Auto, Auto, *, Auto, Auto, 144">
+            ColumnDefinitions="Auto, Auto, Auto, Auto, *, Auto, 144">
+            <Grid.Resources>
+                <Color x:Key="ButtonBackgroundDisabled">Transparent</Color>
+                <Color x:Key="ButtonBorderBrushDisabled">Transparent</Color>
+            </Grid.Resources>
+            
             <Button
                 Grid.Column="0"
-                Width="40"
-                Height="36"
-                Padding="0"
-                Background="Transparent"
-                BorderBrush="Transparent"
                 Command="{Binding GoBackCommand}"
                 Content="{ui:FontIcon Glyph=&#xE72B;,
                                       FontSize=11}"
+                Style="{StaticResource TitleBarButtonStyle}"
                 ToolTipService.ToolTip="Back to Navigation" />
             <FontIcon
                 Grid.Column="1"
@@ -40,37 +55,47 @@
                 Margin="10,0,0,0"
                 VerticalAlignment="Center"
                 Style="{StaticResource CaptionTextBlockStyle}"
-                Text="Kimetsu no Yaiba" />
+                Text="{Binding ComicTitle}" />
             <TextBlock
                 Grid.Column="3"
                 Margin="8,0,0,0"
                 VerticalAlignment="Center"
                 FontSize="10"
                 Foreground="{StaticResource TextFillColorSecondaryBrush}"
-                Text="[2] #14 Crueldade" />
+                Text="{Binding ChapterTitle}" />
             <StackPanel
                 Grid.Column="5"
+                Margin="4,0,4,0"
                 Orientation="Horizontal"
                 Spacing="4">
+
                 <Button
-                    Width="40"
-                    Height="36"
-                    Padding="0"
-                    Background="Transparent"
-                    BorderBrush="Transparent"
+                    Command="{Binding PreviousChapterCommand}"
+                    Content="{ui:FontIcon Glyph=&#xE76B;}"
+                    Style="{StaticResource TitleBarButtonStyle}"
+                    ToolTipService.ToolTip="Previous Chapter" />
+
+                <Button
+                    Command="{Binding NextChapterCommand}"
+                    Content="{ui:FontIcon Glyph=&#xE76C;}"
+                    Style="{StaticResource TitleBarButtonStyle}"
+                    ToolTipService.ToolTip="Next Chapter" />
+
+                <AppBarSeparator Grid.Column="6" />
+
+                <Button
                     Content="{ui:FontIcon Glyph=&#xE740;,
                                           FontSize=16}"
+                    Style="{StaticResource TitleBarButtonStyle}"
                     ToolTipService.ToolTip="Fullscreen" />
                 <Button
-                    Width="40"
-                    Height="36"
-                    Padding="0"
-                    Background="Transparent"
-                    BorderBrush="Transparent"
                     Content="{ui:FontIcon Glyph=&#xE712;}"
+                    Style="{StaticResource TitleBarButtonStyle}"
                     ToolTipService.ToolTip="Options" />
+
+                <AppBarSeparator Grid.Column="6" />
             </StackPanel>
-            <AppBarSeparator Grid.Column="6" Margin="4,0,4,0" />
+            
         </Grid>
     </Grid>
 </Page>
