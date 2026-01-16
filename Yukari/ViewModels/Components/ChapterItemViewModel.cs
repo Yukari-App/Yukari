@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using Yukari.Helpers.UI;
 using Yukari.Models;
 using Yukari.Models.Data;
 using Yukari.Models.DTO;
@@ -41,7 +42,7 @@ namespace Yukari.ViewModels.Components
             _chapterUserData = chapterAggregate.UserData;
             _isComicFavorite = isComicFavorite;
 
-            DisplayTitle = FormatDisplayTitle();
+            DisplayTitle = _chapter.ToDisplayTitle();
             IsDownloaded = _chapterUserData.IsDownloaded ?? false;
             IsRead = _chapterUserData.IsRead ?? false;
         }
@@ -56,15 +57,6 @@ namespace Yukari.ViewModels.Components
         public void ToggleRead()
         {
             IsRead = !IsRead;
-        }
-
-        private string FormatDisplayTitle()
-        {
-            var volume = _chapter.Volume != null ? $"[{_chapter.Volume}] " : string.Empty;
-            var number = _chapter.Number != null ? $"#{_chapter.Number} " : "#N/A ";
-            var title = _chapter.Title ?? string.Empty;
-
-            return $"{volume}{number}{title}";
         }
     }
 }
