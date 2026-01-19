@@ -11,10 +11,9 @@ using Yukari.Services.UI;
 namespace Yukari.ViewModels.Pages
 {
     public partial class NavigationPageViewModel : ObservableObject,
-        IRecipient<NavigateMessage>, IRecipient<RequestFiltersDialogMessage>, IRecipient<SetSearchTextMessage>
+        IRecipient<NavigateMessage>, IRecipient<SetSearchTextMessage>
     {
         private readonly INavigationService _navigationService;
-        private readonly IDialogService _dialogService;
         private readonly IMessenger _messenger;
 
         private CancellationTokenSource? _cts;
@@ -24,10 +23,9 @@ namespace Yukari.ViewModels.Pages
         public bool IsBackEnabled => _navigationService.CanGoBack;
         public bool IsSearchEnabled => _navigationService.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;
 
-        public NavigationPageViewModel(INavigationService navigationService, IDialogService dialogService, IMessenger messenger)
+        public NavigationPageViewModel(INavigationService navigationService, IMessenger messenger)
         {
             _navigationService = navigationService;
-            _dialogService = dialogService;
             _messenger = messenger;
 
             _messenger.RegisterAll(this);
@@ -35,9 +33,6 @@ namespace Yukari.ViewModels.Pages
 
         public void Receive(NavigateMessage message) =>
             OnNavigate(message);
-
-        public async void Receive(RequestFiltersDialogMessage message) =>
-            await OnFiltersDialogRequested(message);
 
         public void Receive(SetSearchTextMessage message) =>
             SearchText = message.SearchText ?? string.Empty;
@@ -81,14 +76,6 @@ namespace Yukari.ViewModels.Pages
         {
             if (_navigationService.CurrentPage != AppPage.DiscoverPage) SearchText = string.Empty;
             OnPropertyChanged(nameof(IsSearchEnabled));
-        }
-
-        private async Task OnFiltersDialogRequested(RequestFiltersDialogMessage request)
-        {
-            var selectedFilters = await _dialogService.ShowFiltersDialogAsync(request.Filters, request.AppliedFilters);
-
-            if (selectedFilters != null)
-                _messenger.Send(new FiltersDialogResultMessage(selectedFilters));
         }
     }
 }

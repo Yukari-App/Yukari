@@ -9,14 +9,16 @@ using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
 {
     public partial class DiscoverPageViewModel : ObservableObject,
-        IRecipient<SearchChangedMessage>, IRecipient<FiltersDialogResultMessage>, IRecipient<ComicSourcesUpdatedMessage>
+        IRecipient<SearchChangedMessage>, IRecipient<ComicSourcesUpdatedMessage>
     {
         private readonly IComicService _comicService;
+        private readonly IDialogService _dialogService;
         private readonly IMessenger _messenger;
 
         private IReadOnlyList<Filter> _availableFilters = new List<Filter>();
@@ -34,12 +36,12 @@ namespace Yukari.ViewModels.Pages
 
         public bool NoResults => !IsContentLoading && !SearchedComics.Any();
 
-        public DiscoverPageViewModel(IComicService comicService, IMessenger messenger)
+        public DiscoverPageViewModel(IComicService comicService, IDialogService dialogService, IMessenger messenger)
         {
             _comicService = comicService;
+            _dialogService = dialogService;
             _messenger = messenger;
 
-            _messenger.Register<FiltersDialogResultMessage>(this);
             _messenger.Register<ComicSourcesUpdatedMessage>(this);
         }
             
@@ -52,12 +54,6 @@ namespace Yukari.ViewModels.Pages
         public async void Receive(SearchChangedMessage message)
         {
             _searchText = message.SearchText ?? string.Empty;
-            await UpdateDisplayedComicsAsync();
-        }
-
-        public async void Receive(FiltersDialogResultMessage message)
-        {
-            _appliedFilters = message.AppliedFilters;
             await UpdateDisplayedComicsAsync();
         }
 
@@ -90,13 +86,19 @@ namespace Yukari.ViewModels.Pages
             IsContentLoading = false;
         }
 
+        private bool CanFilter() => (_availableFilters?.Count > 0) && !IsContentLoading;
+
         [RelayCommand(CanExecute = nameof(CanFilter))]
-        private void OnFilter() =>
-            _messenger.Send(new RequestFiltersDialogMessage(_availableFilters, _appliedFilters));
+        private async Task OnFilter()
+        {
+            var result = await _dialogService.ShowFiltersDialogAsync(_availableFilters, _appliedFilters);
 
-        private bool CanFilter() =>
-            (_availableFilters?.Count > 0) && !IsContentLoading;
+            if (result == null) return;
 
+            _appliedFilters = result;
+            await UpdateDisplayedComicsAsync();
+        }
+            
         [RelayCommand]
         private void NavigateToComic(ContentKey ComicKey) =>
             _messenger.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), ComicKey));
