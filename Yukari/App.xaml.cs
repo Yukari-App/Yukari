@@ -41,6 +41,7 @@ namespace Yukari
             services.AddTransient<ComicPageViewModel>();
 
             services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
+            services.AddSingleton<INotificationService, NotificationService>();
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IDataService, DataService>();
