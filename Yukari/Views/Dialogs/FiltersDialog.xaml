@@ -36,12 +36,12 @@
                 <TextBlock
                     Grid.Column="0"
                     VerticalAlignment="Center"
-                    Text="{Binding DisplayName}" />
+                    Text="{x:Bind DisplayName}" />
                 <ComboBox
                     Grid.Column="1"
                     VerticalAlignment="Center"
-                    ItemsSource="{Binding Options}"
-                    SelectedItem="{Binding SelectedOptionIfNotAllowMultiple, Mode=TwoWay}">
+                    ItemsSource="{x:Bind Options}"
+                    SelectedItem="{x:Bind SelectedOptionIfNotAllowMultiple, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="vmc:FilterOptionViewModel">
                             <TextBlock VerticalAlignment="Center" Text="{x:Bind DisplayName}" />
@@ -57,9 +57,9 @@
                 Padding="0"
                 HorizontalAlignment="Stretch"
                 HorizontalContentAlignment="Stretch"
-                Header="{Binding DisplayName}">
+                Header="{x:Bind DisplayName}">
                 <Expander.Content>
-                    <ItemsRepeater ItemsSource="{Binding Options}">
+                    <ItemsRepeater ItemsSource="{x:Bind Options}">
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="vmc:FilterOptionViewModel">
                                 <Grid
