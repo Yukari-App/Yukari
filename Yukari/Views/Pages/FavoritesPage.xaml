@@ -24,7 +24,7 @@
                         <BitmapImage
                             DecodePixelType="Logical"
                             DecodePixelWidth="200"
-                            UriSource="{Binding CoverImageUrl}" />
+                            UriSource="{x:Bind Comic.CoverImageUrl, Mode=OneTime}" />
                     </Image.Source>
                 </Image>
 
@@ -40,8 +40,8 @@
                     <TextBlock
                         Grid.Column="0"
                         VerticalAlignment="Center"
-                        Text="{Binding Title}"
-                        ToolTipService.ToolTip="{Binding Title}" />
+                        Text="{x:Bind Comic.Title, Mode=OneTime}"
+                        ToolTipService.ToolTip="{x:Bind Comic.Title, Mode=OneTime}" />
 
                     <Button
                         Grid.Column="1"
@@ -55,9 +55,9 @@
                         Content="{ui:FontIcon Glyph=&#xE712;}">
                         <Button.Flyout>
                             <MenuFlyout>
-                                <MenuFlyoutItem Command="{Binding TogglePinCommand}" Text="{Binding PinText}">
+                                <MenuFlyoutItem Command="{x:Bind TogglePinCommand}" Text="{x:Bind PinText}">
                                     <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="{Binding PinIcon}" />
+                                        <FontIcon Glyph="{x:Bind PinIcon}" />
                                     </MenuFlyoutItem.Icon>
                                 </MenuFlyoutItem>
                                 <MenuFlyoutItem Icon="Delete" Text="Remove" />

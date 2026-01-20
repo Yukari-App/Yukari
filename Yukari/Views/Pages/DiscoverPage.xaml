@@ -28,7 +28,7 @@
                         <BitmapImage
                             DecodePixelType="Logical"
                             DecodePixelWidth="200"
-                            UriSource="{Binding CoverImageUrl}" />
+                            UriSource="{x:Bind Comic.CoverImageUrl, Mode=OneTime}" />
                     </Image.Source>
                 </Image>
 
@@ -42,8 +42,8 @@
                     CornerRadius="4">
                     <TextBlock
                         VerticalAlignment="Center"
-                        Text="{Binding Title}"
-                        ToolTipService.ToolTip="{Binding Title}" />
+                        Text="{x:Bind Comic.Title, Mode=OneTime}"
+                        ToolTipService.ToolTip="{x:Bind Comic.Title, Mode=OneTime}" />
                 </Grid>
 
             </Grid>
