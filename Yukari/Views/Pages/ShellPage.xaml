@@ -3,10 +3,36 @@
     x:Class="Yukari.Views.Pages.ShellPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Yukari.Helpers.UI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Yukari.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Yukari.Models"
     mc:Ignorable="d">
 
-    <Frame x:Name="ShellFrame" SourcePageType="local:NavigationPage" />
+    <Page.Resources>
+        <converters:NotificationSeverityToInfoBarSeverityConverter x:Key="SeverityConverter" />
+    </Page.Resources>
+
+    <Grid>
+        <Frame x:Name="ShellFrame" SourcePageType="local:NavigationPage" />
+
+        <ItemsControl
+            Width="360"
+            Margin="0,0,0,20"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            ItemsSource="{Binding Notifications}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="models:NotificationModel">
+                    <InfoBar
+                        Title="{x:Bind Title}"
+                        Margin="0,0,0,10"
+                        IsOpen="{x:Bind IsActive, Mode=TwoWay}"
+                        Message="{x:Bind Message}"
+                        Severity="{x:Bind Severity, Converter={StaticResource SeverityConverter}}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
 </Page>

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Yukari.Enums;
 using Yukari.Messages;
+using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages
 {
@@ -11,6 +12,7 @@ namespace Yukari.Views.Pages
         public ShellPage()
         {
             InitializeComponent();
+            DataContext = App.GetService<ShellPageViewModel>();
 
             var messenger = App.GetService<IMessenger>();
 
