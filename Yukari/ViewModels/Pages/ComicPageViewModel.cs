@@ -8,6 +8,7 @@ using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
@@ -15,18 +16,11 @@ namespace Yukari.ViewModels.Pages
     public partial class ComicPageViewModel : ObservableObject
     {
         private readonly IComicService _comicService;
+        private readonly INotificationService _notificationService;
 
         private ContentKey? _comicKey;
-        private ComicModel? _comic;
 
-        [ObservableProperty] public partial string? Title { get; set; }
-        [ObservableProperty] public partial string? Author { get; set; }
-        [ObservableProperty] public partial string? Description { get; set; }
-        [ObservableProperty] public partial string[]? Tags { get; set; }
-        [ObservableProperty] public partial int? Year { get; set; }
-        [ObservableProperty] public partial string? CoverImageUrl { get; set; }
-
-        [ObservableProperty] public partial List<LanguageModel>? Langs { get; set; }
+        [ObservableProperty] public partial ComicModel? Comic { get; set; }
         [ObservableProperty] public partial List<ChapterItemViewModel>? Chapters { get; set; }
 
         [ObservableProperty]
@@ -37,17 +31,21 @@ namespace Yukari.ViewModels.Pages
         public partial bool IsFavorite { get; set; }
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsContinueEnabled))]
+        public partial bool IsFavoriteStatusChanging { get; set; }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(
+            nameof(IsContinueEnabled), nameof(IsDownloadAvailable),
+            nameof(IsChapterOptionsAvailable), nameof(IsLanguageSelectionAvailable),
+            nameof(IsChaptersEnabled))]
         [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand), nameof(UpdateCommand))]
         public partial bool IsComicLoading { get; set; } = true;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(
-            nameof(NoChapters),
-            nameof(IsContinueEnabled),
-            nameof(IsDownloadAvailable),
-            nameof(IsChapterOptionsAvailable),
-            nameof(IsLanguageSelectionAvailable))]
+            nameof(NoChapters), nameof(IsContinueEnabled),
+            nameof(IsDownloadAvailable), nameof(IsChapterOptionsAvailable),
+            nameof(IsLanguageSelectionAvailable), nameof(IsChaptersEnabled))]
         [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand), nameof(UpdateCommand))]
         public partial bool IsChaptersLoading { get; set; } = true;
 
@@ -59,19 +57,25 @@ namespace Yukari.ViewModels.Pages
         [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
         public partial bool IsDownloadingAllChapters { get; set; }
 
-        public bool NoChapters => !IsChaptersLoading && (Chapters is not { Count: > 0 });
+        public bool NoChapters => !IsChaptersLoading && (Chapters == null || Chapters.Count == 0);
+        public bool IsInterfaceReady => !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading && !NoChapters;
 
-        public bool IsContinueEnabled => !IsChaptersLoading && !NoChapters;
-        public bool IsDownloadAvailable => IsFavorite && !NoChapters && !IsChaptersLoading;
-        public bool IsChapterOptionsAvailable => !IsChaptersLoading && Chapters?.Count > 0;
-        public bool IsLanguageSelectionAvailable => !IsChaptersLoading && Langs?.Count > 0;
+        public bool IsContinueEnabled => IsInterfaceReady;
+        public bool IsChapterOptionsAvailable => IsInterfaceReady;
+        public bool IsChaptersEnabled => IsInterfaceReady;
+
+        public bool IsLanguageSelectionAvailable => !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading;
+        public bool IsDownloadAvailable => IsFavorite && IsInterfaceReady;
 
         public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
         public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : IsDownloadingAllChapters ? "\uF78A" : "\uE896";
         public string DownloadAllText => IsAllChaptersDownloaded ? "Delete All" : IsDownloadingAllChapters ? "Downloading..." : "Download All";
 
-        public ComicPageViewModel(IComicService comicService) =>
+        public ComicPageViewModel(IComicService comicService, INotificationService notificationService)
+        {
             _comicService = comicService;
+            _notificationService = notificationService;
+        }
 
         public async Task InitializeAsync(ContentKey ComicKey)
         {
@@ -81,33 +85,36 @@ namespace Yukari.ViewModels.Pages
             await RefreshChaptersAsync();
         }
 
-        private bool CanToggleFavorite() => _comic != null && !IsChaptersLoading;
+        private bool CanToggleFavorite() => Comic != null && !IsChaptersLoading;
 
         [RelayCommand(CanExecute = nameof(CanToggleFavorite))]
         public async Task ToggleFavoriteAsync()
         {
             if (_comicKey == null) return;
+            IsFavoriteStatusChanging = true;
 
-            var previousState = IsFavorite;
-            IsFavorite = !IsFavorite;
+            bool newState = IsFavorite;
 
             Result result;
-            if (IsFavorite)
+            if (newState)
             {
                 result = await _comicService.UpsertFavoriteComicAsync(_comicKey);
-                if (result.IsSuccess) await _comicService.UpsertChaptersAsync(_comicKey, SelectedLang ?? "");
+                if (result.IsSuccess)
+                    await _comicService.UpsertChaptersAsync(_comicKey, SelectedLang ?? "");
             }
             else result = await _comicService.RemoveFavoriteComicAsync(_comicKey);
 
             if (result.IsSuccess) await RefreshChaptersAsync();
             else
             {
-                IsFavorite = previousState;
-                // TO-DO: Trigger a visual error notification here
+                IsFavorite = !newState;
+                _notificationService.ShowError(result.Error!);
             }
+
+            IsFavoriteStatusChanging = false;
         }
 
-        private bool CanUpdate() => _comic != null && !IsChaptersLoading;
+        private bool CanUpdate() => Comic != null && !IsChaptersLoading;
 
         [RelayCommand(CanExecute = nameof(CanUpdate))]
         public async Task UpdateAsync()
@@ -117,7 +124,7 @@ namespace Yukari.ViewModels.Pages
             var result = await _comicService.UpsertFavoriteComicAsync(_comicKey);
             if (!result.IsSuccess)
             {
-                // TO-DO: Trigger a visual error notification here
+                _notificationService.ShowError(result.Error!);
                 return;
             }
 
@@ -126,23 +133,28 @@ namespace Yukari.ViewModels.Pages
             await RefreshComicAsync();
             await RefreshChaptersAsync();
 
-            // TO-DO: Trigger a visual notification indicating the update is complete
+            _notificationService.ShowSuccess("Comic data updated successfully.");
         }
 
-        private bool CanOpenInBrowser() => !string.IsNullOrEmpty(_comic?.ComicUrl);
+        private bool CanOpenInBrowser() => !string.IsNullOrEmpty(Comic?.ComicUrl);
 
         [RelayCommand(CanExecute = nameof(CanOpenInBrowser))]
         public async Task OpenInBrowserAsync() =>
-            await Windows.System.Launcher.LaunchUriAsync(new Uri(_comic!.ComicUrl!));
+            await Windows.System.Launcher.LaunchUriAsync(new Uri(Comic!.ComicUrl!));
 
         private async Task RefreshComicAsync()
         {
             if (_comicKey == null) return;
             IsComicLoading = true;
 
-            Title = Author = Description = "Loading...";
-            Tags = new[] { "Loading..." };
-            Year = 0;
+            Comic = new ComicModel
+            { 
+                Id = "",
+                Source = "",
+                Title = "Loading...",
+                Tags = new[] { "Loading..." },
+                Year = 0,
+            };
 
             try
             {
@@ -153,23 +165,16 @@ namespace Yukari.ViewModels.Pages
                     return;
                 }
 
-                _comic = comicAggregate.Comic;
-                var userData = comicAggregate.UserData;
-                Title = _comic.Title;
-                Author = _comic.Author ?? "Unknown Author";
-                Description = _comic.Description ?? "No description available.";
-                Tags = _comic.Tags;
-                Year = _comic.Year ?? 0;
-                CoverImageUrl = _comic.CoverImageUrl;
-                Langs = _comic.Langs.ToList();
+                Comic = comicAggregate.Comic;
 
+                var userData = comicAggregate.UserData;
                 IsFavorite = userData.IsFavorite;
-                SelectedLang = userData.LastSelectedLang ?? Langs.FirstOrDefault()?.Key;
+                SelectedLang = userData.LastSelectedLang ?? Comic.Langs.FirstOrDefault()?.Key;
             }
             catch
             {
                 SetErrorStateForComics();
-                // TO-DO: Trigger a visual error notification here
+                _notificationService.ShowError("An error occurred while loading the comic.");
             }
             finally
             {
@@ -179,12 +184,17 @@ namespace Yukari.ViewModels.Pages
 
         private void SetErrorStateForComics()
         {
-            Title = "Error Loading Comic";
-            Author = "Error";
-            Description = "An error occurred while loading the comic.";
-            Tags = new[] { "N/A" };
-            Year = 0;
-            CoverImageUrl = null;
+            Comic = new ComicModel
+            {
+                Id = "",
+                Source = "",
+                Title = "Error",
+                Author = "Error",
+                Description = "An error occurred while loading the comic.",
+                Tags = new[] { "N/A" },
+                Year = 0,
+                CoverImageUrl = null
+            };
         }
 
         private async Task RefreshChaptersAsync()
@@ -204,7 +214,8 @@ namespace Yukari.ViewModels.Pages
             }
             catch (Exception)
             {
-                // TO-DO: Trigger a visual error notification here
+                Chapters = null;
+                _notificationService.ShowError("An error occurred while loading chapters.");
             }
             finally
             {
@@ -225,7 +236,7 @@ namespace Yukari.ViewModels.Pages
 
                 if (!result.IsSuccess)
                 {
-                    // TO-DO: Trigger a visual error notification here
+                    _notificationService.ShowError(result.Error!);
                 }
             }
         }

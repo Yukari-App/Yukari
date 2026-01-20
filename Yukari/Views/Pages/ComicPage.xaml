@@ -141,9 +141,9 @@
                     Grid.Column="1"
                     VerticalAlignment="Center"
                     Style="{StaticResource TitleTextBlockStyle}"
-                    Text="{Binding Title}"
+                    Text="{Binding Comic.Title}"
                     TextWrapping="NoWrap"
-                    ToolTipService.ToolTip="{Binding Title}" />
+                    ToolTipService.ToolTip="{Binding Comic.Title}" />
             </Grid>
 
             <StackPanel
@@ -166,7 +166,7 @@
                     Background="Transparent"
                     BorderBrush="Transparent"
                     Command="{Binding ToggleFavoriteCommand}"
-                    IsChecked="{Binding IsFavorite, Mode=OneWay}">
+                    IsChecked="{Binding IsFavorite, Mode=TwoWay}">
                     <FontIcon Glyph="{Binding FavoriteIcon}" />
                 </ToggleButton>
 
@@ -219,7 +219,7 @@
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top"
                         CornerRadius="8">
-                        <Image Source="{Binding CoverImageUrl}" Stretch="Fill" />
+                        <Image Source="{Binding Comic.CoverImageUrl}" Stretch="Fill" />
                     </Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -236,7 +236,7 @@
                         <TextBlock
                             Margin="0,0,0,12"
                             FontSize="16"
-                            Text="{Binding Author}" />
+                            Text="{Binding Comic.Author}" />
 
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon
@@ -252,7 +252,7 @@
                         <TextBlock
                             Margin="0,0,0,12"
                             FontSize="16"
-                            Text="{Binding Year}" />
+                            Text="{Binding Comic.Year}" />
 
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon
@@ -269,7 +269,7 @@
                             x:Name="BasicGridView"
                             Margin="0,8,0,0"
                             ItemTemplate="{StaticResource TagsTemplate}"
-                            ItemsSource="{Binding Tags}"
+                            ItemsSource="{Binding Comic.Tags}"
                             SelectionMode="None">
                             <ItemsView.Layout>
                                 <LinedFlowLayout LineSpacing="5" MinItemSpacing="5" />
@@ -294,7 +294,7 @@
                         <TextBlock
                             FontSize="16"
                             Style="{StaticResource BodyTextBlockStyle}"
-                            Text="{Binding Description}"
+                            Text="{Binding Comic.Description}"
                             TextAlignment="Justify"
                             TextWrapping="WrapWholeWords" />
                     </ScrollViewer>
@@ -348,7 +348,7 @@
                             <ComboBox
                                 DisplayMemberPath="DisplayName"
                                 IsEnabled="{Binding IsLanguageSelectionAvailable}"
-                                ItemsSource="{Binding Langs}"
+                                ItemsSource="{Binding Comic.Langs}"
                                 SelectedValue="{Binding SelectedLang, Mode=TwoWay}"
                                 SelectedValuePath="Key" />
 
@@ -392,6 +392,7 @@
 
                     <ItemsView
                         Grid.Row="1"
+                        IsEnabled="{Binding IsChaptersEnabled}"
                         IsItemInvokedEnabled="True"
                         ItemTemplate="{StaticResource ChaptersTemplate}"
                         ItemsSource="{Binding Chapters}"
