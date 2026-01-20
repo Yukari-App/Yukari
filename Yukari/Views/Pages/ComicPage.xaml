@@ -47,16 +47,16 @@
                             Grid.Row="0"
                             FontSize="18"
                             Style="{StaticResource BodyStrongTextBlockStyle}"
-                            Text="{Binding DisplayTitle}" />
+                            Text="{x:Bind DisplayTitle}" />
                         <TextBlock
                             Grid.Row="1"
                             FontSize="14"
-                            Text="{Binding ChapterGroups}" />
+                            Text="{x:Bind Chapter.Groups}" />
                         <TextBlock
                             Grid.Row="2"
                             VerticalAlignment="Bottom"
                             FontSize="14"
-                            Text="{Binding ChapterLastUpdate}" />
+                            Text="{x:Bind Chapter.LastUpdate}" />
                     </Grid>
                     <StackPanel
                         Grid.Column="1"
@@ -69,7 +69,7 @@
                             Height="28"
                             Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
                             IsIndeterminate="False"
-                            Visibility="{Binding IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Visibility="{x:Bind IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}}"
                             Value="45" />
                         <ToggleButton
                             Width="32"
@@ -77,10 +77,10 @@
                             Padding="0"
                             Background="Transparent"
                             BorderBrush="Transparent"
-                            Command="{Binding ToggleDownloadCommand}"
-                            IsChecked="{Binding IsDownloaded, Mode=OneWay}"
-                            Visibility="{Binding IsDownloadAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <FontIcon Glyph="{Binding DownloadIcon}" />
+                            Command="{x:Bind ToggleDownloadCommand}"
+                            IsChecked="{x:Bind IsDownloaded, Mode=OneWay}"
+                            Visibility="{x:Bind IsDownloadAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <FontIcon Glyph="{x:Bind DownloadIcon}" />
                         </ToggleButton>
                         <ToggleButton
                             Width="32"
@@ -88,9 +88,9 @@
                             Padding="0"
                             Background="Transparent"
                             BorderBrush="Transparent"
-                            Command="{Binding ToggleReadCommand}"
-                            IsChecked="{Binding IsRead, Mode=OneWay}">
-                            <FontIcon Glyph="{Binding ReadIcon}" />
+                            Command="{x:Bind ToggleReadCommand}"
+                            IsChecked="{x:Bind IsRead, Mode=OneWay}">
+                            <FontIcon Glyph="{x:Bind ReadIcon}" />
                         </ToggleButton>
                         <Button
                             Width="32"
@@ -113,7 +113,7 @@
                         Grid.Column="2"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom">
-                        <Run Text="{Binding LastPageRead}" /><Run CharacterSpacing="0" Text="/" /><Run Text="{Binding ChapterPages}" />
+                        <Run Text="{x:Bind LastPageRead}" /><Run CharacterSpacing="0" Text="/" /><Run Text="{x:Bind Chapter.Pages}" />
                     </TextBlock>
                 </Grid>
             </ItemContainer>
