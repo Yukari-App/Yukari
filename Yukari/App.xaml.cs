@@ -31,6 +31,7 @@ namespace Yukari
 
             var services = new ServiceCollection();
 
+            services.AddTransient<ShellPageViewModel>();
             services.AddTransient<NavigationPageViewModel>();
             services.AddTransient<ReaderPageViewModel>();
             services.AddTransient<FavoritesPageViewModel>();
