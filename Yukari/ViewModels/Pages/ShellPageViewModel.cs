@@ -22,7 +22,7 @@ namespace Yukari.ViewModels.Pages
 
             Notifications.Add(notification);
 
-            await Task.Delay(5000);
+            await Task.Delay(10000);
             Notifications.Remove(notification);
         }
     }
