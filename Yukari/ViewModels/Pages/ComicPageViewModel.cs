@@ -31,19 +31,23 @@ namespace Yukari.ViewModels.Pages
         public partial bool IsFavorite { get; set; }
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(
+            nameof(IsInterfaceReady), nameof(IsContinueEnabled),
+            nameof(IsDownloadAvailable), nameof(IsChapterOptionsAvailable),
+            nameof(IsLanguageSelectionAvailable), nameof(IsChaptersEnabled))]
         public partial bool IsFavoriteStatusChanging { get; set; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(
-            nameof(IsContinueEnabled), nameof(IsDownloadAvailable),
-            nameof(IsChapterOptionsAvailable), nameof(IsLanguageSelectionAvailable),
-            nameof(IsChaptersEnabled))]
+            nameof(IsInterfaceReady), nameof(IsContinueEnabled),
+            nameof(IsDownloadAvailable), nameof(IsChapterOptionsAvailable),
+            nameof(IsLanguageSelectionAvailable), nameof(IsChaptersEnabled))]
         [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand), nameof(UpdateCommand))]
         public partial bool IsComicLoading { get; set; } = true;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(
-            nameof(NoChapters), nameof(IsContinueEnabled),
+            nameof(IsInterfaceReady), nameof(NoChapters), nameof(IsContinueEnabled),
             nameof(IsDownloadAvailable), nameof(IsChapterOptionsAvailable),
             nameof(IsLanguageSelectionAvailable), nameof(IsChaptersEnabled))]
         [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand), nameof(UpdateCommand))]
