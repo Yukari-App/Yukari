@@ -160,9 +160,11 @@ namespace Yukari.ViewModels.Pages
                 Year = 0,
             };
 
-            try
+            var result = await _comicService.GetComicDetailsAsync(_comicKey);
+
+            if (result.IsSuccess)
             {
-                var comicAggregate = await _comicService.GetComicDetailsAsync(_comicKey);
+                var comicAggregate = result.Value;
                 if (comicAggregate == null)
                 {
                     SetErrorStateForComics();
@@ -175,16 +177,14 @@ namespace Yukari.ViewModels.Pages
                 IsFavorite = userData.IsFavorite;
                 SelectedLang = userData.LastSelectedLang ?? Comic.Langs.FirstOrDefault()?.Key;
             }
-            catch
+            else
             {
                 SetErrorStateForComics();
-                _notificationService.ShowError("An error occurred while loading the comic.");
+                _notificationService.ShowError(result.Error!);
             }
-            finally
-            {
+
                 IsComicLoading = false;
             }
-        }
 
         private void SetErrorStateForComics()
         {
@@ -206,26 +206,26 @@ namespace Yukari.ViewModels.Pages
             if (IsComicLoading || _comicKey == null) return;
             IsChaptersLoading = true;
 
-            try
-            {
                 if (string.IsNullOrEmpty(SelectedLang)) return;
 
-                var chapterAggregates = await _comicService.GetAllChaptersAsync(_comicKey, SelectedLang);
+            var result = await _comicService.GetAllChaptersAsync(_comicKey, SelectedLang);
 
-                Chapters = chapterAggregates
+            if (result.IsSuccess)
+            {
+                var chapterAggregates = result.Value;
+
+                Chapters = chapterAggregates?
                     .Select(c => new ChapterItemViewModel(c, IsFavorite))
                     .ToList();
             }
-            catch (Exception)
+            else
             {
                 Chapters = null;
-                _notificationService.ShowError("An error occurred while loading chapters.");
+                _notificationService.ShowError(result.Error!);
             }
-            finally
-            {
+
                 IsChaptersLoading = false;
             }
-        }
 
         async partial void OnSelectedLangChanged(string? value)
         {
