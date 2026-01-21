@@ -5,17 +5,17 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 	<LangVersion>preview</LangVersion>
     <RootNamespace>Yukari</RootNamespace>
+	<ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+	<DefaultLanguage>en-US</DefaultLanguage>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
-    <EnableMsixTooling>false</EnableMsixTooling>
     <Nullable>enable</Nullable>
-	  <WindowsPackageType>None</WindowsPackageType>
-	  <WindowsAppSDKSelfContained>True</WindowsAppSDKSelfContained>
-	<DefaultLanguage>en-US</DefaultLanguage>
-	<ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+	<EnableMsixTooling>false</EnableMsixTooling>
+	 <WindowsPackageType>None</WindowsPackageType>
+	 <WindowsAppSDKSelfContained>True</WindowsAppSDKSelfContained>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -25,7 +25,7 @@
         <RemovingFolders Include="@(RemovingFiles->'%(RootDir)%(Directory)')" />
     </ItemGroup>
     <RemoveDir Directories="@(RemovingFolders)" />
-	</Target>
+  </Target>
 
   <ItemGroup>
     <None Remove="ViewModels\Pages\ShellPage.xaml" />
