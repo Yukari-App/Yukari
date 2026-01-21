@@ -47,15 +47,18 @@ namespace Yukari.ViewModels.Pages
             var result = await _comicService.GetAllChaptersAsync(comicKey, selectedLang);
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!);
-
-                await Task.Delay(1000);
-                _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
-
+                await TriggerErrorAndReturn(result.Error!);
                 return;
             }
 
             _chapters = result.Value!.ToArray();
+
+            if (_chapters.Length <= 0)
+            {
+                await TriggerErrorAndReturn("No chapters found for this language.");
+                return;
+            }
+
             _currentChapterIndex = Array.FindIndex(_chapters, c => c.Chapter.Id == chapterKey.Id);
 
             if (_currentChapterIndex != -1)
@@ -93,6 +96,14 @@ namespace Yukari.ViewModels.Pages
         {
             _currentChapterIndex--;
             UpdateCurrentChapter();
+        }
+
+        private async Task TriggerErrorAndReturn(string errorMessage)
+        {
+            _notificationService.ShowError(errorMessage);
+
+            await Task.Delay(1500);
+            _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
         }
     }
 }
