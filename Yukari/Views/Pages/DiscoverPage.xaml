@@ -16,6 +16,7 @@
     mc:Ignorable="d">
 
     <Page.Resources>
+        <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <DataTemplate x:Key="ComicTemplate" x:DataType="vmc:ComicItemViewModel">
@@ -76,7 +77,11 @@
                 Orientation="Horizontal"
                 Spacing="2">
 
-                <ComboBox ItemsSource="{Binding ComicSources}" SelectedItem="{Binding SelectedComicSource, Mode=TwoWay}">
+                <ComboBox
+                    Height="34"
+                    IsEnabled="{Binding NoSources, Converter={StaticResource BooleanNegationConverter}}"
+                    ItemsSource="{Binding ComicSources}"
+                    SelectedItem="{Binding SelectedComicSource, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="models:ComicSourceModel">
                             <StackPanel Orientation="Horizontal" Spacing="6">
@@ -118,6 +123,15 @@
             Style="{StaticResource BodyLargeStrongTextBlockStyle}"
             Text="No results found."
             Visibility="{Binding NoResults, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+        <TextBlock
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            Style="{StaticResource BodyLargeStrongTextBlockStyle}"
+            TextAlignment="Center"
+            Visibility="{Binding NoSources, Converter={StaticResource BooleanToVisibilityConverter}}">
+            It looks like you don't have any Comic Sources. Add one at<LineBreak />
+            Settings > Sources > Comic Sources > Add New Source</TextBlock>
 
         <GridView
             Grid.Row="1"

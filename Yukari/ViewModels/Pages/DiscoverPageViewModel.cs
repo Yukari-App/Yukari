@@ -35,10 +35,13 @@ namespace Yukari.ViewModels.Pages
         
         [ObservableProperty] public partial ComicSourceModel? SelectedComicSource { get; set; }
 
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults)), NotifyCanExecuteChangedFor(nameof(FilterCommand))]
-        public partial bool IsContentLoading { get; set; } = true;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(NoSources), nameof(NoResults))]
+        [NotifyCanExecuteChangedFor(nameof(FilterCommand))]
+        public partial bool IsContentLoading { get; set; }
 
-        public bool NoResults => !IsContentLoading && (SearchedComics == null || SearchedComics.Count == 0);
+        public bool NoSources => !IsContentLoading && (ComicSources == null || ComicSources.Count == 0);
+        public bool NoResults => !IsContentLoading && !NoSources && (SearchedComics == null || SearchedComics.Count == 0);
 
         public DiscoverPageViewModel(
             IComicService comicService, IDialogService dialogService, INotificationService notificationService, IMessenger messenger)
