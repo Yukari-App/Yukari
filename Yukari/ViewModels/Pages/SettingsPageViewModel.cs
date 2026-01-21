@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Models;
 using Yukari.Services.Comics;
@@ -11,19 +12,21 @@ namespace Yukari.ViewModels.Pages
     public partial class SettingsPageViewModel : ObservableObject
     {
         private readonly IComicService _comicService;
+        private readonly INotificationService _notificationService;
         private readonly IDialogService _dialogService;
 
         [ObservableProperty] public partial ComicSourceModel? DefaultComicSource { get; set; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsComicSourcesEmpty))]
-        public partial ObservableCollection<ComicSourceModel> ComicSources { get; set; } = new();
+        public partial List<ComicSourceModel> ComicSources { get; set; } = new();
 
         public bool IsComicSourcesEmpty => ComicSources.Count == 0;
 
-        public SettingsPageViewModel(IComicService comicService, IDialogService dialogService)
+        public SettingsPageViewModel(IComicService comicService, INotificationService notificationService, IDialogService dialogService)
         {
             _comicService = comicService;
+            _notificationService = notificationService;
             _dialogService = dialogService;
 
             _ = LoadComicSourcesAsync();
@@ -38,17 +41,24 @@ namespace Yukari.ViewModels.Pages
             var result = await _comicService.UpsertComicSourceAsync(pluginPath);
             if (!result.IsSuccess)
             {
-                // TO-DO: Show error notification
+                _notificationService.ShowError(result.Error!);
                 return;
             }
 
             await LoadComicSourcesAsync();
-            // TO-DO: Show success notification
+            _notificationService.ShowSuccess("Comic source added successfully.");
         }
 
         private async Task LoadComicSourcesAsync()
         {
-            ComicSources = new(await _comicService.GetComicSourcesAsync());
+            var result = await _comicService.GetComicSourcesAsync();
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+                return;
+            }
+
+            ComicSources = result.Value!.ToList();
         }
     }
 }

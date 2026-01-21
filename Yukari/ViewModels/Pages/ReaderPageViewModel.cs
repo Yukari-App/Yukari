@@ -10,12 +10,14 @@ using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.UI;
 
 namespace Yukari.ViewModels.Pages
 {
     public partial class ReaderPageViewModel : ObservableObject
     {
         private readonly IComicService _comicService;
+        private readonly INotificationService _notificationService;
         private readonly IMessenger _messenger;
 
         private ContentKey? _comicKey;
@@ -30,9 +32,10 @@ namespace Yukari.ViewModels.Pages
         public partial ChapterModel? CurrentChapter { get; set; }
 
 
-        public ReaderPageViewModel(IComicService comicService, IMessenger messenger)
+        public ReaderPageViewModel(IComicService comicService, INotificationService notificationService, IMessenger messenger)
         {
             _comicService = comicService;
+            _notificationService = notificationService;
             _messenger = messenger;
         }
 
@@ -41,7 +44,18 @@ namespace Yukari.ViewModels.Pages
             _comicKey = comicKey;
             ComicTitle = comicTitle;
 
-            _chapters = (await _comicService.GetAllChaptersAsync(comicKey, selectedLang)).ToArray();
+            var result = await _comicService.GetAllChaptersAsync(comicKey, selectedLang);
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+
+                await Task.Delay(1000);
+                _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
+
+                return;
+            }
+
+            _chapters = result.Value!.ToArray();
             _currentChapterIndex = Array.FindIndex(_chapters, c => c.Chapter.Id == chapterKey.Id);
 
             if (_currentChapterIndex != -1)

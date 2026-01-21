@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Yukari.Messages;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
@@ -14,6 +15,7 @@ namespace Yukari.ViewModels.Pages
     public partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchChangedMessage>
     {
         private readonly IComicService _comicService;
+        private readonly INotificationService _notificationService;
         private readonly IMessenger _messenger;
 
         [ObservableProperty] public partial List<ComicItemViewModel> FavoriteComics { get; set; } = new();
@@ -24,9 +26,10 @@ namespace Yukari.ViewModels.Pages
 
         public bool NoFavorites => !IsContentLoading && FavoriteComics.Count == 0;
 
-        public FavoritesPageViewModel(IComicService comicService, IMessenger messenger)
+        public FavoritesPageViewModel(IComicService comicService, INotificationService notificationService, IMessenger messenger)
         {
             _comicService = comicService;
+            _notificationService = notificationService;
             _messenger = messenger;
 
             _messenger.RegisterAll(this);
@@ -41,8 +44,12 @@ namespace Yukari.ViewModels.Pages
             IsContentLoading = true;
 
             FavoriteComics = new List<ComicItemViewModel>();
-            FavoriteComics = (await _comicService.GetFavoriteComicsAsync(searchText, "all"))
-                .Select(comic => new ComicItemViewModel(comic)).ToList();
+            var result = await _comicService.GetFavoriteComicsAsync(searchText, "all");
+
+            if (result.IsSuccess) 
+                FavoriteComics = result.Value!.Select(comic => new ComicItemViewModel(comic)).ToList();
+            else
+                _notificationService.ShowError(result.Error!);
 
             IsContentLoading = false;
         }
