@@ -19,97 +19,151 @@ namespace Yukari.ViewModels.Pages
     {
         private readonly IComicService _comicService;
         private readonly IDialogService _dialogService;
+        private readonly INotificationService _notificationService;
         private readonly IMessenger _messenger;
 
-        private IReadOnlyList<Filter> _availableFilters = new List<Filter>();
-        private IReadOnlyDictionary<string, IReadOnlyList<string>> _appliedFilters = new Dictionary<string, IReadOnlyList<string>>();
+        private bool _isDirty = false;
+        private bool _isIsActive = false;
+
+        private IReadOnlyList<Filter>? _availableFilters;
+        private IReadOnlyDictionary<string, IReadOnlyList<string>>? _appliedFilters;
 
         private string _searchText = string.Empty;
 
-        [ObservableProperty] public partial List<ComicSourceModel> ComicSources { get; set; } = new();
-        [ObservableProperty] public partial List<ComicItemViewModel> SearchedComics { get; set; } = new();
+        [ObservableProperty] public partial List<ComicSourceModel>? ComicSources { get; set; }
+        [ObservableProperty] public partial List<ComicItemViewModel>? SearchedComics { get; set; }
         
         [ObservableProperty] public partial ComicSourceModel? SelectedComicSource { get; set; }
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(NoResults)), NotifyCanExecuteChangedFor(nameof(FilterCommand))]
         public partial bool IsContentLoading { get; set; } = true;
 
-        public bool NoResults => !IsContentLoading && !SearchedComics.Any();
+        public bool NoResults => !IsContentLoading && (SearchedComics == null || SearchedComics.Count == 0);
 
-        public DiscoverPageViewModel(IComicService comicService, IDialogService dialogService, IMessenger messenger)
+        public DiscoverPageViewModel(
+            IComicService comicService, IDialogService dialogService, INotificationService notificationService, IMessenger messenger)
         {
             _comicService = comicService;
             _dialogService = dialogService;
+            _notificationService = notificationService;
             _messenger = messenger;
 
             _messenger.Register<ComicSourcesUpdatedMessage>(this);
         }
-            
-        public void RegisterSearchMessages() =>
-            _messenger.Register<SearchChangedMessage>(this);
 
-        public void UnregisterSearchMessages() =>
-            _messenger.Unregister<SearchChangedMessage>(this);
-
-        public async void Receive(SearchChangedMessage message)
+        public void Receive(SearchChangedMessage message)
         {
             _searchText = message.SearchText ?? string.Empty;
-            await UpdateDisplayedComicsAsync();
+            _ = UpdateDisplayedComicsAsync();
         }
 
-        public async void Receive(ComicSourcesUpdatedMessage message) =>
-            await UpdateAvailableComicSources();
-
-        public async Task LoadDiscoverDataAsync()
+        public void Receive(ComicSourcesUpdatedMessage message)
         {
+            if (_isIsActive)
+                _ = UpdateAvailableComicSources();
+            else
+                _isDirty = true;
+        }
+
+        public void OnNavigatedTo()
+        {
+            _isIsActive = true;
+            _messenger.Register<SearchChangedMessage>(this);
+
             _messenger.Send(new SetSearchTextMessage(_searchText));
 
-            if (ComicSources.Count == 0)
-                await UpdateAvailableComicSources();
+            if (_isDirty || ComicSources == null || ComicSources.Count == 0)
+            {
+                _ = UpdateAvailableComicSources();
+                _isDirty = false;
+            }
         }
 
-        private async Task UpdateAvailableComicSources()
+        public void OnNavigatedFrom()
         {
-            ComicSources = new(await _comicService.GetComicSourcesAsync());
-
-            SelectedComicSource = ComicSources.FirstOrDefault(); // will call OnSelectedComicSourceChanged
+            _messenger.Unregister<SearchChangedMessage>(this);
+            _isIsActive = false;
         }
 
-        private async Task UpdateDisplayedComicsAsync()
-        {
-            IsContentLoading = true;
-
-            SearchedComics = new List<ComicItemViewModel>();
-            SearchedComics = (await _comicService.SearchComicsAsync(SelectedComicSource!.Name, _searchText, _appliedFilters))
-                .Select(comic => new ComicItemViewModel(comic)).ToList();
-
-            IsContentLoading = false;
-        }
-
-        private bool CanFilter() => (_availableFilters?.Count > 0) && !IsContentLoading;
+        private bool CanFilter() => _availableFilters != null && _availableFilters.Count > 0 && !IsContentLoading;
 
         [RelayCommand(CanExecute = nameof(CanFilter))]
         private async Task OnFilter()
         {
-            var result = await _dialogService.ShowFiltersDialogAsync(_availableFilters, _appliedFilters);
+            if (_availableFilters == null) return;
 
-            if (result == null) return;
+            var newAppliedFilters = await _dialogService.ShowFiltersDialogAsync(
+                _availableFilters,
+                _appliedFilters ?? new Dictionary<string, IReadOnlyList<string>>());
 
-            _appliedFilters = result;
+            if (newAppliedFilters == null) return;
+
+            _appliedFilters = newAppliedFilters;
             await UpdateDisplayedComicsAsync();
         }
-            
+
         [RelayCommand]
         private void NavigateToComic(ContentKey ComicKey) =>
             _messenger.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), ComicKey));
+
+        private async Task UpdateAvailableComicSources()
+        {
+            var result = await _comicService.GetComicSourcesAsync();
+            if (result.IsSuccess)
+            {
+                ComicSources = result.Value?.Where(s => s.IsEnabled).ToList();
+
+                if (SelectedComicSource == null || !ComicSources!.Any(x => x.Name == SelectedComicSource.Name))
+                {
+                    SelectedComicSource = ComicSources?.FirstOrDefault();
+                    // Note: Setting SelectedComicSource triggers OnSelectedComicSourceChanged automatically
+                }
+            }
+            else
+            {
+                _notificationService.ShowError(result.Error!);
+            }
+        }
+
+        private async Task UpdateAvailableFiltersAsync()
+        {
+            if (SelectedComicSource == null) return;
+            _appliedFilters = null;
+
+            var result = await _comicService.GetSourceFiltersAsync(SelectedComicSource.Name);
+
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+                return;
+            }
+
+            _availableFilters = result.Value;
+            FilterCommand.NotifyCanExecuteChanged();
+        }
+
+        private async Task UpdateDisplayedComicsAsync()
+        {
+            if (SelectedComicSource == null) return;
+            IsContentLoading = true;
+
+            SearchedComics = new List<ComicItemViewModel>();
+            var result = await _comicService.SearchComicsAsync(SelectedComicSource.Name, _searchText,
+                _appliedFilters ?? new Dictionary<string, IReadOnlyList<string>>());
+
+            if (result.IsSuccess)
+                SearchedComics = result.Value!.Select(comic => new ComicItemViewModel(comic)).ToList();
+            else
+                _notificationService.ShowError(result.Error!);
+
+            IsContentLoading = false;
+        }
 
         async partial void OnSelectedComicSourceChanged(ComicSourceModel? value)
         {
             if (value == null) return;
 
-            _availableFilters = await _comicService.GetSourceFiltersAsync(value.Name);
-            _appliedFilters = new Dictionary<string, IReadOnlyList<string>>();
-
+            await UpdateAvailableFiltersAsync();
             await UpdateDisplayedComicsAsync();
         }
     }

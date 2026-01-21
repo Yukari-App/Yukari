@@ -14,14 +14,13 @@ namespace Yukari.Views.Pages
             DataContext = App.GetService<DiscoverPageViewModel>();
         }
 
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
             if (DataContext is DiscoverPageViewModel viewModel)
             {
-                viewModel.RegisterSearchMessages();
-                await viewModel.LoadDiscoverDataAsync();
+                viewModel.OnNavigatedTo();
             }
         }
 
@@ -30,7 +29,7 @@ namespace Yukari.Views.Pages
             base.OnNavigatedFrom(e);
 
             if (DataContext is DiscoverPageViewModel viewModel)
-                viewModel.UnregisterSearchMessages();
+                viewModel.OnNavigatedFrom();
         }
 
         private void GridView_ItemClick(object sender, ItemClickEventArgs e)
