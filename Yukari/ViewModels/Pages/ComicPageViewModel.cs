@@ -183,8 +183,8 @@ namespace Yukari.ViewModels.Pages
                 _notificationService.ShowError(result.Error!);
             }
 
-                IsComicLoading = false;
-            }
+            IsComicLoading = false;
+        }
 
         private void SetErrorStateForComics()
         {
@@ -206,7 +206,7 @@ namespace Yukari.ViewModels.Pages
             if (IsComicLoading || _comicKey == null) return;
             IsChaptersLoading = true;
 
-                if (string.IsNullOrEmpty(SelectedLang)) return;
+            if (string.IsNullOrEmpty(SelectedLang)) return;
 
             var result = await _comicService.GetAllChaptersAsync(_comicKey, SelectedLang);
 
@@ -224,25 +224,21 @@ namespace Yukari.ViewModels.Pages
                 _notificationService.ShowError(result.Error!);
             }
 
-                IsChaptersLoading = false;
-            }
+            IsChaptersLoading = false;
+        }
 
         async partial void OnSelectedLangChanged(string? value)
         {
-            if (!IsComicLoading)
+            if (IsComicLoading || value == null) return;
+            
+            await RefreshChaptersAsync();
+            var result = await _comicService.UpsertComicUserDataAsync(_comicKey!, new()
             {
-                await RefreshChaptersAsync();
-                var result = await _comicService.UpsertComicUserDataAsync(_comicKey!, new()
-                {
-                    IsFavorite = IsFavorite,
-                    LastSelectedLang = value
-                });
+                IsFavorite = IsFavorite,
+                LastSelectedLang = value
+            });
 
-                if (!result.IsSuccess)
-                {
-                    _notificationService.ShowError(result.Error!);
-                }
-            }
+            if (!result.IsSuccess) _notificationService.ShowError(result.Error!);
         }
     }
 }
