@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
 using Yukari.Models;
@@ -10,15 +11,15 @@ namespace Yukari.Services.Comics
 {
     public interface IComicService
     {
-        Task<IReadOnlyList<Filter>> GetSourceFiltersAsync(string sourceName);
-        Task<IReadOnlyDictionary<string, string>> GetSourceLanguagesAsync(string sourceName);
+        Task<Result<IReadOnlyList<Filter>>> GetSourceFiltersAsync(string sourceName);
+        Task<Result<IReadOnlyDictionary<string, string>>> GetSourceLanguagesAsync(string sourceName);
 
-        Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string sourceName, string? queryText, IReadOnlyDictionary<string, IReadOnlyList<string>> filters);
-        Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText, string filter);
-        Task<ComicAggregate?> GetComicDetailsAsync(ContentKey ComicKey, bool forceWeb = false);
-        Task<IReadOnlyList<ChapterAggregate>> GetAllChaptersAsync(ContentKey ComicKey, string language, bool forceWeb = false);
-        Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKey, bool forceWeb = false);
-        Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync();
+        Task<Result<IReadOnlyList<ComicModel>>> SearchComicsAsync(string sourceName, string? queryText, IReadOnlyDictionary<string, IReadOnlyList<string>> filters);
+        Task<Result<IReadOnlyList<ComicModel>>> GetFavoriteComicsAsync(string? queryText, string filter);
+        Task<Result<ComicAggregate?>> GetComicDetailsAsync(ContentKey ComicKey, bool forceWeb = false);
+        Task<Result<IReadOnlyList<ChapterAggregate>>> GetAllChaptersAsync(ContentKey ComicKey, string language, bool forceWeb = false);
+        Task<Result<IReadOnlyList<ChapterPageModel>>> GetChapterPagesAsync(ContentKey chapterKey, bool forceWeb = false);
+        Task<Result<IReadOnlyList<ComicSourceModel>>> GetComicSourcesAsync();
 
         Task<Result> UpsertFavoriteComicAsync(ContentKey comic);
         Task<Result> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
