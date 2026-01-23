@@ -25,21 +25,12 @@ namespace Yukari.Helpers
         public static string GetComicChapterDataPath(ContentKey comicKey, string chapterId) =>
             EnsureDirectory(GetChapterPath(comicKey, chapterId));
 
-        public static bool DeleteComicChapterDataPath(ContentKey comicKey, string chapterId)
+        public static void DeleteComicChapterDataPath(ContentKey comicKey, string chapterId)
         {
             string path = GetChapterPath(comicKey, chapterId);
-            try
+            if (Directory.Exists(path))
             {
-                if (Directory.Exists(path))
-                {
-                    Directory.Delete(path, true);
-                    return true;
-                }
-                return true;
-            }
-            catch
-            {
-                return false;
+                Directory.Delete(path, true);
             }
         }
 
