@@ -63,7 +63,7 @@ namespace Yukari.Services.Storage
                     ComicId TEXT NOT NULL,
                     Source TEXT NOT NULL,
                     Title TEXT,
-                    Number TEXT NOT NULL,
+                    Number TEXT,
                     Volume TEXT,
                     Language TEXT NOT NULL,
                     Groups TEXT,
