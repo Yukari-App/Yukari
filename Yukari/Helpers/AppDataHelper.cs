@@ -19,6 +19,9 @@ namespace Yukari.Helpers
         public static string GetPluginsPath() => 
             EnsureDirectory(Path.Combine(GetAppDataPath(), "Plugins"));
 
+        public static string GetComicDataPath(ContentKey comicKey) =>
+            EnsureDirectory(Path.Combine(GetDataPath(), comicKey.Source, comicKey.Id));
+
         public static string GetComicChapterDataPath(ContentKey comicKey, string chapterId) =>
             EnsureDirectory(GetChapterPath(comicKey, chapterId));
 
@@ -49,7 +52,7 @@ namespace Yukari.Helpers
         }
 
         private static string GetChapterPath(ContentKey comicKey, string chapterId) =>
-            Path.Combine(GetDataPath(), comicKey.Source, comicKey.Id, chapterId);
+            Path.Combine(GetComicDataPath(comicKey), chapterId);
 
         private static string EnsureDirectory(string path)
         {
