@@ -272,151 +272,151 @@ namespace Yukari.Services.Storage
         }
 
         public async Task UpsertFavoriteComicAsync(ComicModel comic)
+        {
+            using var connection = await GetOpenConnectionAsync();
+
+            using var transaction = connection.BeginTransaction();
+
+            const string sqlComic = @"
+                INSERT INTO Comics 
+                (Id, Source, ComicUrl, Title, Author, Description, Tags, Year, CoverImageUrl, Langs, IsAvailable)
+                VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Tags, @Year, @CoverImageUrl, @Langs, @IsAvailable)
+                ON CONFLICT(Id, Source) DO UPDATE SET
+                    ComicUrl = excluded.ComicUrl,
+                    Title = excluded.Title,
+                    Author = excluded.Author,
+                    Description = excluded.Description,
+                    Tags = excluded.Tags,
+                    Year = excluded.Year,
+                    CoverImageUrl = excluded.CoverImageUrl,
+                    Langs = excluded.Langs,
+                    IsAvailable = excluded.IsAvailable;
+            ";
+
+            await connection.ExecuteAsync(sqlComic, comic, transaction);
+
+            const string sqlUserData = @"
+            INSERT INTO ComicUserData (ComicId, Source, IsFavorite, DownloadedLangs)
+            VALUES (@ComicId, @Source, @IsFavorite, @DownloadedLangs)
+                ON CONFLICT(ComicId, Source) DO UPDATE SET
+                IsFavorite = excluded.IsFavorite;
+            ";
+
+            await connection.ExecuteAsync(sqlUserData, new
             {
-                using var connection = await GetOpenConnectionAsync();
+                ComicId = comic.Id,
+                Source = comic.Source,
+                IsFavorite = true,
+                DownloadedLangs = "[]"
+            }, transaction);
 
-                using var transaction = connection.BeginTransaction();
-
-                const string sqlComic = @"
-                    INSERT INTO Comics 
-                    (Id, Source, ComicUrl, Title, Author, Description, Tags, Year, CoverImageUrl, Langs, IsAvailable)
-                    VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Tags, @Year, @CoverImageUrl, @Langs, @IsAvailable)
-                    ON CONFLICT(Id, Source) DO UPDATE SET
-                        ComicUrl = excluded.ComicUrl,
-                        Title = excluded.Title,
-                        Author = excluded.Author,
-                        Description = excluded.Description,
-                        Tags = excluded.Tags,
-                        Year = excluded.Year,
-                        CoverImageUrl = excluded.CoverImageUrl,
-                        Langs = excluded.Langs,
-                        IsAvailable = excluded.IsAvailable;
-                ";
-
-                await connection.ExecuteAsync(sqlComic, comic, transaction);
-
-                const string sqlUserData = @"
-                INSERT INTO ComicUserData (ComicId, Source, IsFavorite, DownloadedLangs)
-                VALUES (@ComicId, @Source, @IsFavorite, @DownloadedLangs)
-                    ON CONFLICT(ComicId, Source) DO UPDATE SET
-                    IsFavorite = excluded.IsFavorite;
-                ";
-
-                await connection.ExecuteAsync(sqlUserData, new
-                {
-                    ComicId = comic.Id,
-                    Source = comic.Source,
-                    IsFavorite = true,
-                    DownloadedLangs = "[]"
-                }, transaction);
-
-                transaction.Commit();
+            transaction.Commit();
         }
 
         public async Task UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData)
+        {
+            using var connection = await GetOpenConnectionAsync();
+
+            const string sql = @"
+                INSERT INTO ComicUserData (ComicId, Source, IsFavorite, LastSelectedLang, DownloadedLangs)
+                VALUES (@ComicId, @Source, @IsFavorite, @LastSelectedLang, @DownloadedLangs)
+                ON CONFLICT(ComicId, Source) DO UPDATE SET
+                    IsFavorite = excluded.IsFavorite,
+                LastSelectedLang = COALESCE(excluded.LastSelectedLang, ComicUserData.LastSelectedLang),
+                DownloadedLangs = COALESCE(excluded.DownloadedLangs, ComicUserData.DownloadedLangs);
+            ";
+
+            await connection.ExecuteAsync(sql, new
             {
-                using var connection = await GetOpenConnectionAsync();
-
-                const string sql = @"
-                    INSERT INTO ComicUserData (ComicId, Source, IsFavorite, LastSelectedLang, DownloadedLangs)
-                    VALUES (@ComicId, @Source, @IsFavorite, @LastSelectedLang, @DownloadedLangs)
-                    ON CONFLICT(ComicId, Source) DO UPDATE SET
-                        IsFavorite = excluded.IsFavorite,
-                    LastSelectedLang = COALESCE(excluded.LastSelectedLang, ComicUserData.LastSelectedLang),
-                    DownloadedLangs = COALESCE(excluded.DownloadedLangs, ComicUserData.DownloadedLangs);
-                ";
-
-                await connection.ExecuteAsync(sql, new
-                {
-                    ComicId = comicKey.Id,
-                    Source = comicKey.Source,
-                    comicUserData.IsFavorite,
-                    comicUserData.LastSelectedLang,
-                    comicUserData.DownloadedLangs
-                });
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+                comicUserData.IsFavorite,
+                comicUserData.LastSelectedLang,
+                comicUserData.DownloadedLangs
+            });
         }
 
         public async Task UpsertChapterAsync(ChapterModel chapter)
-            {
-                using var connection = await GetOpenConnectionAsync();
+        {
+            using var connection = await GetOpenConnectionAsync();
 
-                const string sql = @"
-                    INSERT INTO Chapters 
-                    (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages)
-                    VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages)
-                    ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
-                        Title = excluded.Title,
-                        Number = excluded.Number,
-                        Volume = excluded.Volume,
-                        Language = excluded.Language,
-                        Groups = excluded.Groups,
-                        LastUpdate = excluded.LastUpdate,
-                        Pages = excluded.Pages;
-                ";
+            const string sql = @"
+                INSERT INTO Chapters 
+                (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages)
+                VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages)
+                ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
+                    Title = excluded.Title,
+                    Number = excluded.Number,
+                    Volume = excluded.Volume,
+                    Language = excluded.Language,
+                    Groups = excluded.Groups,
+                    LastUpdate = excluded.LastUpdate,
+                    Pages = excluded.Pages;
+            ";
 
-                await connection.ExecuteAsync(sql, chapter);
+            await connection.ExecuteAsync(sql, chapter);
         }
 
         public async Task UpsertChaptersAsync(ContentKey comicKey, string language, IEnumerable<ChapterModel> chapters)
         {
-                using var connection = await GetOpenConnectionAsync();
-                using var transaction = connection.BeginTransaction();
+            using var connection = await GetOpenConnectionAsync();
+            using var transaction = connection.BeginTransaction();
 
-                const string sqlReset = @"
-                    UPDATE Chapters 
-                    SET IsAvailable = 0 
-                    WHERE ComicId = @ComicId AND Source = @Source AND Language = @Language;
-                ";
+            const string sqlReset = @"
+                UPDATE Chapters 
+                SET IsAvailable = 0 
+                WHERE ComicId = @ComicId AND Source = @Source AND Language = @Language;
+            ";
 
-                await connection.ExecuteAsync(sqlReset, new
-                {
-                    ComicId = comicKey.Id,
-                    Source = comicKey.Source,
-                    Language = language 
-                }, transaction);
+            await connection.ExecuteAsync(sqlReset, new
+            {
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+                Language = language 
+            }, transaction);
 
-                const string sqlUpsert = @"
-                    INSERT INTO Chapters 
-                    (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages, IsAvailable)
-                    VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages, 1)
-                    ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
-                        Title = excluded.Title,
-                        Number = excluded.Number,
-                        Volume = excluded.Volume,
-                        Language = excluded.Language,
-                        Groups = excluded.Groups,
-                        LastUpdate = excluded.LastUpdate,
-                        Pages = excluded.Pages,
-                        IsAvailable = 1;
-                ";
+            const string sqlUpsert = @"
+                INSERT INTO Chapters 
+                (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages, IsAvailable)
+                VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages, 1)
+                ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
+                    Title = excluded.Title,
+                    Number = excluded.Number,
+                    Volume = excluded.Volume,
+                    Language = excluded.Language,
+                    Groups = excluded.Groups,
+                    LastUpdate = excluded.LastUpdate,
+                    Pages = excluded.Pages,
+                    IsAvailable = 1;
+            ";
 
-                await connection.ExecuteAsync(sqlUpsert, chapters, transaction);
+            await connection.ExecuteAsync(sqlUpsert, chapters, transaction);
 
-                transaction.Commit();
+            transaction.Commit();
         }
 
         public async Task UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData)
+        {
+            using var connection = await GetOpenConnectionAsync();
+
+            const string sql = @"
+                INSERT INTO ChapterUserData (Id, ComicId, Source, LastPageRead, IsDownloaded, IsRead)
+                VALUES (@Id, @ComicId, @Source, @LastPageRead, @IsDownloaded, @IsRead)
+                ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
+                    LastPageRead = excluded.LastPageRead,
+                    IsDownloaded = excluded.IsDownloaded,
+                    IsRead = excluded.IsRead;
+            ";
+
+            await connection.ExecuteAsync(sql, new
             {
-                using var connection = await GetOpenConnectionAsync();
-
-                const string sql = @"
-                    INSERT INTO ChapterUserData (Id, ComicId, Source, LastPageRead, IsDownloaded, IsRead)
-                    VALUES (@Id, @ComicId, @Source, @LastPageRead, @IsDownloaded, @IsRead)
-                    ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
-                        LastPageRead = excluded.LastPageRead,
-                        IsDownloaded = excluded.IsDownloaded,
-                        IsRead = excluded.IsRead;
-                ";
-
-                await connection.ExecuteAsync(sql, new
-                {
-                    Id = chapterKey.Id,
-                    ComicId = comicKey.Id,
-                    Source = comicKey.Source,
-                    chapterUserData.LastPageRead,
-                    chapterUserData.IsDownloaded,
-                    chapterUserData.IsRead
-                });
+                Id = chapterKey.Id,
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+                chapterUserData.LastPageRead,
+                chapterUserData.IsDownloaded,
+                chapterUserData.IsRead
+            });
         }
 
         public Task UpsertChapterPagesAsync(IReadOnlyList<ChapterPageModel> chapterPages)
@@ -425,112 +425,111 @@ namespace Yukari.Services.Storage
         }
 
         public async Task UpsertComicSourceAsync(ComicSourceModel comicSource)
-            {
-                using var connection = await GetOpenConnectionAsync();
+        {
+            using var connection = await GetOpenConnectionAsync();
 
-                const string sql = @"
-                INSERT INTO ComicSources (Name, Version, LogoUrl, Description, DllPath, IsEnabled)
-                VALUES (@Name, @Version, @LogoUrl, @Description, @DllPath, @IsEnabled)
-                ON CONFLICT(Name) DO UPDATE SET
-                    Version = excluded.Version,
-                    LogoUrl = excluded.LogoUrl,
-                    Description = excluded.Description,
-                    DllPath = excluded.DllPath,
-                    IsEnabled = excluded.IsEnabled;
-                ";
+            const string sql = @"
+            INSERT INTO ComicSources (Name, Version, LogoUrl, Description, DllPath, IsEnabled)
+            VALUES (@Name, @Version, @LogoUrl, @Description, @DllPath, @IsEnabled)
+            ON CONFLICT(Name) DO UPDATE SET
+                Version = excluded.Version,
+                LogoUrl = excluded.LogoUrl,
+                Description = excluded.Description,
+                DllPath = excluded.DllPath,
+                IsEnabled = excluded.IsEnabled;
+            ";
 
-                await connection.ExecuteAsync(sql, comicSource);
+            await connection.ExecuteAsync(sql, comicSource);
         }
 
         public async Task RemoveFavoriteComicAsync(ContentKey comicKey)
-            {
-                using var connection = await GetOpenConnectionAsync();
+        {
+            using var connection = await GetOpenConnectionAsync();
 
-                const string sql = @"
-                    UPDATE ComicUserData 
-                    SET IsFavorite = 0,
-                        DownloadedLangs = '[]'
-                    WHERE ComicId = @Id AND Source = @Source;
-                ";
+            const string sql = @"
+                UPDATE ComicUserData 
+                SET IsFavorite = 0,
+                    DownloadedLangs = '[]'
+                WHERE ComicId = @Id AND Source = @Source;
+            ";
 
             await connection.ExecuteAsync(sql, new
-                {
-                    Id = comicKey.Id,
-                    Source = comicKey.Source
-                });
+            {
+                Id = comicKey.Id,
+                Source = comicKey.Source
+            });
         }
 
         public async Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey)
-            {
-                using var connection = await GetOpenConnectionAsync();
-                using var transaction = connection.BeginTransaction();
+        {
+            using var connection = await GetOpenConnectionAsync();
+            using var transaction = connection.BeginTransaction();
 
-                await connection.ExecuteAsync(
-                    "DELETE FROM ChapterUserData WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
-                    new { Id = chapterKey.Id, ComicId = comicKey.Id, Source = chapterKey.Source },
-                    transaction);
+            await connection.ExecuteAsync(
+                "DELETE FROM ChapterUserData WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
+                new { Id = chapterKey.Id, ComicId = comicKey.Id, Source = chapterKey.Source },
+                transaction);
 
             await connection.ExecuteAsync(
                     "DELETE FROM Chapters WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
                     new { Id = chapterKey.Id, ComicId = comicKey.Id, Source = chapterKey.Source },
                     transaction);
 
-                transaction.Commit();
+            transaction.Commit();
         }
 
         public async Task RemoveComicSourceAsync(string sourceName)
         {
-                using var connection = await GetOpenConnectionAsync();
+            using var connection = await GetOpenConnectionAsync();
 
-                const string sql = "DELETE FROM ComicSources WHERE Name = @Name;";
-
+            const string sql = "DELETE FROM ComicSources WHERE Name = @Name;";
             await connection.ExecuteAsync(sql, new { Name = sourceName });
-            }
+        }
 
         public async Task CleanupUnfavoriteComicsDataAsync()
         {
-                using var connection = await GetOpenConnectionAsync();
-                using var transaction = connection.BeginTransaction();
+            using var connection = await GetOpenConnectionAsync();
+            using var transaction = connection.BeginTransaction();
 
-                const string sqlDeleteChapters = @"
-                    DELETE FROM Chapters 
-                    WHERE NOT EXISTS (
-                        SELECT 1 FROM ComicUserData u 
-                        WHERE u.ComicId = Chapters.ComicId 
-                          AND u.Source = Chapters.Source 
-                          AND u.IsFavorite = 1
-                    );
-                ";
+            const string sqlDeleteChapters = @"
+                DELETE FROM Chapters 
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM ComicUserData u 
+                    WHERE u.ComicId = Chapters.ComicId 
+                        AND u.Source = Chapters.Source 
+                        AND u.IsFavorite = 1
+                );
+            ";
 
-                const string sqlDeleteChapterUserData = @"
-                    DELETE FROM ChapterUserData 
-                    WHERE NOT EXISTS (
-                        SELECT 1 FROM ComicUserData u 
-                        WHERE u.ComicId = ChapterUserData.ComicId 
-                          AND u.Source = ChapterUserData.Source 
-                          AND u.IsFavorite = 1
-                    );
-                ";
+            const string sqlDeleteChapterUserData = @"
+                DELETE FROM ChapterUserData 
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM ComicUserData u 
+                    WHERE u.ComicId = ChapterUserData.ComicId 
+                        AND u.Source = ChapterUserData.Source 
+                        AND u.IsFavorite = 1
+                );
+            ";
 
-                const string sqlDeleteComics = @"
-                    DELETE FROM Comics 
-                    WHERE NOT EXISTS (
-                        SELECT 1 FROM ComicUserData u 
-                        WHERE u.ComicId = Comics.Id 
-                          AND u.Source = Comics.Source 
-                          AND u.IsFavorite = 1
-                    );
-                ";
+            const string sqlDeleteComics = @"
+                DELETE FROM Comics 
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM ComicUserData u 
+                    WHERE u.ComicId = Comics.Id 
+                        AND u.Source = Comics.Source 
+                        AND u.IsFavorite = 1
+                );
+            ";
 
-                const string sqlDeleteComicUserData = @"DELETE FROM ComicUserData WHERE IsFavorite = 0;";
+            const string sqlDeleteComicUserData = @"DELETE FROM ComicUserData WHERE IsFavorite = 0;";
 
-                await connection.ExecuteAsync(sqlDeleteChapters, transaction: transaction);
-                await connection.ExecuteAsync(sqlDeleteChapterUserData, transaction: transaction);
-                await connection.ExecuteAsync(sqlDeleteComics, transaction: transaction);
-                await connection.ExecuteAsync(sqlDeleteComicUserData, transaction: transaction);
+            await connection.ExecuteAsync(sqlDeleteChapters, transaction: transaction);
+            await connection.ExecuteAsync(sqlDeleteChapterUserData, transaction: transaction);
+            await connection.ExecuteAsync(sqlDeleteComics, transaction: transaction);
+            await connection.ExecuteAsync(sqlDeleteComicUserData, transaction: transaction);
 
-                transaction.Commit();
-                await connection.ExecuteAsync("VACUUM;");
+            transaction.Commit();
+            await connection.ExecuteAsync("VACUUM;");
         }
     }
 }
