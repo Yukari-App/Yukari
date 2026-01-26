@@ -93,9 +93,21 @@ namespace Yukari.Services.Sources
             ).ToList();
         }
 
-        public Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(string chapterId)
+        public async Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(string comicId, string chapterId)
         {
-            throw new NotImplementedException();
+            if (_currentSource == null) throw new InvalidOperationException("No source loaded.");
+            var pages = await _currentSource.GetChapterPagesAsync(comicId, chapterId);
+
+            return pages.Select(p => 
+                new ChapterPageModel
+                {
+                    Id = p.Id,
+                    ChapterId = chapterId,
+                    Source = p.Source,
+                    PageNumber = p.PageNumber,
+                    ImageUrl = p.ImageUrl
+                }
+            ).ToList();
         }
 
         public ComicSourceModel GetComicSourceModelFromAssembly(string dllPath)
