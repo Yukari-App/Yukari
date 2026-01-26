@@ -115,9 +115,27 @@ namespace Yukari.Services.Comics
             }, "Error fetching chapters");
         }
 
-        public Task<Result<IReadOnlyList<ChapterPageModel>>> GetChapterPagesAsync(ContentKey chapterKey, bool forceWeb = false)
+        public async Task<Result<IReadOnlyList<ChapterPageModel>>> GetChapterPagesAsync(ContentKey comicKey, ContentKey chapterKey, bool forceWeb = false)
         {
-            throw new NotImplementedException();
+            return await ExecuteAsync(async () =>
+            {
+                var chapterUserData = await _dbService.GetChapterUserDataAsync(comicKey, chapterKey);
+                IReadOnlyList<ChapterPageModel> pages;
+
+                if (chapterUserData.IsDownloaded && !forceWeb)
+                {
+                    pages = await _dbService.GetChapterPagesAsync(comicKey, chapterKey);
+                    if (pages.Count == 0)
+                        throw new InvalidOperationException("Chapter marked as downloaded, but no pages found locally. Try downloading again.");
+                }
+                else
+                {
+                    await LoadComicSourceAsync(comicKey.Source);
+                    pages =  await _srcService.GetChapterPagesAsync(comicKey.Id, chapterKey.Id);
+                }
+
+                return pages;
+            }, "Error fetching chapter pages");
         }
 
         public async Task<Result<IReadOnlyList<ComicSourceModel>>> GetComicSourcesAsync()
