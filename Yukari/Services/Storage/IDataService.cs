@@ -14,7 +14,7 @@ namespace Yukari.Services.Storage
         Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(ContentKey ComicKey, string language);
         Task<Dictionary<string, ChapterUserData>> GetAllChaptersUserDataMapAsync(ContentKey comicKey);
         Task<ChapterUserData> GetChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey);
-        Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKey);
+        Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey comicKey, ContentKey chapterKey);
         Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync();
         Task<ComicSourceModel?> GetComicSourceDetailsAsync(string sourceName);
 

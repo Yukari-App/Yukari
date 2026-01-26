@@ -240,7 +240,7 @@ namespace Yukari.Services.Storage
             return result ?? new ChapterUserData();
         }
 
-        public Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey chapterKey)
+        public Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey comicKey, ContentKey chapterKey)
         {
             throw new NotImplementedException();
         }
