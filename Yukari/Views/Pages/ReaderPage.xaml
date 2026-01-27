@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Yukari.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Yukari.Models"
     xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
@@ -23,9 +24,10 @@
     </Page.Resources>
 
 
-    <Grid>
+    <Grid RowDefinitions="Auto, *">
         <Grid
             x:Name="AppTitleBar"
+            Grid.Row="0"
             Height="48"
             Margin="4,0,0,0"
             Padding="0"
@@ -36,7 +38,7 @@
                 <Color x:Key="ButtonBackgroundDisabled">Transparent</Color>
                 <Color x:Key="ButtonBorderBrushDisabled">Transparent</Color>
             </Grid.Resources>
-            
+
             <Button
                 Grid.Column="0"
                 Command="{Binding GoBackCommand}"
@@ -95,7 +97,48 @@
 
                 <AppBarSeparator Grid.Column="6" />
             </StackPanel>
-            
+
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <FlipView
+                Background="Transparent"
+                FlowDirection="RightToLeft"
+                ItemsSource="{Binding ChapterPages}">
+                <FlipView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ChapterPageModel">
+                        <ScrollViewer
+                            x:Name="PageScrollViewer"
+                            FlowDirection="LeftToRight"
+                            HorizontalScrollBarVisibility="Auto"
+                            HorizontalScrollMode="Auto"
+                            MinZoomFactor="1"
+                            PointerEntered="PageScrollViewer_PointerEntered"
+                            PointerExited="PageScrollViewer_PointerExited"
+                            PointerMoved="PageScrollViewer_PointerMoved"
+                            PointerPressed="PageScrollViewer_PointerPressed"
+                            PointerReleased="PageScrollViewer_PointerReleased"
+                            VerticalScrollBarVisibility="Auto"
+                            VerticalScrollMode="Auto"
+                            ViewChanged="PageScrollViewer_ViewChanged"
+                            ZoomMode="Enabled">
+
+                            <Grid
+                                MaxWidth="{Binding ElementName=PageScrollViewer, Path=ViewportWidth}"
+                                MaxHeight="{Binding ElementName=PageScrollViewer, Path=ViewportHeight}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+                                <Image
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Source="{x:Bind ImageUrl}"
+                                    Stretch="Uniform" />
+                            </Grid>
+
+                        </ScrollViewer>
+                    </DataTemplate>
+                </FlipView.ItemTemplate>
+            </FlipView>
         </Grid>
     </Grid>
 </Page>
