@@ -31,6 +31,7 @@ namespace Yukari.ViewModels.Pages
         [ObservableProperty, NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))]
         public partial ChapterModel? CurrentChapter { get; set; }
 
+        [ObservableProperty] public partial ChapterPageModel[]? ChapterPages { get; set; }
 
         public ReaderPageViewModel(IComicService comicService, INotificationService notificationService, IMessenger messenger)
         {
@@ -62,10 +63,10 @@ namespace Yukari.ViewModels.Pages
             _currentChapterIndex = Array.FindIndex(_chapters, c => c.Chapter.Id == chapterKey.Id);
 
             if (_currentChapterIndex != -1)
-                UpdateCurrentChapter();
+                await UpdateCurrentChapter();
         }
 
-        private void UpdateCurrentChapter()
+        private async Task UpdateCurrentChapter()
         {
             if (_chapters == null || _currentChapterIndex < 0 || _currentChapterIndex >= _chapters.Length)
                 return;
@@ -73,8 +74,14 @@ namespace Yukari.ViewModels.Pages
             CurrentChapter = _chapters[_currentChapterIndex].Chapter;
             ChapterTitle = CurrentChapter.ToDisplayTitle();
 
-            // TO-DO: Load pages for the current chapter
-            // LoadPagesAsync(CurrentChapter.Id);
+            var pagesResult = await _comicService.GetChapterPagesAsync(_comicKey!, new(CurrentChapter.Id, CurrentChapter.Source));
+            if (!pagesResult.IsSuccess)
+            {
+                _notificationService.ShowError("Failed to load chapter pages.");
+                return;
+            }
+
+            ChapterPages = (pagesResult.Value!).ToArray();
         }
 
         [RelayCommand]
