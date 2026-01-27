@@ -83,19 +83,19 @@ namespace Yukari.ViewModels.Pages
         private bool CanGoToNext() => _chapters != null && _currentChapterIndex < _chapters.Length - 1;
 
         [RelayCommand(CanExecute = nameof(CanGoToNext))]
-        public void NextChapter()
+        public async Task NextChapter()
         {
             _currentChapterIndex++;
-            UpdateCurrentChapter();
+            await UpdateCurrentChapter();
         }
 
         private bool CanGoToPrevious() => _currentChapterIndex > 0;
 
         [RelayCommand(CanExecute = nameof(CanGoToPrevious))]
-        public void PreviousChapter()
+        public async Task PreviousChapter()
         {
             _currentChapterIndex--;
-            UpdateCurrentChapter();
+            await UpdateCurrentChapter();
         }
 
         private async Task TriggerErrorAndReturn(string errorMessage)
