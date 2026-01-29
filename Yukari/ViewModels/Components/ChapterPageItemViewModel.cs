@@ -8,7 +8,7 @@ namespace Yukari.ViewModels.Components
     {
         public ChapterPageModel Model { get; }
 
-        [ObservableProperty] public partial string ImageUrl { get; set; }
+        [ObservableProperty] public partial string? ImageUrl { get; set; }
         [ObservableProperty] public partial bool IsLoading { get; set; } = true;
         [ObservableProperty] public partial bool HasError { get; set; } = false;
 
@@ -24,9 +24,8 @@ namespace Yukari.ViewModels.Components
             HasError = false;
             IsLoading = true;
 
-            var temp = ImageUrl;
-            ImageUrl = null!;
-            ImageUrl = temp;
+            ImageUrl = null;
+            ImageUrl = Model.ImageUrl;
         }
 
         public void OnLoadSuccess() { IsLoading = false; HasError = false; }
