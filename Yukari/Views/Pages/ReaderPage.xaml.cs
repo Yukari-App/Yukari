@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Yukari.Models.DTO;
+using Yukari.ViewModels.Components;
 using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages
@@ -100,6 +101,18 @@ namespace Yukari.Views.Pages
             {
                 ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
             }
+        }
+
+        private void Page_ImageOpened(object sender, RoutedEventArgs e)
+        {
+            if (sender is Image im && im.DataContext is ChapterPageItemViewModel vm)
+                vm.OnLoadSuccess();
+        }
+
+        private void Page_ImageFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+            if (sender is Image im && im.DataContext is ChapterPageItemViewModel vm)
+                vm.OnLoadFailed();
         }
     }
 }

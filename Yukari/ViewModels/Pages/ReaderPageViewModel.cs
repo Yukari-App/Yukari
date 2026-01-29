@@ -11,6 +11,7 @@ using Yukari.Models;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
 using Yukari.Services.UI;
+using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
 {
@@ -31,7 +32,7 @@ namespace Yukari.ViewModels.Pages
         [ObservableProperty, NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))]
         public partial ChapterModel? CurrentChapter { get; set; }
 
-        [ObservableProperty] public partial ChapterPageModel[]? ChapterPages { get; set; }
+        [ObservableProperty] public partial ChapterPageItemViewModel[]? ChapterPages { get; set; }
 
         public ReaderPageViewModel(IComicService comicService, INotificationService notificationService, IMessenger messenger)
         {
@@ -81,7 +82,7 @@ namespace Yukari.ViewModels.Pages
                 return;
             }
 
-            ChapterPages = (pagesResult.Value!).ToArray();
+            ChapterPages = pagesResult.Value!.Select(pageModel => new ChapterPageItemViewModel(pageModel)).ToArray();
         }
 
         [RelayCommand]
