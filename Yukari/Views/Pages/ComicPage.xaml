@@ -394,6 +394,7 @@
                         Grid.Row="1"
                         IsEnabled="{Binding IsChaptersEnabled}"
                         IsItemInvokedEnabled="True"
+                        ItemInvoked="ItemsView_ItemInvoked"
                         ItemTemplate="{StaticResource ChaptersTemplate}"
                         ItemsSource="{Binding Chapters}"
                         SelectionMode="None"

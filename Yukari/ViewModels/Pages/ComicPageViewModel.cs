@@ -1,9 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Yukari.Enums;
+using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Models.DTO;
@@ -17,6 +20,7 @@ namespace Yukari.ViewModels.Pages
     {
         private readonly IComicService _comicService;
         private readonly INotificationService _notificationService;
+        private readonly IMessenger _messenger;
 
         private ContentKey? _comicKey;
 
@@ -75,10 +79,11 @@ namespace Yukari.ViewModels.Pages
         public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : IsDownloadingAllChapters ? "\uF78A" : "\uE896";
         public string DownloadAllText => IsAllChaptersDownloaded ? "Delete All" : IsDownloadingAllChapters ? "Downloading..." : "Download All";
 
-        public ComicPageViewModel(IComicService comicService, INotificationService notificationService)
+        public ComicPageViewModel(IComicService comicService, INotificationService notificationService, IMessenger messenger)
         {
             _comicService = comicService;
             _notificationService = notificationService;
+            _messenger = messenger;
         }
 
         public async Task InitializeAsync(ContentKey ComicKey)
@@ -145,6 +150,10 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanOpenInBrowser))]
         public async Task OpenInBrowserAsync() =>
             await Windows.System.Launcher.LaunchUriAsync(new Uri(Comic!.ComicUrl!));
+
+        [RelayCommand]
+        public void NavigateToReader(ContentKey chapterKey) =>
+            _messenger.Send(new SwitchAppModeMessage(AppMode.Reader, new ReaderNavigationArgs(_comicKey!, Comic!.Title, chapterKey, SelectedLang!)));
 
         private async Task RefreshComicAsync()
         {

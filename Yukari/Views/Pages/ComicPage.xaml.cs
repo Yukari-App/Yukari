@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Yukari.Models.DTO;
+using Yukari.ViewModels.Components;
 using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages
@@ -22,6 +23,12 @@ namespace Yukari.Views.Pages
                 if (DataContext is ComicPageViewModel viewModel)
                     await viewModel.InitializeAsync(ComicKey);
             }
+        }
+
+        private void ItemsView_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs e)
+        {
+            if (DataContext is ComicPageViewModel viewModel && e.InvokedItem is ChapterItemViewModel chapterItem)
+                viewModel.NavigateToReaderCommand.Execute(chapterItem.Key);
         }
     }
 }
