@@ -110,7 +110,7 @@ namespace Yukari.ViewModels.Pages
         {
             _notificationService.ShowError(errorMessage);
 
-            await Task.Delay(1500);
+            await Task.Delay(1000);
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
         }
     }
