@@ -33,11 +33,13 @@
         </DataTemplate>
 
         <DataTemplate x:Key="ChaptersTemplate" x:DataType="vmc:ChapterItemViewModel">
-            <!-- Using classic Binding instead of xBind for the navigation command. This is a deliberate architectural
-            choice to traverse the visual tree and access the page's ViewModel from the isolated scope of the DataTemplate.
-            This avoids the overhead of manual delegation or global messages, keeping the template logic simple and functional for this list scale.
-            I tried using the Click event, but without success; when trying to access its DataContext, it wasn't the ChaperItem's,
-            but rather the page's, preventing me from proceeding. -->
+            <!--
+                Using classic Binding instead of xBind for the navigation command. This is a deliberate architectural
+                choice to traverse the visual tree and access the page's ViewModel from the isolated scope of the DataTemplate.
+                This avoids the overhead of manual delegation or global messages, keeping the template logic simple and functional for this list scale.
+                I tried using the Click event, but without success; when trying to access its DataContext, it wasn't the ChaperItem's,
+                but rather the page's, preventing me from proceeding.
+            -->
             <Button
                 Padding="6"
                 HorizontalAlignment="Stretch"
