@@ -33,15 +33,22 @@
         </DataTemplate>
 
         <DataTemplate x:Key="ChaptersTemplate" x:DataType="vmc:ChapterItemViewModel">
-            <ItemContainer>
-                <Grid
-                    Padding="6"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    ColumnDefinitions="Auto, *"
-                    ColumnSpacing="8"
-                    CornerRadius="4">
+            <!-- Using classic Binding instead of xBind for the navigation command. This is a deliberate architectural
+            choice to traverse the visual tree and access the page's ViewModel from the isolated scope of the DataTemplate.
+            This avoids the overhead of manual delegation or global messages, keeping the template logic simple and functional for this list scale.
+            I tried using the Click event, but without success; when trying to access its DataContext, it wasn't the ChaperItem's,
+            but rather the page's, preventing me from proceeding. -->
+            <Button
+                Padding="6"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                Command="{Binding NavigateToReaderCommand}"
+                CommandParameter="{x:Bind Key}"
+                CornerRadius="4">
+                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8">
                     <Grid Grid.Column="0" RowDefinitions="Auto, Auto, *">
                         <TextBlock
                             Grid.Row="0"
@@ -69,7 +76,7 @@
                             Height="28"
                             Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
                             IsIndeterminate="False"
-                            Visibility="{x:Bind IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Visibility="{x:Bind IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
                             Value="45" />
                         <ToggleButton
                             Width="32"
@@ -79,8 +86,8 @@
                             BorderBrush="Transparent"
                             Command="{x:Bind ToggleDownloadCommand}"
                             IsChecked="{x:Bind IsDownloaded, Mode=OneWay}"
-                            Visibility="{x:Bind IsDownloadAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <FontIcon Glyph="{x:Bind DownloadIcon}" />
+                            Visibility="{x:Bind IsDownloadAvailable, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                            <FontIcon Glyph="{x:Bind DownloadIcon, Mode=OneWay}" />
                         </ToggleButton>
                         <ToggleButton
                             Width="32"
@@ -90,7 +97,7 @@
                             BorderBrush="Transparent"
                             Command="{x:Bind ToggleReadCommand}"
                             IsChecked="{x:Bind IsRead, Mode=OneWay}">
-                            <FontIcon Glyph="{x:Bind ReadIcon}" />
+                            <FontIcon Glyph="{x:Bind ReadIcon, Mode=OneWay}" />
                         </ToggleButton>
                         <Button
                             Width="32"
@@ -116,7 +123,7 @@
                         <Run Text="{x:Bind LastPageRead}" /><Run CharacterSpacing="0" Text="/" /><Run Text="{x:Bind Chapter.Pages}" />
                     </TextBlock>
                 </Grid>
-            </ItemContainer>
+            </Button>
         </DataTemplate>
     </Page.Resources>
 
@@ -390,14 +397,10 @@
                         Text="No chapters found in this language."
                         Visibility="{Binding NoChapters, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                    <ItemsView
+                    <ItemsRepeater
                         Grid.Row="1"
-                        IsEnabled="{Binding IsChaptersEnabled}"
-                        IsItemInvokedEnabled="True"
-                        ItemInvoked="ItemsView_ItemInvoked"
                         ItemTemplate="{StaticResource ChaptersTemplate}"
                         ItemsSource="{Binding Chapters}"
-                        SelectionMode="None"
                         Visibility="{Binding IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />
                 </Grid>
             </Grid>
