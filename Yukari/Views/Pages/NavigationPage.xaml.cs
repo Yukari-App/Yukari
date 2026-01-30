@@ -14,8 +14,6 @@ namespace Yukari.Views.Pages
         public NavigationPage()
         {
             InitializeComponent();
-            DataContext = App.GetService<NavigationPageViewModel>();
-
             Loaded += OnLoaded;
         }
 
@@ -23,6 +21,9 @@ namespace Yukari.Views.Pages
         {
             App.GetService<INavigationService>().Initialize(ContentFrame);
             App.GetService<IDialogService>().Initialize(XamlRoot);
+
+            if (DataContext is not NavigationPageViewModel)
+                DataContext = App.GetService<NavigationPageViewModel>();
 
             if (ContentFrame.Content == null && DataContext is NavigationPageViewModel vm)
             {
