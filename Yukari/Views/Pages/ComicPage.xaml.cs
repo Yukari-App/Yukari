@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Yukari.Models.DTO;
@@ -22,6 +23,12 @@ namespace Yukari.Views.Pages
                 if (DataContext is ComicPageViewModel viewModel)
                     await viewModel.InitializeAsync(ComicKey);
             }
+        }
+
+        private void ChapterItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is ComicPageViewModel viewModel && sender is Button b)
+                viewModel.NavigateToReaderCommand.Execute(b.CommandParameter);
         }
     }
 }
