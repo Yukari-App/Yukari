@@ -322,8 +322,8 @@ namespace Yukari.Services.Storage
                 VALUES (@ComicId, @Source, @IsFavorite, @LastSelectedLang, @DownloadedLangs)
                 ON CONFLICT(ComicId, Source) DO UPDATE SET
                     IsFavorite = excluded.IsFavorite,
-                LastSelectedLang = COALESCE(excluded.LastSelectedLang, ComicUserData.LastSelectedLang),
-                DownloadedLangs = COALESCE(excluded.DownloadedLangs, ComicUserData.DownloadedLangs);
+                    LastSelectedLang = COALESCE(excluded.LastSelectedLang, ComicUserData.LastSelectedLang),
+                    DownloadedLangs = COALESCE(excluded.DownloadedLangs, ComicUserData.DownloadedLangs);
             ";
 
             await connection.ExecuteAsync(sql, new
@@ -403,7 +403,7 @@ namespace Yukari.Services.Storage
                 INSERT INTO ChapterUserData (Id, ComicId, Source, LastPageRead, IsDownloaded, IsRead)
                 VALUES (@Id, @ComicId, @Source, @LastPageRead, @IsDownloaded, @IsRead)
                 ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
-                    LastPageRead = excluded.LastPageRead,
+                    LastPageRead = COALESCE(excluded.LastPageRead, ChapterUserData.LastPageRead),
                     IsDownloaded = excluded.IsDownloaded,
                     IsRead = excluded.IsRead;
             ";
