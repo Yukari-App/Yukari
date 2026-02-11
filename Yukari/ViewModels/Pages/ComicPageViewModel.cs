@@ -150,10 +150,30 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanOpenInBrowser))]
         public async Task OpenInBrowserAsync() =>
             await Windows.System.Launcher.LaunchUriAsync(new Uri(Comic!.ComicUrl!));
-
+        
         [RelayCommand]
         public void NavigateToReader(ContentKey chapterKey) =>
             _messenger.Send(new SwitchAppModeMessage(AppMode.Reader, new ReaderNavigationArgs(_comicKey!, Comic!.Title, chapterKey, SelectedLang!)));
+
+        [RelayCommand]
+        public async Task ChapterToggleRead(ChapterItemViewModel item)
+        {
+            item.LastPageRead = item.IsRead ? item.Chapter.Pages : 0;
+
+            var result = await _comicService.UpsertChapterUserDataAsync(_comicKey!, item.Key, new()
+            {
+                IsDownloaded = item.IsDownloaded,
+                IsRead = item.IsRead
+            });
+
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+
+                item.IsRead = !item.IsRead;
+                item.LastPageRead = item.IsRead ? item.Chapter.Pages : 0;
+            }
+        }
 
         private async Task RefreshComicAsync()
         {

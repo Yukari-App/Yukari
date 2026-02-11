@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Yukari.Helpers.UI;
 using Yukari.Models;
 using Yukari.Models.DTO;
@@ -42,18 +41,6 @@ namespace Yukari.ViewModels.Components
             LastPageRead = chapterUserData.LastPageRead ?? 0;
             IsDownloaded = chapterUserData.IsDownloaded;
             IsRead = chapterUserData.IsRead;
-        }
-
-        [RelayCommand]
-        public void ToggleDownload()
-        {
-            IsDownloaded = !IsDownloaded;
-        }
-
-        [RelayCommand]
-        public void ToggleRead()
-        {
-            IsRead = !IsRead;
         }
     }
 }

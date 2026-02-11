@@ -79,8 +79,7 @@
                             Padding="0"
                             Background="Transparent"
                             BorderBrush="Transparent"
-                            Command="{x:Bind ToggleDownloadCommand}"
-                            IsChecked="{x:Bind IsDownloaded, Mode=OneWay}"
+                            IsChecked="{x:Bind IsDownloaded, Mode=TwoWay}"
                             Visibility="{x:Bind IsDownloadAvailable, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                             <FontIcon Glyph="{x:Bind DownloadIcon, Mode=OneWay}" />
                         </ToggleButton>
@@ -90,8 +89,9 @@
                             Padding="0"
                             Background="Transparent"
                             BorderBrush="Transparent"
-                            Command="{x:Bind ToggleReadCommand}"
-                            IsChecked="{x:Bind IsRead, Mode=OneWay}">
+                            Click="ChapterToggleRead_Click"
+                            CommandParameter="{x:Bind}"
+                            IsChecked="{x:Bind IsRead, Mode=TwoWay}">
                             <FontIcon Glyph="{x:Bind ReadIcon, Mode=OneWay}" />
                         </ToggleButton>
                         <Button
@@ -115,7 +115,7 @@
                         Grid.Column="2"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom">
-                        <Run Text="{x:Bind LastPageRead}" /><Run CharacterSpacing="0" Text="/" /><Run Text="{x:Bind Chapter.Pages}" />
+                        <Run Text="{x:Bind LastPageRead, Mode=OneWay}" /><Run CharacterSpacing="0" Text="/" /><Run Text="{x:Bind Chapter.Pages}" />
                     </TextBlock>
                 </Grid>
             </Button>
