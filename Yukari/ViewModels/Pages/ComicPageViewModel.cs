@@ -158,11 +158,8 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand]
         public async Task ChapterToggleRead(ChapterItemViewModel item)
         {
-            item.LastPageRead = item.IsRead ? item.Chapter.Pages : 0;
-
             var result = await _comicService.UpsertChapterUserDataAsync(_comicKey!, item.Key, new()
             {
-                LastPageRead = item.LastPageRead,
                 IsDownloaded = item.IsDownloaded,
                 IsRead = item.IsRead
             });
@@ -170,8 +167,9 @@ namespace Yukari.ViewModels.Pages
             if (!result.IsSuccess)
             {
                 _notificationService.ShowError(result.Error!);
-
                 item.IsRead = !item.IsRead;
+            }
+
                 item.LastPageRead = item.IsRead ? item.Chapter.Pages : 0;
             }
         }
