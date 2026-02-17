@@ -38,9 +38,9 @@ namespace Yukari.ViewModels.Components
             DisplayTitle = Chapter.ToDisplayTitle();
 
             var chapterUserData = chapterAggregate.UserData;
-            LastPageRead = chapterUserData.LastPageRead ?? 0;
             IsDownloaded = chapterUserData.IsDownloaded;
             IsRead = chapterUserData.IsRead;
+            LastPageRead = chapterUserData.LastPageRead ?? (IsRead ? Chapter.Pages : 0);
         }
     }
 }
