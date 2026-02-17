@@ -1,7 +1,9 @@
 using Dapper;
 using Microsoft.Data.Sqlite;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -210,14 +212,19 @@ namespace Yukari.Services.Storage
                 WHERE ComicId = @Id AND Source = @Source
             ";
 
-            var result = await connection.QueryAsync<string, ChapterUserData, (string Id, ChapterUserData Data)>(
+            var result = await connection.QueryAsync<(string Id, int? LastPageRead, bool IsDownloaded, bool IsRead)>(
                 sql,
-                (id, data) => (id, data),
-                new { Id = comicKey.Id, Source = comicKey.Source },
-                splitOn: "LastPageRead"
+                new { Id = comicKey.Id, Source = comicKey.Source }
             );
 
-            return result.ToDictionary(x => x.Id, x => x.Data);
+            return result.ToDictionary(
+            x => x.Id,
+            x => new ChapterUserData
+            {
+                LastPageRead = x.LastPageRead,
+                IsDownloaded = x.IsDownloaded,
+                IsRead = x.IsRead
+            });
         }
 
         public async Task<ChapterUserData> GetChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey)
