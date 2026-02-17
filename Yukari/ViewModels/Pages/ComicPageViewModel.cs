@@ -185,16 +185,11 @@ namespace Yukari.ViewModels.Pages
                 .Select(c => c.Key.Id)
                 .ToArray();
 
-            var result = await _comicService.UpsertChaptersIsReadAsync(_comicKey!, chapterIDs, true);
-
-            if (!result.IsSuccess)
-            {
-                _notificationService.ShowError(result.Error!);
-                return;
-            }
-
-            await RefreshChaptersAsync();
+            await UpdateChaptersReadStatusAsync(chapterIDs, true);
         }
+
+        [RelayCommand] private Task MarkAllAsRead() => MarkAllChaptersReadStatus(true);
+        [RelayCommand] private Task MarkAllAsUnread() => MarkAllChaptersReadStatus(false);
 
         private async Task RefreshComicAsync()
         {
@@ -275,6 +270,27 @@ namespace Yukari.ViewModels.Pages
             }
 
             IsChaptersLoading = false;
+        }
+
+        private async Task MarkAllChaptersReadStatus(bool isRead)
+        {
+            var chapterIDs = Chapters!
+                .Select(c => c.Key.Id)
+                .ToArray();
+
+            await UpdateChaptersReadStatusAsync(chapterIDs, isRead);
+        }
+
+        private async Task UpdateChaptersReadStatusAsync(string[] chapterIDs, bool isRead)
+        {
+            var result = await _comicService.UpsertChaptersIsReadAsync(_comicKey!, chapterIDs, isRead);
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+                return;
+            }
+
+            await RefreshChaptersAsync();
         }
 
         async partial void OnSelectedLangChanged(string? value)

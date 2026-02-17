@@ -368,8 +368,14 @@
                                 IsEnabled="{Binding IsChapterOptionsAvailable}">
                                 <Button.Flyout>
                                     <MenuFlyout Placement="Bottom">
-                                        <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark all as read" />
-                                        <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xED1A;}" Text="Mark all as unread" />
+                                        <MenuFlyoutItem
+                                            Command="{Binding MarkAllAsReadCommand}"
+                                            Icon="{ui:FontIcon Glyph=&#xE890;}"
+                                            Text="Mark all as read" />
+                                        <MenuFlyoutItem
+                                            Command="{Binding MarkAllAsUnreadCommand}"
+                                            Icon="{ui:FontIcon Glyph=&#xED1A;}"
+                                            Text="Mark all as unread" />
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem Icon="Refresh" Text="Reset all" />
                                     </MenuFlyout>
