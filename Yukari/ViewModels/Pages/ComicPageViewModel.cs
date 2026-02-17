@@ -162,6 +162,7 @@ namespace Yukari.ViewModels.Pages
 
             var result = await _comicService.UpsertChapterUserDataAsync(_comicKey!, item.Key, new()
             {
+                LastPageRead = item.LastPageRead,
                 IsDownloaded = item.IsDownloaded,
                 IsRead = item.IsRead
             });
