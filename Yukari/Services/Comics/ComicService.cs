@@ -192,6 +192,13 @@ namespace Yukari.Services.Comics
                 "Error saving chapter progress");
         }
 
+        public async Task<Result> UpsertChaptersIsReadAsync(ContentKey comicKey, string[] chapterIDs, bool IsRead)
+        {
+            return await ExecuteAsync(
+                () => _dbService.UpsertChaptersIsReadAsync(comicKey, chapterIDs, IsRead),
+                "Error setting read status");
+        }
+
         public async Task<Result> UpsertComicSourceAsync(string pluginPath, bool isEnabled = true)
         {
             try

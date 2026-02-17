@@ -24,6 +24,7 @@ namespace Yukari.Services.Comics
         Task<Result> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
         Task<Result> UpsertChaptersAsync(ContentKey comicKey, string language);
         Task<Result> UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData);
+        Task<Result> UpsertChaptersIsReadAsync(ContentKey comicKey, string[] chapterIDs, bool IsRead);
         Task<Result> UpsertComicSourceAsync(string pluginPath, bool isEnabled = true);
 
         Task<Result> RemoveFavoriteComicAsync(ContentKey comicKey);

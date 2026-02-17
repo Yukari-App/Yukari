@@ -427,6 +427,32 @@ namespace Yukari.Services.Storage
             });
         }
 
+        public async Task UpsertChaptersIsReadAsync(ContentKey comicKey, string[] chapterIDs, bool isRead)
+        {
+            if (chapterIDs.Length == 0)
+                return;
+
+            using var connection = await GetOpenConnectionAsync();
+            using var transaction = await connection.BeginTransactionAsync();
+            const string sql = @"
+                INSERT INTO ChapterUserData (Id, ComicId, Source, IsRead)
+                VALUES (@Id, @ComicId, @Source, @IsRead)
+                ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
+                    IsRead = excluded.IsRead;
+            ";
+
+            var parameters = chapterIDs.Select(id => new
+            {
+                Id = id,
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+                IsRead = isRead
+            });
+
+            await connection.ExecuteAsync(sql, parameters, transaction);
+            await transaction.CommitAsync();
+        }
+
         public Task UpsertChapterPagesAsync(IReadOnlyList<ChapterPageModel> chapterPages)
         {
             throw new NotImplementedException();
