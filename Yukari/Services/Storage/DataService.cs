@@ -218,13 +218,14 @@ namespace Yukari.Services.Storage
             );
 
             return result.ToDictionary(
-            x => x.Id,
-            x => new ChapterUserData
-            {
-                LastPageRead = x.LastPageRead,
-                IsDownloaded = x.IsDownloaded,
-                IsRead = x.IsRead
-            });
+                x => x.Id,
+                x => new ChapterUserData
+                {
+                    LastPageRead = x.LastPageRead,
+                    IsDownloaded = x.IsDownloaded,
+                    IsRead = x.IsRead
+                }
+            );
         }
 
         public async Task<ChapterUserData> GetChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey)
