@@ -37,5 +37,11 @@ namespace Yukari.Views.Pages
             if (DataContext is ComicPageViewModel viewModel && sender is ToggleButton b)
                 viewModel.ChapterToggleReadCommand.Execute(b.CommandParameter);
         }
+
+        private void MarkPreviousChaptersAsRead_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is ComicPageViewModel viewModel && sender is MenuFlyoutItem b)
+                viewModel.MarkPreviousChaptersAsReadCommand.Execute(b.CommandParameter);
+        }
     }
 }

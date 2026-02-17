@@ -170,8 +170,30 @@ namespace Yukari.ViewModels.Pages
                 item.IsRead = !item.IsRead;
             }
 
-                item.LastPageRead = item.IsRead ? item.Chapter.Pages : 0;
+            item.LastPageRead = item.IsRead ? item.Chapter.Pages : 0;
+        }
+
+        [RelayCommand]
+        public async Task MarkPreviousChaptersAsRead(ChapterItemViewModel item)
+        {
+            var index = Chapters!.IndexOf(item);
+            if (index <= 0)
+                return;
+
+            var chapterIDs = Chapters
+                .Take(index)
+                .Select(c => c.Key.Id)
+                .ToArray();
+
+            var result = await _comicService.UpsertChaptersIsReadAsync(_comicKey!, chapterIDs, true);
+
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+                return;
             }
+
+            await RefreshChaptersAsync();
         }
 
         private async Task RefreshComicAsync()

@@ -105,7 +105,11 @@
                                 <MenuFlyout Placement="Bottom">
                                     <MenuFlyoutItem Icon="Refresh" Text="Reset" />
                                     <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark previous chapters as read" />
+                                    <MenuFlyoutItem
+                                        Click="MarkPreviousChaptersAsRead_Click"
+                                        CommandParameter="{x:Bind}"
+                                        Icon="{ui:FontIcon Glyph=&#xE890;}"
+                                        Text="Mark previous chapters as read" />
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>
