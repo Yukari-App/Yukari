@@ -95,7 +95,32 @@
                 <Button
                     Content="{ui:FontIcon Glyph=&#xE712;}"
                     Style="{StaticResource TitleBarButtonStyle}"
-                    ToolTipService.ToolTip="Options" />
+                    ToolTipService.ToolTip="Options">
+                    <Button.Flyout>
+                        <MenuFlyout Placement="Bottom">
+                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE736;}" Text="Reading Mode">
+                                <RadioMenuFlyoutItem
+                                    GroupName="ReadingMode"
+                                    Icon="{ui:FontIcon Glyph=&#xF0B0;}"
+                                    Text="right-to-left" />
+                                <RadioMenuFlyoutItem
+                                    GroupName="ReadingMode"
+                                    Icon="{ui:FontIcon Glyph=&#xF0AF;}"
+                                    Text="left-to-right" />
+                                <RadioMenuFlyoutItem
+                                    GroupName="ReadingMode"
+                                    Icon="{ui:FontIcon Glyph=&#xF0AE;}"
+                                    Text="vertical" />
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE9A6;}" Text="Scaling Mode">
+                                <RadioMenuFlyoutItem GroupName="ScalingMode" Text="Fit screen" />
+                                <RadioMenuFlyoutItem GroupName="ScalingMode" Text="Fit width" />
+                                <RadioMenuFlyoutItem GroupName="ScalingMode" Text="Fit height" />
+                                <RadioMenuFlyoutItem GroupName="ScalingMode" Text="Original size" />
+                            </MenuFlyoutSubItem>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
 
                 <AppBarSeparator Grid.Column="6" />
             </StackPanel>
