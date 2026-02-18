@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Yukari.Enums;
@@ -32,7 +33,10 @@ namespace Yukari.ViewModels.Pages
         [ObservableProperty, NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))]
         public partial ChapterModel? CurrentChapter { get; set; }
 
-        [ObservableProperty] public partial ChapterPageItemViewModel[]? ChapterPages { get; set; }
+        [ObservableProperty] public partial List<ChapterPageItemViewModel>? ChapterPages { get; set; }
+
+        [ObservableProperty, NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))]
+        public partial bool IsLoading { get; set; } = true;
 
         public ReaderPageViewModel(IComicService comicService, INotificationService notificationService, IMessenger messenger)
         {
@@ -72,23 +76,24 @@ namespace Yukari.ViewModels.Pages
             if (_chapters == null || _currentChapterIndex < 0 || _currentChapterIndex >= _chapters.Length)
                 return;
 
+            IsLoading = true;
+
             CurrentChapter = _chapters[_currentChapterIndex].Chapter;
             ChapterTitle = CurrentChapter.ToDisplayTitle();
 
             var pagesResult = await _comicService.GetChapterPagesAsync(_comicKey!, new(CurrentChapter.Id, CurrentChapter.Source));
-            if (!pagesResult.IsSuccess)
-            {
+            if (pagesResult.IsSuccess)
+                ChapterPages = pagesResult.Value!.Select(pageModel => new ChapterPageItemViewModel(pageModel)).ToList();
+            else
                 _notificationService.ShowError("Failed to load chapter pages.");
-                return;
-            }
 
-            ChapterPages = pagesResult.Value!.Select(pageModel => new ChapterPageItemViewModel(pageModel)).ToArray();
+            IsLoading = false;
         }
 
         [RelayCommand]
         public void GoBack() => _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
 
-        private bool CanGoToNext() => _chapters != null && _currentChapterIndex < _chapters.Length - 1;
+        private bool CanGoToNext() => _chapters != null && !IsLoading && _currentChapterIndex < _chapters.Length - 1;
 
         [RelayCommand(CanExecute = nameof(CanGoToNext))]
         public async Task NextChapter()
@@ -97,7 +102,7 @@ namespace Yukari.ViewModels.Pages
             await UpdateCurrentChapter();
         }
 
-        private bool CanGoToPrevious() => _currentChapterIndex > 0;
+        private bool CanGoToPrevious() => _chapters != null && !IsLoading && _currentChapterIndex > 0;
 
         [RelayCommand(CanExecute = nameof(CanGoToPrevious))]
         public async Task PreviousChapter()
