@@ -40,7 +40,7 @@
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
-                Click="ChapterItem_Click"
+                Command="{x:Bind NavigateToReaderCommand}"
                 CommandParameter="{x:Bind Key}"
                 CornerRadius="4">
                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8">
@@ -89,8 +89,7 @@
                             Padding="0"
                             Background="Transparent"
                             BorderBrush="Transparent"
-                            Click="ChapterToggleRead_Click"
-                            CommandParameter="{x:Bind}"
+                            Command="{x:Bind ToggleReadCommand}"
                             IsChecked="{x:Bind IsRead, Mode=TwoWay}">
                             <FontIcon Glyph="{x:Bind ReadIcon, Mode=OneWay}" />
                         </ToggleButton>
@@ -106,7 +105,7 @@
                                     <MenuFlyoutItem Icon="Refresh" Text="Reset" />
                                     <MenuFlyoutSeparator />
                                     <MenuFlyoutItem
-                                        Click="MarkPreviousChaptersAsRead_Click"
+                                        Command="{x:Bind MarkPreviousChaptersAsReadCommand}"
                                         CommandParameter="{x:Bind}"
                                         Icon="{ui:FontIcon Glyph=&#xE890;}"
                                         Text="Mark previous chapters as read" />

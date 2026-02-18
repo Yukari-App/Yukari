@@ -1,13 +1,24 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Threading.Tasks;
 using Yukari.Helpers.UI;
 using Yukari.Models;
 using Yukari.Models.DTO;
+using Yukari.Services.Comics;
+using Yukari.Services.UI;
 
 namespace Yukari.ViewModels.Components
 {
     public partial class ChapterItemViewModel : ObservableObject
     {
-        private bool _isComicFavorite = false;
+        private readonly IComicService _comicService;
+        private readonly INotificationService _notificationService;
+
+        private readonly ContentKey _comicKey;
+        private readonly bool _isComicFavorite;
+
+        public IRelayCommand<ContentKey>? NavigateToReaderCommand { get; set; }
+        public IRelayCommand<ChapterItemViewModel>? MarkPreviousChaptersAsReadCommand { get; set; }
 
         public ChapterModel Chapter { get; }
         public ContentKey Key => new(Chapter.Id, Chapter.Source);
@@ -30,8 +41,13 @@ namespace Yukari.ViewModels.Components
         public string DownloadIcon => IsDownloaded ? "\uE74D" : IsDownloading ? "\uF78A" : "\uE896";
         public string ReadIcon => IsRead ? "\uED1A" : "\uE890";
 
-        public ChapterItemViewModel(ChapterAggregate chapterAggregate, bool isComicFavorite)
+        public ChapterItemViewModel(IComicService comicService, INotificationService notificationService,
+                                    ChapterAggregate chapterAggregate, ContentKey comicKey, bool isComicFavorite)
         {
+            _comicService = comicService;
+            _notificationService = notificationService;
+
+            _comicKey = comicKey;
             Chapter = chapterAggregate.Chapter;
             _isComicFavorite = isComicFavorite;
 
@@ -41,6 +57,24 @@ namespace Yukari.ViewModels.Components
             IsDownloaded = chapterUserData.IsDownloaded;
             IsRead = chapterUserData.IsRead;
             LastPageRead = chapterUserData.LastPageRead ?? (IsRead ? Chapter.Pages : 0);
+        }
+
+        [RelayCommand]
+        public async Task ToggleRead()
+        {
+            var result = await _comicService.UpsertChapterUserDataAsync(_comicKey!, Key, new()
+            {
+                IsDownloaded = IsDownloaded,
+                IsRead = IsRead
+            });
+
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+                IsRead = !IsRead;
+            }
+
+            LastPageRead = IsRead ? Chapter.Pages : 0;
         }
     }
 }
