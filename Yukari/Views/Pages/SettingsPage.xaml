@@ -132,15 +132,6 @@
                                     <TextBlock VerticalAlignment="Center" Text="Vertical" />
                                 </StackPanel>
                             </ComboBoxItem>
-                            <ComboBoxItem>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon
-                                        VerticalAlignment="Center"
-                                        FontSize="14"
-                                        Glyph="&#xF0AE;" />
-                                    <TextBlock VerticalAlignment="Center" Text="Webtoon" />
-                                </StackPanel>
-                            </ComboBoxItem>
                         </ComboBox>
                     </toolkit:SettingsCard>
 
