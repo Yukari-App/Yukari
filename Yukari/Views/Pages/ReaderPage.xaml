@@ -13,6 +13,7 @@
 
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
         <Style
             x:Key="TitleBarButtonStyle"
             BasedOn="{StaticResource DefaultButtonStyle}"
@@ -102,21 +103,36 @@
                                 <RadioMenuFlyoutItem
                                     GroupName="ReadingMode"
                                     Icon="{ui:FontIcon Glyph=&#xF0B0;}"
+                                    IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=LeftToRight}"
                                     Text="right-to-left" />
                                 <RadioMenuFlyoutItem
                                     GroupName="ReadingMode"
                                     Icon="{ui:FontIcon Glyph=&#xF0AF;}"
+                                    IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=RightToLeft}"
                                     Text="left-to-right" />
                                 <RadioMenuFlyoutItem
                                     GroupName="ReadingMode"
                                     Icon="{ui:FontIcon Glyph=&#xF0AE;}"
+                                    IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Vertical}"
                                     Text="vertical" />
                             </MenuFlyoutSubItem>
                             <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE9A6;}" Text="Scaling Mode">
-                                <RadioMenuFlyoutItem GroupName="ScalingMode" Text="Fit screen" />
-                                <RadioMenuFlyoutItem GroupName="ScalingMode" Text="Fit width" />
-                                <RadioMenuFlyoutItem GroupName="ScalingMode" Text="Fit height" />
-                                <RadioMenuFlyoutItem GroupName="ScalingMode" Text="Original size" />
+                                <RadioMenuFlyoutItem
+                                    GroupName="ScalingMode"
+                                    IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitScreen}"
+                                    Text="Fit screen" />
+                                <RadioMenuFlyoutItem
+                                    GroupName="ScalingMode"
+                                    IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitWidth}"
+                                    Text="Fit width" />
+                                <RadioMenuFlyoutItem
+                                    GroupName="ScalingMode"
+                                    IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitHeigth}"
+                                    Text="Fit height" />
+                                <RadioMenuFlyoutItem
+                                    GroupName="ScalingMode"
+                                    IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OriginalSize}"
+                                    Text="Original size" />
                             </MenuFlyoutSubItem>
                         </MenuFlyout>
                     </Button.Flyout>
