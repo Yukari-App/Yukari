@@ -35,7 +35,7 @@ namespace Yukari.ViewModels.Pages
 
         [ObservableProperty] public partial List<ChapterPageItemViewModel>? ChapterPages { get; set; }
 
-        [ObservableProperty] public partial ReadingMode ReadingMode { get; set; } = ReadingMode.LeftToRight;
+        [ObservableProperty] public partial ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
         [ObservableProperty] public partial ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
 
 

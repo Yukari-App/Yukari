@@ -103,12 +103,12 @@
                                 <RadioMenuFlyoutItem
                                     GroupName="ReadingMode"
                                     Icon="{ui:FontIcon Glyph=&#xF0B0;}"
-                                    IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=LeftToRight}"
+                                    IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=RightToLeft}"
                                     Text="right-to-left" />
                                 <RadioMenuFlyoutItem
                                     GroupName="ReadingMode"
                                     Icon="{ui:FontIcon Glyph=&#xF0AF;}"
-                                    IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=RightToLeft}"
+                                    IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=LeftToRight}"
                                     Text="left-to-right" />
                                 <RadioMenuFlyoutItem
                                     GroupName="ReadingMode"
