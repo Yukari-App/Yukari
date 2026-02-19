@@ -128,7 +128,7 @@
                                 <RadioMenuFlyoutItem
                                     GroupName="ScalingMode"
                                     IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitHeigth}"
-                                    Text="Fit height" />
+                                    Text="Fit heigth" />
                                 <RadioMenuFlyoutItem
                                     GroupName="ScalingMode"
                                     IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OriginalSize}"
