@@ -14,6 +14,9 @@
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <converters:ReadingModeToFlowDirectionConverter x:Key="ReadingModeToFlowDirectionConverter" />
+        <converters:ReadingModeToOrientationConverter x:Key="ReadingModeToOrientationConverter" />
+
         <Style
             x:Key="TitleBarButtonStyle"
             BasedOn="{StaticResource DefaultButtonStyle}"
@@ -147,8 +150,14 @@
             <FlipView
                 x:Name="PagesFlipView"
                 Background="Transparent"
-                FlowDirection="RightToLeft"
+                FlowDirection="{Binding ReadingMode, Converter={StaticResource ReadingModeToFlowDirectionConverter}}"
                 ItemsSource="{Binding ChapterPages}">
+                <FlipView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel Orientation="{Binding ReadingMode, Converter={StaticResource ReadingModeToOrientationConverter}}" />
+                    </ItemsPanelTemplate>
+                </FlipView.ItemsPanel>
+
                 <FlipView.ItemTemplate>
                     <DataTemplate x:DataType="vmc:ChapterPageItemViewModel">
                         <ScrollViewer
