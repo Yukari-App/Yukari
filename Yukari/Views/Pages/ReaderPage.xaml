@@ -104,16 +104,22 @@
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE736;}" Text="Reading Mode">
                                 <RadioMenuFlyoutItem
+                                    Command="{Binding SetReadingModeCommand}"
+                                    CommandParameter="RightToLeft"
                                     GroupName="ReadingMode"
                                     Icon="{ui:FontIcon Glyph=&#xF0B0;}"
                                     IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=RightToLeft}"
                                     Text="right-to-left" />
                                 <RadioMenuFlyoutItem
+                                    Command="{Binding SetReadingModeCommand}"
+                                    CommandParameter="LeftToRight"
                                     GroupName="ReadingMode"
                                     Icon="{ui:FontIcon Glyph=&#xF0AF;}"
                                     IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=LeftToRight}"
                                     Text="left-to-right" />
                                 <RadioMenuFlyoutItem
+                                    Command="{Binding SetReadingModeCommand}"
+                                    CommandParameter="Vertical"
                                     GroupName="ReadingMode"
                                     Icon="{ui:FontIcon Glyph=&#xF0AE;}"
                                     IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Vertical}"
@@ -121,18 +127,26 @@
                             </MenuFlyoutSubItem>
                             <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE9A6;}" Text="Scaling Mode">
                                 <RadioMenuFlyoutItem
+                                    Command="{Binding SetScalingModeCommand}"
+                                    CommandParameter="FitScreen"
                                     GroupName="ScalingMode"
                                     IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitScreen}"
                                     Text="Fit screen" />
                                 <RadioMenuFlyoutItem
+                                    Command="{Binding SetScalingModeCommand}"
+                                    CommandParameter="FitWidth"
                                     GroupName="ScalingMode"
                                     IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitWidth}"
                                     Text="Fit width" />
                                 <RadioMenuFlyoutItem
+                                    Command="{Binding SetScalingModeCommand}"
+                                    CommandParameter="FitHeigth"
                                     GroupName="ScalingMode"
                                     IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitHeigth}"
                                     Text="Fit heigth" />
                                 <RadioMenuFlyoutItem
+                                    Command="{Binding SetScalingModeCommand}"
+                                    CommandParameter="OriginalSize"
                                     GroupName="ScalingMode"
                                     IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OriginalSize}"
                                     Text="Original size" />
@@ -151,6 +165,7 @@
                 x:Name="PagesFlipView"
                 Background="Transparent"
                 FlowDirection="{Binding ReadingMode, Converter={StaticResource ReadingModeToFlowDirectionConverter}}"
+                SelectedIndex="{Binding CurrentPageIndex, Mode=TwoWay}"
                 ItemsSource="{Binding ChapterPages}">
                 <FlipView.ItemsPanel>
                     <ItemsPanelTemplate>

@@ -34,6 +34,7 @@ namespace Yukari.ViewModels.Pages
         public partial ChapterModel? CurrentChapter { get; set; }
 
         [ObservableProperty] public partial List<ChapterPageItemViewModel>? ChapterPages { get; set; }
+        [ObservableProperty] public partial int CurrentPageIndex { get; set; } = 0;
 
         [ObservableProperty] public partial ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
         [ObservableProperty] public partial ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
@@ -115,12 +116,27 @@ namespace Yukari.ViewModels.Pages
             await UpdateCurrentChapter();
         }
 
+        [RelayCommand] private void SetReadingMode(string mode) => ReadingMode = Enum.Parse<ReadingMode>(mode);
+        [RelayCommand] private void SetScalingMode(string mode) => ScalingMode = Enum.Parse<ScalingMode>(mode);
+
         private async Task TriggerErrorAndReturn(string errorMessage)
         {
             _notificationService.ShowError(errorMessage);
 
             await Task.Delay(1000);
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
+        }
+
+        async partial void OnReadingModeChanged(ReadingMode value)
+        {
+            var backupPages = ChapterPages;
+            var backupCurrentPage = CurrentPageIndex;
+
+            ChapterPages = null;
+            ChapterPages = backupPages;
+
+            await Task.Delay(1); // Force UI to refresh the collection
+            CurrentPageIndex = backupCurrentPage;
         }
     }
 }
