@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Windowing;
@@ -5,8 +7,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using System;
-using System.Threading.Tasks;
 using Windows.Graphics;
 using Yukari.Services;
 using Yukari.Services.Comics;
@@ -59,7 +59,7 @@ namespace Yukari
             {
                 ExtendsContentIntoTitleBar = true,
                 Title = "Yukari",
-                Content = rootFrame
+                Content = rootFrame,
             };
 
             ConfigureWindowSizeAndIcons(MainWindow);
@@ -73,7 +73,8 @@ namespace Yukari
             rootFrame.Navigate(typeof(ShellPage), null, new DrillInNavigationTransitionInfo());
         }
 
-        public static T GetService<T>() where T : class => ((App)Current)._services.GetRequiredService<T>();
+        public static T GetService<T>()
+            where T : class => ((App)Current)._services.GetRequiredService<T>();
 
         private void ConfigureWindowSizeAndIcons(Window window)
         {
@@ -84,7 +85,9 @@ namespace Yukari
             win32Service.SetWindowMinMaxSize(new Win32WindowService.POINT() { x = 656, y = 500 });
 
             var scaleFactor = win32Service.GetSystemDPI() / 96.0;
-            window.AppWindow.Resize(new SizeInt32((int)(1200 * scaleFactor), (int)(700 * scaleFactor)));
+            window.AppWindow.Resize(
+                new SizeInt32((int)(1200 * scaleFactor), (int)(700 * scaleFactor))
+            );
         }
 
         private async Task InitializeAppAsync()

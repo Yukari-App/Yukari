@@ -5,6 +5,6 @@ namespace Yukari.Enums
         FavoritesPage,
         DiscoverPage,
         ComicPage,
-        Other
+        Other,
     }
 }

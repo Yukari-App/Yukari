@@ -1,6 +1,6 @@
+using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
-using System;
 
 namespace Yukari.Helpers.UI.Converters
 {
@@ -19,7 +19,11 @@ namespace Yukari.Helpers.UI.Converters
             return Visibility.Collapsed;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language) =>
-            throw new NotImplementedException();
+        public object ConvertBack(
+            object value,
+            Type targetType,
+            object parameter,
+            string language
+        ) => throw new NotImplementedException();
     }
 }

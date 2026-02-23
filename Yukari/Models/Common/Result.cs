@@ -12,6 +12,7 @@ namespace Yukari.Models.Common
         }
 
         public static Result Success() => new(true, null);
+
         public static Result Failure(string error) => new(false, error);
     }
 
@@ -19,12 +20,14 @@ namespace Yukari.Models.Common
     {
         public T? Value { get; }
 
-        private Result(bool isSuccess, T? value, string? error) : base(isSuccess, error)
+        private Result(bool isSuccess, T? value, string? error)
+            : base(isSuccess, error)
         {
             Value = value;
         }
 
         public static Result<T> Success(T value) => new(true, value, null);
+
         public static new Result<T> Failure(string error) => new(false, default, error);
     }
 }

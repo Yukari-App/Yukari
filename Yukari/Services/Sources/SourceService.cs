@@ -19,7 +19,8 @@ namespace Yukari.Services.Sources
 
         public async Task LoadSourceAsync(ComicSourceModel comicSource)
         {
-            if (_currentSource?.Name == comicSource.Name) return;
+            if (_currentSource?.Name == comicSource.Name)
+                return;
 
             if (_currentSource != null)
             {
@@ -43,20 +44,30 @@ namespace Yukari.Services.Sources
             }
         }
 
-        public IReadOnlyList<Filter> GetFilters() => _currentSource?.Filters ?? Array.Empty<Filter>();
-        public IReadOnlyDictionary<string, string> GetLanguages() => _currentSource?.Languages ?? new Dictionary<string, string>();
+        public IReadOnlyList<Filter> GetFilters() =>
+            _currentSource?.Filters ?? Array.Empty<Filter>();
 
-        public async Task<IReadOnlyList<ComicModel>> SearchComicsAsync(string query, IReadOnlyDictionary<string, IReadOnlyList<string>> filters)
+        public IReadOnlyDictionary<string, string> GetLanguages() =>
+            _currentSource?.Languages ?? new Dictionary<string, string>();
+
+        public async Task<IReadOnlyList<ComicModel>> SearchComicsAsync(
+            string query,
+            IReadOnlyDictionary<string, IReadOnlyList<string>> filters
+        )
         {
-            if (_currentSource == null) throw new InvalidOperationException("No source loaded.");
+            if (_currentSource == null)
+                throw new InvalidOperationException("No source loaded.");
             var comics = await _currentSource.SearchAsync(query, filters);
 
             return comics.Select(c => MapToModel(c)).ToList();
         }
 
-        public async Task<IReadOnlyList<ComicModel>> GetTrendingComicsAsync(IReadOnlyDictionary<string, IReadOnlyList<string>> filters)
+        public async Task<IReadOnlyList<ComicModel>> GetTrendingComicsAsync(
+            IReadOnlyDictionary<string, IReadOnlyList<string>> filters
+        )
         {
-            if (_currentSource == null) throw new InvalidOperationException("No source loaded.");
+            if (_currentSource == null)
+                throw new InvalidOperationException("No source loaded.");
             var comics = await _currentSource.GetTrendingAsync(filters);
 
             return comics.Select(c => MapToModel(c)).ToList();
@@ -64,20 +75,26 @@ namespace Yukari.Services.Sources
 
         public async Task<ComicModel?> GetComicDetailsAsync(string comicId)
         {
-            if (_currentSource == null) throw new InvalidOperationException("No source loaded.");
+            if (_currentSource == null)
+                throw new InvalidOperationException("No source loaded.");
             var comic = await _currentSource.GetDetailsAsync(comicId);
 
-            if (comic == null) return null;
+            if (comic == null)
+                return null;
             return MapToModel(comic);
         }
 
-        public async Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(string comicId, string language)
+        public async Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(
+            string comicId,
+            string language
+        )
         {
-            if (_currentSource == null) throw new InvalidOperationException("No source loaded.");
+            if (_currentSource == null)
+                throw new InvalidOperationException("No source loaded.");
             var chapters = await _currentSource.GetAllChaptersAsync(comicId, language);
 
-            return chapters.Select(c =>
-                new ChapterModel
+            return chapters
+                .Select(c => new ChapterModel
                 {
                     Id = c.Id,
                     ComicId = comicId,
@@ -88,26 +105,30 @@ namespace Yukari.Services.Sources
                     Language = c.Language,
                     Groups = c.Groups,
                     LastUpdate = c.LastUpdate,
-                    Pages = c.Pages
-                }
-            ).ToList();
+                    Pages = c.Pages,
+                })
+                .ToList();
         }
 
-        public async Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(string comicId, string chapterId)
+        public async Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(
+            string comicId,
+            string chapterId
+        )
         {
-            if (_currentSource == null) throw new InvalidOperationException("No source loaded.");
+            if (_currentSource == null)
+                throw new InvalidOperationException("No source loaded.");
             var pages = await _currentSource.GetChapterPagesAsync(comicId, chapterId);
 
-            return pages.Select(p => 
-                new ChapterPageModel
+            return pages
+                .Select(p => new ChapterPageModel
                 {
                     Id = p.Id,
                     ChapterId = chapterId,
                     Source = p.Source,
                     PageNumber = p.PageNumber,
-                    ImageUrl = p.ImageUrl
-                }
-            ).ToList();
+                    ImageUrl = p.ImageUrl,
+                })
+                .ToList();
         }
 
         public ComicSourceModel GetComicSourceModelFromAssembly(string dllPath)
@@ -125,32 +146,36 @@ namespace Yukari.Services.Sources
                 LogoUrl = sourceInstance.LogoUrl,
                 Description = sourceInstance.Description,
                 DllPath = dllPath,
-                IsEnabled = true
+                IsEnabled = true,
             };
         }
 
-        private ComicModel MapToModel(Comic coreComic) => new()
-        {
-            Id = coreComic.Id,
-            Source = coreComic.Source,
-            ComicUrl = coreComic.ComicUrl,
-            Title = coreComic.Title,
-            Author = coreComic.Author,
-            Description = coreComic.Description,
-            Tags = coreComic.Tags,
-            Year = coreComic.Year,
-            CoverImageUrl = coreComic.CoverImageUrl,
-            Langs = CreateLanguageModelArray(coreComic.Langs)
-        };
+        private ComicModel MapToModel(Comic coreComic) =>
+            new()
+            {
+                Id = coreComic.Id,
+                Source = coreComic.Source,
+                ComicUrl = coreComic.ComicUrl,
+                Title = coreComic.Title,
+                Author = coreComic.Author,
+                Description = coreComic.Description,
+                Tags = coreComic.Tags,
+                Year = coreComic.Year,
+                CoverImageUrl = coreComic.CoverImageUrl,
+                Langs = CreateLanguageModelArray(coreComic.Langs),
+            };
 
         private LanguageModel[] CreateLanguageModelArray(string[] languageKeys)
         {
             var sourceLangs = GetLanguages();
 
-            return languageKeys?.Select(key => new LanguageModel(
-                key,
-                sourceLangs.TryGetValue(key, out var displayName) ? displayName : key
-            )).ToArray() ?? [];
+            return languageKeys
+                    ?.Select(key => new LanguageModel(
+                        key,
+                        sourceLangs.TryGetValue(key, out var displayName) ? displayName : key
+                    ))
+                    .ToArray()
+                ?? [];
         }
 
         private Type GetSourceTypeFromAssembly(string pluginPath)
@@ -160,9 +185,14 @@ namespace Yukari.Services.Sources
 
             Assembly pluginAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(pluginPath);
 
-            return pluginAssembly.GetTypes()
-                .FirstOrDefault(t => typeof(IComicSource).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
-                ?? throw new InvalidOperationException($"{pluginPath} does not implement IComicSource.");
+            return pluginAssembly
+                    .GetTypes()
+                    .FirstOrDefault(t =>
+                        typeof(IComicSource).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract
+                    )
+                ?? throw new InvalidOperationException(
+                    $"{pluginPath} does not implement IComicSource."
+                );
         }
     }
 }

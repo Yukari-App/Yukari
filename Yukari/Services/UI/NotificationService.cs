@@ -21,22 +21,22 @@ namespace Yukari.Services.UI
                 Title = title,
                 Message = message,
                 Severity = severity,
-                IsActive = true
+                IsActive = true,
             };
 
             _messenger.Send(new ShowNotificationMessage(notification));
         }
 
-        public void ShowError(string message, string title = "Error")
-            => Show(message, title, NotificationSeverity.Error);
+        public void ShowError(string message, string title = "Error") =>
+            Show(message, title, NotificationSeverity.Error);
 
-        public void ShowInfo(string message, string title = "Info")
-            => Show(message, title, NotificationSeverity.Info);
+        public void ShowInfo(string message, string title = "Info") =>
+            Show(message, title, NotificationSeverity.Info);
 
-        public void ShowSuccess(string message, string title = "Success")
-            => Show(message, title, NotificationSeverity.Success);
+        public void ShowSuccess(string message, string title = "Success") =>
+            Show(message, title, NotificationSeverity.Success);
 
-        public void ShowWarning(string message, string title = "Warning")
-            => Show(message, title, NotificationSeverity.Warning);
+        public void ShowWarning(string message, string title = "Warning") =>
+            Show(message, title, NotificationSeverity.Warning);
     }
 }

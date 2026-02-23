@@ -1,8 +1,8 @@
-using Microsoft.UI.Xaml;
-using Microsoft.Windows.Storage.Pickers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml;
+using Microsoft.Windows.Storage.Pickers;
 using Yukari.Core.Models;
 using Yukari.ViewModels.Dialogs;
 using Yukari.Views.Dialogs;
@@ -13,17 +13,23 @@ namespace Yukari.Services.UI
     {
         private XamlRoot? _xamlRoot;
 
-        public void Initialize(XamlRoot root) =>
-            _xamlRoot = root;
+        public void Initialize(XamlRoot root) => _xamlRoot = root;
 
-        public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>?> ShowFiltersDialogAsync(
-            IReadOnlyList<Filter> filters, IReadOnlyDictionary<string, IReadOnlyList<string>> appliedFilters)
+        public async Task<IReadOnlyDictionary<
+            string,
+            IReadOnlyList<string>
+        >?> ShowFiltersDialogAsync(
+            IReadOnlyList<Filter> filters,
+            IReadOnlyDictionary<string, IReadOnlyList<string>> appliedFilters
+        )
         {
             FiltersDialogViewModel viewModel = new(filters, appliedFilters);
 
             var dialog = new FiltersDialog(viewModel)
             {
-                XamlRoot = _xamlRoot ?? throw new InvalidOperationException("XamlRoot must be initialized.")
+                XamlRoot =
+                    _xamlRoot
+                    ?? throw new InvalidOperationException("XamlRoot must be initialized."),
             };
 
             await dialog.ShowAsync();
@@ -32,7 +38,8 @@ namespace Yukari.Services.UI
 
         public async Task<string?> OpenFilePickerAsync(string fileTypeFilter = "*")
         {
-            if (_xamlRoot == null) throw new InvalidOperationException("XamlRoot must be initialized.");
+            if (_xamlRoot == null)
+                throw new InvalidOperationException("XamlRoot must be initialized.");
 
             var picker = new FileOpenPicker(_xamlRoot.ContentIslandEnvironment.AppWindowId)
             {

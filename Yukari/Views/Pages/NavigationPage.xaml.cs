@@ -1,8 +1,8 @@
+using System;
+using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Linq;
 using Yukari.Messages;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Pages;
@@ -31,40 +31,68 @@ namespace Yukari.Views.Pages
             }
         }
 
-        private void NavigationViewControl_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+        private void NavigationViewControl_ItemInvoked(
+            NavigationView sender,
+            NavigationViewItemInvokedEventArgs args
+        )
         {
-            var tag = args.IsSettingsInvoked ? "Yukari.Views.Pages.SettingsPage" : args.InvokedItemContainer?.Tag?.ToString();
+            var tag = args.IsSettingsInvoked
+                ? "Yukari.Views.Pages.SettingsPage"
+                : args.InvokedItemContainer?.Tag?.ToString();
             if (!string.IsNullOrEmpty(tag))
-                ((NavigationPageViewModel)DataContext).NavigateCommand.Execute(new NavigateMessage(Type.GetType(tag), null));
+                ((NavigationPageViewModel)DataContext).NavigateCommand.Execute(
+                    new NavigateMessage(Type.GetType(tag), null)
+                );
         }
 
-        private void NavigationViewControl_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        private void NavigationViewControl_BackRequested(
+            NavigationView sender,
+            NavigationViewBackRequestedEventArgs args
+        )
         {
             ((NavigationPageViewModel)DataContext).BackCommand.Execute(null);
         }
 
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
-            if (ContentFrame.SourcePageType != null && ContentFrame.SourcePageType == typeof(SettingsPage))
+            if (
+                ContentFrame.SourcePageType != null
+                && ContentFrame.SourcePageType == typeof(SettingsPage)
+            )
             {
                 NavigationViewControl.SelectedItem = NavigationViewControl.SettingsItem;
                 return;
             }
 
-            var selectedMenuItem = NavigationViewControl.MenuItems.OfType<NavigationViewItem>()
+            var selectedMenuItem = NavigationViewControl
+                .MenuItems.OfType<NavigationViewItem>()
                 .Concat(NavigationViewControl.FooterMenuItems.OfType<NavigationViewItem>())
-                .FirstOrDefault(item => item.Tag?.ToString() == ContentFrame.SourcePageType.FullName);
+                .FirstOrDefault(item =>
+                    item.Tag?.ToString() == ContentFrame.SourcePageType.FullName
+                );
 
             if (selectedMenuItem != null)
                 NavigationViewControl.SelectedItem = selectedMenuItem;
         }
 
-        private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args) =>
-            AppTitleBar.Margin = args.DisplayMode == NavigationViewDisplayMode.Minimal ? new Thickness { Left = 96 } : new Thickness { Left = 48 };
+        private void NavigationViewControl_DisplayModeChanged(
+            NavigationView sender,
+            NavigationViewDisplayModeChangedEventArgs args
+        ) =>
+            AppTitleBar.Margin =
+                args.DisplayMode == NavigationViewDisplayMode.Minimal
+                    ? new Thickness { Left = 96 }
+                    : new Thickness { Left = 48 };
 
-        private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private void AutoSuggestBox_TextChanged(
+            AutoSuggestBox sender,
+            AutoSuggestBoxTextChangedEventArgs args
+        )
         {
-            if (args.Reason != AutoSuggestionBoxTextChangeReason.ProgrammaticChange && DataContext is NavigationPageViewModel viewModel)
+            if (
+                args.Reason != AutoSuggestionBoxTextChangeReason.ProgrammaticChange
+                && DataContext is NavigationPageViewModel viewModel
+            )
                 viewModel.SearchTextChangedCommand.Execute(null);
         }
     }

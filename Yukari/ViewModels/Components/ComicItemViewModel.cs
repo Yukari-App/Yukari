@@ -17,8 +17,7 @@ namespace Yukari.ViewModels.Components
         public string PinText => IsPinned ? "Unpin" : "Pin";
         public string PinIcon => IsPinned ? "\uE77A" : "\uE718";
 
-        public ComicItemViewModel(ComicModel comic) =>
-            Comic = comic;
+        public ComicItemViewModel(ComicModel comic) => Comic = comic;
 
         [RelayCommand]
         public void TogglePin()

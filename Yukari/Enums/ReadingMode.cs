@@ -4,6 +4,6 @@ namespace Yukari.Enums
     {
         RightToLeft,
         LeftToRight,
-        Vertical
+        Vertical,
     }
 }

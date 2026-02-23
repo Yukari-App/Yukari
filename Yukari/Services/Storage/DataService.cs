@@ -1,12 +1,10 @@
-using Dapper;
-using Microsoft.Data.Sqlite;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
+using Microsoft.Data.Sqlite;
 using Yukari.Helpers;
 using Yukari.Helpers.Database;
 using Yukari.Models;
@@ -35,7 +33,8 @@ namespace Yukari.Services.Storage
 
             connection.Execute("PRAGMA foreign_keys = ON;");
 
-            connection.Execute(@"
+            connection.Execute(
+                @"
                 CREATE TABLE IF NOT EXISTS Comics (
                     Id TEXT NOT NULL,
                     Source TEXT NOT NULL,
@@ -103,7 +102,8 @@ namespace Yukari.Services.Storage
                     DllPath TEXT NOT NULL,
                     IsEnabled INTEGER NOT NULL DEFAULT 1
                 );
-            ");
+            "
+            );
         }
 
         private async Task<SqliteConnection> GetOpenConnectionAsync()
@@ -114,11 +114,14 @@ namespace Yukari.Services.Storage
             return connection;
         }
 
-        public async Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText = null)
+        public async Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(
+            string? queryText = null
+        )
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 SELECT c.Id, c.Source, c.Title, c.CoverImageUrl
                 FROM Comics c
                 INNER JOIN ComicUserData u 
@@ -131,10 +134,10 @@ namespace Yukari.Services.Storage
                     )
             ";
 
-            var result = await connection.QueryAsync<ComicModel>(sql, new
-            {
-                QueryText = queryText?.Trim()
-            });
+            var result = await connection.QueryAsync<ComicModel>(
+                sql,
+                new { QueryText = queryText?.Trim() }
+            );
 
             return result.ToList();
         }
@@ -143,7 +146,8 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 SELECT 
                     c.Id, c.Source, c.ComicUrl, c.Title, c.Author, c.Description, 
                     c.Tags, c.Year, c.CoverImageUrl, c.Langs,
@@ -154,37 +158,40 @@ namespace Yukari.Services.Storage
                 WHERE c.Id = @Id AND c.Source = @Source;
             ";
 
-            return await connection.QueryFirstOrDefaultAsync<ComicModel>(sql, new
-            {
-                Id = ComicKey.Id,
-                Source = ComicKey.Source
-            });
+            return await connection.QueryFirstOrDefaultAsync<ComicModel>(
+                sql,
+                new { Id = ComicKey.Id, Source = ComicKey.Source }
+            );
         }
 
         public async Task<ComicUserData> GetComicUserDataAsync(ContentKey ComicKey)
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 SELECT IsFavorite, LastSelectedLang, DownloadedLangs
                 FROM ComicUserData
                 WHERE ComicId = @Id AND Source = @Source;
             ";
 
-            var result = await connection.QueryFirstOrDefaultAsync<ComicUserData>(sql, new
-            {
-                Id = ComicKey.Id,
-                Source = ComicKey.Source
-            });
+            var result = await connection.QueryFirstOrDefaultAsync<ComicUserData>(
+                sql,
+                new { Id = ComicKey.Id, Source = ComicKey.Source }
+            );
 
             return result ?? new ComicUserData();
         }
 
-        public async Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(ContentKey comicKey, string language)
+        public async Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(
+            ContentKey comicKey,
+            string language
+        )
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 SELECT Id, ComicId, Source,
                        Title, Number, Volume,
                        Language, Groups, LastUpdate, Pages
@@ -192,30 +199,38 @@ namespace Yukari.Services.Storage
                 WHERE ComicId = @Id AND Source = @Source AND Language = @Language;
             ";
 
-            var result = await connection.QueryAsync<ChapterModel>(sql, new
-            {
-                Id = comicKey.Id,
-                Source = comicKey.Source,
-                Language = language
-            });
+            var result = await connection.QueryAsync<ChapterModel>(
+                sql,
+                new
+                {
+                    Id = comicKey.Id,
+                    Source = comicKey.Source,
+                    Language = language,
+                }
+            );
 
             return result.ToList();
         }
 
-        public async Task<Dictionary<string, ChapterUserData>> GetAllChaptersUserDataMapAsync(ContentKey comicKey)
+        public async Task<Dictionary<string, ChapterUserData>> GetAllChaptersUserDataMapAsync(
+            ContentKey comicKey
+        )
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 SELECT Id, LastPageRead, IsDownloaded, IsRead 
                 FROM ChapterUserData
                 WHERE ComicId = @Id AND Source = @Source
             ";
 
-            var result = await connection.QueryAsync<(string Id, int? LastPageRead, bool IsDownloaded, bool IsRead)>(
-                sql,
-                new { Id = comicKey.Id, Source = comicKey.Source }
-            );
+            var result = await connection.QueryAsync<(
+                string Id,
+                int? LastPageRead,
+                bool IsDownloaded,
+                bool IsRead
+            )>(sql, new { Id = comicKey.Id, Source = comicKey.Source });
 
             return result.ToDictionary(
                 x => x.Id,
@@ -223,32 +238,42 @@ namespace Yukari.Services.Storage
                 {
                     LastPageRead = x.LastPageRead,
                     IsDownloaded = x.IsDownloaded,
-                    IsRead = x.IsRead
+                    IsRead = x.IsRead,
                 }
             );
         }
 
-        public async Task<ChapterUserData> GetChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey)
+        public async Task<ChapterUserData> GetChapterUserDataAsync(
+            ContentKey comicKey,
+            ContentKey chapterKey
+        )
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 SELECT LastPageRead, IsDownloaded, IsRead
                 FROM ChapterUserData
                 WHERE Id = @id AND ComicId = @comicId AND Source = @source;
             ";
 
-            var result = await connection.QueryFirstOrDefaultAsync<ChapterUserData>(sql, new
-            {
-                id = chapterKey.Id,
-                comicId = comicKey.Id,
-                source = comicKey.Source
-            });
+            var result = await connection.QueryFirstOrDefaultAsync<ChapterUserData>(
+                sql,
+                new
+                {
+                    id = chapterKey.Id,
+                    comicId = comicKey.Id,
+                    source = comicKey.Source,
+                }
+            );
 
             return result ?? new ChapterUserData();
         }
 
-        public Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(ContentKey comicKey, ContentKey chapterKey)
+        public Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(
+            ContentKey comicKey,
+            ContentKey chapterKey
+        )
         {
             throw new NotImplementedException();
         }
@@ -257,7 +282,8 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled FROM ComicSources;";
+            const string sql =
+                @"SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled FROM ComicSources;";
 
             var result = await connection.QueryAsync<ComicSourceModel>(sql);
             return result.ToList();
@@ -267,16 +293,17 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled
                 FROM ComicSources 
                 WHERE Name = @name;
             ";
 
-            return await connection.QueryFirstOrDefaultAsync<ComicSourceModel>(sql, new
-            {
-                name = sourceName
-            });
+            return await connection.QueryFirstOrDefaultAsync<ComicSourceModel>(
+                sql,
+                new { name = sourceName }
+            );
         }
 
         public async Task UpsertFavoriteComicAsync(ComicModel comic)
@@ -285,7 +312,8 @@ namespace Yukari.Services.Storage
 
             using var transaction = connection.BeginTransaction();
 
-            const string sqlComic = @"
+            const string sqlComic =
+                @"
                 INSERT INTO Comics 
                 (Id, Source, ComicUrl, Title, Author, Description, Tags, Year, CoverImageUrl, Langs, IsAvailable)
                 VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Tags, @Year, @CoverImageUrl, @Langs, @IsAvailable)
@@ -303,20 +331,25 @@ namespace Yukari.Services.Storage
 
             await connection.ExecuteAsync(sqlComic, comic, transaction);
 
-            const string sqlUserData = @"
+            const string sqlUserData =
+                @"
             INSERT INTO ComicUserData (ComicId, Source, IsFavorite, DownloadedLangs)
             VALUES (@ComicId, @Source, @IsFavorite, @DownloadedLangs)
                 ON CONFLICT(ComicId, Source) DO UPDATE SET
                 IsFavorite = excluded.IsFavorite;
             ";
 
-            await connection.ExecuteAsync(sqlUserData, new
-            {
-                ComicId = comic.Id,
-                Source = comic.Source,
-                IsFavorite = true,
-                DownloadedLangs = "[]"
-            }, transaction);
+            await connection.ExecuteAsync(
+                sqlUserData,
+                new
+                {
+                    ComicId = comic.Id,
+                    Source = comic.Source,
+                    IsFavorite = true,
+                    DownloadedLangs = "[]",
+                },
+                transaction
+            );
 
             transaction.Commit();
         }
@@ -325,7 +358,8 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 INSERT INTO ComicUserData (ComicId, Source, IsFavorite, LastSelectedLang, DownloadedLangs)
                 VALUES (@ComicId, @Source, @IsFavorite, @LastSelectedLang, @DownloadedLangs)
                 ON CONFLICT(ComicId, Source) DO UPDATE SET
@@ -334,21 +368,25 @@ namespace Yukari.Services.Storage
                     DownloadedLangs = COALESCE(excluded.DownloadedLangs, ComicUserData.DownloadedLangs);
             ";
 
-            await connection.ExecuteAsync(sql, new
-            {
-                ComicId = comicKey.Id,
-                Source = comicKey.Source,
-                comicUserData.IsFavorite,
-                comicUserData.LastSelectedLang,
-                comicUserData.DownloadedLangs
-            });
+            await connection.ExecuteAsync(
+                sql,
+                new
+                {
+                    ComicId = comicKey.Id,
+                    Source = comicKey.Source,
+                    comicUserData.IsFavorite,
+                    comicUserData.LastSelectedLang,
+                    comicUserData.DownloadedLangs,
+                }
+            );
         }
 
         public async Task UpsertChapterAsync(ChapterModel chapter)
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 INSERT INTO Chapters 
                 (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages)
                 VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages)
@@ -365,25 +403,35 @@ namespace Yukari.Services.Storage
             await connection.ExecuteAsync(sql, chapter);
         }
 
-        public async Task UpsertChaptersAsync(ContentKey comicKey, string language, IEnumerable<ChapterModel> chapters)
+        public async Task UpsertChaptersAsync(
+            ContentKey comicKey,
+            string language,
+            IEnumerable<ChapterModel> chapters
+        )
         {
             using var connection = await GetOpenConnectionAsync();
             using var transaction = connection.BeginTransaction();
 
-            const string sqlReset = @"
+            const string sqlReset =
+                @"
                 UPDATE Chapters 
                 SET IsAvailable = 0 
                 WHERE ComicId = @ComicId AND Source = @Source AND Language = @Language;
             ";
 
-            await connection.ExecuteAsync(sqlReset, new
-            {
-                ComicId = comicKey.Id,
-                Source = comicKey.Source,
-                Language = language 
-            }, transaction);
+            await connection.ExecuteAsync(
+                sqlReset,
+                new
+                {
+                    ComicId = comicKey.Id,
+                    Source = comicKey.Source,
+                    Language = language,
+                },
+                transaction
+            );
 
-            const string sqlUpsert = @"
+            const string sqlUpsert =
+                @"
                 INSERT INTO Chapters 
                 (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages, IsAvailable)
                 VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages, 1)
@@ -403,11 +451,16 @@ namespace Yukari.Services.Storage
             transaction.Commit();
         }
 
-        public async Task UpsertChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey, ChapterUserData chapterUserData)
+        public async Task UpsertChapterUserDataAsync(
+            ContentKey comicKey,
+            ContentKey chapterKey,
+            ChapterUserData chapterUserData
+        )
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 INSERT INTO ChapterUserData (Id, ComicId, Source, LastPageRead, IsDownloaded, IsRead)
                 VALUES (@Id, @ComicId, @Source, @LastPageRead, @IsDownloaded, @IsRead)
                 ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
@@ -416,25 +469,33 @@ namespace Yukari.Services.Storage
                     IsRead = excluded.IsRead;
             ";
 
-            await connection.ExecuteAsync(sql, new
-            {
-                Id = chapterKey.Id,
-                ComicId = comicKey.Id,
-                Source = comicKey.Source,
-                chapterUserData.LastPageRead,
-                chapterUserData.IsDownloaded,
-                chapterUserData.IsRead
-            });
+            await connection.ExecuteAsync(
+                sql,
+                new
+                {
+                    Id = chapterKey.Id,
+                    ComicId = comicKey.Id,
+                    Source = comicKey.Source,
+                    chapterUserData.LastPageRead,
+                    chapterUserData.IsDownloaded,
+                    chapterUserData.IsRead,
+                }
+            );
         }
 
-        public async Task UpsertChaptersIsReadAsync(ContentKey comicKey, string[] chapterIDs, bool isRead)
+        public async Task UpsertChaptersIsReadAsync(
+            ContentKey comicKey,
+            string[] chapterIDs,
+            bool isRead
+        )
         {
             if (chapterIDs.Length == 0)
                 return;
 
             using var connection = await GetOpenConnectionAsync();
             using var transaction = await connection.BeginTransactionAsync();
-            const string sql = @"
+            const string sql =
+                @"
                 INSERT INTO ChapterUserData (Id, ComicId, Source, IsRead)
                 VALUES (@Id, @ComicId, @Source, @IsRead)
                 ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
@@ -446,7 +507,7 @@ namespace Yukari.Services.Storage
                 Id = id,
                 ComicId = comicKey.Id,
                 Source = comicKey.Source,
-                IsRead = isRead
+                IsRead = isRead,
             });
 
             await connection.ExecuteAsync(sql, parameters, transaction);
@@ -462,7 +523,8 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
             INSERT INTO ComicSources (Name, Version, LogoUrl, Description, DllPath, IsEnabled)
             VALUES (@Name, @Version, @LogoUrl, @Description, @DllPath, @IsEnabled)
             ON CONFLICT(Name) DO UPDATE SET
@@ -480,18 +542,15 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = @"
+            const string sql =
+                @"
                 UPDATE ComicUserData 
                 SET IsFavorite = 0,
                     DownloadedLangs = '[]'
                 WHERE ComicId = @Id AND Source = @Source;
             ";
 
-            await connection.ExecuteAsync(sql, new
-            {
-                Id = comicKey.Id,
-                Source = comicKey.Source
-            });
+            await connection.ExecuteAsync(sql, new { Id = comicKey.Id, Source = comicKey.Source });
         }
 
         public async Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey)
@@ -501,13 +560,25 @@ namespace Yukari.Services.Storage
 
             await connection.ExecuteAsync(
                 "DELETE FROM ChapterUserData WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
-                new { Id = chapterKey.Id, ComicId = comicKey.Id, Source = chapterKey.Source },
-                transaction);
+                new
+                {
+                    Id = chapterKey.Id,
+                    ComicId = comicKey.Id,
+                    Source = chapterKey.Source,
+                },
+                transaction
+            );
 
             await connection.ExecuteAsync(
-                    "DELETE FROM Chapters WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
-                    new { Id = chapterKey.Id, ComicId = comicKey.Id, Source = chapterKey.Source },
-                    transaction);
+                "DELETE FROM Chapters WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
+                new
+                {
+                    Id = chapterKey.Id,
+                    ComicId = comicKey.Id,
+                    Source = chapterKey.Source,
+                },
+                transaction
+            );
 
             transaction.Commit();
         }
@@ -525,7 +596,8 @@ namespace Yukari.Services.Storage
             using var connection = await GetOpenConnectionAsync();
             using var transaction = connection.BeginTransaction();
 
-            const string sqlDeleteChapters = @"
+            const string sqlDeleteChapters =
+                @"
                 DELETE FROM Chapters 
                 WHERE NOT EXISTS (
                     SELECT 1 FROM ComicUserData u 
@@ -535,7 +607,8 @@ namespace Yukari.Services.Storage
                 );
             ";
 
-            const string sqlDeleteChapterUserData = @"
+            const string sqlDeleteChapterUserData =
+                @"
                 DELETE FROM ChapterUserData 
                 WHERE NOT EXISTS (
                     SELECT 1 FROM ComicUserData u 
@@ -545,7 +618,8 @@ namespace Yukari.Services.Storage
                 );
             ";
 
-            const string sqlDeleteComics = @"
+            const string sqlDeleteComics =
+                @"
                 DELETE FROM Comics 
                 WHERE NOT EXISTS (
                     SELECT 1 FROM ComicUserData u 
@@ -555,7 +629,8 @@ namespace Yukari.Services.Storage
                 );
             ";
 
-            const string sqlDeleteComicUserData = @"DELETE FROM ComicUserData WHERE IsFavorite = 0;";
+            const string sqlDeleteComicUserData =
+                @"DELETE FROM ComicUserData WHERE IsFavorite = 0;";
 
             await connection.ExecuteAsync(sqlDeleteChapters, transaction: transaction);
             await connection.ExecuteAsync(sqlDeleteChapterUserData, transaction: transaction);

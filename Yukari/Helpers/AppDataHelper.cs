@@ -7,16 +7,17 @@ namespace Yukari.Helpers
 {
     public static class AppDataHelper
     {
-        private static readonly string _appDataPath =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Yukari");
+        private static readonly string _appDataPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "Yukari"
+        );
 
-        public static string GetAppDataPath() =>
-            EnsureDirectory(_appDataPath);
+        public static string GetAppDataPath() => EnsureDirectory(_appDataPath);
 
-        public static string GetDataPath() => 
+        public static string GetDataPath() =>
             EnsureDirectory(Path.Combine(GetAppDataPath(), "Data"));
 
-        public static string GetPluginsPath() => 
+        public static string GetPluginsPath() =>
             EnsureDirectory(Path.Combine(GetAppDataPath(), "Plugins"));
 
         public static string GetComicDataPath(ContentKey comicKey) =>

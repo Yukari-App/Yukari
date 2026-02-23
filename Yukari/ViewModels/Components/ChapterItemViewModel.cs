@@ -1,6 +1,6 @@
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Threading.Tasks;
 using Yukari.Helpers.UI;
 using Yukari.Models;
 using Yukari.Models.DTO;
@@ -25,7 +25,8 @@ namespace Yukari.ViewModels.Components
 
         public string? DisplayTitle { get; }
 
-        [ObservableProperty] public partial int? LastPageRead { get; set; }
+        [ObservableProperty]
+        public partial int? LastPageRead { get; set; }
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(DownloadIcon))]
         public partial bool IsDownloaded { get; set; }
@@ -33,16 +34,24 @@ namespace Yukari.ViewModels.Components
         [ObservableProperty, NotifyPropertyChangedFor(nameof(DownloadIcon))]
         public partial bool IsDownloading { get; set; }
 
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(ReadIcon))] 
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(ReadIcon))]
         public partial bool IsRead { get; set; }
 
         public bool IsDownloadAvailable => _isComicFavorite;
 
-        public string DownloadIcon => IsDownloaded ? "\uE74D" : IsDownloading ? "\uF78A" : "\uE896";
+        public string DownloadIcon =>
+            IsDownloaded ? "\uE74D"
+            : IsDownloading ? "\uF78A"
+            : "\uE896";
         public string ReadIcon => IsRead ? "\uED1A" : "\uE890";
 
-        public ChapterItemViewModel(IComicService comicService, INotificationService notificationService,
-                                    ChapterAggregate chapterAggregate, ContentKey comicKey, bool isComicFavorite)
+        public ChapterItemViewModel(
+            IComicService comicService,
+            INotificationService notificationService,
+            ChapterAggregate chapterAggregate,
+            ContentKey comicKey,
+            bool isComicFavorite
+        )
         {
             _comicService = comicService;
             _notificationService = notificationService;
@@ -62,11 +71,11 @@ namespace Yukari.ViewModels.Components
         [RelayCommand]
         public async Task ToggleRead()
         {
-            var result = await _comicService.UpsertChapterUserDataAsync(_comicKey!, Key, new()
-            {
-                IsDownloaded = IsDownloaded,
-                IsRead = IsRead
-            });
+            var result = await _comicService.UpsertChapterUserDataAsync(
+                _comicKey!,
+                Key,
+                new() { IsDownloaded = IsDownloaded, IsRead = IsRead }
+            );
 
             if (!result.IsSuccess)
             {

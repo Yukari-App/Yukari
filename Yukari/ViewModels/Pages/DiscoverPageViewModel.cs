@@ -1,9 +1,9 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Core.Models;
 using Yukari.Messages;
 using Yukari.Models;
@@ -14,8 +14,10 @@ using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
 {
-    public partial class DiscoverPageViewModel : ObservableObject,
-        IRecipient<SearchChangedMessage>, IRecipient<ComicSourcesUpdatedMessage>
+    public partial class DiscoverPageViewModel
+        : ObservableObject,
+            IRecipient<SearchChangedMessage>,
+            IRecipient<ComicSourcesUpdatedMessage>
     {
         private readonly IComicService _comicService;
         private readonly IDialogService _dialogService;
@@ -30,21 +32,33 @@ namespace Yukari.ViewModels.Pages
 
         private string _searchText = string.Empty;
 
-        [ObservableProperty] public partial List<ComicSourceModel>? ComicSources { get; set; }
-        [ObservableProperty] public partial List<ComicItemViewModel>? SearchedComics { get; set; }
-        
-        [ObservableProperty] public partial ComicSourceModel? SelectedComicSource { get; set; }
+        [ObservableProperty]
+        public partial List<ComicSourceModel>? ComicSources { get; set; }
+
+        [ObservableProperty]
+        public partial List<ComicItemViewModel>? SearchedComics { get; set; }
+
+        [ObservableProperty]
+        public partial ComicSourceModel? SelectedComicSource { get; set; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(NoSources), nameof(NoResults))]
         [NotifyCanExecuteChangedFor(nameof(FilterCommand))]
         public partial bool IsContentLoading { get; set; }
 
-        public bool NoSources => !IsContentLoading && (ComicSources == null || ComicSources.Count == 0);
-        public bool NoResults => !IsContentLoading && !NoSources && (SearchedComics == null || SearchedComics.Count == 0);
+        public bool NoSources =>
+            !IsContentLoading && (ComicSources == null || ComicSources.Count == 0);
+        public bool NoResults =>
+            !IsContentLoading
+            && !NoSources
+            && (SearchedComics == null || SearchedComics.Count == 0);
 
         public DiscoverPageViewModel(
-            IComicService comicService, IDialogService dialogService, INotificationService notificationService, IMessenger messenger)
+            IComicService comicService,
+            IDialogService dialogService,
+            INotificationService notificationService,
+            IMessenger messenger
+        )
         {
             _comicService = comicService;
             _dialogService = dialogService;
@@ -88,18 +102,22 @@ namespace Yukari.ViewModels.Pages
             _isIsActive = false;
         }
 
-        private bool CanFilter() => _availableFilters != null && _availableFilters.Count > 0 && !IsContentLoading;
+        private bool CanFilter() =>
+            _availableFilters != null && _availableFilters.Count > 0 && !IsContentLoading;
 
         [RelayCommand(CanExecute = nameof(CanFilter))]
         private async Task OnFilter()
         {
-            if (_availableFilters == null) return;
+            if (_availableFilters == null)
+                return;
 
             var newAppliedFilters = await _dialogService.ShowFiltersDialogAsync(
                 _availableFilters,
-                _appliedFilters ?? new Dictionary<string, IReadOnlyList<string>>());
+                _appliedFilters ?? new Dictionary<string, IReadOnlyList<string>>()
+            );
 
-            if (newAppliedFilters == null) return;
+            if (newAppliedFilters == null)
+                return;
 
             _appliedFilters = newAppliedFilters;
             await UpdateDisplayedComicsAsync();
@@ -116,7 +134,10 @@ namespace Yukari.ViewModels.Pages
             {
                 ComicSources = result.Value?.Where(s => s.IsEnabled).ToList();
 
-                if (SelectedComicSource == null || !ComicSources!.Any(x => x.Name == SelectedComicSource.Name))
+                if (
+                    SelectedComicSource == null
+                    || !ComicSources!.Any(x => x.Name == SelectedComicSource.Name)
+                )
                 {
                     SelectedComicSource = ComicSources?.FirstOrDefault();
                     // Note: Setting SelectedComicSource triggers OnSelectedComicSourceChanged automatically
@@ -130,7 +151,8 @@ namespace Yukari.ViewModels.Pages
 
         private async Task UpdateAvailableFiltersAsync()
         {
-            if (SelectedComicSource == null) return;
+            if (SelectedComicSource == null)
+                return;
             _appliedFilters = null;
 
             var result = await _comicService.GetSourceFiltersAsync(SelectedComicSource.Name);
@@ -147,15 +169,21 @@ namespace Yukari.ViewModels.Pages
 
         private async Task UpdateDisplayedComicsAsync()
         {
-            if (SelectedComicSource == null) return;
+            if (SelectedComicSource == null)
+                return;
             IsContentLoading = true;
 
             SearchedComics = new List<ComicItemViewModel>();
-            var result = await _comicService.SearchComicsAsync(SelectedComicSource.Name, _searchText,
-                _appliedFilters ?? new Dictionary<string, IReadOnlyList<string>>());
+            var result = await _comicService.SearchComicsAsync(
+                SelectedComicSource.Name,
+                _searchText,
+                _appliedFilters ?? new Dictionary<string, IReadOnlyList<string>>()
+            );
 
             if (result.IsSuccess)
-                SearchedComics = result.Value!.Select(comic => new ComicItemViewModel(comic)).ToList();
+                SearchedComics = result
+                    .Value!.Select(comic => new ComicItemViewModel(comic))
+                    .ToList();
             else
                 _notificationService.ShowError(result.Error!);
 
@@ -164,7 +192,8 @@ namespace Yukari.ViewModels.Pages
 
         async partial void OnSelectedComicSourceChanged(ComicSourceModel? value)
         {
-            if (value == null) return;
+            if (value == null)
+                return;
 
             await UpdateAvailableFiltersAsync();
             await UpdateDisplayedComicsAsync();

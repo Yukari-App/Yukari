@@ -10,7 +10,8 @@ namespace Yukari.Views.Pages
         public FavoritesPage()
         {
             InitializeComponent();
-            DataContext = App.GetService<FavoritesPageViewModel>(); ;
+            DataContext = App.GetService<FavoritesPageViewModel>();
+            ;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -23,7 +24,10 @@ namespace Yukari.Views.Pages
 
         private void GridView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (DataContext is FavoritesPageViewModel viewModel && e.ClickedItem is ComicItemViewModel comicItem)
+            if (
+                DataContext is FavoritesPageViewModel viewModel
+                && e.ClickedItem is ComicItemViewModel comicItem
+            )
                 viewModel.NavigateToComicCommand.Execute(comicItem.Key);
         }
     }

@@ -1,9 +1,9 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Messages;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
@@ -18,7 +18,8 @@ namespace Yukari.ViewModels.Pages
         private readonly INotificationService _notificationService;
         private readonly IMessenger _messenger;
 
-        [ObservableProperty] public partial List<ComicItemViewModel> FavoriteComics { get; set; } = new();
+        [ObservableProperty]
+        public partial List<ComicItemViewModel> FavoriteComics { get; set; } = new();
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(NoFavorites))]
@@ -26,7 +27,11 @@ namespace Yukari.ViewModels.Pages
 
         public bool NoFavorites => !IsContentLoading && FavoriteComics.Count == 0;
 
-        public FavoritesPageViewModel(IComicService comicService, INotificationService notificationService, IMessenger messenger)
+        public FavoritesPageViewModel(
+            IComicService comicService,
+            INotificationService notificationService,
+            IMessenger messenger
+        )
         {
             _comicService = comicService;
             _notificationService = notificationService;
@@ -35,7 +40,8 @@ namespace Yukari.ViewModels.Pages
             _messenger.RegisterAll(this);
         }
 
-        public async void Receive(SearchChangedMessage message) => await UpdateDisplayedComicsAsync(message.SearchText);
+        public async void Receive(SearchChangedMessage message) =>
+            await UpdateDisplayedComicsAsync(message.SearchText);
 
         public async Task InitializeAsync() => await UpdateDisplayedComicsAsync();
 
@@ -46,8 +52,10 @@ namespace Yukari.ViewModels.Pages
             FavoriteComics = new List<ComicItemViewModel>();
             var result = await _comicService.GetFavoriteComicsAsync(searchText, "all");
 
-            if (result.IsSuccess) 
-                FavoriteComics = result.Value!.Select(comic => new ComicItemViewModel(comic)).ToList();
+            if (result.IsSuccess)
+                FavoriteComics = result
+                    .Value!.Select(comic => new ComicItemViewModel(comic))
+                    .ToList();
             else
                 _notificationService.ShowError(result.Error!);
 

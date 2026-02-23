@@ -1,27 +1,31 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Enums;
 using Yukari.Messages;
 using Yukari.Services.UI;
 
 namespace Yukari.ViewModels.Pages
 {
-    public partial class NavigationPageViewModel : ObservableObject,
-        IRecipient<NavigateMessage>, IRecipient<SetSearchTextMessage>
+    public partial class NavigationPageViewModel
+        : ObservableObject,
+            IRecipient<NavigateMessage>,
+            IRecipient<SetSearchTextMessage>
     {
         private readonly INavigationService _navigationService;
         private readonly IMessenger _messenger;
 
         private CancellationTokenSource? _cts;
 
-        [ObservableProperty] public partial string SearchText { get; set; } = String.Empty;
+        [ObservableProperty]
+        public partial string SearchText { get; set; } = String.Empty;
 
         public bool IsBackEnabled => _navigationService.CanGoBack;
-        public bool IsSearchEnabled => _navigationService.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;
+        public bool IsSearchEnabled =>
+            _navigationService.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;
 
         public NavigationPageViewModel(INavigationService navigationService, IMessenger messenger)
         {
@@ -31,8 +35,7 @@ namespace Yukari.ViewModels.Pages
             _messenger.RegisterAll(this);
         }
 
-        public void Receive(NavigateMessage message) =>
-            OnNavigate(message);
+        public void Receive(NavigateMessage message) => OnNavigate(message);
 
         public void Receive(SetSearchTextMessage message) =>
             SearchText = message.SearchText ?? string.Empty;
@@ -40,7 +43,8 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand]
         private void OnNavigate(NavigateMessage request)
         {
-            if (request.PageType == null) return;
+            if (request.PageType == null)
+                return;
 
             _navigationService.Navigate(request.PageType, request.Parameter);
             OnPropertyChanged(nameof(IsBackEnabled));
@@ -74,7 +78,8 @@ namespace Yukari.ViewModels.Pages
 
         private void RefreshSearchBox()
         {
-            if (_navigationService.CurrentPage != AppPage.DiscoverPage) SearchText = string.Empty;
+            if (_navigationService.CurrentPage != AppPage.DiscoverPage)
+                SearchText = string.Empty;
             OnPropertyChanged(nameof(IsSearchEnabled));
         }
     }

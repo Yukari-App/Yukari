@@ -5,14 +5,12 @@ namespace Yukari.ViewModels.Pages
 {
     public partial class DownloadsPageViewModel : ObservableObject
     {
-        [ObservableProperty] public partial bool IsPaused { get; set; }
+        [ObservableProperty]
+        public partial bool IsPaused { get; set; }
 
         public string PauseIcon => IsPaused ? "\uE769" : "\uE768";
 
-        public DownloadsPageViewModel()
-        {
-            
-        }
+        public DownloadsPageViewModel() { }
 
         [RelayCommand]
         public void TogglePause()

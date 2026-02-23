@@ -1,6 +1,6 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Yukari.Core.Models;
 
 namespace Yukari.ViewModels.Components
@@ -18,7 +18,8 @@ namespace Yukari.ViewModels.Components
             get => Options.FirstOrDefault(o => o.IsSelected);
             set
             {
-                if (value is null) return;
+                if (value is null)
+                    return;
 
                 foreach (var opt in Options)
                     opt.IsSelected = false;
@@ -36,8 +37,9 @@ namespace Yukari.ViewModels.Components
             AllowMultiple = filter.AllowMultiple;
 
             Options = new ObservableCollection<FilterOptionViewModel>(
-                (filter.Options ?? Enumerable.Empty<FilterOption>())
-                    .Select(o => new FilterOptionViewModel(o))
+                (filter.Options ?? Enumerable.Empty<FilterOption>()).Select(
+                    o => new FilterOptionViewModel(o)
+                )
             );
         }
     }

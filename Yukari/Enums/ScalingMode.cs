@@ -5,6 +5,6 @@ namespace Yukari.Enums
         FitScreen,
         FitWidth,
         FitHeigth,
-        OriginalSize
+        OriginalSize,
     }
 }

@@ -1,17 +1,20 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Messages;
 using Yukari.Models;
 
 namespace Yukari.ViewModels.Pages
 {
-    public partial class ShellPageViewModel : ObservableRecipient, IRecipient<ShowNotificationMessage>
+    public partial class ShellPageViewModel
+        : ObservableRecipient,
+            IRecipient<ShowNotificationMessage>
     {
         public ObservableCollection<NotificationModel> Notifications { get; } = new();
 
-        public ShellPageViewModel(IMessenger messenger) : base(messenger)
+        public ShellPageViewModel(IMessenger messenger)
+            : base(messenger)
         {
             IsActive = true;
         }

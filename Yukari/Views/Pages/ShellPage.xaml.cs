@@ -16,17 +16,26 @@ namespace Yukari.Views.Pages
 
             var messenger = App.GetService<IMessenger>();
 
-            messenger.Register<SwitchAppModeMessage>(this, (r, m) =>
-            {
-                var pageType = m.appMode == AppMode.Reader
-                    ? typeof(ReaderPage)
-                    : typeof(NavigationPage);
-                var transitionInfo = m.appMode == AppMode.Reader
-                    ? new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight }
-                    : new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft };
+            messenger.Register<SwitchAppModeMessage>(
+                this,
+                (r, m) =>
+                {
+                    var pageType =
+                        m.appMode == AppMode.Reader ? typeof(ReaderPage) : typeof(NavigationPage);
+                    var transitionInfo =
+                        m.appMode == AppMode.Reader
+                            ? new SlideNavigationTransitionInfo()
+                            {
+                                Effect = SlideNavigationTransitionEffect.FromRight,
+                            }
+                            : new SlideNavigationTransitionInfo()
+                            {
+                                Effect = SlideNavigationTransitionEffect.FromLeft,
+                            };
 
-                ShellFrame.Navigate(pageType, m.Parameter, transitionInfo);
-            });
+                    ShellFrame.Navigate(pageType, m.Parameter, transitionInfo);
+                }
+            );
         }
     }
 }

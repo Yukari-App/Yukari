@@ -5,6 +5,6 @@ namespace Yukari.Enums
         Info,
         Success,
         Warning,
-        Error
+        Error,
     }
 }

@@ -31,7 +31,12 @@ namespace Yukari.Views.Pages
             if (e.Parameter is ReaderNavigationArgs args)
             {
                 if (DataContext is ReaderPageViewModel viewModel)
-                    await viewModel.InitializeAsync(args.ComicKey, args.ComicTitle, args.ChapterKey, args.SelectedLang);
+                    await viewModel.InitializeAsync(
+                        args.ComicKey,
+                        args.ComicTitle,
+                        args.ChapterKey,
+                        args.SelectedLang
+                    );
             }
         }
 
@@ -41,8 +46,10 @@ namespace Yukari.Views.Pages
         private void PageScrollViewer_PointerExited(object sender, PointerRoutedEventArgs e) =>
             UpdateCursor((sender as ScrollViewer)!);
 
-        private void PageScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e) =>
-            UpdateCursor((sender as ScrollViewer)!);
+        private void PageScrollViewer_ViewChanged(
+            object sender,
+            ScrollViewerViewChangedEventArgs e
+        ) => UpdateCursor((sender as ScrollViewer)!);
 
         private void PageScrollViewer_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
@@ -72,7 +79,12 @@ namespace Yukari.Views.Pages
                 double deltaX = currentPosition.X - _lastMousePosition.X;
                 double deltaY = currentPosition.Y - _lastMousePosition.Y;
 
-                pageScrollViewer.ChangeView(_startHorizontalOffset - deltaX, _startVerticalOffset - deltaY, null, true);
+                pageScrollViewer.ChangeView(
+                    _startHorizontalOffset - deltaX,
+                    _startVerticalOffset - deltaY,
+                    null,
+                    true
+                );
             }
         }
 

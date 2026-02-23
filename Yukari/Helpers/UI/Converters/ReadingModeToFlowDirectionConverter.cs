@@ -1,6 +1,6 @@
+using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
-using System;
 using Yukari.Enums;
 
 namespace Yukari.Helpers.UI.Converters
@@ -18,7 +18,11 @@ namespace Yukari.Helpers.UI.Converters
             return FlowDirection.LeftToRight;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-            => throw new NotImplementedException();
+        public object ConvertBack(
+            object value,
+            Type targetType,
+            object parameter,
+            string language
+        ) => throw new NotImplementedException();
     }
 }

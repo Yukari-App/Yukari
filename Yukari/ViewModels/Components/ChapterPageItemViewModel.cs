@@ -8,9 +8,14 @@ namespace Yukari.ViewModels.Components
     {
         public ChapterPageModel Model { get; }
 
-        [ObservableProperty] public partial string? ImageUrl { get; set; }
-        [ObservableProperty] public partial bool IsLoading { get; set; } = true;
-        [ObservableProperty] public partial bool HasError { get; set; } = false;
+        [ObservableProperty]
+        public partial string? ImageUrl { get; set; }
+
+        [ObservableProperty]
+        public partial bool IsLoading { get; set; } = true;
+
+        [ObservableProperty]
+        public partial bool HasError { get; set; } = false;
 
         public ChapterPageItemViewModel(ChapterPageModel model)
         {
@@ -28,7 +33,16 @@ namespace Yukari.ViewModels.Components
             ImageUrl = Model.ImageUrl;
         }
 
-        public void OnLoadSuccess() { IsLoading = false; HasError = false; }
-        public void OnLoadFailed() { IsLoading = false; HasError = true; }
+        public void OnLoadSuccess()
+        {
+            IsLoading = false;
+            HasError = false;
+        }
+
+        public void OnLoadFailed()
+        {
+            IsLoading = false;
+            HasError = true;
+        }
     }
 }
