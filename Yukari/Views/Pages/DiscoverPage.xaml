@@ -1,50 +1,39 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Page
-    x:Class="Yukari.Views.Pages.DiscoverPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:converters="using:Yukari.Helpers.UI.Converters"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:Yukari.Views.Pages"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:Yukari.Models"
-    xmlns:selectors="using:Yukari.Helpers.UI.Selectors"
-    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
-    xmlns:ui="using:CommunityToolkit.WinUI"
-    xmlns:vmc="using:Yukari.ViewModels.Components"
-    NavigationCacheMode="Enabled"
-    mc:Ignorable="d">
+<Page x:Class="Yukari.Views.Pages.DiscoverPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:converters="using:Yukari.Helpers.UI.Converters"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:Yukari.Views.Pages"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:models="using:Yukari.Models"
+      xmlns:selectors="using:Yukari.Helpers.UI.Selectors"
+      xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+      xmlns:ui="using:CommunityToolkit.WinUI"
+      xmlns:vmc="using:Yukari.ViewModels.Components"
+      NavigationCacheMode="Enabled"
+      mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <DataTemplate x:Key="ComicTemplate" x:DataType="vmc:ComicItemViewModel">
-            <Grid
-                Width="200"
-                Height="280"
-                Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+            <Grid Width="200" Height="280" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
                 <Image Stretch="UniformToFill">
                     <Image.Source>
-                        <BitmapImage
-                            DecodePixelType="Logical"
-                            DecodePixelWidth="200"
-                            UriSource="{x:Bind Comic.CoverImageUrl, Mode=OneTime}" />
+                        <BitmapImage DecodePixelType="Logical" DecodePixelWidth="200" UriSource="{x:Bind Comic.CoverImageUrl, Mode=OneTime}" />
                     </Image.Source>
                 </Image>
 
-                <Grid
-                    Height="30"
-                    Margin="2"
-                    Padding="8,0,4,0"
-                    VerticalAlignment="Bottom"
-                    Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
-                    ColumnSpacing="4"
-                    CornerRadius="4">
-                    <TextBlock
-                        VerticalAlignment="Center"
-                        Text="{x:Bind Comic.Title, Mode=OneTime}"
-                        ToolTipService.ToolTip="{x:Bind Comic.Title, Mode=OneTime}" />
+                <Grid Height="30"
+                      Margin="2"
+                      Padding="8,0,4,0"
+                      VerticalAlignment="Bottom"
+                      Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+                      ColumnSpacing="4"
+                      CornerRadius="4">
+                    <TextBlock VerticalAlignment="Center" Text="{x:Bind Comic.Title, Mode=OneTime}" ToolTipService.ToolTip="{x:Bind Comic.Title, Mode=OneTime}" />
                 </Grid>
 
             </Grid>
@@ -53,92 +42,79 @@
 
 
     <Grid RowDefinitions="Auto, *">
-        <Grid
-            Grid.Row="0"
-            Padding="20,14,36,16"
-            ColumnDefinitions="Auto, *, Auto">
-            <StackPanel
-                Grid.Column="0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                Orientation="Horizontal">
+        <Grid Grid.Row="0" Padding="20,14,36,16" ColumnDefinitions="Auto, *, Auto">
+            <StackPanel Grid.Column="0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
                 <FontIcon FontSize="24" Glyph="&#xE8F1;" />
-                <TextBlock
-                    Margin="8,0,0,0"
-                    VerticalAlignment="Center"
-                    Style="{StaticResource TitleTextBlockStyle}"
-                    Text="Discover" />
+                <TextBlock Margin="8,0,0,0"
+                           VerticalAlignment="Center"
+                           Style="{StaticResource TitleTextBlockStyle}"
+                           Text="Discover" />
             </StackPanel>
 
-            <StackPanel
-                Grid.Column="2"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center"
-                Orientation="Horizontal"
-                Spacing="2">
+            <StackPanel Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="2">
 
-                <ComboBox
-                    Height="34"
-                    IsEnabled="{Binding NoSources, Converter={StaticResource BooleanNegationConverter}}"
-                    ItemsSource="{Binding ComicSources}"
-                    SelectedItem="{Binding SelectedComicSource, Mode=TwoWay}">
+                <ComboBox Height="34"
+                          IsEnabled="{Binding NoSources, Converter={StaticResource BooleanNegationConverter}}"
+                          ItemsSource="{Binding ComicSources}"
+                          SelectedItem="{Binding SelectedComicSource, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="models:ComicSourceModel">
                             <StackPanel Orientation="Horizontal" Spacing="6">
-                                <ImageIcon
-                                    Width="22"
-                                    Height="22"
-                                    VerticalAlignment="Center"
-                                    Source="{x:Bind LogoUrl}" />
+                                <ImageIcon Width="22"
+                                           Height="22"
+                                           VerticalAlignment="Center"
+                                           Source="{x:Bind LogoUrl}" />
                                 <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
                             </StackPanel>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
-                <Button
-                    Width="34"
-                    Height="34"
-                    Padding="0"
-                    Background="Transparent"
-                    BorderBrush="Transparent"
-                    Command="{Binding FilterCommand}"
-                    Content="{ui:FontIcon Glyph=&#xE71C;}" />
+                <Button Width="34"
+                        Height="34"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Command="{Binding FilterCommand}"
+                        Content="{ui:FontIcon Glyph=&#xE71C;}" />
 
             </StackPanel>
         </Grid>
 
-        <ProgressRing
-            Grid.Row="1"
-            Width="60"
-            Height="60"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            IsActive="{Binding IsContentLoading}"
-            Visibility="{Binding IsContentLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <ProgressRing Grid.Row="1"
+                      Width="60"
+                      Height="60"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      IsActive="{Binding IsContentLoading}"
+                      Visibility="{Binding IsContentLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-        <TextBlock
-            Grid.Row="1"
-            HorizontalAlignment="Center"
-            Style="{StaticResource BodyLargeStrongTextBlockStyle}"
-            Text="No results found."
-            Visibility="{Binding NoResults, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <TextBlock Grid.Row="1"
+                   HorizontalAlignment="Center"
+                   Style="{StaticResource BodyLargeStrongTextBlockStyle}"
+                   Text="No results found."
+                   Visibility="{Binding NoResults, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-        <TextBlock
-            Grid.Row="1"
-            HorizontalAlignment="Center"
-            Style="{StaticResource BodyLargeStrongTextBlockStyle}"
-            TextAlignment="Center"
-            Visibility="{Binding NoSources, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <TextBlock Grid.Row="1"
+                   HorizontalAlignment="Center"
+                   Style="{StaticResource BodyLargeStrongTextBlockStyle}"
+                   TextAlignment="Center"
+                   Visibility="{Binding NoSources, Converter={StaticResource BooleanToVisibilityConverter}}">
             It looks like you don't have any Comic Sources. Add one at<LineBreak />
             Settings > Sources > Comic Sources > Add New Source</TextBlock>
 
-        <GridView
-            Grid.Row="1"
-            IsItemClickEnabled="True"
-            ItemClick="GridView_ItemClick"
-            ItemTemplate="{StaticResource ComicTemplate}"
-            ItemsSource="{Binding SearchedComics}"
-            SelectionMode="None" />
+        <GridView Grid.Row="1"
+                  IsItemClickEnabled="True"
+                  ItemClick="GridView_ItemClick"
+                  ItemTemplate="{StaticResource ComicTemplate}"
+                  ItemsSource="{Binding SearchedComics}"
+                  SelectionMode="None" />
     </Grid>
 </Page>

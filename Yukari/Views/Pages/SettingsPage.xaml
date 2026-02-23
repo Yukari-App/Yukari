@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Page
-    x:Class="Yukari.Views.Pages.SettingsPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:converters="using:Yukari.Helpers.UI.Converters"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:Yukari.Views.Pages"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:Yukari.Models"
-    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
-    xmlns:ui="using:CommunityToolkit.WinUI"
-    mc:Ignorable="d">
+<Page x:Class="Yukari.Views.Pages.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:converters="using:Yukari.Helpers.UI.Converters"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:Yukari.Views.Pages"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:models="using:Yukari.Models"
+      xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+      xmlns:ui="using:CommunityToolkit.WinUI"
+      mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -18,10 +17,7 @@
 
         <x:Double x:Key="SettingsCardSpacing">4</x:Double>
 
-        <Style
-            x:Key="SettingsSectionHeaderTextBlockStyle"
-            BasedOn="{StaticResource BodyStrongTextBlockStyle}"
-            TargetType="TextBlock">
+        <Style x:Key="SettingsSectionHeaderTextBlockStyle" BasedOn="{StaticResource BodyStrongTextBlockStyle}" TargetType="TextBlock">
             <Style.Setters>
                 <Setter Property="Margin" Value="1,30,0,6" />
             </Style.Setters>
@@ -30,18 +26,16 @@
     </Page.Resources>
 
     <Grid RowDefinitions="Auto, *">
-        <StackPanel
-            Grid.Column="0"
-            Padding="20,14,36,16"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Center"
-            Orientation="Horizontal">
+        <StackPanel Grid.Column="0"
+                    Padding="20,14,36,16"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal">
             <FontIcon FontSize="24" Glyph="&#xE713;" />
-            <TextBlock
-                Margin="8,0,0,0"
-                VerticalAlignment="Center"
-                Style="{StaticResource TitleTextBlockStyle}"
-                Text="Settings" />
+            <TextBlock Margin="8,0,0,0"
+                       VerticalAlignment="Center"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Text="Settings" />
         </StackPanel>
 
         <ScrollViewer Grid.Row="1">
@@ -56,12 +50,11 @@
                     <TextBlock Margin="1,0,0,6" Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Span><Bold>Appearance</Bold></Span>
                     </TextBlock>
-                    <toolkit:SettingsCard
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                        Description="Select the application theme"
-                        Header="Application Theme"
-                        HeaderIcon="{ui:FontIcon Glyph=}">
+                    <toolkit:SettingsCard HorizontalAlignment="Stretch"
+                                          HorizontalContentAlignment="Stretch"
+                                          Description="Select the application theme"
+                                          Header="Application Theme"
+                                          HeaderIcon="{ui:FontIcon Glyph=}">
                         <ComboBox SelectedIndex="0">
                             <ComboBoxItem>Light</ComboBoxItem>
                             <ComboBoxItem>Dark</ComboBoxItem>
@@ -73,24 +66,22 @@
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Span><Bold>Preferences</Bold></Span>
                     </TextBlock>
-                    <toolkit:SettingsCard
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                        Description="Select the default language for chapters"
-                        Header="Default Language"
-                        HeaderIcon="{ui:FontIcon Glyph=&#xF2B7;}">
+                    <toolkit:SettingsCard HorizontalAlignment="Stretch"
+                                          HorizontalContentAlignment="Stretch"
+                                          Description="Select the default language for chapters"
+                                          Header="Default Language"
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xF2B7;}">
                         <ComboBox SelectedIndex="0">
                             <ComboBoxItem>en-US</ComboBoxItem>
                             <ComboBoxItem>pt-BR</ComboBoxItem>
                         </ComboBox>
                     </toolkit:SettingsCard>
 
-                    <toolkit:SettingsCard
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                        Description="Synchronizes favorite comic data and chapters on startup"
-                        Header="Update Comics on Startup"
-                        HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">
+                    <toolkit:SettingsCard HorizontalAlignment="Stretch"
+                                          HorizontalContentAlignment="Stretch"
+                                          Description="Synchronizes favorite comic data and chapters on startup"
+                                          Header="Update Comics on Startup"
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">
                         <ToggleSwitch />
                     </toolkit:SettingsCard>
 
@@ -98,49 +89,38 @@
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Span><Bold>Reader</Bold></Span>
                     </TextBlock>
-                    <toolkit:SettingsCard
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                        Description="Change the direction and flow of reading"
-                        Header="Reading Mode"
-                        HeaderIcon="{ui:FontIcon Glyph=&#xE736;}">
+                    <toolkit:SettingsCard HorizontalAlignment="Stretch"
+                                          HorizontalContentAlignment="Stretch"
+                                          Description="Change the direction and flow of reading"
+                                          Header="Reading Mode"
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xE736;}">
                         <ComboBox SelectedIndex="0">
                             <ComboBoxItem>
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon
-                                        VerticalAlignment="Center"
-                                        FontSize="14"
-                                        Glyph="&#xF0B0;" />
+                                    <FontIcon VerticalAlignment="Center" FontSize="14" Glyph="&#xF0B0;" />
                                     <TextBlock VerticalAlignment="Center" Text="right-to-left" />
                                 </StackPanel>
                             </ComboBoxItem>
                             <ComboBoxItem>
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon
-                                        VerticalAlignment="Center"
-                                        FontSize="14"
-                                        Glyph="&#xF0AF;" />
+                                    <FontIcon VerticalAlignment="Center" FontSize="14" Glyph="&#xF0AF;" />
                                     <TextBlock VerticalAlignment="Center" Text="left-to-right" />
                                 </StackPanel>
                             </ComboBoxItem>
                             <ComboBoxItem>
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon
-                                        VerticalAlignment="Center"
-                                        FontSize="14"
-                                        Glyph="&#xF0AE;" />
+                                    <FontIcon VerticalAlignment="Center" FontSize="14" Glyph="&#xF0AE;" />
                                     <TextBlock VerticalAlignment="Center" Text="Vertical" />
                                 </StackPanel>
                             </ComboBoxItem>
                         </ComboBox>
                     </toolkit:SettingsCard>
 
-                    <toolkit:SettingsCard
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                        Description="Adjust how comic pages fit your screen"
-                        Header="Scaling Mode"
-                        HeaderIcon="{ui:FontIcon Glyph=&#xE9A6;}">
+                    <toolkit:SettingsCard HorizontalAlignment="Stretch"
+                                          HorizontalContentAlignment="Stretch"
+                                          Description="Adjust how comic pages fit your screen"
+                                          Header="Scaling Mode"
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xE9A6;}">
                         <ComboBox SelectedIndex="0">
                             <ComboBoxItem>Fit screen</ComboBoxItem>
                             <ComboBoxItem>Fit width</ComboBoxItem>
@@ -153,23 +133,21 @@
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Span><Bold>Sources</Bold></Span>
                     </TextBlock>
-                    <toolkit:SettingsExpander
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                        Description="Sources from which the comic will be extracted"
-                        Header="Comic Sources"
-                        HeaderIcon="{ui:FontIcon Glyph=&#xE753;}"
-                        ItemsSource="{Binding ComicSources}">
+                    <toolkit:SettingsExpander HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              Description="Sources from which the comic will be extracted"
+                                              Header="Comic Sources"
+                                              HeaderIcon="{ui:FontIcon Glyph=&#xE753;}"
+                                              ItemsSource="{Binding ComicSources}">
                         <Button Command="{Binding AddComicSourceCommand}" Content="Add New Source" />
                         <toolkit:SettingsExpander.ItemsHeader>
-                            <InfoBar
-                                Title="You haven't added any sources yet"
-                                BorderThickness="0"
-                                CornerRadius="0"
-                                IsClosable="False"
-                                IsOpen="True"
-                                Severity="Informational"
-                                Visibility="{Binding IsComicSourcesEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <InfoBar Title="You haven't added any sources yet"
+                                     BorderThickness="0"
+                                     CornerRadius="0"
+                                     IsClosable="False"
+                                     IsOpen="True"
+                                     Severity="Informational"
+                                     Visibility="{Binding IsComicSourcesEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         </toolkit:SettingsExpander.ItemsHeader>
                         <toolkit:SettingsExpander.ItemTemplate>
                             <DataTemplate x:DataType="models:ComicSourceModel">
@@ -177,18 +155,14 @@
                                     <toolkit:SettingsCard.HeaderIcon>
                                         <ImageIcon Source="{x:Bind LogoUrl}" />
                                     </toolkit:SettingsCard.HeaderIcon>
-                                    <StackPanel
-                                        HorizontalAlignment="Stretch"
-                                        Orientation="Horizontal"
-                                        Spacing="8">
+                                    <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Spacing="8">
                                         <ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
-                                        <Button
-                                            Width="35"
-                                            Height="35"
-                                            Padding="0"
-                                            Background="Transparent"
-                                            BorderBrush="Transparent"
-                                            Content="{ui:FontIcon Glyph=&#xE712;}">
+                                        <Button Width="35"
+                                                Height="35"
+                                                Padding="0"
+                                                Background="Transparent"
+                                                BorderBrush="Transparent"
+                                                Content="{ui:FontIcon Glyph=&#xE712;}">
                                             <Button.Flyout>
                                                 <MenuFlyout>
                                                     <MenuFlyoutItem Icon="Delete" Text="Delete" />
@@ -201,22 +175,20 @@
                         </toolkit:SettingsExpander.ItemTemplate>
                     </toolkit:SettingsExpander>
 
-                    <toolkit:SettingsCard
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                        Description="Set default comic source"
-                        Header="Default Source"
-                        HeaderIcon="{ui:FontIcon Glyph=&#xE930;}"
-                        IsEnabled="{Binding IsComicSourcesEmpty, Converter={StaticResource BooleanNegationConverter}}">
+                    <toolkit:SettingsCard HorizontalAlignment="Stretch"
+                                          HorizontalContentAlignment="Stretch"
+                                          Description="Set default comic source"
+                                          Header="Default Source"
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xE930;}"
+                                          IsEnabled="{Binding IsComicSourcesEmpty, Converter={StaticResource BooleanNegationConverter}}">
                         <ComboBox ItemsSource="{Binding ComicSources}" SelectedItem="{Binding DefaultComicSource}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="models:ComicSourceModel">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <ImageIcon
-                                            Width="22"
-                                            Height="22"
-                                            VerticalAlignment="Center"
-                                            Source="{x:Bind LogoUrl}" />
+                                        <ImageIcon Width="22"
+                                                   Height="22"
+                                                   VerticalAlignment="Center"
+                                                   Source="{x:Bind LogoUrl}" />
                                         <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
                                     </StackPanel>
                                 </DataTemplate>
@@ -228,16 +200,12 @@
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Span><Bold>About</Bold></Span>
                     </TextBlock>
-                    <toolkit:SettingsExpander
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                        Description="© 2026 TXG0Fk3. All rights reserved."
-                        Header="Yukari"
-                        HeaderIcon="{ui:BitmapIcon Source=ms-appx:///Assets/Square44x44Logo.altform-lightunplated_targetsize-32.png}">
-                        <TextBlock
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            IsTextSelectionEnabled="True"
-                            Text="Version 0.2.0-Alpha" />
+                    <toolkit:SettingsExpander HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              Description="© 2026 TXG0Fk3. All rights reserved."
+                                              Header="Yukari"
+                                              HeaderIcon="{ui:BitmapIcon Source=ms-appx:///Assets/Square44x44Logo.altform-lightunplated_targetsize-32.png}">
+                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" IsTextSelectionEnabled="True" Text="Version 0.2.0-Alpha" />
                         <toolkit:SettingsExpander.Items>
                             <toolkit:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
                                 <StackPanel Margin="-12,0,0,0" Orientation="Vertical">

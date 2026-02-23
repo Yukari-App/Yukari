@@ -1,123 +1,105 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Page
-    x:Class="Yukari.Views.Pages.ComicPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:converters="using:Yukari.Helpers.UI.Converters"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:Yukari.Views.Pages"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:system="using:System"
-    xmlns:ui="using:CommunityToolkit.WinUI"
-    xmlns:vmc="using:Yukari.ViewModels.Components"
-    mc:Ignorable="d">
+<Page x:Class="Yukari.Views.Pages.ComicPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:converters="using:Yukari.Helpers.UI.Converters"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:Yukari.Views.Pages"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:system="using:System"
+      xmlns:ui="using:CommunityToolkit.WinUI"
+      xmlns:vmc="using:Yukari.ViewModels.Components"
+      mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <DataTemplate x:Key="TagsTemplate" x:DataType="system:String">
-            <ItemContainer
-                Height="18"
-                Background="{StaticResource AccentFillColorDefaultBrush}"
-                CornerRadius="8"
-                ToolTipService.ToolTip="{x:Bind}">
-                <TextBlock
-                    Margin="5,0,5,0"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Center"
-                    FontSize="12"
-                    Foreground="{StaticResource TextOnAccentFillColorPrimaryBrush}"
-                    Style="{StaticResource CaptionTextBlockStyle}"
-                    Text="{x:Bind}" />
+            <ItemContainer Height="18"
+                           Background="{StaticResource AccentFillColorDefaultBrush}"
+                           CornerRadius="8"
+                           ToolTipService.ToolTip="{x:Bind}">
+                <TextBlock Margin="5,0,5,0"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           Foreground="{StaticResource TextOnAccentFillColorPrimaryBrush}"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Text="{x:Bind}" />
             </ItemContainer>
         </DataTemplate>
 
         <DataTemplate x:Key="ChaptersTemplate" x:DataType="vmc:ChapterItemViewModel">
-            <Button
-                Padding="6"
-                HorizontalAlignment="Stretch"
-                HorizontalContentAlignment="Stretch"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                Command="{x:Bind NavigateToReaderCommand}"
-                CommandParameter="{x:Bind Key}"
-                CornerRadius="4">
+            <Button Padding="6"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    Command="{x:Bind NavigateToReaderCommand}"
+                    CommandParameter="{x:Bind Key}"
+                    CornerRadius="4">
                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8">
                     <Grid Grid.Column="0" RowDefinitions="Auto, Auto, *">
-                        <TextBlock
-                            Grid.Row="0"
-                            FontSize="18"
-                            Style="{StaticResource BodyStrongTextBlockStyle}"
-                            Text="{x:Bind DisplayTitle}" />
-                        <TextBlock
-                            Grid.Row="1"
-                            FontSize="14"
-                            Text="{x:Bind Chapter.Groups}" />
-                        <TextBlock
-                            Grid.Row="2"
-                            VerticalAlignment="Bottom"
-                            FontSize="14"
-                            Text="{x:Bind Chapter.LastUpdate}" />
+                        <TextBlock Grid.Row="0"
+                                   FontSize="18"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Text="{x:Bind DisplayTitle}" />
+                        <TextBlock Grid.Row="1" FontSize="14" Text="{x:Bind Chapter.Groups}" />
+                        <TextBlock Grid.Row="2"
+                                   VerticalAlignment="Bottom"
+                                   FontSize="14"
+                                   Text="{x:Bind Chapter.LastUpdate}" />
                     </Grid>
-                    <StackPanel
-                        Grid.Column="1"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
-                        Orientation="Horizontal"
-                        Spacing="4">
-                        <ProgressRing
-                            Width="28"
-                            Height="28"
-                            Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
-                            IsIndeterminate="False"
-                            Visibility="{x:Bind IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
-                            Value="45" />
-                        <ToggleButton
-                            Width="32"
-                            Height="32"
-                            Padding="0"
-                            Background="Transparent"
-                            BorderBrush="Transparent"
-                            IsChecked="{x:Bind IsDownloaded, Mode=TwoWay}"
-                            Visibility="{x:Bind IsDownloadAvailable, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                    <StackPanel Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Orientation="Horizontal"
+                                Spacing="4">
+                        <ProgressRing Width="28"
+                                      Height="28"
+                                      Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+                                      IsIndeterminate="False"
+                                      Visibility="{x:Bind IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
+                                      Value="45" />
+                        <ToggleButton Width="32"
+                                      Height="32"
+                                      Padding="0"
+                                      Background="Transparent"
+                                      BorderBrush="Transparent"
+                                      IsChecked="{x:Bind IsDownloaded, Mode=TwoWay}"
+                                      Visibility="{x:Bind IsDownloadAvailable, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                             <FontIcon Glyph="{x:Bind DownloadIcon, Mode=OneWay}" />
                         </ToggleButton>
-                        <ToggleButton
-                            Width="32"
-                            Height="32"
-                            Padding="0"
-                            Background="Transparent"
-                            BorderBrush="Transparent"
-                            Command="{x:Bind ToggleReadCommand}"
-                            IsChecked="{x:Bind IsRead, Mode=TwoWay}">
+                        <ToggleButton Width="32"
+                                      Height="32"
+                                      Padding="0"
+                                      Background="Transparent"
+                                      BorderBrush="Transparent"
+                                      Command="{x:Bind ToggleReadCommand}"
+                                      IsChecked="{x:Bind IsRead, Mode=TwoWay}">
                             <FontIcon Glyph="{x:Bind ReadIcon, Mode=OneWay}" />
                         </ToggleButton>
-                        <Button
-                            Width="32"
-                            Height="32"
-                            Padding="0"
-                            Background="Transparent"
-                            BorderBrush="Transparent"
-                            Content="{ui:FontIcon Glyph=&#xE712;}">
+                        <Button Width="32"
+                                Height="32"
+                                Padding="0"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Content="{ui:FontIcon Glyph=&#xE712;}">
                             <Button.Flyout>
                                 <MenuFlyout Placement="Bottom">
                                     <MenuFlyoutItem Icon="Refresh" Text="Reset" />
                                     <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem
-                                        Command="{x:Bind MarkPreviousChaptersAsReadCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="{ui:FontIcon Glyph=&#xE890;}"
-                                        Text="Mark previous chapters as read" />
+                                    <MenuFlyoutItem Command="{x:Bind MarkPreviousChaptersAsReadCommand}"
+                                                    CommandParameter="{x:Bind}"
+                                                    Icon="{ui:FontIcon Glyph=&#xE890;}"
+                                                    Text="Mark previous chapters as read" />
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>
                     </StackPanel>
 
-                    <TextBlock
-                        Grid.Column="2"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom">
+                    <TextBlock Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                         <Run Text="{x:Bind LastPageRead, Mode=OneWay}" /><Run CharacterSpacing="0" Text="/" /><Run Text="{x:Bind Chapter.Pages}" />
                     </TextBlock>
                 </Grid>
@@ -126,37 +108,30 @@
     </Page.Resources>
 
     <Grid RowDefinitions="Auto, *">
-        <Grid
-            Grid.Row="0"
-            MaxWidth="1000"
-            Padding="20,14,36,16"
-            ColumnDefinitions="*, Auto"
-            ColumnSpacing="8">
-            <Grid
-                Grid.Column="0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                ColumnDefinitions="Auto, *"
-                ColumnSpacing="8">
-                <FontIcon
-                    Grid.Column="0"
-                    FontSize="24"
-                    Glyph="&#xE82D;" />
-                <TextBlock
-                    Grid.Column="1"
-                    VerticalAlignment="Center"
-                    Style="{StaticResource TitleTextBlockStyle}"
-                    Text="{Binding Comic.Title}"
-                    TextWrapping="NoWrap"
-                    ToolTipService.ToolTip="{Binding Comic.Title}" />
+        <Grid Grid.Row="0"
+              MaxWidth="1000"
+              Padding="20,14,36,16"
+              ColumnDefinitions="*, Auto"
+              ColumnSpacing="8">
+            <Grid Grid.Column="0"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Center"
+                  ColumnDefinitions="Auto, *"
+                  ColumnSpacing="8">
+                <FontIcon Grid.Column="0" FontSize="24" Glyph="&#xE82D;" />
+                <TextBlock Grid.Column="1"
+                           VerticalAlignment="Center"
+                           Style="{StaticResource TitleTextBlockStyle}"
+                           Text="{Binding Comic.Title}"
+                           TextWrapping="NoWrap"
+                           ToolTipService.ToolTip="{Binding Comic.Title}" />
             </Grid>
 
-            <StackPanel
-                Grid.Column="1"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center"
-                Orientation="Horizontal"
-                Spacing="4">
+            <StackPanel Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="4">
                 <Button IsEnabled="{Binding IsContinueEnabled}" Style="{StaticResource AccentButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="16" Glyph="&#xF5B0;" />
@@ -164,41 +139,32 @@
                     </StackPanel>
                 </Button>
 
-                <ToggleButton
-                    Width="32"
-                    Height="32"
-                    Padding="0"
-                    Background="Transparent"
-                    BorderBrush="Transparent"
-                    Command="{Binding ToggleFavoriteCommand}"
-                    IsChecked="{Binding IsFavorite, Mode=TwoWay}">
+                <ToggleButton Width="32"
+                              Height="32"
+                              Padding="0"
+                              Background="Transparent"
+                              BorderBrush="Transparent"
+                              Command="{Binding ToggleFavoriteCommand}"
+                              IsChecked="{Binding IsFavorite, Mode=TwoWay}">
                     <FontIcon Glyph="{Binding FavoriteIcon}" />
                 </ToggleButton>
 
-                <Button
-                    Width="32"
-                    Height="32"
-                    Padding="0"
-                    Background="Transparent"
-                    BorderBrush="Transparent"
-                    Content="{ui:FontIcon Glyph=&#xE712;}">
+                <Button Width="32"
+                        Height="32"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Content="{ui:FontIcon Glyph=&#xE712;}">
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
-                            <MenuFlyoutItem
-                                Icon="Pin"
-                                Text="Pin"
-                                Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <MenuFlyoutItem Icon="Pin" Text="Pin" Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <MenuFlyoutItem
-                                Command="{Binding UpdateCommand}"
-                                Icon="Refresh"
-                                Text="Update"
-                                Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <MenuFlyoutItem Command="{Binding UpdateCommand}"
+                                            Icon="Refresh"
+                                            Text="Update"
+                                            Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <MenuFlyoutItem
-                                Command="{Binding OpenInBrowserCommand}"
-                                Icon="Globe"
-                                Text="Open in browser" />
+                            <MenuFlyoutItem Command="{Binding OpenInBrowserCommand}" Icon="Globe" Text="Open in browser" />
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
@@ -207,75 +173,53 @@
 
 
         <ScrollViewer Grid.Row="1">
-            <Grid
-                MaxWidth="1000"
-                Padding="0,0,16,16"
-                RowDefinitions="Auto, Auto, Auto"
-                RowSpacing="16">
-                <Grid
-                    Grid.Row="0"
-                    HorizontalAlignment="Center"
-                    ColumnDefinitions="Auto, *"
-                    ColumnSpacing="16">
-                    <Border
-                        Grid.Column="0"
-                        MaxWidth="200"
-                        MaxHeight="280"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        CornerRadius="8">
+            <Grid MaxWidth="1000"
+                  Padding="0,0,16,16"
+                  RowDefinitions="Auto, Auto, Auto"
+                  RowSpacing="16">
+                <Grid Grid.Row="0"
+                      HorizontalAlignment="Center"
+                      ColumnDefinitions="Auto, *"
+                      ColumnSpacing="16">
+                    <Border Grid.Column="0"
+                            MaxWidth="200"
+                            MaxHeight="280"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            CornerRadius="8">
                         <Image Source="{Binding Comic.CoverImageUrl}" Stretch="Fill" />
                     </Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                VerticalAlignment="Center"
-                                FontSize="20"
-                                Glyph="&#xE716;" />
-                            <TextBlock
-                                VerticalAlignment="Center"
-                                FontSize="20"
-                                Style="{StaticResource TitleTextBlockStyle}"
-                                Text="Author(s)" />
+                            <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE716;" />
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="20"
+                                       Style="{StaticResource TitleTextBlockStyle}"
+                                       Text="Author(s)" />
                         </StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,12"
-                            FontSize="16"
-                            Text="{Binding Comic.Author}" />
+                        <TextBlock Margin="0,0,0,12" FontSize="16" Text="{Binding Comic.Author}" />
 
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                VerticalAlignment="Center"
-                                FontSize="20"
-                                Glyph="&#xE787;" />
-                            <TextBlock
-                                VerticalAlignment="Center"
-                                FontSize="20"
-                                Style="{StaticResource TitleTextBlockStyle}"
-                                Text="Published" />
+                            <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE787;" />
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="20"
+                                       Style="{StaticResource TitleTextBlockStyle}"
+                                       Text="Published" />
                         </StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,12"
-                            FontSize="16"
-                            Text="{Binding Comic.Year}" />
+                        <TextBlock Margin="0,0,0,12" FontSize="16" Text="{Binding Comic.Year}" />
 
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                VerticalAlignment="Center"
-                                FontSize="20"
-                                Glyph="&#xE8EC;" />
-                            <TextBlock
-                                VerticalAlignment="Center"
-                                FontSize="20"
-                                Style="{StaticResource TitleTextBlockStyle}"
-                                Text="Tags" />
+                            <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE8EC;" />
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="20"
+                                       Style="{StaticResource TitleTextBlockStyle}"
+                                       Text="Tags" />
                         </StackPanel>
-                        <ItemsView
-                            x:Name="BasicGridView"
-                            Margin="0,8,0,0"
-                            ItemTemplate="{StaticResource TagsTemplate}"
-                            ItemsSource="{Binding Comic.Tags}"
-                            SelectionMode="None">
+                        <ItemsView x:Name="BasicGridView"
+                                   Margin="0,8,0,0"
+                                   ItemTemplate="{StaticResource TagsTemplate}"
+                                   ItemsSource="{Binding Comic.Tags}"
+                                   SelectionMode="None">
                             <ItemsView.Layout>
                                 <LinedFlowLayout LineSpacing="5" MinItemSpacing="5" />
                             </ItemsView.Layout>
@@ -285,96 +229,63 @@
 
                 <StackPanel Grid.Row="1" Spacing="8">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon
-                            VerticalAlignment="Center"
-                            FontSize="20"
-                            Glyph="&#xE946;" />
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontSize="20"
-                            Style="{StaticResource TitleTextBlockStyle}"
-                            Text="Synopsis" />
+                        <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE946;" />
+                        <TextBlock VerticalAlignment="Center"
+                                   FontSize="20"
+                                   Style="{StaticResource TitleTextBlockStyle}"
+                                   Text="Synopsis" />
                     </StackPanel>
                     <ScrollViewer MaxHeight="120">
-                        <TextBlock
-                            FontSize="16"
-                            Style="{StaticResource BodyTextBlockStyle}"
-                            Text="{Binding Comic.Description}"
-                            TextAlignment="Justify"
-                            TextWrapping="WrapWholeWords" />
+                        <TextBlock FontSize="16"
+                                   Style="{StaticResource BodyTextBlockStyle}"
+                                   Text="{Binding Comic.Description}"
+                                   TextAlignment="Justify"
+                                   TextWrapping="WrapWholeWords" />
                     </ScrollViewer>
                 </StackPanel>
 
-                <Grid
-                    Grid.Row="2"
-                    RowDefinitions="Auto, *"
-                    RowSpacing="12">
-                    <Grid
-                        Grid.Row="0"
-                        ColumnDefinitions="*, Auto"
-                        ColumnSpacing="8">
-                        <StackPanel
-                            Grid.Column="0"
-                            Orientation="Horizontal"
-                            Spacing="8">
-                            <FontIcon
-                                VerticalAlignment="Center"
-                                FontSize="24"
-                                Glyph="&#xE736;" />
-                            <TextBlock
-                                VerticalAlignment="Center"
-                                FontSize="24"
-                                Style="{StaticResource TitleTextBlockStyle}"
-                                Text="Chapters" />
+                <Grid Grid.Row="2" RowDefinitions="Auto, *" RowSpacing="12">
+                    <Grid Grid.Row="0" ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                            <FontIcon VerticalAlignment="Center" FontSize="24" Glyph="&#xE736;" />
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="24"
+                                       Style="{StaticResource TitleTextBlockStyle}"
+                                       Text="Chapters" />
                         </StackPanel>
 
-                        <StackPanel
-                            Grid.Column="1"
-                            Orientation="Horizontal"
-                            Spacing="4">
-                            <ProgressRing
-                                Width="28"
-                                Height="28"
-                                Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
-                                IsIndeterminate="False"
-                                Visibility="{Binding IsDownloadingAllChapters, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                Value="45" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                            <ProgressRing Width="28"
+                                          Height="28"
+                                          Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+                                          IsIndeterminate="False"
+                                          Visibility="{Binding IsDownloadingAllChapters, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                          Value="45" />
 
-                            <ToggleButton
-                                IsChecked="{Binding IsAllChaptersDownloaded, Mode=TwoWay}"
-                                IsEnabled="{Binding IsDownloadAvailable}"
-                                Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ToggleButton IsChecked="{Binding IsAllChaptersDownloaded, Mode=TwoWay}" IsEnabled="{Binding IsDownloadAvailable}" Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon FontSize="16" Glyph="{Binding DownloadAllIcon}" />
                                     <TextBlock Text="{Binding DownloadAllText}" />
                                 </StackPanel>
                             </ToggleButton>
 
-                            <ComboBox
-                                DisplayMemberPath="DisplayName"
-                                IsEnabled="{Binding IsLanguageSelectionAvailable}"
-                                ItemsSource="{Binding Comic.Langs}"
-                                SelectedValue="{Binding SelectedLang, Mode=TwoWay}"
-                                SelectedValuePath="Key" />
+                            <ComboBox DisplayMemberPath="DisplayName"
+                                      IsEnabled="{Binding IsLanguageSelectionAvailable}"
+                                      ItemsSource="{Binding Comic.Langs}"
+                                      SelectedValue="{Binding SelectedLang, Mode=TwoWay}"
+                                      SelectedValuePath="Key" />
 
-                            <Button
-                                Width="32"
-                                Height="32"
-                                Padding="0"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                Content="{ui:FontIcon Glyph=&#xE712;}"
-                                IsEnabled="{Binding IsChapterOptionsAvailable}">
+                            <Button Width="32"
+                                    Height="32"
+                                    Padding="0"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Content="{ui:FontIcon Glyph=&#xE712;}"
+                                    IsEnabled="{Binding IsChapterOptionsAvailable}">
                                 <Button.Flyout>
                                     <MenuFlyout Placement="Bottom">
-                                        <MenuFlyoutItem
-                                            Command="{Binding MarkAllAsReadCommand}"
-                                            Icon="{ui:FontIcon Glyph=&#xE890;}"
-                                            Text="Mark all as read" />
-                                        <MenuFlyoutItem
-                                            Command="{Binding MarkAllAsUnreadCommand}"
-                                            Icon="{ui:FontIcon Glyph=&#xED1A;}"
-                                            Text="Mark all as unread" />
+                                        <MenuFlyoutItem Command="{Binding MarkAllAsReadCommand}" Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark all as read" />
+                                        <MenuFlyoutItem Command="{Binding MarkAllAsUnreadCommand}" Icon="{ui:FontIcon Glyph=&#xED1A;}" Text="Mark all as unread" />
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem Icon="Refresh" Text="Reset all" />
                                     </MenuFlyout>
@@ -384,28 +295,25 @@
 
                     </Grid>
 
-                    <ProgressRing
-                        Grid.Row="1"
-                        Width="40"
-                        Height="40"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        IsActive="{Binding IsChaptersLoading}"
-                        Visibility="{Binding IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <ProgressRing Grid.Row="1"
+                                  Width="40"
+                                  Height="40"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  IsActive="{Binding IsChaptersLoading}"
+                                  Visibility="{Binding IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                    <TextBlock
-                        Grid.Row="1"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource BodyLargeStrongTextBlockStyle}"
-                        Text="No chapters found in this language."
-                        Visibility="{Binding NoChapters, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <TextBlock Grid.Row="1"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource BodyLargeStrongTextBlockStyle}"
+                               Text="No chapters found in this language."
+                               Visibility="{Binding NoChapters, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                    <ItemsRepeater
-                        Grid.Row="1"
-                        ItemTemplate="{StaticResource ChaptersTemplate}"
-                        ItemsSource="{Binding Chapters}"
-                        Visibility="{Binding IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />
+                    <ItemsRepeater Grid.Row="1"
+                                   ItemTemplate="{StaticResource ChaptersTemplate}"
+                                   ItemsSource="{Binding Chapters}"
+                                   Visibility="{Binding IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />
                 </Grid>
             </Grid>
         </ScrollViewer>

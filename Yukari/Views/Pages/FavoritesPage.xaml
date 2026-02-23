@@ -1,58 +1,48 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Page
-    x:Class="Yukari.Views.Pages.FavoritesPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:converters="using:Yukari.Helpers.UI.Converters"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:Yukari.Views.Pages"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ui="using:CommunityToolkit.WinUI"
-    xmlns:vmc="using:Yukari.ViewModels.Components"
-    mc:Ignorable="d">
+<Page x:Class="Yukari.Views.Pages.FavoritesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:converters="using:Yukari.Helpers.UI.Converters"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:Yukari.Views.Pages"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="using:CommunityToolkit.WinUI"
+      xmlns:vmc="using:Yukari.ViewModels.Components"
+      mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <DataTemplate x:Key="ComicTemplate" x:DataType="vmc:ComicItemViewModel">
-            <Grid
-                Width="200"
-                Height="280"
-                Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+            <Grid Width="200" Height="280" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
                 <Image Stretch="UniformToFill">
                     <Image.Source>
-                        <BitmapImage
-                            DecodePixelType="Logical"
-                            DecodePixelWidth="200"
-                            UriSource="{x:Bind Comic.CoverImageUrl, Mode=OneTime}" />
+                        <BitmapImage DecodePixelType="Logical" DecodePixelWidth="200" UriSource="{x:Bind Comic.CoverImageUrl, Mode=OneTime}" />
                     </Image.Source>
                 </Image>
 
-                <Grid
-                    Height="30"
-                    Margin="2"
-                    Padding="8,0,4,0"
-                    VerticalAlignment="Bottom"
-                    Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
-                    ColumnDefinitions="*, Auto"
-                    ColumnSpacing="4"
-                    CornerRadius="4">
-                    <TextBlock
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Text="{x:Bind Comic.Title, Mode=OneTime}"
-                        ToolTipService.ToolTip="{x:Bind Comic.Title, Mode=OneTime}" />
+                <Grid Height="30"
+                      Margin="2"
+                      Padding="8,0,4,0"
+                      VerticalAlignment="Bottom"
+                      Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+                      ColumnDefinitions="*, Auto"
+                      ColumnSpacing="4"
+                      CornerRadius="4">
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Text="{x:Bind Comic.Title, Mode=OneTime}"
+                               ToolTipService.ToolTip="{x:Bind Comic.Title, Mode=OneTime}" />
 
-                    <Button
-                        Grid.Column="1"
-                        Width="28"
-                        Height="24"
-                        Padding="0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Content="{ui:FontIcon Glyph=&#xE712;}">
+                    <Button Grid.Column="1"
+                            Width="28"
+                            Height="24"
+                            Padding="0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Content="{ui:FontIcon Glyph=&#xE712;}">
                         <Button.Flyout>
                             <MenuFlyout>
                                 <MenuFlyoutItem Command="{x:Bind TogglePinCommand}" Text="{x:Bind PinText}">
@@ -73,28 +63,22 @@
     </Page.Resources>
 
     <Grid RowDefinitions="Auto, *">
-        <Grid
-            Grid.Row="0"
-            Padding="20,14,36,16"
-            ColumnDefinitions="Auto, *, Auto">
-            <StackPanel
-                Grid.Column="0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                Orientation="Horizontal">
+        <Grid Grid.Row="0" Padding="20,14,36,16" ColumnDefinitions="Auto, *, Auto">
+            <StackPanel Grid.Column="0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
                 <FontIcon FontSize="24" Glyph="&#xE734;" />
-                <TextBlock
-                    Margin="8,0,0,0"
-                    VerticalAlignment="Center"
-                    Style="{StaticResource TitleTextBlockStyle}"
-                    Text="Favorites" />
+                <TextBlock Margin="8,0,0,0"
+                           VerticalAlignment="Center"
+                           Style="{StaticResource TitleTextBlockStyle}"
+                           Text="Favorites" />
             </StackPanel>
 
-            <StackPanel
-                Grid.Column="2"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center"
-                Orientation="Horizontal">
+            <StackPanel Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
 
                 <DropDownButton Background="Transparent" BorderBrush="Transparent">
                     <DropDownButton.Content>
@@ -103,51 +87,36 @@
                     <DropDownButton.Flyout>
                         <MenuFlyout Placement="Bottom">
 
-                            <RadioMenuFlyoutItem
-                                GroupName="Classification"
-                                Icon="{ui:FontIcon Glyph=&#xE97E;}"
-                                IsChecked="True"
-                                Text="Alphabetical" />
+                            <RadioMenuFlyoutItem GroupName="Classification"
+                                                 Icon="{ui:FontIcon Glyph=&#xE97E;}"
+                                                 IsChecked="True"
+                                                 Text="Alphabetical" />
 
-                            <RadioMenuFlyoutItem
-                                GroupName="Classification"
-                                Icon="{ui:FontIcon Glyph=&#xE823;}"
-                                Text="Last read" />
+                            <RadioMenuFlyoutItem GroupName="Classification" Icon="{ui:FontIcon Glyph=&#xE823;}" Text="Last read" />
 
-                            <RadioMenuFlyoutItem
-                                GroupName="Classification"
-                                Icon="{ui:FontIcon Glyph=&#xE895;}"
-                                Text="Recently updated" />
+                            <RadioMenuFlyoutItem GroupName="Classification" Icon="{ui:FontIcon Glyph=&#xE895;}" Text="Recently updated" />
 
                             <MenuFlyoutSeparator />
 
-                            <RadioMenuFlyoutItem
-                                GroupName="Orientation"
-                                Icon="Up"
-                                Text="Ascendant" />
+                            <RadioMenuFlyoutItem GroupName="Orientation" Icon="Up" Text="Ascendant" />
 
-                            <RadioMenuFlyoutItem
-                                GroupName="Orientation"
-                                Icon="{ui:FontIcon Glyph=&#xE74B;}"
-                                IsChecked="True"
-                                Text="Descending" />
+                            <RadioMenuFlyoutItem GroupName="Orientation"
+                                                 Icon="{ui:FontIcon Glyph=&#xE74B;}"
+                                                 IsChecked="True"
+                                                 Text="Descending" />
 
                         </MenuFlyout>
                     </DropDownButton.Flyout>
                 </DropDownButton>
 
-                <DropDownButton
-                    Background="Transparent"
-                    BorderBrush="Transparent"
-                    Content="{ui:FontIcon Glyph=&#xE71C;}">
+                <DropDownButton Background="Transparent" BorderBrush="Transparent" Content="{ui:FontIcon Glyph=&#xE71C;}">
                     <DropDownButton.Flyout>
                         <MenuFlyout Placement="Bottom">
 
-                            <RadioMenuFlyoutItem
-                                GroupName="Filter"
-                                Icon="AllApps"
-                                IsChecked="True"
-                                Text="All" />
+                            <RadioMenuFlyoutItem GroupName="Filter"
+                                                 Icon="AllApps"
+                                                 IsChecked="True"
+                                                 Text="All" />
 
                             <RadioMenuFlyoutItem GroupName="Filter" Text="Action" />
                             <RadioMenuFlyoutItem GroupName="Filter" Text="Horror" />
@@ -163,28 +132,25 @@
             </StackPanel>
         </Grid>
 
-        <ProgressRing
-            Grid.Row="1"
-            Width="60"
-            Height="60"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            IsActive="{Binding IsContentLoading}"
-            Visibility="{Binding IsContentLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <ProgressRing Grid.Row="1"
+                      Width="60"
+                      Height="60"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      IsActive="{Binding IsContentLoading}"
+                      Visibility="{Binding IsContentLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-        <TextBlock
-            Grid.Row="1"
-            HorizontalAlignment="Center"
-            Style="{StaticResource BodyLargeStrongTextBlockStyle}"
-            Text="No favorites found."
-            Visibility="{Binding NoFavorites, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <TextBlock Grid.Row="1"
+                   HorizontalAlignment="Center"
+                   Style="{StaticResource BodyLargeStrongTextBlockStyle}"
+                   Text="No favorites found."
+                   Visibility="{Binding NoFavorites, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-        <GridView
-            Grid.Row="1"
-            IsItemClickEnabled="True"
-            ItemClick="GridView_ItemClick"
-            ItemTemplate="{StaticResource ComicTemplate}"
-            ItemsSource="{Binding FavoriteComics}"
-            SelectionMode="None" />
+        <GridView Grid.Row="1"
+                  IsItemClickEnabled="True"
+                  ItemClick="GridView_ItemClick"
+                  ItemTemplate="{StaticResource ComicTemplate}"
+                  ItemsSource="{Binding FavoriteComics}"
+                  SelectionMode="None" />
     </Grid>
 </Page>
