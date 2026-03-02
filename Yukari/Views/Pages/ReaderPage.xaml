@@ -67,15 +67,15 @@
                         Orientation="Horizontal"
                         Spacing="4">
 
-                <Button Command="{Binding PreviousChapterCommand}"
+                <Button Command="{Binding ForwardNavigationButtonCommand}"
                         Content="{ui:FontIcon Glyph=&#xE76B;}"
                         Style="{StaticResource TitleBarButtonStyle}"
-                        ToolTipService.ToolTip="Previous Chapter" />
+                        ToolTipService.ToolTip="{Binding ForwardNavigationButtonToolTip}" />
 
-                <Button Command="{Binding NextChapterCommand}"
+                <Button Command="{Binding BackwardNavigationButtonCommand}"
                         Content="{ui:FontIcon Glyph=&#xE76C;}"
                         Style="{StaticResource TitleBarButtonStyle}"
-                        ToolTipService.ToolTip="Next Chapter" />
+                        ToolTipService.ToolTip="{Binding BackwardNavigationButtonToolTip}" />
 
                 <AppBarSeparator Grid.Column="6" />
 

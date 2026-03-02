@@ -46,7 +46,25 @@ namespace Yukari.ViewModels.Pages
         public partial int CurrentPageIndex { get; set; } = 0;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(
+            nameof(ForwardNavigationButtonCommand),
+            nameof(BackwardNavigationButtonCommand),
+            nameof(ForwardNavigationButtonToolTip),
+            nameof(BackwardNavigationButtonToolTip)
+        )]
         public partial ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
+
+        public IRelayCommand ForwardNavigationButtonCommand =>
+            ReadingMode == ReadingMode.RightToLeft ? NextChapterCommand : PreviousChapterCommand;
+
+        public IRelayCommand BackwardNavigationButtonCommand =>
+            ReadingMode == ReadingMode.RightToLeft ? PreviousChapterCommand : NextChapterCommand;
+
+        public string ForwardNavigationButtonToolTip =>
+            ReadingMode == ReadingMode.RightToLeft ? "Next Chapter" : "Previous Chapter";
+
+        public string BackwardNavigationButtonToolTip =>
+            ReadingMode == ReadingMode.RightToLeft ? "Previous Chapter" : "Next Chapter";
 
         [ObservableProperty]
         public partial ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
