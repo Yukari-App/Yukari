@@ -45,23 +45,23 @@ namespace Yukari.ViewModels.Pages
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(
-            nameof(ForwardNavigationButtonCommand),
-            nameof(BackwardNavigationButtonCommand),
-            nameof(ForwardNavigationButtonToolTip),
-            nameof(BackwardNavigationButtonToolTip)
+            nameof(ForwardChapterNavigationButtonCommand),
+            nameof(BackwardChapterNavigationButtonCommand),
+            nameof(ForwardChapterNavigationButtonToolTip),
+            nameof(BackwardChapterNavigationButtonToolTip),
         )]
         public partial ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
 
-        public IRelayCommand ForwardNavigationButtonCommand =>
+        public IRelayCommand ForwardChapterNavigationButtonCommand =>
             ReadingMode == ReadingMode.RightToLeft ? NextChapterCommand : PreviousChapterCommand;
 
-        public IRelayCommand BackwardNavigationButtonCommand =>
+        public IRelayCommand BackwardChapterNavigationButtonCommand =>
             ReadingMode == ReadingMode.RightToLeft ? PreviousChapterCommand : NextChapterCommand;
 
-        public string ForwardNavigationButtonToolTip =>
+        public string ForwardChapterNavigationButtonToolTip =>
             ReadingMode == ReadingMode.RightToLeft ? "Next Chapter" : "Previous Chapter";
 
-        public string BackwardNavigationButtonToolTip =>
+        public string BackwardChapterNavigationButtonToolTip =>
             ReadingMode == ReadingMode.RightToLeft ? "Previous Chapter" : "Next Chapter";
 
         [ObservableProperty]
@@ -144,20 +144,20 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand]
         public void GoBack() => _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
 
-        private bool CanGoToNext() =>
+        private bool CanGoToNextChapter() =>
             _chapters != null && !IsLoading && _currentChapterIndex < _chapters.Length - 1;
 
-        [RelayCommand(CanExecute = nameof(CanGoToNext))]
+        [RelayCommand(CanExecute = nameof(CanGoToNextChapter))]
         public async Task NextChapter()
         {
             _currentChapterIndex++;
             await UpdateCurrentChapter();
         }
 
-        private bool CanGoToPrevious() =>
+        private bool CanGoToPreviousChapter() =>
             _chapters != null && !IsLoading && _currentChapterIndex > 0;
 
-        [RelayCommand(CanExecute = nameof(CanGoToPrevious))]
+        [RelayCommand(CanExecute = nameof(CanGoToPreviousChapter))]
         public async Task PreviousChapter()
         {
             _currentChapterIndex--;
