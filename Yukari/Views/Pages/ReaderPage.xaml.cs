@@ -56,7 +56,7 @@ namespace Yukari.Views.Pages
             var pageScrollViewer = (sender as ScrollViewer)!;
             var properties = e.GetCurrentPoint(null).Properties;
 
-            if (properties.IsLeftButtonPressed && pageScrollViewer.ZoomFactor > 1.0f)
+            if (properties.IsLeftButtonPressed && CanPan(pageScrollViewer))
             {
                 _isDragging = true;
                 _lastMousePosition = e.GetCurrentPoint(null).Position;
@@ -103,7 +103,7 @@ namespace Yukari.Views.Pages
 
         private void UpdateCursor(ScrollViewer sv)
         {
-            if (sv.ZoomFactor > 1.0f)
+            if (CanPan(sv))
             {
                 ProtectedCursor = _isDragging
                     ? InputSystemCursor.Create(InputSystemCursorShape.SizeAll)
@@ -113,6 +113,16 @@ namespace Yukari.Views.Pages
             {
                 ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
             }
+        }
+
+        private bool CanPan(ScrollViewer sv)
+        {
+            bool canHorizontallyScroll =
+                sv.ScrollableWidth > 0 || sv.ExtentWidth > sv.ViewportWidth;
+            bool canVerticallyScroll =
+                sv.ScrollableHeight > 0 || sv.ExtentHeight > sv.ViewportHeight;
+
+            return canHorizontallyScroll || canVerticallyScroll || sv.ZoomFactor > 1.0f;
         }
 
         private void Page_ImageOpened(object sender, RoutedEventArgs e)
