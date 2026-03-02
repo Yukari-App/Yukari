@@ -38,9 +38,11 @@ namespace Yukari.ViewModels.Pages
         public partial ChapterModel? CurrentChapter { get; set; }
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(NextPageCommand), nameof(PreviousPageCommand))]
         public partial List<ChapterPageItemViewModel>? ChapterPages { get; set; }
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(NextPageCommand), nameof(PreviousPageCommand))]
         public partial int CurrentPageIndex { get; set; } = 0;
 
         [ObservableProperty]
@@ -49,6 +51,10 @@ namespace Yukari.ViewModels.Pages
             nameof(BackwardChapterNavigationButtonCommand),
             nameof(ForwardChapterNavigationButtonToolTip),
             nameof(BackwardChapterNavigationButtonToolTip),
+            nameof(IsHorizontalPageNavigationButtonsVisible),
+            nameof(IsVerticalPageNavigationButtonsVisible),
+            nameof(ForwardPageNavigationButtonCommand),
+            nameof(BackwardPageNavigationButtonCommand)
         )]
         public partial ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
 
@@ -63,6 +69,17 @@ namespace Yukari.ViewModels.Pages
 
         public string BackwardChapterNavigationButtonToolTip =>
             ReadingMode == ReadingMode.RightToLeft ? "Previous Chapter" : "Next Chapter";
+
+        public bool IsHorizontalPageNavigationButtonsVisible =>
+            ReadingMode is ReadingMode.RightToLeft or ReadingMode.LeftToRight;
+
+        public bool IsVerticalPageNavigationButtonsVisible => ReadingMode == ReadingMode.Vertical;
+
+        public IRelayCommand ForwardPageNavigationButtonCommand =>
+            ReadingMode == ReadingMode.RightToLeft ? NextPageCommand : PreviousPageCommand;
+
+        public IRelayCommand BackwardPageNavigationButtonCommand =>
+            ReadingMode == ReadingMode.RightToLeft ? PreviousPageCommand : NextPageCommand;
 
         [ObservableProperty]
         public partial ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
@@ -163,6 +180,17 @@ namespace Yukari.ViewModels.Pages
             _currentChapterIndex--;
             await UpdateCurrentChapter();
         }
+
+        private bool CanGoToNextPage() =>
+            ChapterPages != null && CurrentPageIndex < ChapterPages.Count - 1;
+
+        [RelayCommand(CanExecute = nameof(CanGoToNextPage))]
+        public async Task NextPage() => CurrentPageIndex++;
+
+        private bool CanGoToPreviousPage() => ChapterPages != null && CurrentPageIndex > 0;
+
+        [RelayCommand(CanExecute = nameof(CanGoToPreviousPage))]
+        public async Task PreviousPage() => CurrentPageIndex--;
 
         [RelayCommand]
         private void SetReadingMode(string mode) => ReadingMode = Enum.Parse<ReadingMode>(mode);

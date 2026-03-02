@@ -23,10 +23,21 @@
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="Padding" Value="0" />
         </Style>
+
+        <Style x:Key="PageNavigationButtonStyle" BasedOn="{StaticResource DefaultButtonStyle}" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
     </Page.Resources>
 
 
     <Grid RowDefinitions="Auto, *">
+        <Grid.Resources>
+            <Color x:Key="ButtonBackgroundDisabled">Transparent</Color>
+            <Color x:Key="ButtonBorderBrushDisabled">Transparent</Color>
+        </Grid.Resources>
         <Grid x:Name="AppTitleBar"
               Grid.Row="0"
               Height="48"
@@ -35,10 +46,6 @@
               VerticalAlignment="Top"
               AutomationProperties.AutomationId="AppTitleBar"
               ColumnDefinitions="Auto, Auto, Auto, Auto, *, Auto, 144">
-            <Grid.Resources>
-                <Color x:Key="ButtonBackgroundDisabled">Transparent</Color>
-                <Color x:Key="ButtonBorderBrushDisabled">Transparent</Color>
-            </Grid.Resources>
 
             <Button Grid.Column="0"
                     Command="{Binding GoBackCommand}"
@@ -177,7 +184,7 @@
                     <DataTemplate x:DataType="vmc:ChapterPageItemViewModel">
                         <ScrollViewer x:Name="PageScrollViewer"
                                       FlowDirection="LeftToRight"
-                                      HorizontalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Hidden"
                                       HorizontalScrollMode="Auto"
                                       MinZoomFactor="1"
                                       PointerEntered="PageScrollViewer_PointerEntered"
@@ -185,7 +192,7 @@
                                       PointerMoved="PageScrollViewer_PointerMoved"
                                       PointerPressed="PageScrollViewer_PointerPressed"
                                       PointerReleased="PageScrollViewer_PointerReleased"
-                                      VerticalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Hidden"
                                       VerticalScrollMode="Auto"
                                       ViewChanged="PageScrollViewer_ViewChanged"
                                       ZoomMode="Enabled">
@@ -232,6 +239,43 @@
                     </DataTemplate>
                 </FlipView.ItemTemplate>
             </FlipView>
+
+            <Button x:Name="LeftEdgeButton"
+                    Grid.Row="1"
+                    Width="48"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch"
+                    Command="{Binding ForwardPageNavigationButtonCommand}"
+                    Content="{ui:FontIcon Glyph=&#xE96F;}"
+                    Style="{StaticResource PageNavigationButtonStyle}"
+                    Visibility="{Binding IsHorizontalPageNavigationButtonsVisible}" />
+            <Button x:Name="RightEdgeButton"
+                    Grid.Row="1"
+                    Width="48"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Stretch"
+                    Command="{Binding BackwardPageNavigationButtonCommand}"
+                    Content="{ui:FontIcon Glyph=&#xE970;}"
+                    Style="{StaticResource PageNavigationButtonStyle}"
+                    Visibility="{Binding IsHorizontalPageNavigationButtonsVisible}" />
+            <Button x:Name="TopEdgeButton"
+                    Grid.Row="1"
+                    Height="48"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Top"
+                    Command="{Binding ForwardPageNavigationButtonCommand}"
+                    Content="{ui:FontIcon Glyph=&#xE96D;}"
+                    Style="{StaticResource PageNavigationButtonStyle}"
+                    Visibility="{Binding IsVerticalPageNavigationButtonsVisible}" />
+            <Button x:Name="BottomEdgeButton"
+                    Grid.Row="1"
+                    Height="48"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Bottom"
+                    Command="{Binding BackwardPageNavigationButtonCommand}"
+                    Content="{ui:FontIcon Glyph=&#xE96E;}"
+                    Style="{StaticResource PageNavigationButtonStyle}"
+                    Visibility="{Binding IsVerticalPageNavigationButtonsVisible}" />
         </Grid>
     </Grid>
 </Page>
