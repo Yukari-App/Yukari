@@ -146,6 +146,33 @@
                     </ItemsPanelTemplate>
                 </FlipView.ItemsPanel>
 
+                <FlipView.Template>
+                    <ControlTemplate TargetType="FlipView">
+                        <Grid Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer x:Name="ScrollingHost"
+                                          Padding="{TemplateBinding Padding}"
+                                          AutomationProperties.AccessibilityView="Raw"
+                                          BringIntoViewOnFocusChange="{TemplateBinding ScrollViewer.BringIntoViewOnFocusChange}"
+                                          HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                          HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
+                                          HorizontalSnapPointsType="MandatorySingle"
+                                          IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
+                                          IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
+                                          IsHorizontalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsHorizontalScrollChainingEnabled}"
+                                          IsTabStop="False"
+                                          IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
+                                          IsVerticalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsVerticalScrollChainingEnabled}"
+                                          TabNavigation="{TemplateBinding TabNavigation}"
+                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                          VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
+                                          VerticalSnapPointsType="MandatorySingle"
+                                          ZoomMode="Disabled">
+                                <ItemsPresenter />
+                            </ScrollViewer>
+                        </Grid>
+                    </ControlTemplate>
+                </FlipView.Template>
+
                 <FlipView.ItemTemplate>
                     <DataTemplate x:DataType="vmc:ChapterPageItemViewModel">
                         <ScrollViewer x:Name="PageScrollViewer"
