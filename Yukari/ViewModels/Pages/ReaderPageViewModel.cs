@@ -33,10 +33,8 @@ namespace Yukari.ViewModels.Pages
         [ObservableProperty]
         public partial string? ChapterTitle { get; set; }
 
-        [
-            ObservableProperty,
-            NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))
-        ]
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))]
         public partial ChapterModel? CurrentChapter { get; set; }
 
         [ObservableProperty]
@@ -69,10 +67,8 @@ namespace Yukari.ViewModels.Pages
         [ObservableProperty]
         public partial ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
 
-        [
-            ObservableProperty,
-            NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))
-        ]
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))]
         public partial bool IsLoading { get; set; } = true;
 
         public ReaderPageViewModel(
