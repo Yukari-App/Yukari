@@ -78,7 +78,6 @@
                         Content="{ui:FontIcon Glyph=&#xE76B;}"
                         Style="{StaticResource TitleBarButtonStyle}"
                         ToolTipService.ToolTip="{Binding ForwardChapterNavigationButtonToolTip}" />
-
                 <Button Command="{Binding BackwardChapterNavigationButtonCommand}"
                         Content="{ui:FontIcon Glyph=&#xE76C;}"
                         Style="{StaticResource TitleBarButtonStyle}"
@@ -138,10 +137,9 @@
 
                 <AppBarSeparator Grid.Column="6" />
             </StackPanel>
-
         </Grid>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Loaded="ContentSection_Loaded" SizeChanged="ContentSection_SizeChanged">
             <FlipView x:Name="PagesFlipView"
                       Background="Transparent"
                       FlowDirection="{Binding ReadingMode, Converter={StaticResource ReadingModeToFlowDirectionConverter}}"
@@ -197,11 +195,7 @@
                                       ViewChanged="PageScrollViewer_ViewChanged"
                                       ZoomMode="Enabled">
 
-                            <Grid MaxWidth="{Binding ElementName=PageScrollViewer, Path=ViewportWidth}"
-                                  MaxHeight="{Binding ElementName=PageScrollViewer, Path=ViewportHeight}"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center">
-
+                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <ProgressRing Width="45"
                                               Height="45"
                                               HorizontalAlignment="Center"
@@ -226,14 +220,15 @@
                                     </Button>
                                 </StackPanel>
 
-                                <Image HorizontalAlignment="Center"
+                                <Image MaxWidth="{x:Bind PageMaxWidth, Mode=OneWay}"
+                                       MaxHeight="{x:Bind PageMaxHeight, Mode=OneWay}"
+                                       HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        ImageFailed="Page_ImageFailed"
                                        ImageOpened="Page_ImageOpened"
                                        Source="{Binding ImageUrl}"
                                        Stretch="Uniform"
                                        Visibility="{x:Bind HasError, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
-
                             </Grid>
                         </ScrollViewer>
                     </DataTemplate>

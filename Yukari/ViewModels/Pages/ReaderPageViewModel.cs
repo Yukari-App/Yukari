@@ -26,6 +26,7 @@ namespace Yukari.ViewModels.Pages
         private ChapterAggregate[]? _chapters;
 
         private int _currentChapterIndex = -1;
+        private (double Width, double Height) ScreenSize = (0, 0);
 
         [ObservableProperty]
         public partial string? ComicTitle { get; set; }
@@ -150,7 +151,11 @@ namespace Yukari.ViewModels.Pages
             );
             if (pagesResult.IsSuccess)
                 ChapterPages = pagesResult
-                    .Value!.Select(pageModel => new ChapterPageItemViewModel(pageModel))
+                    .Value!.Select(pageModel => new ChapterPageItemViewModel(pageModel)
+                    {
+                        ScreenSize = ScreenSize,
+                        ScalingMode = ScalingMode,
+                    })
                     .ToList();
             else
                 _notificationService.ShowError("Failed to load chapter pages.");
@@ -198,6 +203,16 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand]
         private void SetScalingMode(string mode) => ScalingMode = Enum.Parse<ScalingMode>(mode);
 
+        [RelayCommand]
+        private void SetScreenSize((double width, double height) size)
+        {
+            ScreenSize = size;
+            ChapterPages?.ForEach(page =>
+            {
+                page.ScreenSize = size;
+            });
+        }
+
         private async Task TriggerErrorAndReturn(string errorMessage)
         {
             _notificationService.ShowError(errorMessage);
@@ -217,5 +232,8 @@ namespace Yukari.ViewModels.Pages
             await Task.Delay(1);
             CurrentPageIndex = backupCurrentPage;
         }
+
+        async partial void OnScalingModeChanged(ScalingMode value) =>
+            ChapterPages?.ForEach(page => page.ScalingMode = value);
     }
 }

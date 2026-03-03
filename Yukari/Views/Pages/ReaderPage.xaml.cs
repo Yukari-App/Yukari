@@ -40,6 +40,23 @@ namespace Yukari.Views.Pages
             }
         }
 
+        private void ContentSection_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is Grid grid)
+                UpdateScreenSize(grid.ActualWidth, grid.ActualHeight);
+        }
+
+        private void ContentSection_SizeChanged(object sender, SizeChangedEventArgs e) =>
+            UpdateScreenSize(e.NewSize.Width, e.NewSize.Height);
+
+        private void UpdateScreenSize(double width, double height)
+        {
+            if (DataContext is ReaderPageViewModel vm)
+                vm.SetScreenSizeCommand.Execute((width, height));
+        }
+
+        // FlipView ItemTemplate Controls Handlers
+
         private void PageScrollViewer_PointerEntered(object sender, PointerRoutedEventArgs e) =>
             UpdateCursor((sender as ScrollViewer)!);
 
