@@ -86,7 +86,7 @@ namespace Yukari.ViewModels.Components
         }
 
         [RelayCommand]
-        public async Task ToggleRead()
+        private async Task ToggleRead()
         {
             var chapterUserData = new ChapterUserData
             {

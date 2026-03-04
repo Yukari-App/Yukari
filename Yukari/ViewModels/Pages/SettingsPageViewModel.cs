@@ -38,7 +38,7 @@ namespace Yukari.ViewModels.Pages
         }
 
         [RelayCommand]
-        public async Task AddComicSourceAsync()
+        private async Task AddComicSourceAsync()
         {
             var pluginPath = await _dialogService.OpenFilePickerAsync(".dll");
             if (pluginPath == null)

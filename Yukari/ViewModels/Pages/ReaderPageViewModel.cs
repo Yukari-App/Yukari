@@ -174,7 +174,7 @@ namespace Yukari.ViewModels.Pages
         }
 
         [RelayCommand]
-        public async Task GoBack()
+        private async Task GoBack()
         {
             await SaveChapterProgress();
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
@@ -184,7 +184,7 @@ namespace Yukari.ViewModels.Pages
             _chapters != null && !IsLoading && _currentChapterIndex < _chapters.Length - 1;
 
         [RelayCommand(CanExecute = nameof(CanGoToNextChapter))]
-        public async Task NextChapter()
+        private async Task NextChapter()
         {
             await SaveChapterProgress();
 
@@ -196,7 +196,7 @@ namespace Yukari.ViewModels.Pages
             _chapters != null && !IsLoading && _currentChapterIndex > 0;
 
         [RelayCommand(CanExecute = nameof(CanGoToPreviousChapter))]
-        public async Task PreviousChapter()
+        private async Task PreviousChapter()
         {
             await SaveChapterProgress();
 
@@ -208,12 +208,12 @@ namespace Yukari.ViewModels.Pages
             ChapterPages != null && CurrentPageIndex < ChapterPages.Count - 1;
 
         [RelayCommand(CanExecute = nameof(CanGoToNextPage))]
-        public async Task NextPage() => CurrentPageIndex++;
+        private async Task NextPage() => CurrentPageIndex++;
 
         private bool CanGoToPreviousPage() => ChapterPages != null && CurrentPageIndex > 0;
 
         [RelayCommand(CanExecute = nameof(CanGoToPreviousPage))]
-        public async Task PreviousPage() => CurrentPageIndex--;
+        private async Task PreviousPage() => CurrentPageIndex--;
 
         [RelayCommand]
         private void SetReadingMode(string mode) => ReadingMode = Enum.Parse<ReadingMode>(mode);

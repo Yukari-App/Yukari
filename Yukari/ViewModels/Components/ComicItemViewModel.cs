@@ -20,7 +20,7 @@ namespace Yukari.ViewModels.Components
         public ComicItemViewModel(ComicModel comic) => Comic = comic;
 
         [RelayCommand]
-        public void TogglePin()
+        private void TogglePin()
         {
             IsPinned = !IsPinned;
         }

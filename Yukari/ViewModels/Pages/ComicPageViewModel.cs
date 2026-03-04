@@ -132,7 +132,7 @@ namespace Yukari.ViewModels.Pages
         private bool CanToggleFavorite() => Comic != null && !IsChaptersLoading;
 
         [RelayCommand(CanExecute = nameof(CanToggleFavorite))]
-        public async Task ToggleFavoriteAsync()
+        private async Task ToggleFavoriteAsync()
         {
             if (_comicKey == null)
                 return;
@@ -164,7 +164,7 @@ namespace Yukari.ViewModels.Pages
         private bool CanUpdate() => Comic != null && !IsChaptersLoading;
 
         [RelayCommand(CanExecute = nameof(CanUpdate))]
-        public async Task UpdateAsync()
+        private async Task UpdateAsync()
         {
             if (_comicKey == null)
                 return;
@@ -187,11 +187,11 @@ namespace Yukari.ViewModels.Pages
         private bool CanOpenInBrowser() => !string.IsNullOrEmpty(Comic?.ComicUrl);
 
         [RelayCommand(CanExecute = nameof(CanOpenInBrowser))]
-        public async Task OpenInBrowserAsync() =>
+        private async Task OpenInBrowserAsync() =>
             await Windows.System.Launcher.LaunchUriAsync(new Uri(Comic!.ComicUrl!));
 
         [RelayCommand]
-        public void NavigateToReader(ContentKey chapterKey) =>
+        private void NavigateToReader(ContentKey chapterKey) =>
             _messenger.Send(
                 new SwitchAppModeMessage(
                     AppMode.Reader,
@@ -200,7 +200,7 @@ namespace Yukari.ViewModels.Pages
             );
 
         [RelayCommand]
-        public async Task MarkPreviousChaptersAsRead(ChapterItemViewModel item)
+        private async Task MarkPreviousChaptersAsRead(ChapterItemViewModel item)
         {
             var index = Chapters!.IndexOf(item);
             if (index <= 0)

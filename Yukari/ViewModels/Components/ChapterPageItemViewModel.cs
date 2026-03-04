@@ -48,16 +48,6 @@ namespace Yukari.ViewModels.Components
             ImageUrl = _model.ImageUrl;
         }
 
-        [RelayCommand]
-        public void Retry()
-        {
-            HasError = false;
-            IsLoading = true;
-
-            ImageUrl = null;
-            ImageUrl = _model.ImageUrl;
-        }
-
         public void OnLoadSuccess()
         {
             IsLoading = false;
@@ -68,6 +58,16 @@ namespace Yukari.ViewModels.Components
         {
             IsLoading = false;
             HasError = true;
+        }
+
+        [RelayCommand]
+        private void Retry()
+        {
+            HasError = false;
+            IsLoading = true;
+
+            ImageUrl = null;
+            ImageUrl = _model.ImageUrl;
         }
     }
 }
