@@ -494,19 +494,22 @@ namespace Yukari.Services.Storage
 
             using var connection = await GetOpenConnectionAsync();
             using var transaction = await connection.BeginTransactionAsync();
+
             const string sql =
                 @"
-                INSERT INTO ChapterUserData (Id, ComicId, Source, IsRead)
-                VALUES (@Id, @ComicId, @Source, @IsRead)
+                INSERT INTO ChapterUserData (Id, ComicId, Source, LastPageRead, IsRead)
+                VALUES (@Id, @ComicId, @Source, @LastPageRead, @IsRead)
                 ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
+                    LastPageRead = CASE WHEN @IsRead = 1 THEN ChapterUserData.LastPageRead ELSE 0 END,
                     IsRead = excluded.IsRead;
-            ";
+                ";
 
             var parameters = chapterIDs.Select(id => new
             {
                 Id = id,
                 ComicId = comicKey.Id,
                 Source = comicKey.Source,
+                LastPageRead = isRead ? null : (int?)0,
                 IsRead = isRead,
             });
 
