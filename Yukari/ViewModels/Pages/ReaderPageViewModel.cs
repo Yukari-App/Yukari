@@ -150,6 +150,7 @@ namespace Yukari.ViewModels.Pages
                 new(CurrentChapter.Id, CurrentChapter.Source)
             );
             if (pagesResult.IsSuccess)
+            {
                 ChapterPages = pagesResult
                     .Value!.Select(pageModel => new ChapterPageItemViewModel(pageModel)
                     {
@@ -157,14 +158,27 @@ namespace Yukari.ViewModels.Pages
                         ScalingMode = ScalingMode,
                     })
                     .ToList();
+
+                var chapterUserData = _chapters[_currentChapterIndex].UserData;
+                CurrentPageIndex =
+                    chapterUserData.LastPageRead > 0 && !chapterUserData.IsRead
+                        ? chapterUserData.LastPageRead.Value - 1
+                        : 0;
+            }
             else
+            {
                 await TriggerErrorAndReturn(pagesResult.Error!);
+            }
 
             IsLoading = false;
         }
 
         [RelayCommand]
-        public void GoBack() => _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
+        public async Task GoBack()
+        {
+            await SaveChapterProgress();
+            _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
+        }
 
         private bool CanGoToNextChapter() =>
             _chapters != null && !IsLoading && _currentChapterIndex < _chapters.Length - 1;
@@ -172,6 +186,8 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanGoToNextChapter))]
         public async Task NextChapter()
         {
+            await SaveChapterProgress();
+
             _currentChapterIndex++;
             await UpdateCurrentChapter();
         }
@@ -182,6 +198,8 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanGoToPreviousChapter))]
         public async Task PreviousChapter()
         {
+            await SaveChapterProgress();
+
             _currentChapterIndex--;
             await UpdateCurrentChapter();
         }
@@ -211,6 +229,29 @@ namespace Yukari.ViewModels.Pages
             {
                 page.ScreenSize = size;
             });
+        }
+
+        private async Task SaveChapterProgress()
+        {
+            if (CurrentChapter == null)
+                return;
+
+            var chapterUserData = _chapters![_currentChapterIndex].UserData;
+
+            if (!chapterUserData.IsRead)
+            {
+                chapterUserData.LastPageRead = CurrentPageIndex + 1;
+                chapterUserData.IsRead = CurrentChapter.Pages == chapterUserData.LastPageRead;
+
+                var result = await _comicService.UpsertChapterUserDataAsync(
+                    _comicKey!,
+                    new ContentKey(CurrentChapter.Id, CurrentChapter.Source),
+                    chapterUserData
+                );
+
+                if (!result.IsSuccess)
+                    _notificationService.ShowError(result.Error!);
+            }
         }
 
         private async Task TriggerErrorAndReturn(string errorMessage)
