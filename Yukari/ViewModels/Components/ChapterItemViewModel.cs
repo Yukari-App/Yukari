@@ -65,7 +65,7 @@ namespace Yukari.ViewModels.Components
             var chapterUserData = chapterAggregate.UserData;
             IsDownloaded = chapterUserData.IsDownloaded;
             IsRead = chapterUserData.IsRead;
-            LastPageRead = chapterUserData.LastPageRead ?? (IsRead ? Chapter.Pages : 0);
+            LastPageRead = IsRead ? Chapter.Pages : chapterUserData.LastPageRead ?? 0;
         }
 
         [RelayCommand]
