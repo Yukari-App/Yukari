@@ -16,7 +16,9 @@ using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
 {
-    public partial class ComicPageViewModel : ObservableObject
+    public partial class ComicPageViewModel
+        : ObservableObject,
+            IRecipient<ChapterUserDataUpdatedMessage>
     {
         private readonly IComicService _comicService;
         private readonly INotificationService _notificationService;
@@ -112,7 +114,12 @@ namespace Yukari.ViewModels.Pages
             _comicService = comicService;
             _notificationService = notificationService;
             _messenger = messenger;
+
+            _messenger.RegisterAll(this);
         }
+
+        public void Receive(ChapterUserDataUpdatedMessage message) =>
+            Chapters?.First(c => c.Key.Equals(message.ChapterKey)).RefreshUserDataAsync();
 
         public async Task InitializeAsync(ContentKey ComicKey)
         {

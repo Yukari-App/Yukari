@@ -250,7 +250,16 @@ namespace Yukari.ViewModels.Pages
                 );
 
                 if (!result.IsSuccess)
+                {
                     _notificationService.ShowError(result.Error!);
+                    return;
+                }
+
+                _messenger.Send(
+                    new ChapterUserDataUpdatedMessage(
+                        new ContentKey(CurrentChapter.Id, CurrentChapter.Source)
+                    )
+                );
             }
         }
 

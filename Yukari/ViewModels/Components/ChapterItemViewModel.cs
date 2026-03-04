@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Yukari.Helpers.UI;
 using Yukari.Models;
+using Yukari.Models.Data;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
 using Yukari.Services.UI;
@@ -65,16 +66,39 @@ namespace Yukari.ViewModels.Components
             var chapterUserData = chapterAggregate.UserData;
             IsDownloaded = chapterUserData.IsDownloaded;
             IsRead = chapterUserData.IsRead;
-            LastPageRead = IsRead ? Chapter.Pages : chapterUserData.LastPageRead ?? 0;
+            LastPageRead = LastPageReadValue(chapterUserData);
+        }
+
+        public async Task RefreshUserDataAsync()
+        {
+            var result = await _comicService.GetChapterUserDataAsync(_comicKey, Key);
+
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError("Error updating chapter progress in ComicPage");
+                return;
+            }
+
+            var chapterUserData = result.Value!;
+            IsDownloaded = chapterUserData.IsDownloaded;
+            IsRead = chapterUserData.IsRead;
+            LastPageRead = LastPageReadValue(chapterUserData);
         }
 
         [RelayCommand]
         public async Task ToggleRead()
         {
+            var chapterUserData = new ChapterUserData
+            {
+                IsDownloaded = IsDownloaded,
+                IsRead = IsRead,
+                LastPageRead = IsRead ? Chapter.Pages : 0,
+            };
+
             var result = await _comicService.UpsertChapterUserDataAsync(
                 _comicKey!,
                 Key,
-                new() { IsDownloaded = IsDownloaded, IsRead = IsRead }
+                chapterUserData
             );
 
             if (!result.IsSuccess)
@@ -83,7 +107,10 @@ namespace Yukari.ViewModels.Components
                 IsRead = !IsRead;
             }
 
-            LastPageRead = IsRead ? Chapter.Pages : 0;
+            LastPageRead = LastPageReadValue(chapterUserData);
         }
+
+        private int LastPageReadValue(ChapterUserData chapterUserData) =>
+            IsRead ? Chapter.Pages : chapterUserData.LastPageRead ?? 0;
     }
 }
