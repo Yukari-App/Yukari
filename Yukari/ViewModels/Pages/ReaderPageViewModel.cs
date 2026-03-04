@@ -158,7 +158,7 @@ namespace Yukari.ViewModels.Pages
                     })
                     .ToList();
             else
-                _notificationService.ShowError("Failed to load chapter pages.");
+                await TriggerErrorAndReturn(pagesResult.Error!);
 
             IsLoading = false;
         }
