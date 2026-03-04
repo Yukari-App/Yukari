@@ -33,6 +33,10 @@ namespace Yukari.Services.Comics
             string language,
             bool forceWeb = false
         );
+        Task<Result<ChapterUserData>> GetChapterUserDataAsync(
+            ContentKey comicKey,
+            ContentKey chapterKey
+        );
         Task<Result<IReadOnlyList<ChapterPageModel>>> GetChapterPagesAsync(
             ContentKey comicKey,
             ContentKey chapterKey,

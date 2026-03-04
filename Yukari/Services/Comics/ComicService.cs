@@ -154,6 +154,17 @@ namespace Yukari.Services.Comics
             );
         }
 
+        public async Task<Result<ChapterUserData>> GetChapterUserDataAsync(
+            ContentKey comicKey,
+            ContentKey chapterKey
+        )
+        {
+            return await ExecuteAsync(
+                () => _dbService.GetChapterUserDataAsync(comicKey, chapterKey),
+                "Error fetching chapter user data"
+            );
+        }
+
         public async Task<Result<IReadOnlyList<ChapterPageModel>>> GetChapterPagesAsync(
             ContentKey comicKey,
             ContentKey chapterKey,
