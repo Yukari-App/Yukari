@@ -119,7 +119,7 @@ namespace Yukari.ViewModels.Pages
         }
 
         public void Receive(ChapterUserDataUpdatedMessage message) =>
-            Chapters?.First(c => c.Key.Equals(message.ChapterKey)).RefreshUserDataAsync();
+            Chapters?.FirstOrDefault(c => c.Key.Equals(message.ChapterKey))?.RefreshUserDataAsync();
 
         public async Task InitializeAsync(ContentKey ComicKey)
         {
