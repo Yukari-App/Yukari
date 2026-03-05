@@ -45,6 +45,7 @@ namespace Yukari
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IDataService, DataService>();
+            services.AddSingleton<IDownloadService, DownloadService>();
             services.AddSingleton<ISourceService, SourceService>();
             services.AddSingleton<IComicService, ComicService>();
 
