@@ -18,11 +18,17 @@ namespace Yukari.Services.Comics
     {
         private readonly IDataService _dbService;
         private readonly ISourceService _srcService;
+        private readonly IDownloadService _dloadService;
 
-        public ComicService(IDataService dbService, ISourceService srcService)
+        public ComicService(
+            IDataService dbService,
+            ISourceService srcService,
+            IDownloadService dloadService
+        )
         {
             _dbService = dbService;
             _srcService = srcService;
+            _dloadService = dloadService;
         }
 
         // --- Read Methods ---
@@ -234,6 +240,13 @@ namespace Yukari.Services.Comics
 
                         comicDetails.IsAvailable = false;
                     }
+
+                    var localCover = await _dloadService.DownloadComicCoverAsync(
+                        comicDetails.CoverImageUrl,
+                        comicKey
+                    );
+                    if (!string.IsNullOrWhiteSpace(localCover))
+                        comicDetails.CoverImageUrl = localCover;
 
                     await _dbService.UpsertFavoriteComicAsync(comicDetails);
                 },
