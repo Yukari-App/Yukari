@@ -36,30 +36,34 @@ namespace Yukari.ViewModels.Pages
         public partial string? SelectedLang { get; set; }
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(FavoriteIcon), nameof(IsDownloadAvailable))]
+        [NotifyPropertyChangedFor(nameof(FavoriteIcon))]
+        [NotifyCanExecuteChangedFor(nameof(ToggleDownloadAllChaptersCommand))]
         public partial bool IsFavorite { get; set; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(
             nameof(IsInterfaceReady),
             nameof(IsContinueEnabled),
-            nameof(IsDownloadAvailable),
             nameof(IsChapterOptionsAvailable),
             nameof(IsLanguageSelectionAvailable),
             nameof(IsChaptersEnabled)
         )]
+        [NotifyCanExecuteChangedFor(nameof(ToggleDownloadAllChaptersCommand))]
         public partial bool IsFavoriteStatusChanging { get; set; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(
             nameof(IsInterfaceReady),
             nameof(IsContinueEnabled),
-            nameof(IsDownloadAvailable),
             nameof(IsChapterOptionsAvailable),
             nameof(IsLanguageSelectionAvailable),
             nameof(IsChaptersEnabled)
         )]
-        [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand), nameof(UpdateCommand))]
+        [NotifyCanExecuteChangedFor(
+            nameof(ToggleFavoriteCommand),
+            nameof(UpdateCommand),
+            nameof(ToggleDownloadAllChaptersCommand)
+        )]
         public partial bool IsComicLoading { get; set; } = true;
 
         [ObservableProperty]
@@ -67,12 +71,15 @@ namespace Yukari.ViewModels.Pages
             nameof(IsInterfaceReady),
             nameof(NoChapters),
             nameof(IsContinueEnabled),
-            nameof(IsDownloadAvailable),
             nameof(IsChapterOptionsAvailable),
             nameof(IsLanguageSelectionAvailable),
             nameof(IsChaptersEnabled)
         )]
-        [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand), nameof(UpdateCommand))]
+        [NotifyCanExecuteChangedFor(
+            nameof(ToggleFavoriteCommand),
+            nameof(UpdateCommand),
+            nameof(ToggleDownloadAllChaptersCommand)
+        )]
         public partial bool IsChaptersLoading { get; set; } = true;
 
         [ObservableProperty]
@@ -93,7 +100,6 @@ namespace Yukari.ViewModels.Pages
 
         public bool IsLanguageSelectionAvailable =>
             !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading;
-        public bool IsDownloadAvailable => IsFavorite && IsInterfaceReady;
 
         public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
         public string DownloadAllIcon =>
@@ -189,6 +195,15 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanOpenInBrowser))]
         private async Task OpenInBrowserAsync() =>
             await Windows.System.Launcher.LaunchUriAsync(new Uri(Comic!.ComicUrl!));
+
+        private bool CanToggleDownloadAllChapters() => IsFavorite && IsInterfaceReady;
+
+        [RelayCommand(CanExecute = nameof(CanToggleDownloadAllChapters))]
+        private void ToggleDownloadAllChapters()
+        {
+            _notificationService.ShowWarning("Download chapters feature is not implemented yet.");
+            IsAllChaptersDownloaded = !IsAllChaptersDownloaded;
+        }
 
         [RelayCommand]
         private void NavigateToReader(ContentKey chapterKey) =>

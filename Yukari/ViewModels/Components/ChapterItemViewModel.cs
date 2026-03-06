@@ -85,6 +85,15 @@ namespace Yukari.ViewModels.Components
             LastPageRead = LastPageReadValue(chapterUserData);
         }
 
+        private bool CanToggleDownload() => IsDownloadAvailable;
+
+        [RelayCommand(CanExecute = nameof(CanToggleDownload))]
+        private void ToggleDownload()
+        {
+            _notificationService.ShowWarning("Download chapters feature is not implemented yet.");
+            IsDownloaded = !IsDownloaded;
+        }
+
         [RelayCommand]
         private async Task ToggleRead()
         {

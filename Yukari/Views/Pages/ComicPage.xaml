@@ -67,6 +67,7 @@
                                       Padding="0"
                                       Background="Transparent"
                                       BorderBrush="Transparent"
+                                      Command="{x:Bind ToggleDownloadCommand}"
                                       IsChecked="{x:Bind IsDownloaded, Mode=TwoWay}"
                                       Visibility="{x:Bind IsDownloadAvailable, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                             <FontIcon Glyph="{x:Bind DownloadIcon, Mode=OneWay}" />
@@ -262,7 +263,7 @@
                                           Visibility="{Binding IsDownloadingAllChapters, Converter={StaticResource BooleanToVisibilityConverter}}"
                                           Value="45" />
 
-                            <ToggleButton IsChecked="{Binding IsAllChaptersDownloaded, Mode=TwoWay}" IsEnabled="{Binding IsDownloadAvailable}" Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ToggleButton Command="{Binding ToggleDownloadAllChaptersCommand}" IsChecked="{Binding IsAllChaptersDownloaded, Mode=TwoWay}" Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon FontSize="16" Glyph="{Binding DownloadAllIcon}" />
                                     <TextBlock Text="{Binding DownloadAllText}" />
