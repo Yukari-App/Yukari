@@ -35,6 +35,10 @@ namespace Yukari.ViewModels.Pages
             _dialogService = dialogService;
 
             _ = LoadComicSourcesAsync();
+
+            _notificationService.ShowWarning(
+                "Settings are not currently persisted, except adding ComicSources"
+            );
         }
 
         [RelayCommand]
