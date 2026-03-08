@@ -3,6 +3,10 @@
     <Platform Name="x64" />
     <Platform Name="ARM64" />
   </Configurations>
+  <Project Path="Yukari.Tests/Yukari.Tests.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|ARM64" Project="ARM64" />
+  </Project>
   <Project Path="Yukari/Yukari.csproj">
     <Platform Solution="*|x64" Project="x64" />
     <Platform Solution="*|ARM64" Project="ARM64" />
