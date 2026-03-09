@@ -27,7 +27,7 @@ jobs:
         run: dotnet build Yukari/Yukari.csproj --no-restore --configuration Debug --arch x64
 
       - name: Build and run unit tests (x64)
-        run: dotnet test Yukari.Tests/Yukari.Tests.csproj --no-restore --configuration Debug --verbosity normal --arch x64 --collect:"XPlat Code Coverage"
+        run: dotnet test Yukari.Tests/Yukari.Tests.csproj --no-restore --configuration Debug --verbosity normal --arch x64 --collect:"XPlat Code Coverage" --logger trx
 
       - name: Publish test results
         if: always()
