@@ -56,7 +56,7 @@ Currently in **experimental stage**
 <div align="center">
     <h2>📚 Comic Sources Installation</h2>
 
-**Yukari** doesn't come with pre-installed **Comic Sources** for legal reasons. You add the fonts you want through **community plugins**.
+**Yukari** doesn't come with pre-installed **Comic Sources** for legal reasons. You add the sources you want through **community plugins**.
 </div>
 
 - Go to [Yukari-App Repositories](https://github.com/orgs/Yukari-App/repositories?q=Plugin+sort%3Aname-asc);
