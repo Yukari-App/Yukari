@@ -275,7 +275,7 @@ namespace Yukari.Services.Storage
             ContentKey chapterKey
         )
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Chapter downloads are not supported yet.");
         }
 
         public async Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync()
