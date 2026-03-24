@@ -23,6 +23,7 @@ namespace Yukari.ViewModels.Pages
         private readonly IMessenger _messenger;
 
         private ContentKey? _comicKey;
+        private string? _language;
         private ChapterAggregate[]? _chapters;
 
         private int _currentChapterIndex = -1;
@@ -109,6 +110,7 @@ namespace Yukari.ViewModels.Pages
         )
         {
             _comicKey = comicKey;
+            _language = selectedLang;
             ComicTitle = comicTitle;
 
             var result = await _comicService.GetAllChaptersAsync(comicKey, selectedLang);
@@ -196,7 +198,7 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand]
         private async Task GoBack()
         {
-            await SaveChapterProgress();
+            await SaveReadingProgressAsync();
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
         }
 
@@ -206,7 +208,7 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanGoToNextChapter))]
         private async Task NextChapter()
         {
-            await SaveChapterProgress();
+            await SaveReadingProgressAsync();
 
             _currentChapterIndex++;
             await UpdateCurrentChapter();
@@ -218,7 +220,7 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanGoToPreviousChapter))]
         private async Task PreviousChapter()
         {
-            await SaveChapterProgress();
+            await SaveReadingProgressAsync();
 
             _currentChapterIndex--;
             await UpdateCurrentChapter();
@@ -251,9 +253,9 @@ namespace Yukari.ViewModels.Pages
             });
         }
 
-        private async Task SaveChapterProgress()
+        private async Task SaveReadingProgressAsync()
         {
-            if (CurrentChapter == null)
+            if (_comicKey == null || CurrentChapter == null)
                 return;
 
             var chapterUserData = _chapters![_currentChapterIndex].UserData;
@@ -263,23 +265,34 @@ namespace Yukari.ViewModels.Pages
                 chapterUserData.LastPageRead = CurrentPageIndex + 1;
                 chapterUserData.IsRead = CurrentChapter.Pages == chapterUserData.LastPageRead;
 
-                var result = await _comicService.UpsertChapterUserDataAsync(
-                    _comicKey!,
+                var chapterProgressResult = await _comicService.UpsertChapterUserDataAsync(
+                    _comicKey,
                     new ContentKey(CurrentChapter.Id, CurrentChapter.Source),
                     chapterUserData
                 );
 
-                if (!result.IsSuccess)
+                if (!chapterProgressResult.IsSuccess)
                 {
-                    _notificationService.ShowError(result.Error!);
-                    return;
+                    _notificationService.ShowError(chapterProgressResult.Error!);
                 }
+                else
+                {
+                    _messenger.Send(
+                        new ChapterUserDataUpdatedMessage(
+                            new ContentKey(CurrentChapter.Id, CurrentChapter.Source)
+                        )
+                    );
+                }
+            }
 
-                _messenger.Send(
-                    new ChapterUserDataUpdatedMessage(
-                        new ContentKey(CurrentChapter.Id, CurrentChapter.Source)
-                    )
-                );
+            var comicProgressResult = await _comicService.UpsertComicReadingProgressAsync(
+                _comicKey,
+                new() { LanguageCode = _language!, LastChapterId = CurrentChapter.Id }
+            );
+
+            if (!comicProgressResult.IsSuccess)
+            {
+                _notificationService.ShowError(comicProgressResult.Error!);
             }
         }
 
