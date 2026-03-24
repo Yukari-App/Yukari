@@ -43,23 +43,25 @@ namespace Yukari.ViewModels.Pages
         [ObservableProperty]
         [NotifyPropertyChangedFor(
             nameof(IsInterfaceReady),
-            nameof(IsContinueEnabled),
-            nameof(IsChapterOptionsAvailable),
-            nameof(IsLanguageSelectionAvailable),
-            nameof(IsChaptersEnabled)
-        )]
-        [NotifyCanExecuteChangedFor(nameof(ToggleDownloadAllChaptersCommand))]
-        public partial bool IsFavoriteStatusChanging { get; set; }
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(
-            nameof(IsInterfaceReady),
-            nameof(IsContinueEnabled),
             nameof(IsChapterOptionsAvailable),
             nameof(IsLanguageSelectionAvailable),
             nameof(IsChaptersEnabled)
         )]
         [NotifyCanExecuteChangedFor(
+            nameof(ContinueReadingCommand),
+            nameof(ToggleDownloadAllChaptersCommand)
+        )]
+        public partial bool IsFavoriteStatusChanging { get; set; }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(
+            nameof(IsInterfaceReady),
+            nameof(IsChapterOptionsAvailable),
+            nameof(IsLanguageSelectionAvailable),
+            nameof(IsChaptersEnabled)
+        )]
+        [NotifyCanExecuteChangedFor(
+            nameof(ContinueReadingCommand),
             nameof(ToggleFavoriteCommand),
             nameof(UpdateCommand),
             nameof(ToggleDownloadAllChaptersCommand)
@@ -70,12 +72,12 @@ namespace Yukari.ViewModels.Pages
         [NotifyPropertyChangedFor(
             nameof(IsInterfaceReady),
             nameof(NoChapters),
-            nameof(IsContinueEnabled),
             nameof(IsChapterOptionsAvailable),
             nameof(IsLanguageSelectionAvailable),
             nameof(IsChaptersEnabled)
         )]
         [NotifyCanExecuteChangedFor(
+            nameof(ContinueReadingCommand),
             nameof(ToggleFavoriteCommand),
             nameof(UpdateCommand),
             nameof(ToggleDownloadAllChaptersCommand)
@@ -94,7 +96,6 @@ namespace Yukari.ViewModels.Pages
         public bool IsInterfaceReady =>
             !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading && !NoChapters;
 
-        public bool IsContinueEnabled => IsInterfaceReady;
         public bool IsChapterOptionsAvailable => IsInterfaceReady;
         public bool IsChaptersEnabled => IsInterfaceReady;
 
@@ -133,6 +134,36 @@ namespace Yukari.ViewModels.Pages
 
             await RefreshComicAsync();
             await RefreshChaptersAsync();
+        }
+
+        private bool CanContinueReading() => Comic != null && IsInterfaceReady;
+
+        [RelayCommand(CanExecute = nameof(CanContinueReading))]
+        private async Task ContinueReadingAsync()
+        {
+            if (_comicKey == null || Comic == null || SelectedLang == null)
+                return;
+
+            var result = await _comicService.GetComicReadingProgressAsync(_comicKey, SelectedLang);
+
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+                return;
+            }
+
+            var currentProgress = result.Value;
+
+            var chapterKey = !string.IsNullOrEmpty(currentProgress?.LastChapterId)
+                ? new ContentKey(currentProgress.LastChapterId, Comic.Source)
+                : null;
+
+            _messenger.Send(
+                new SwitchAppModeMessage(
+                    AppMode.Reader,
+                    new ReaderNavigationArgs(_comicKey, Comic.Title, chapterKey, SelectedLang, true)
+                )
+            );
         }
 
         private bool CanToggleFavorite() => Comic != null && !IsChaptersLoading;
