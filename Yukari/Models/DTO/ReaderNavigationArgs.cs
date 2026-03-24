@@ -4,6 +4,7 @@ namespace Yukari.Models.DTO
         ContentKey ComicKey,
         string ComicTitle,
         ContentKey ChapterKey,
-        string SelectedLang
+        string SelectedLang,
+        bool NavigationFromContinueButton = false
     );
 }

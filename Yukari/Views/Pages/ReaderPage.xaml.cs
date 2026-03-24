@@ -35,7 +35,8 @@ namespace Yukari.Views.Pages
                         args.ComicKey,
                         args.ComicTitle,
                         args.ChapterKey,
-                        args.SelectedLang
+                        args.SelectedLang,
+                        args.NavigationFromContinueButton
                     );
             }
         }

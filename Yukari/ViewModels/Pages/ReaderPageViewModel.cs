@@ -104,7 +104,8 @@ namespace Yukari.ViewModels.Pages
             ContentKey comicKey,
             string comicTitle,
             ContentKey chapterKey,
-            string selectedLang
+            string selectedLang,
+            bool navigationFromContinueButton
         )
         {
             _comicKey = comicKey;
@@ -127,11 +128,27 @@ namespace Yukari.ViewModels.Pages
 
             _currentChapterIndex = Array.FindIndex(_chapters, c => c.Chapter.Id == chapterKey.Id);
 
-            if (_currentChapterIndex != -1)
-                await UpdateCurrentChapter();
+            var forceFirstPage = false;
+
+            if (_currentChapterIndex == -1)
+            {
+                _currentChapterIndex = 0;
+                _notificationService.ShowWarning(
+                    "Selected chapter not found. Loading first chapter instead."
+                );
+            }
+            else if (
+                navigationFromContinueButton && _chapters[_currentChapterIndex].UserData.IsRead
+            )
+            {
+                _currentChapterIndex = (_currentChapterIndex + 1) % _chapters.Length;
+                forceFirstPage = true;
+            }
+
+            await UpdateCurrentChapter(forceFirstPage);
         }
 
-        private async Task UpdateCurrentChapter()
+        private async Task UpdateCurrentChapter(bool forceFirstPage = false)
         {
             if (
                 _chapters == null
@@ -161,7 +178,7 @@ namespace Yukari.ViewModels.Pages
 
                 var chapterUserData = _chapters[_currentChapterIndex].UserData;
                 CurrentPageIndex =
-                    chapterUserData.LastPageRead > 0 && !chapterUserData.IsRead
+                    chapterUserData.LastPageRead > 0 && (!chapterUserData.IsRead && !forceFirstPage)
                         ? chapterUserData.LastPageRead.Value - 1
                         : 0;
             }
