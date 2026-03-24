@@ -119,7 +119,7 @@ namespace Yukari.ViewModels.Pages
 
             _chapters = result.Value!.ToArray();
 
-            if (_chapters.Length <= 0)
+            if (_chapters.Length == 0)
             {
                 await TriggerErrorAndReturn("No chapters found for this language.");
                 return;
