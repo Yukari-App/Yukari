@@ -125,7 +125,7 @@ namespace Yukari.Services.Comics
         )
         {
             return await ExecuteAsync(
-                async () => await _dbService.GetComicReadingProgressAsync(comicKey, language),
+                () => _dbService.GetComicReadingProgressAsync(comicKey, language),
                 "Error fetching comic reading progress"
             );
         }
