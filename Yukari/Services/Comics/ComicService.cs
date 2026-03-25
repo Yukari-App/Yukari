@@ -119,6 +119,17 @@ namespace Yukari.Services.Comics
             );
         }
 
+        public async Task<Result<ComicReadingProgress>> GetComicReadingProgressAsync(
+            ContentKey comicKey,
+            string language
+        )
+        {
+            return await ExecuteAsync(
+                async () => await _dbService.GetComicReadingProgressAsync(comicKey, language),
+                "Error fetching comic reading progress"
+            );
+        }
+
         public async Task<Result<IReadOnlyList<ChapterAggregate>>> GetAllChaptersAsync(
             ContentKey comicKey,
             string language,
@@ -262,6 +273,17 @@ namespace Yukari.Services.Comics
             return await ExecuteAsync(
                 () => _dbService.UpsertComicUserDataAsync(comicKey, comicUserData),
                 "Error saving progress"
+            );
+        }
+
+        public async Task<Result> UpsertComicReadingProgressAsync(
+            ContentKey comicKey,
+            ComicReadingProgress progress
+        )
+        {
+            return await ExecuteAsync(
+                () => _dbService.UpsertComicReadingProgressAsync(comicKey, progress),
+                "Error saving comic reading progress"
             );
         }
 

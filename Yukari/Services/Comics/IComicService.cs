@@ -28,6 +28,10 @@ namespace Yukari.Services.Comics
             ContentKey ComicKey,
             bool forceWeb = false
         );
+        Task<Result<ComicReadingProgress>> GetComicReadingProgressAsync(
+            ContentKey comicKey,
+            string language
+        );
         Task<Result<IReadOnlyList<ChapterAggregate>>> GetAllChaptersAsync(
             ContentKey ComicKey,
             string language,
@@ -46,6 +50,10 @@ namespace Yukari.Services.Comics
 
         Task<Result> UpsertFavoriteComicAsync(ContentKey comic);
         Task<Result> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
+        Task<Result> UpsertComicReadingProgressAsync(
+            ContentKey comicKey,
+            ComicReadingProgress progress
+        );
         Task<Result> UpsertChaptersAsync(ContentKey comicKey, string language);
         Task<Result> UpsertChapterUserDataAsync(
             ContentKey comicKey,
