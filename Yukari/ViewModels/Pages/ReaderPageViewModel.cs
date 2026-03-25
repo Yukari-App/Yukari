@@ -103,7 +103,7 @@ namespace Yukari.ViewModels.Pages
         public async Task InitializeAsync(
             ContentKey comicKey,
             string comicTitle,
-            ContentKey chapterKey,
+            ContentKey? chapterKey,
             string selectedLang,
             bool navigationFromContinueButton
         )
@@ -126,7 +126,10 @@ namespace Yukari.ViewModels.Pages
                 return;
             }
 
-            _currentChapterIndex = Array.FindIndex(_chapters, c => c.Chapter.Id == chapterKey.Id);
+            _currentChapterIndex =
+                chapterKey != null
+                    ? Array.FindIndex(_chapters, c => c.Chapter.Id == chapterKey.Id)
+                    : 0;
 
             var forceFirstPage = false;
 
