@@ -29,12 +29,37 @@ namespace Yukari.Tests.ViewModels.Pages
             _notificationServiceMock = new Mock<INotificationService>();
             _fakeMessenger = new FakeMessenger();
 
+            SetupSafeDefaultReturns();
+
             _sut = new DiscoverPageViewModel(
                 _comicServiceMock.Object,
                 _dialogServiceMock.Object,
                 _notificationServiceMock.Object,
                 _fakeMessenger
             );
+        }
+
+        private void SetupSafeDefaultReturns()
+        {
+            _comicServiceMock
+                .Setup(s => s.GetComicSourcesAsync())
+                .ReturnsAsync(
+                    Result<IReadOnlyList<ComicSourceModel>>.Success(new List<ComicSourceModel>())
+                );
+
+            _comicServiceMock
+                .Setup(s => s.GetSourceFiltersAsync(It.IsAny<string>()))
+                .ReturnsAsync(Result<IReadOnlyList<Filter>>.Success(new List<Filter>()));
+
+            _comicServiceMock
+                .Setup(s =>
+                    s.SearchComicsAsync(
+                        It.IsAny<string>(),
+                        It.IsAny<string>(),
+                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>()
+                    )
+                )
+                .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Success(new List<ComicModel>()));
         }
 
         // ────────────────────────────────────────────────────────────────
