@@ -11,6 +11,10 @@ namespace Yukari.Services.Storage
         Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText = null);
         Task<ComicModel?> GetComicDetailsAsync(ContentKey ComicKey);
         Task<ComicUserData> GetComicUserDataAsync(ContentKey ComicKey);
+        Task<ComicReadingProgress> GetComicReadingProgressAsync(
+            ContentKey comicKey,
+            string language
+        );
         Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(ContentKey ComicKey, string language);
         Task<Dictionary<string, ChapterUserData>> GetAllChaptersUserDataMapAsync(
             ContentKey comicKey
@@ -25,6 +29,7 @@ namespace Yukari.Services.Storage
 
         Task UpsertFavoriteComicAsync(ComicModel comic);
         Task UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
+        Task UpsertComicReadingProgressAsync(ContentKey comicKey, ComicReadingProgress progress);
         Task UpsertChapterAsync(ChapterModel chapter);
         Task UpsertChaptersAsync(
             ContentKey comicKey,

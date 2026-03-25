@@ -59,6 +59,15 @@ namespace Yukari.Services.Storage
                     PRIMARY KEY (ComicId, Source)
                 );
 
+                CREATE TABLE IF NOT EXISTS ComicReadingProgress (
+                    ComicId TEXT NOT NULL,
+                    Source TEXT NOT NULL,
+                    Language TEXT NOT NULL,
+                    LastChapterId TEXT,
+                    PRIMARY KEY (ComicId, Source, Language),
+                    FOREIGN KEY (ComicId, Source) REFERENCES Comics(Id, Source) ON DELETE CASCADE
+                );
+
                 CREATE TABLE IF NOT EXISTS Chapters (
                     Id TEXT NOT NULL,
                     ComicId TEXT NOT NULL,
@@ -181,6 +190,33 @@ namespace Yukari.Services.Storage
             );
 
             return result ?? new ComicUserData();
+        }
+
+        public async Task<ComicReadingProgress> GetComicReadingProgressAsync(
+            ContentKey comicKey,
+            string language
+        )
+        {
+            using var connection = await GetOpenConnectionAsync();
+
+            const string sql =
+                @"
+                SELECT Language, LastChapterId
+                FROM ComicReadingProgress
+                WHERE ComicId = @Id AND Source = @Source AND Language = @Language
+            ";
+
+            var result = await connection.QueryFirstOrDefaultAsync<ComicReadingProgress>(
+                sql,
+                new
+                {
+                    Id = comicKey.Id,
+                    Source = comicKey.Source,
+                    Language = language,
+                }
+            );
+
+            return result ?? new ComicReadingProgress() { LanguageCode = language };
         }
 
         public async Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(
@@ -377,6 +413,33 @@ namespace Yukari.Services.Storage
                     comicUserData.IsFavorite,
                     comicUserData.LastSelectedLang,
                     comicUserData.DownloadedLangs,
+                }
+            );
+        }
+
+        public async Task UpsertComicReadingProgressAsync(
+            ContentKey comicKey,
+            ComicReadingProgress progress
+        )
+        {
+            using var connection = await GetOpenConnectionAsync();
+
+            const string sql =
+                @"
+                INSERT INTO ComicReadingProgress (ComicId, Source, Language, LastChapterId)
+                VALUES (@ComicId, @Source, @Language, @LastChapterId)
+                ON CONFLICT(ComicId, Source, Language) DO UPDATE SET
+                    LastChapterId = excluded.LastChapterId;
+            ";
+
+            await connection.ExecuteAsync(
+                sql,
+                new
+                {
+                    ComicId = comicKey.Id,
+                    Source = comicKey.Source,
+                    Language = progress.LanguageCode,
+                    LastChapterId = progress.LastChapterId,
                 }
             );
         }
