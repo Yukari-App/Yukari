@@ -113,9 +113,9 @@ namespace Yukari.ViewModels.Pages
         public void Receive(ChapterUserDataUpdatedMessage message) =>
             Chapters?.FirstOrDefault(c => c.Key.Equals(message.ChapterKey))?.RefreshUserDataAsync();
 
-        public async Task InitializeAsync(ContentKey ComicKey)
+        public async Task InitializeAsync(ContentKey comicKey)
         {
-            _comicKey = ComicKey;
+            _comicKey = comicKey;
 
             await RefreshComicAsync();
             await RefreshChaptersAsync();
