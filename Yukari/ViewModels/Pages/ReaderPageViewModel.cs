@@ -157,6 +157,7 @@ namespace Yukari.ViewModels.Pages
         {
             if (
                 _chapters == null
+                || _comicKey == null
                 || _currentChapterIndex < 0
                 || _currentChapterIndex >= _chapters.Length
             )
@@ -168,7 +169,7 @@ namespace Yukari.ViewModels.Pages
             ChapterTitle = CurrentChapter.ToDisplayTitle();
 
             var pagesResult = await _comicService.GetChapterPagesAsync(
-                _comicKey!,
+                _comicKey,
                 new(CurrentChapter.Id, CurrentChapter.Source)
             );
             if (pagesResult.IsSuccess)
@@ -255,10 +256,10 @@ namespace Yukari.ViewModels.Pages
 
         private async Task SaveReadingProgressAsync()
         {
-            if (_comicKey == null || CurrentChapter == null)
+            if (_comicKey == null || CurrentChapter == null || _chapters == null)
                 return;
 
-            var chapterUserData = _chapters![_currentChapterIndex].UserData;
+            var chapterUserData = _chapters[_currentChapterIndex].UserData;
 
             if (!chapterUserData.IsRead)
             {
