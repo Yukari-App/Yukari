@@ -18,8 +18,8 @@ namespace Yukari.ViewModels.Components
         private readonly ContentKey _comicKey;
         private readonly bool _isComicFavorite;
 
-        public IRelayCommand<ContentKey>? NavigateToReaderCommand { get; set; }
-        public IRelayCommand<ChapterItemViewModel>? MarkPreviousChaptersAsReadCommand { get; set; }
+        public IRelayCommand<ContentKey>? NavigateToReaderCommand { get; }
+        public IRelayCommand<ChapterItemViewModel>? MarkPreviousChaptersAsReadCommand { get; }
 
         public ChapterModel Chapter { get; }
         public ContentKey Key => new(Chapter.Id, Chapter.Source);
@@ -51,7 +51,9 @@ namespace Yukari.ViewModels.Components
             INotificationService notificationService,
             ChapterAggregate chapterAggregate,
             ContentKey comicKey,
-            bool isComicFavorite
+            bool isComicFavorite,
+            IRelayCommand<ContentKey> navigateToReaderCommand,
+            IRelayCommand<ChapterItemViewModel> markPreviousChaptersAsReadCommand
         )
         {
             _comicService = comicService;
@@ -67,6 +69,9 @@ namespace Yukari.ViewModels.Components
             IsDownloaded = chapterUserData.IsDownloaded;
             IsRead = chapterUserData.IsRead;
             LastPageRead = LastPageReadValue(chapterUserData);
+
+            NavigateToReaderCommand = navigateToReaderCommand;
+            MarkPreviousChaptersAsReadCommand = markPreviousChaptersAsReadCommand;
         }
 
         public async Task RefreshUserDataAsync()

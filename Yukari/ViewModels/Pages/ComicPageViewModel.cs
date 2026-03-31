@@ -322,12 +322,10 @@ namespace Yukari.ViewModels.Pages
                         _notificationService,
                         c,
                         _comicKey,
-                        IsFavorite
-                    )
-                    {
-                        NavigateToReaderCommand = NavigateToReaderCommand,
-                        MarkPreviousChaptersAsReadCommand = MarkPreviousChaptersAsReadCommand,
-                    })
+                        IsFavorite,
+                        NavigateToReaderCommand,
+                        MarkPreviousChaptersAsReadCommand
+                    ))
                     .ToList();
             }
             else
