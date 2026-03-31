@@ -33,9 +33,11 @@ namespace Yukari.ViewModels.Pages
         private string _searchText = string.Empty;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(NoSources), nameof(NoResults))]
         public partial List<ComicSourceModel>? ComicSources { get; set; }
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(NoSources), nameof(NoResults))]
         public partial List<ComicItemViewModel>? SearchedComics { get; set; }
 
         [ObservableProperty]
