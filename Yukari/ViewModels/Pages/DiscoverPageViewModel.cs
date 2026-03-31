@@ -25,7 +25,7 @@ namespace Yukari.ViewModels.Pages
         private readonly IMessenger _messenger;
 
         private bool _isDirty = false;
-        private bool _isIsActive = false;
+        private bool _isActive = false;
 
         private IReadOnlyList<Filter>? _availableFilters;
         private IReadOnlyDictionary<string, IReadOnlyList<string>>? _appliedFilters;
@@ -76,7 +76,7 @@ namespace Yukari.ViewModels.Pages
 
         public void Receive(ComicSourcesUpdatedMessage message)
         {
-            if (_isIsActive)
+            if (_isActive)
                 _ = UpdateAvailableComicSources();
             else
                 _isDirty = true;
@@ -84,7 +84,7 @@ namespace Yukari.ViewModels.Pages
 
         public void OnNavigatedTo()
         {
-            _isIsActive = true;
+            _isActive = true;
             _messenger.Register<SearchChangedMessage>(this);
 
             _messenger.Send(new SetSearchTextMessage(_searchText));
@@ -99,7 +99,7 @@ namespace Yukari.ViewModels.Pages
         public void OnNavigatedFrom()
         {
             _messenger.Unregister<SearchChangedMessage>(this);
-            _isIsActive = false;
+            _isActive = false;
         }
 
         private bool CanFilter() =>
