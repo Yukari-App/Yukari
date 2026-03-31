@@ -282,7 +282,7 @@
                                     Background="Transparent"
                                     BorderBrush="Transparent"
                                     Content="{ui:FontIcon Glyph=&#xE712;}"
-                                    IsEnabled="{Binding IsChapterOptionsAvailable}">
+                                    IsEnabled="{Binding IsInterfaceReady}">
                                 <Button.Flyout>
                                     <MenuFlyout Placement="Bottom">
                                         <MenuFlyoutItem Command="{Binding MarkAllAsReadCommand}" Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark all as read" />
@@ -312,6 +312,7 @@
                                Visibility="{Binding NoChapters, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                     <ItemsRepeater Grid.Row="1"
+                                   IsTapEnabled="False"
                                    ItemTemplate="{StaticResource ChaptersTemplate}"
                                    ItemsSource="{Binding Chapters}"
                                    Visibility="{Binding IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />
