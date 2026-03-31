@@ -230,12 +230,12 @@ namespace Yukari.ViewModels.Pages
             ChapterPages != null && CurrentPageIndex < ChapterPages.Count - 1;
 
         [RelayCommand(CanExecute = nameof(CanGoToNextPage))]
-        private async Task NextPage() => CurrentPageIndex++;
+        private void NextPage() => CurrentPageIndex++;
 
         private bool CanGoToPreviousPage() => ChapterPages != null && CurrentPageIndex > 0;
 
         [RelayCommand(CanExecute = nameof(CanGoToPreviousPage))]
-        private async Task PreviousPage() => CurrentPageIndex--;
+        private void PreviousPage() => CurrentPageIndex--;
 
         [RelayCommand]
         private void SetReadingMode(string mode) => ReadingMode = Enum.Parse<ReadingMode>(mode);
