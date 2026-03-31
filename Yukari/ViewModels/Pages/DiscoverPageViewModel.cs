@@ -142,7 +142,6 @@ namespace Yukari.ViewModels.Pages
                 )
                 {
                     SelectedComicSource = ComicSources?.FirstOrDefault();
-                    // Note: Setting SelectedComicSource triggers OnSelectedComicSourceChanged automatically
                 }
             }
             else
