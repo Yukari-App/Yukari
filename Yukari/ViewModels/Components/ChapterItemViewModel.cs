@@ -110,7 +110,7 @@ namespace Yukari.ViewModels.Components
             };
 
             var result = await _comicService.UpsertChapterUserDataAsync(
-                _comicKey!,
+                _comicKey,
                 Key,
                 chapterUserData
             );
