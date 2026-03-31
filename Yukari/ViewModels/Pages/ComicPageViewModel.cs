@@ -306,12 +306,9 @@ namespace Yukari.ViewModels.Pages
 
         private async Task RefreshChaptersAsync()
         {
-            if (IsComicLoading || _comicKey == null)
+            if (IsComicLoading || _comicKey == null || string.IsNullOrEmpty(SelectedLang))
                 return;
             IsChaptersLoading = true;
-
-            if (string.IsNullOrEmpty(SelectedLang))
-                return;
 
             var result = await _comicService.GetAllChaptersAsync(_comicKey, SelectedLang);
 
@@ -344,8 +341,10 @@ namespace Yukari.ViewModels.Pages
 
         private async Task MarkAllChaptersReadStatus(bool isRead)
         {
-            var chapterIDs = Chapters!.Select(c => c.Key.Id).ToArray();
+            if (Chapters == null || Chapters.Count == 0)
+                return;
 
+            var chapterIDs = Chapters.Select(c => c.Key.Id).ToArray();
             await UpdateChaptersReadStatusAsync(chapterIDs, isRead);
         }
 
