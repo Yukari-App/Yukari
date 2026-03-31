@@ -120,6 +120,6 @@ namespace Yukari.ViewModels.Components
         }
 
         private int LastPageReadValue(ChapterUserData chapterUserData) =>
-            IsRead ? Chapter.Pages : chapterUserData.LastPageRead ?? 0;
+            chapterUserData.IsRead ? Chapter.Pages : chapterUserData.LastPageRead ?? 0;
     }
 }
