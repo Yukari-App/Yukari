@@ -304,18 +304,6 @@ namespace Yukari.ViewModels.Pages
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
         }
 
-        /* When changing the ReadingMode, sometimes the view returns to the first page (although the index does not).
-           I found this way to get around the problem, kind of reloading.
-           It's good to try to find a better way to solve this problem in the future. #RefactorNeeded */
-        async partial void OnReadingModeChanged(ReadingMode value)
-        {
-            var backupCurrentPage = CurrentPageIndex;
-
-            CurrentPageIndex = -1;
-            await Task.Delay(1);
-            CurrentPageIndex = backupCurrentPage;
-        }
-
         async partial void OnScalingModeChanged(ScalingMode value) =>
             ChapterPages?.ForEach(page => page.ScalingMode = value);
     }

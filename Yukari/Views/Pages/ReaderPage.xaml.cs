@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Threading.Tasks;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -22,6 +24,8 @@ namespace Yukari.Views.Pages
             InitializeComponent();
 
             DataContext = App.GetService<ReaderPageViewModel>();
+            if (DataContext is INotifyPropertyChanged npc)
+                npc.PropertyChanged += ViewModel_PropertyChanged;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -41,6 +45,22 @@ namespace Yukari.Views.Pages
             }
         }
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+
+            if (DataContext is INotifyPropertyChanged npc)
+                npc.PropertyChanged -= ViewModel_PropertyChanged;
+        }
+
+        private async void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ReaderPageViewModel.ReadingMode))
+            {
+                await HandleReadingModeChangedAsync();
+            }
+        }
+
         private void ContentSection_Loaded(object sender, RoutedEventArgs e)
         {
             if (sender is Grid grid)
@@ -49,6 +69,17 @@ namespace Yukari.Views.Pages
 
         private void ContentSection_SizeChanged(object sender, SizeChangedEventArgs e) =>
             UpdateScreenSize(e.NewSize.Width, e.NewSize.Height);
+
+        private async Task HandleReadingModeChangedAsync()
+        {
+            if (PagesFlipView == null)
+                return;
+
+            var backupIndex = PagesFlipView.SelectedIndex;
+            PagesFlipView.SelectedIndex = -1;
+            await Task.Yield();
+            PagesFlipView.SelectedIndex = backupIndex;
+        }
 
         private void UpdateScreenSize(double width, double height)
         {
