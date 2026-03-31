@@ -64,8 +64,7 @@ namespace Yukari.Services.Storage
                     Source TEXT NOT NULL,
                     Language TEXT NOT NULL,
                     LastChapterId TEXT,
-                    PRIMARY KEY (ComicId, Source, Language),
-                    FOREIGN KEY (ComicId, Source) REFERENCES Comics(Id, Source) ON DELETE CASCADE
+                    PRIMARY KEY (ComicId, Source, Language)
                 );
 
                 CREATE TABLE IF NOT EXISTS Chapters (
