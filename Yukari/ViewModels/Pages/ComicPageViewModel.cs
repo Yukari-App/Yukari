@@ -41,12 +41,7 @@ namespace Yukari.ViewModels.Pages
         public partial bool IsFavorite { get; set; }
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(
-            nameof(IsInterfaceReady),
-            nameof(IsChapterOptionsAvailable),
-            nameof(IsLanguageSelectionAvailable),
-            nameof(IsChaptersEnabled)
-        )]
+        [NotifyPropertyChangedFor(nameof(IsInterfaceReady), nameof(IsLanguageSelectionAvailable))]
         [NotifyCanExecuteChangedFor(
             nameof(ContinueReadingCommand),
             nameof(ToggleDownloadAllChaptersCommand)
@@ -54,12 +49,7 @@ namespace Yukari.ViewModels.Pages
         public partial bool IsFavoriteStatusChanging { get; set; }
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(
-            nameof(IsInterfaceReady),
-            nameof(IsChapterOptionsAvailable),
-            nameof(IsLanguageSelectionAvailable),
-            nameof(IsChaptersEnabled)
-        )]
+        [NotifyPropertyChangedFor(nameof(IsInterfaceReady), nameof(IsLanguageSelectionAvailable))]
         [NotifyCanExecuteChangedFor(
             nameof(ContinueReadingCommand),
             nameof(ToggleFavoriteCommand),
@@ -72,9 +62,7 @@ namespace Yukari.ViewModels.Pages
         [NotifyPropertyChangedFor(
             nameof(IsInterfaceReady),
             nameof(NoChapters),
-            nameof(IsChapterOptionsAvailable),
-            nameof(IsLanguageSelectionAvailable),
-            nameof(IsChaptersEnabled)
+            nameof(IsLanguageSelectionAvailable)
         )]
         [NotifyCanExecuteChangedFor(
             nameof(ContinueReadingCommand),
@@ -95,9 +83,6 @@ namespace Yukari.ViewModels.Pages
         public bool NoChapters => !IsChaptersLoading && (Chapters == null || Chapters.Count == 0);
         public bool IsInterfaceReady =>
             !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading && !NoChapters;
-
-        public bool IsChapterOptionsAvailable => IsInterfaceReady;
-        public bool IsChaptersEnabled => IsInterfaceReady;
 
         public bool IsLanguageSelectionAvailable =>
             !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading;
