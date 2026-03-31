@@ -80,7 +80,7 @@ namespace Yukari.ViewModels.Components
 
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError("Error updating chapter progress in ComicPage");
+                _notificationService.ShowError(result.Error!);
                 return;
             }
 
