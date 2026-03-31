@@ -22,12 +22,13 @@ namespace Yukari.ViewModels.Pages
         private readonly INotificationService _notificationService;
         private readonly IMessenger _messenger;
 
+        private readonly ReaderDisplaySettings _displaySettings = new();
+
         private ContentKey? _comicKey;
         private string? _language;
         private ChapterAggregate[]? _chapters;
 
         private int _currentChapterIndex = -1;
-        private (double Width, double Height) ScreenSize = (0, 0);
 
         [ObservableProperty]
         public partial string? ComicTitle { get; set; }
@@ -175,11 +176,7 @@ namespace Yukari.ViewModels.Pages
             if (pagesResult.IsSuccess)
             {
                 ChapterPages = pagesResult
-                    .Value!.Select(pageModel => new ChapterPageItemViewModel(pageModel)
-                    {
-                        ScreenSize = ScreenSize,
-                        ScalingMode = ScalingMode,
-                    })
+                    .Value!.Select(p => new ChapterPageItemViewModel(p, _displaySettings))
                     .ToList();
 
                 var chapterUserData = _chapters[_currentChapterIndex].UserData;
@@ -245,14 +242,8 @@ namespace Yukari.ViewModels.Pages
         private void SetScalingMode(string mode) => ScalingMode = Enum.Parse<ScalingMode>(mode);
 
         [RelayCommand]
-        private void SetScreenSize((double width, double height) size)
-        {
-            ScreenSize = size;
-            ChapterPages?.ForEach(page =>
-            {
-                page.ScreenSize = size;
-            });
-        }
+        private void SetScreenSize((double width, double height) size) =>
+            _displaySettings.ScreenSize = size;
 
         private async Task SaveReadingProgressAsync()
         {
@@ -305,7 +296,7 @@ namespace Yukari.ViewModels.Pages
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
         }
 
-        async partial void OnScalingModeChanged(ScalingMode value) =>
-            ChapterPages?.ForEach(page => page.ScalingMode = value);
+        partial void OnScalingModeChanged(ScalingMode value) =>
+            _displaySettings.ScalingMode = value;
     }
 }
