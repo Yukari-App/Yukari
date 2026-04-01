@@ -27,20 +27,19 @@
 
     <Grid RowDefinitions="Auto, *">
         <StackPanel Grid.Column="0"
+                    MaxWidth="1016"
                     Padding="20,14,36,16"
-                    HorizontalAlignment="Left"
+                    HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
-                    Orientation="Horizontal">
+                    Orientation="Horizontal"
+                    Spacing="8">
             <FontIcon FontSize="24" Glyph="&#xE713;" />
-            <TextBlock Margin="8,0,0,0"
-                       VerticalAlignment="Center"
-                       Style="{StaticResource TitleTextBlockStyle}"
-                       Text="Settings" />
+            <TextBlock VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}" Text="Settings" />
         </StackPanel>
 
         <ScrollViewer Grid.Row="1">
             <Grid Padding="0,0,16,16">
-                <StackPanel HorizontalAlignment="Stretch" Spacing="{StaticResource SettingsCardSpacing}">
+                <StackPanel MaxWidth="1000" HorizontalAlignment="Stretch" Spacing="{StaticResource SettingsCardSpacing}">
                     <StackPanel.ChildrenTransitions>
                         <EntranceThemeTransition FromVerticalOffset="50" />
                         <RepositionThemeTransition IsStaggeringEnabled="False" />
