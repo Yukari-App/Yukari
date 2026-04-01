@@ -41,12 +41,19 @@ namespace Yukari.ViewModels.Pages
         public partial ChapterModel? CurrentChapter { get; set; }
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PageIndicatorText))]
         [NotifyCanExecuteChangedFor(nameof(NextPageCommand), nameof(PreviousPageCommand))]
         public partial List<ChapterPageItemViewModel>? ChapterPages { get; set; }
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PageIndicatorText))]
         [NotifyCanExecuteChangedFor(nameof(NextPageCommand), nameof(PreviousPageCommand))]
         public partial int CurrentPageIndex { get; set; } = 0;
+
+        public string PageIndicatorText =>
+            ChapterPages != null && ChapterPages.Count > 0
+                ? $"{CurrentPageIndex + 1} / {ChapterPages.Count}"
+                : "0 / 0";
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(

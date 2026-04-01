@@ -271,6 +271,23 @@
                     Content="{ui:FontIcon Glyph=&#xE96E;}"
                     Style="{StaticResource PageNavigationButtonStyle}"
                     Visibility="{Binding IsVerticalPageNavigationButtonsVisible}" />
+
+            <TextBlock Grid.Row="1"
+                       Margin="0,0,0,8"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Bottom"
+                       FontSize="12"
+                       Foreground="{StaticResource TextFillColorSecondaryBrush}"
+                       Text="{Binding PageIndicatorText}"
+                       Visibility="{Binding IsHorizontalPageNavigationButtonsVisible}" />
+            <TextBlock Grid.Row="1"
+                       Margin="0,8,8,0"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       FontSize="12"
+                       Foreground="{StaticResource TextFillColorSecondaryBrush}"
+                       Text="{Binding PageIndicatorText}"
+                       Visibility="{Binding IsVerticalPageNavigationButtonsVisible}" />
         </Grid>
     </Grid>
 </Page>
