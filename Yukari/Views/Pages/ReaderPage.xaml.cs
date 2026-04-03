@@ -14,11 +14,6 @@ namespace Yukari.Views.Pages
 {
     public sealed partial class ReaderPage : Page
     {
-        private Point _lastMousePosition;
-        private double _startHorizontalOffset;
-        private double _startVerticalOffset;
-        private bool _isDragging = false;
-
         public ReaderPage()
         {
             InitializeComponent();
@@ -88,6 +83,11 @@ namespace Yukari.Views.Pages
         }
 
         // FlipView ItemTemplate Controls Handlers
+
+        private Point _lastMousePosition;
+        private double _startHorizontalOffset;
+        private double _startVerticalOffset;
+        private bool _isDragging = false;
 
         private void PageScrollViewer_PointerEntered(object sender, PointerRoutedEventArgs e) =>
             UpdateCursor((sender as ScrollViewer)!);
