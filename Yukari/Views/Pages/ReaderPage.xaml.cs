@@ -56,6 +56,16 @@ namespace Yukari.Views.Pages
             }
         }
 
+        private void ContentSection_PointerExited(object sender, PointerRoutedEventArgs e) =>
+            AppTitleBar.Visibility = Visibility.Visible;
+
+        private void ContentSection_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (DataContext is ReaderPageViewModel viewModel)
+                if (viewModel.IsFullscreen)
+                    AppTitleBar.Visibility = Visibility.Collapsed;
+        }
+
         private void ContentSection_Loaded(object sender, RoutedEventArgs e)
         {
             if (sender is Grid grid)

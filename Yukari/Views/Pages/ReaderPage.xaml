@@ -13,6 +13,7 @@
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <converters:FullScreenToColumnWidthConverter x:Key="FullScreenToColumnWidthConverter" />
         <converters:ReadingModeToFlowDirectionConverter x:Key="ReadingModeToFlowDirectionConverter" />
         <converters:ReadingModeToOrientationConverter x:Key="ReadingModeToOrientationConverter" />
 
@@ -38,6 +39,7 @@
             <Color x:Key="ButtonBackgroundDisabled">Transparent</Color>
             <Color x:Key="ButtonBorderBrushDisabled">Transparent</Color>
         </Grid.Resources>
+
         <Grid x:Name="AppTitleBar"
               Grid.Row="0"
               Height="48"
@@ -45,7 +47,16 @@
               Padding="0"
               VerticalAlignment="Top"
               AutomationProperties.AutomationId="AppTitleBar"
-              ColumnDefinitions="Auto, Auto, Auto, Auto, *, Auto, 144">
+              Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{Binding IsFullscreen, Converter={StaticResource FullScreenToColumnWidthConverter}}" />
+            </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0"
                     Command="{Binding GoBackCommand}"
@@ -85,7 +96,16 @@
 
                 <AppBarSeparator Grid.Column="6" />
 
-                <Button Content="{ui:FontIcon Glyph=&#xE740;, FontSize=16}" Style="{StaticResource TitleBarButtonStyle}" ToolTipService.ToolTip="Fullscreen" />
+                <ToggleButton Width="40"
+                              Height="36"
+                              Padding="0"
+                              Background="Transparent"
+                              BorderBrush="Transparent"
+                              Command="{Binding ToggleFullscreenCommand}"
+                              IsChecked="{Binding IsFullscreen, Mode=TwoWay}"
+                              ToolTipService.ToolTip="Fullscreen">
+                    <FontIcon FontSize="16" Glyph="{Binding FullscreenButtonIcon}" />
+                </ToggleButton>
                 <Button Content="{ui:FontIcon Glyph=&#xE712;}" Style="{StaticResource TitleBarButtonStyle}" ToolTipService.ToolTip="Options">
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
@@ -135,11 +155,15 @@
                     </Button.Flyout>
                 </Button>
 
-                <AppBarSeparator Grid.Column="6" />
+                <AppBarSeparator Grid.Column="6" Visibility="{Binding IsFullscreen, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="1" Loaded="ContentSection_Loaded" SizeChanged="ContentSection_SizeChanged">
+        <Grid Grid.Row="1"
+              Loaded="ContentSection_Loaded"
+              PointerEntered="ContentSection_PointerEntered"
+              PointerExited="ContentSection_PointerExited"
+              SizeChanged="ContentSection_SizeChanged">
             <FlipView x:Name="PagesFlipView"
                       Background="Transparent"
                       FlowDirection="{Binding ReadingMode, Converter={StaticResource ReadingModeToFlowDirectionConverter}}"

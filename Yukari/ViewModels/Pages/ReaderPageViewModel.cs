@@ -56,6 +56,12 @@ namespace Yukari.ViewModels.Pages
                 : "0 / 0";
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FullscreenButtonIcon))]
+        public partial bool IsFullscreen { get; set; } = false;
+
+        public string FullscreenButtonIcon => IsFullscreen ? "\uE92C" : "\uE92D";
+
+        [ObservableProperty]
         [NotifyPropertyChangedFor(
             nameof(ForwardChapterNavigationButtonCommand),
             nameof(BackwardChapterNavigationButtonCommand),
@@ -204,6 +210,8 @@ namespace Yukari.ViewModels.Pages
         private async Task GoBack()
         {
             await SaveReadingProgressAsync();
+
+            _messenger.Send(new SetFullscreenMessage(false));
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
         }
 
@@ -241,6 +249,9 @@ namespace Yukari.ViewModels.Pages
 
         [RelayCommand(CanExecute = nameof(CanGoToPreviousPage))]
         private void PreviousPage() => CurrentPageIndex--;
+
+        [RelayCommand]
+        private void ToggleFullscreen() => _messenger.Send(new SetFullscreenMessage(IsFullscreen));
 
         [RelayCommand]
         private void SetReadingMode(string mode) => ReadingMode = Enum.Parse<ReadingMode>(mode);
