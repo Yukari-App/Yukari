@@ -39,6 +39,9 @@
             <Color x:Key="ButtonBackgroundDisabled">Transparent</Color>
             <Color x:Key="ButtonBorderBrushDisabled">Transparent</Color>
         </Grid.Resources>
+        <Grid.ChildrenTransitions>
+            <RepositionThemeTransition/>
+        </Grid.ChildrenTransitions>
 
         <Grid x:Name="AppTitleBar"
               Grid.Row="0"
