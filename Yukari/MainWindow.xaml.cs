@@ -14,8 +14,13 @@ namespace Yukari
 {
     public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage>
     {
+        private const string WindowTitle = "Yukari";
+        private const string WindowIconPath = "Assets/AppIcon.ico";
+
         private const int MinWidth = 656;
         private const int MinHeight = 500;
+        private const int DefaultWidth = 1200;
+        private const int DefaultHeight = 700;
 
         private readonly IMessenger _messenger;
 
@@ -29,9 +34,10 @@ namespace Yukari
             InitializeComponent();
             _messenger = App.GetService<IMessenger>();
 
+            Title = WindowTitle;
+            AppWindow.SetIcon(WindowIconPath);
             ExtendsContentIntoTitleBar = true;
             AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-            AppWindow.SetIcon("Assets/AppIcon.ico");
 
             _presenter = OverlappedPresenter.Create();
             _presenter.PreferredMinimumWidth = MinWidth;
@@ -39,7 +45,7 @@ namespace Yukari
             AppWindow.SetPresenter(_presenter);
 
             _scaleFactor = GetScaleFactor();
-            AppWindow.Resize(new SizeInt32((int)(1200 * _scaleFactor), (int)(700 * _scaleFactor)));
+            AppWindow.Resize(new SizeInt32((int)(DefaultWidth * _scaleFactor), (int)(DefaultHeight * _scaleFactor)));
 
             Content = _rootFrame;
             _messenger.RegisterAll(this);
