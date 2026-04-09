@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Yukari.Helpers;
 using Yukari.Models;
 using Yukari.Services.Comics;
 using Yukari.Services.UI;
@@ -14,6 +15,8 @@ namespace Yukari.ViewModels.Pages
         private readonly IComicService _comicService;
         private readonly INotificationService _notificationService;
         private readonly IDialogService _dialogService;
+
+        public string YukariVersion { get; } = AppInfoHelper.Version;
 
         [ObservableProperty]
         public partial ComicSourceModel? DefaultComicSource { get; set; }
