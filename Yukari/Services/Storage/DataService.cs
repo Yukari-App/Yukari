@@ -345,7 +345,7 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            using var transaction = connection.BeginTransaction();
+            using var transaction = await connection.BeginTransactionAsync();
 
             const string sqlComic =
                 @"
@@ -386,7 +386,7 @@ namespace Yukari.Services.Storage
                 transaction
             );
 
-            transaction.Commit();
+            await transaction.CommitAsync();
         }
 
         public async Task UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData)
@@ -472,7 +472,7 @@ namespace Yukari.Services.Storage
         )
         {
             using var connection = await GetOpenConnectionAsync();
-            using var transaction = connection.BeginTransaction();
+            using var transaction = await connection.BeginTransactionAsync();
 
             const string sqlReset =
                 @"
@@ -510,7 +510,7 @@ namespace Yukari.Services.Storage
 
             await connection.ExecuteAsync(sqlUpsert, chapters, transaction);
 
-            transaction.Commit();
+            await transaction.CommitAsync();
         }
 
         public async Task UpsertChapterUserDataAsync(
@@ -621,7 +621,7 @@ namespace Yukari.Services.Storage
         public async Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey)
         {
             using var connection = await GetOpenConnectionAsync();
-            using var transaction = connection.BeginTransaction();
+            using var transaction = await connection.BeginTransactionAsync();
 
             await connection.ExecuteAsync(
                 "DELETE FROM ChapterUserData WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
@@ -645,7 +645,7 @@ namespace Yukari.Services.Storage
                 transaction
             );
 
-            transaction.Commit();
+            await transaction.CommitAsync();
         }
 
         public async Task RemoveComicSourceAsync(string sourceName)
@@ -659,7 +659,7 @@ namespace Yukari.Services.Storage
         public async Task CleanupUnfavoriteComicsDataAsync()
         {
             using var connection = await GetOpenConnectionAsync();
-            using var transaction = connection.BeginTransaction();
+            using var transaction = await connection.BeginTransactionAsync();
 
             const string sqlDeleteChapters =
                 @"
@@ -702,7 +702,7 @@ namespace Yukari.Services.Storage
             await connection.ExecuteAsync(sqlDeleteComics, transaction: transaction);
             await connection.ExecuteAsync(sqlDeleteComicUserData, transaction: transaction);
 
-            transaction.Commit();
+            await transaction.CommitAsync();
             await connection.ExecuteAsync("VACUUM;");
         }
     }
