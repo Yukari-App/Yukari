@@ -14,13 +14,16 @@ namespace Yukari.Views.Pages
 {
     public sealed partial class ReaderPage : Page
     {
+        public ReaderPageViewModel ViewModel { get; set; }
+
         public ReaderPage()
         {
             InitializeComponent();
 
-            DataContext = App.GetService<ReaderPageViewModel>();
-            if (DataContext is INotifyPropertyChanged npc)
-                npc.PropertyChanged += ViewModel_PropertyChanged;
+            ViewModel = App.GetService<ReaderPageViewModel>();
+            DataContext = ViewModel;
+
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -29,23 +32,20 @@ namespace Yukari.Views.Pages
 
             if (e.Parameter is ReaderNavigationArgs args)
             {
-                if (DataContext is ReaderPageViewModel viewModel)
-                    await viewModel.InitializeAsync(
-                        args.ComicKey,
-                        args.ComicTitle,
-                        args.ChapterKey,
-                        args.SelectedLang,
-                        args.NavigationFromContinueButton
-                    );
+                await ViewModel.InitializeAsync(
+                    args.ComicKey,
+                    args.ComicTitle,
+                    args.ChapterKey,
+                    args.SelectedLang,
+                    args.NavigationFromContinueButton
+                );
             }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-
-            if (DataContext is INotifyPropertyChanged npc)
-                npc.PropertyChanged -= ViewModel_PropertyChanged;
+            ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
         }
 
         private async void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -61,9 +61,8 @@ namespace Yukari.Views.Pages
 
         private void ContentSection_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            if (DataContext is ReaderPageViewModel viewModel)
-                if (viewModel.IsFullscreen)
-                    AppTitleBar.Visibility = Visibility.Collapsed;
+            if (ViewModel.IsFullscreen)
+                AppTitleBar.Visibility = Visibility.Collapsed;
         }
 
         private void ContentSection_Loaded(object sender, RoutedEventArgs e)
@@ -86,11 +85,8 @@ namespace Yukari.Views.Pages
             PagesFlipView.SelectedIndex = backupIndex;
         }
 
-        private void UpdateScreenSize(double width, double height)
-        {
-            if (DataContext is ReaderPageViewModel vm)
-                vm.SetScreenSizeCommand.Execute((width, height));
-        }
+        private void UpdateScreenSize(double width, double height) =>
+            ViewModel.SetScreenSizeCommand.Execute((width, height));
 
         // FlipView ItemTemplate Controls Handlers
 

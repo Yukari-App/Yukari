@@ -7,28 +7,26 @@ namespace Yukari.Views.Pages
 {
     public sealed partial class FavoritesPage : Page
     {
+        public FavoritesPageViewModel ViewModel { get; set; }
+
         public FavoritesPage()
         {
             InitializeComponent();
-            DataContext = App.GetService<FavoritesPageViewModel>();
-            ;
+
+            ViewModel = App.GetService<FavoritesPageViewModel>();
+            DataContext = ViewModel;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
-            if (DataContext is FavoritesPageViewModel viewModel)
-                await viewModel.InitializeAsync();
+            await ViewModel.InitializeAsync();
         }
 
         private void GridView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (
-                DataContext is FavoritesPageViewModel viewModel
-                && e.ClickedItem is ComicItemViewModel comicItem
-            )
-                viewModel.NavigateToComicCommand.Execute(comicItem.Key);
+            if (e.ClickedItem is ComicItemViewModel comicItem)
+                ViewModel.NavigateToComicCommand.Execute(comicItem.Key);
         }
     }
 }

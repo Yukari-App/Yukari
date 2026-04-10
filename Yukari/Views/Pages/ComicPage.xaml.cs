@@ -7,10 +7,14 @@ namespace Yukari.Views.Pages
 {
     public sealed partial class ComicPage : Page
     {
+        public ComicPageViewModel ViewModel { get; set; }
+
         public ComicPage()
         {
             InitializeComponent();
-            DataContext = App.GetService<ComicPageViewModel>();
+
+            ViewModel = App.GetService<ComicPageViewModel>();
+            DataContext = ViewModel;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -19,8 +23,7 @@ namespace Yukari.Views.Pages
 
             if (e.Parameter is ContentKey ComicKey)
             {
-                if (DataContext is ComicPageViewModel viewModel)
-                    await viewModel.InitializeAsync(ComicKey);
+                await ViewModel.InitializeAsync(ComicKey);
             }
         }
     }

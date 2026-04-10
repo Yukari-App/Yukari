@@ -5,10 +5,14 @@ namespace Yukari.Views.Pages
 {
     public sealed partial class DownloadsPage : Page
     {
+        public DownloadsPageViewModel ViewModel { get; set; }
+
         public DownloadsPage()
         {
             InitializeComponent();
-            DataContext = App.GetService<DownloadsPageViewModel>();
+
+            ViewModel = new DownloadsPageViewModel();
+            DataContext = ViewModel;
         }
     }
 }

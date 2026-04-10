@@ -123,9 +123,9 @@
                 <TextBlock Grid.Column="1"
                            VerticalAlignment="Center"
                            Style="{StaticResource TitleTextBlockStyle}"
-                           Text="{Binding Comic.Title}"
+                           Text="{x:Bind ViewModel.Comic.Title, Mode=OneWay}"
                            TextWrapping="NoWrap"
-                           ToolTipService.ToolTip="{Binding Comic.Title}" />
+                           ToolTipService.ToolTip="{x:Bind ViewModel.Comic.Title, Mode=OneWay}" />
             </Grid>
 
             <StackPanel Grid.Column="1"
@@ -133,7 +133,7 @@
                         VerticalAlignment="Center"
                         Orientation="Horizontal"
                         Spacing="4">
-                <Button Command="{Binding ContinueReadingCommand}" Style="{StaticResource AccentButtonStyle}">
+                <Button Command="{x:Bind ViewModel.ContinueReadingCommand}" Style="{StaticResource AccentButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="16" Glyph="&#xF5B0;" />
                         <TextBlock Text="Continue" />
@@ -145,9 +145,9 @@
                               Padding="0"
                               Background="Transparent"
                               BorderBrush="Transparent"
-                              Command="{Binding ToggleFavoriteCommand}"
-                              IsChecked="{Binding IsFavorite, Mode=TwoWay}">
-                    <FontIcon Glyph="{Binding FavoriteIcon}" />
+                              Command="{x:Bind ViewModel.ToggleFavoriteCommand}"
+                              IsChecked="{x:Bind ViewModel.IsFavorite, Mode=TwoWay}">
+                    <FontIcon Glyph="{x:Bind ViewModel.FavoriteIcon, Mode=OneWay}" />
                 </ToggleButton>
 
                 <Button Width="32"
@@ -158,14 +158,14 @@
                         Content="{ui:FontIcon Glyph=&#xE712;}">
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
-                            <MenuFlyoutItem Icon="Pin" Text="Pin" Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <MenuFlyoutItem Command="{Binding UpdateCommand}"
+                            <MenuFlyoutItem Icon="Pin" Text="Pin" Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                            <MenuFlyoutSeparator Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                            <MenuFlyoutItem Command="{x:Bind ViewModel.UpdateCommand}"
                                             Icon="Refresh"
                                             Text="Update"
-                                            Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <MenuFlyoutItem Command="{Binding OpenInBrowserCommand}" Icon="Globe" Text="Open in browser" />
+                                            Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                            <MenuFlyoutSeparator Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                            <MenuFlyoutItem Command="{x:Bind ViewModel.OpenInBrowserCommand}" Icon="Globe" Text="Open in browser" />
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
@@ -188,7 +188,7 @@
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
                             CornerRadius="8">
-                        <Image Source="{Binding Comic.CoverImageUrl}" Stretch="Fill" />
+                        <Image Source="{Binding Comic.CoverImageUrl, Mode=OneWay}" Stretch="Fill" />
                     </Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -198,7 +198,7 @@
                                        Style="{StaticResource TitleTextBlockStyle}"
                                        Text="Author(s)" />
                         </StackPanel>
-                        <TextBlock Margin="0,0,0,12" FontSize="16" Text="{Binding Comic.Author}" />
+                        <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.Comic.Author, Mode=OneWay}" />
 
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE787;" />
@@ -207,7 +207,7 @@
                                        Style="{StaticResource TitleTextBlockStyle}"
                                        Text="Published" />
                         </StackPanel>
-                        <TextBlock Margin="0,0,0,12" FontSize="16" Text="{Binding Comic.Year}" />
+                        <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.Comic.Year, Mode=OneWay}" />
 
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE8EC;" />
@@ -219,7 +219,7 @@
                         <ItemsView x:Name="BasicGridView"
                                    Margin="0,8,0,0"
                                    ItemTemplate="{StaticResource TagsTemplate}"
-                                   ItemsSource="{Binding Comic.Tags}"
+                                   ItemsSource="{x:Bind ViewModel.Comic.Tags, Mode=OneWay}"
                                    SelectionMode="None">
                             <ItemsView.Layout>
                                 <LinedFlowLayout LineSpacing="5" MinItemSpacing="5" />
@@ -239,7 +239,7 @@
                     <ScrollViewer MaxHeight="120">
                         <TextBlock FontSize="16"
                                    Style="{StaticResource BodyTextBlockStyle}"
-                                   Text="{Binding Comic.Description}"
+                                   Text="{x:Bind ViewModel.Comic.Description, Mode=OneWay}"
                                    TextAlignment="Justify"
                                    TextWrapping="WrapWholeWords" />
                     </ScrollViewer>
@@ -260,20 +260,20 @@
                                           Height="28"
                                           Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
                                           IsIndeterminate="False"
-                                          Visibility="{Binding IsDownloadingAllChapters, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                          Visibility="{x:Bind ViewModel.IsDownloadingAllChapters, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
                                           Value="45" />
 
-                            <ToggleButton Command="{Binding ToggleDownloadAllChaptersCommand}" IsChecked="{Binding IsAllChaptersDownloaded, Mode=TwoWay}" Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ToggleButton Command="{x:Bind ViewModel.ToggleDownloadAllChaptersCommand}" IsChecked="{x:Bind ViewModel.IsAllChaptersDownloaded, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <FontIcon FontSize="16" Glyph="{Binding DownloadAllIcon}" />
-                                    <TextBlock Text="{Binding DownloadAllText}" />
+                                    <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.DownloadAllIcon, Mode=OneWay}" />
+                                    <TextBlock Text="{x:Bind ViewModel.DownloadAllText, Mode=OneWay}" />
                                 </StackPanel>
                             </ToggleButton>
 
                             <ComboBox DisplayMemberPath="DisplayName"
-                                      IsEnabled="{Binding IsLanguageSelectionAvailable}"
-                                      ItemsSource="{Binding Comic.Langs}"
-                                      SelectedValue="{Binding SelectedLang, Mode=TwoWay}"
+                                      IsEnabled="{x:Bind ViewModel.IsLanguageSelectionAvailable, Mode=OneWay}"
+                                      ItemsSource="{x:Bind ViewModel.Comic.Langs, Mode=OneWay}"
+                                      SelectedValue="{x:Bind ViewModel.SelectedLang, Mode=TwoWay}"
                                       SelectedValuePath="Key" />
 
                             <Button Width="32"
@@ -282,11 +282,11 @@
                                     Background="Transparent"
                                     BorderBrush="Transparent"
                                     Content="{ui:FontIcon Glyph=&#xE712;}"
-                                    IsEnabled="{Binding IsInterfaceReady}">
+                                    IsEnabled="{x:Bind ViewModel.IsInterfaceReady, Mode=OneWay}">
                                 <Button.Flyout>
                                     <MenuFlyout Placement="Bottom">
-                                        <MenuFlyoutItem Command="{Binding MarkAllAsReadCommand}" Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark all as read" />
-                                        <MenuFlyoutItem Command="{Binding MarkAllAsUnreadCommand}" Icon="{ui:FontIcon Glyph=&#xED1A;}" Text="Mark all as unread" />
+                                        <MenuFlyoutItem Command="{x:Bind ViewModel.MarkAllAsReadCommand}" Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark all as read" />
+                                        <MenuFlyoutItem Command="{x:Bind ViewModel.MarkAllAsUnreadCommand}" Icon="{ui:FontIcon Glyph=&#xED1A;}" Text="Mark all as unread" />
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem Icon="Refresh" Text="Reset all" />
                                     </MenuFlyout>
@@ -301,21 +301,21 @@
                                   Height="40"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
-                                  IsActive="{Binding IsChaptersLoading}"
-                                  Visibility="{Binding IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                  IsActive="{x:Bind ViewModel.IsChaptersLoading, Mode=OneWay}"
+                                  Visibility="{x:Bind ViewModel.IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
                     <TextBlock Grid.Row="1"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                Style="{StaticResource BodyLargeStrongTextBlockStyle}"
                                Text="No chapters found in this language."
-                               Visibility="{Binding NoChapters, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                               Visibility="{x:Bind ViewModel.NoChapters, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
                     <ItemsRepeater Grid.Row="1"
                                    IsTapEnabled="False"
                                    ItemTemplate="{StaticResource ChaptersTemplate}"
-                                   ItemsSource="{Binding Chapters}"
-                                   Visibility="{Binding IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />
+                                   ItemsSource="{x:Bind ViewModel.Chapters, Mode=OneWay}"
+                                   Visibility="{x:Bind ViewModel.IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
                 </Grid>
             </Grid>
         </ScrollViewer>

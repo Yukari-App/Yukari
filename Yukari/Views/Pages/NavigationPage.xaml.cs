@@ -11,9 +11,14 @@ namespace Yukari.Views.Pages
 {
     public sealed partial class NavigationPage : Page
     {
+        public NavigationPageViewModel ViewModel { get; set; }
+
         public NavigationPage()
         {
             InitializeComponent();
+            ViewModel = App.GetService<NavigationPageViewModel>();
+            DataContext = ViewModel;
+
             Loaded += OnLoaded;
         }
 
@@ -22,13 +27,8 @@ namespace Yukari.Views.Pages
             App.GetService<INavigationService>().Initialize(ContentFrame);
             App.GetService<IDialogService>().Initialize(XamlRoot);
 
-            if (DataContext is not NavigationPageViewModel)
-                DataContext = App.GetService<NavigationPageViewModel>();
-
-            if (ContentFrame.Content == null && DataContext is NavigationPageViewModel vm)
-            {
-                vm.NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
-            }
+            if (ContentFrame.Content == null)
+                ViewModel.NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
         }
 
         private void NavigationViewControl_ItemInvoked(
@@ -40,25 +40,17 @@ namespace Yukari.Views.Pages
                 ? "Yukari.Views.Pages.SettingsPage"
                 : args.InvokedItemContainer?.Tag?.ToString();
             if (!string.IsNullOrEmpty(tag))
-                ((NavigationPageViewModel)DataContext).NavigateCommand.Execute(
-                    new NavigateMessage(Type.GetType(tag), null)
-                );
+                ViewModel.NavigateCommand.Execute(new NavigateMessage(Type.GetType(tag), null));
         }
 
         private void NavigationViewControl_BackRequested(
             NavigationView sender,
             NavigationViewBackRequestedEventArgs args
-        )
-        {
-            ((NavigationPageViewModel)DataContext).BackCommand.Execute(null);
-        }
+        ) => ViewModel.BackCommand.Execute(null);
 
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
-            if (
-                ContentFrame.SourcePageType != null
-                && ContentFrame.SourcePageType == typeof(SettingsPage)
-            )
+            if (ContentFrame.SourcePageType == typeof(SettingsPage))
             {
                 NavigationViewControl.SelectedItem = NavigationViewControl.SettingsItem;
                 return;
@@ -68,7 +60,7 @@ namespace Yukari.Views.Pages
                 .MenuItems.OfType<NavigationViewItem>()
                 .Concat(NavigationViewControl.FooterMenuItems.OfType<NavigationViewItem>())
                 .FirstOrDefault(item =>
-                    item.Tag?.ToString() == ContentFrame.SourcePageType.FullName
+                    item.Tag.ToString() == ContentFrame.SourcePageType.FullName
                 );
 
             if (selectedMenuItem != null)
@@ -89,11 +81,8 @@ namespace Yukari.Views.Pages
             AutoSuggestBoxTextChangedEventArgs args
         )
         {
-            if (
-                args.Reason != AutoSuggestionBoxTextChangeReason.ProgrammaticChange
-                && DataContext is NavigationPageViewModel viewModel
-            )
-                viewModel.SearchTextChangedCommand.Execute(null);
+            if (args.Reason != AutoSuggestionBoxTextChangeReason.ProgrammaticChange)
+                ViewModel.SearchTextChangedCommand.Execute(null);
         }
     }
 }

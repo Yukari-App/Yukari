@@ -20,7 +20,7 @@
                       Margin="0,0,0,20"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Bottom"
-                      ItemsSource="{Binding Notifications}">
+                      ItemsSource="{x:Bind ViewModel.Notifications, Mode=OneWay}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="models:NotificationModel">
                     <InfoBar Title="{x:Bind Title}"

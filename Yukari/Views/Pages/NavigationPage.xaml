@@ -30,17 +30,17 @@
                             Margin="8,0,8,0"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
-                            IsEnabled="{Binding IsSearchEnabled}"
+                            IsEnabled="{x:Bind ViewModel.IsSearchEnabled, Mode=OneWay}"
                             PlaceholderText="Search for Comics"
                             QueryIcon="Find"
-                            Text="{Binding SearchText, Mode=TwoWay}"
+                            Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}"
                             TextChanged="AutoSuggestBox_TextChanged" />
         </Grid>
 
         <NavigationView x:Name="NavigationViewControl"
                         BackRequested="NavigationViewControl_BackRequested"
                         DisplayModeChanged="NavigationViewControl_DisplayModeChanged"
-                        IsBackEnabled="{Binding IsBackEnabled}"
+                        IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
                         ItemInvoked="NavigationViewControl_ItemInvoked"
                         OpenPaneLength="200"
                         PaneDisplayMode="Auto">

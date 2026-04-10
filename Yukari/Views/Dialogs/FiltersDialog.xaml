@@ -73,7 +73,7 @@
     </ContentDialog.Resources>
 
     <ScrollViewer Width="320" MaxHeight="300">
-        <ItemsControl ItemTemplateSelector="{StaticResource FilterTemplateSelector}" ItemsSource="{Binding Filters}">
+        <ItemsControl ItemTemplateSelector="{StaticResource FilterTemplateSelector}" ItemsSource="{x:Bind ViewModel.Filters, Mode=OneWay}">
             <ItemsControl.ItemContainerTransitions>
                 <EntranceThemeTransition FromVerticalOffset="50" />
                 <RepositionThemeTransition IsStaggeringEnabled="False" />

@@ -40,7 +40,7 @@
             <Color x:Key="ButtonBorderBrushDisabled">Transparent</Color>
         </Grid.Resources>
         <Grid.ChildrenTransitions>
-            <RepositionThemeTransition/>
+            <RepositionThemeTransition />
         </Grid.ChildrenTransitions>
 
         <Grid x:Name="AppTitleBar"
@@ -58,11 +58,11 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{Binding IsFullscreen, Converter={StaticResource FullScreenToColumnWidthConverter}}" />
+                <ColumnDefinition Width="{x:Bind ViewModel.IsFullscreen, Converter={StaticResource FullScreenToColumnWidthConverter}, Mode=OneWay}" />
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0"
-                    Command="{Binding GoBackCommand}"
+                    Command="{x:Bind ViewModel.GoBackCommand}"
                     Content="{ui:FontIcon Glyph=&#xE72B;,
                                           FontSize=11}"
                     Style="{StaticResource TitleBarButtonStyle}"
@@ -76,26 +76,26 @@
                        Margin="10,0,0,0"
                        VerticalAlignment="Center"
                        Style="{StaticResource CaptionTextBlockStyle}"
-                       Text="{Binding ComicTitle}" />
+                       Text="{x:Bind ViewModel.ComicTitle}" />
             <TextBlock Grid.Column="3"
                        Margin="8,0,0,0"
                        VerticalAlignment="Center"
                        FontSize="10"
                        Foreground="{StaticResource TextFillColorSecondaryBrush}"
-                       Text="{Binding ChapterTitle}" />
+                       Text="{x:Bind ViewModel.ChapterTitle, Mode=OneWay}" />
             <StackPanel Grid.Column="5"
                         Margin="4,0,4,0"
                         Orientation="Horizontal"
                         Spacing="4">
 
-                <Button Command="{Binding ForwardChapterNavigationButtonCommand}"
+                <Button Command="{x:Bind ViewModel.ForwardChapterNavigationButtonCommand, Mode=OneWay}"
                         Content="{ui:FontIcon Glyph=&#xE76B;}"
                         Style="{StaticResource TitleBarButtonStyle}"
-                        ToolTipService.ToolTip="{Binding ForwardChapterNavigationButtonToolTip}" />
-                <Button Command="{Binding BackwardChapterNavigationButtonCommand}"
+                        ToolTipService.ToolTip="{x:Bind ViewModel.ForwardChapterNavigationButtonToolTip, Mode=OneWay}" />
+                <Button Command="{x:Bind ViewModel.BackwardChapterNavigationButtonCommand, Mode=OneWay}"
                         Content="{ui:FontIcon Glyph=&#xE76C;}"
                         Style="{StaticResource TitleBarButtonStyle}"
-                        ToolTipService.ToolTip="{Binding BackwardChapterNavigationButtonToolTip}" />
+                        ToolTipService.ToolTip="{x:Bind ViewModel.BackwardChapterNavigationButtonToolTip, Mode=OneWay}" />
 
                 <AppBarSeparator Grid.Column="6" />
 
@@ -104,61 +104,61 @@
                               Padding="0"
                               Background="Transparent"
                               BorderBrush="Transparent"
-                              Command="{Binding ToggleFullscreenCommand}"
-                              IsChecked="{Binding IsFullscreen, Mode=TwoWay}"
+                              Command="{x:Bind ViewModel.ToggleFullscreenCommand}"
+                              IsChecked="{x:Bind ViewModel.IsFullscreen, Mode=TwoWay}"
                               ToolTipService.ToolTip="Fullscreen">
-                    <FontIcon FontSize="16" Glyph="{Binding FullscreenButtonIcon}" />
+                    <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.FullscreenButtonIcon, Mode=OneWay}" />
                 </ToggleButton>
                 <Button Content="{ui:FontIcon Glyph=&#xE712;}" Style="{StaticResource TitleBarButtonStyle}" ToolTipService.ToolTip="Options">
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE736;}" Text="Reading Mode">
-                                <RadioMenuFlyoutItem Command="{Binding SetReadingModeCommand}"
+                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetReadingModeCommand}"
                                                      CommandParameter="RightToLeft"
                                                      GroupName="ReadingMode"
                                                      Icon="{ui:FontIcon Glyph=&#xF0B0;}"
-                                                     IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=RightToLeft}"
+                                                     IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=RightToLeft, Mode=OneWay}"
                                                      Text="right-to-left" />
-                                <RadioMenuFlyoutItem Command="{Binding SetReadingModeCommand}"
+                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetReadingModeCommand}"
                                                      CommandParameter="LeftToRight"
                                                      GroupName="ReadingMode"
                                                      Icon="{ui:FontIcon Glyph=&#xF0AF;}"
-                                                     IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=LeftToRight}"
+                                                     IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=LeftToRight, Mode=OneWay}"
                                                      Text="left-to-right" />
-                                <RadioMenuFlyoutItem Command="{Binding SetReadingModeCommand}"
+                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetReadingModeCommand}"
                                                      CommandParameter="Vertical"
                                                      GroupName="ReadingMode"
                                                      Icon="{ui:FontIcon Glyph=&#xF0AE;}"
-                                                     IsChecked="{Binding ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Vertical}"
+                                                     IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Vertical, Mode=OneWay}"
                                                      Text="vertical" />
                             </MenuFlyoutSubItem>
                             <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE9A6;}" Text="Scaling Mode">
-                                <RadioMenuFlyoutItem Command="{Binding SetScalingModeCommand}"
+                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetScalingModeCommand}"
                                                      CommandParameter="FitScreen"
                                                      GroupName="ScalingMode"
-                                                     IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitScreen}"
+                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitScreen, Mode=OneWay}"
                                                      Text="Fit screen" />
-                                <RadioMenuFlyoutItem Command="{Binding SetScalingModeCommand}"
+                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetScalingModeCommand}"
                                                      CommandParameter="FitWidth"
                                                      GroupName="ScalingMode"
-                                                     IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitWidth}"
+                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitWidth, Mode=OneWay}"
                                                      Text="Fit width" />
-                                <RadioMenuFlyoutItem Command="{Binding SetScalingModeCommand}"
+                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetScalingModeCommand}"
                                                      CommandParameter="FitHeight"
                                                      GroupName="ScalingMode"
-                                                     IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitHeight}"
+                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitHeight, Mode=OneWay}"
                                                      Text="Fit heigth" />
-                                <RadioMenuFlyoutItem Command="{Binding SetScalingModeCommand}"
+                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetScalingModeCommand}"
                                                      CommandParameter="OriginalSize"
                                                      GroupName="ScalingMode"
-                                                     IsChecked="{Binding ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OriginalSize}"
+                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OriginalSize, Mode=OneWay}"
                                                      Text="Original size" />
                             </MenuFlyoutSubItem>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
 
-                <AppBarSeparator Grid.Column="6" Visibility="{Binding IsFullscreen, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />
+                <AppBarSeparator Grid.Column="6" Visibility="{x:Bind ViewModel.IsFullscreen, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
             </StackPanel>
         </Grid>
 
@@ -169,12 +169,12 @@
               SizeChanged="ContentSection_SizeChanged">
             <FlipView x:Name="PagesFlipView"
                       Background="Transparent"
-                      FlowDirection="{Binding ReadingMode, Converter={StaticResource ReadingModeToFlowDirectionConverter}}"
-                      ItemsSource="{Binding ChapterPages}"
-                      SelectedIndex="{Binding CurrentPageIndex, Mode=TwoWay}">
+                      FlowDirection="{x:Bind ViewModel.ReadingMode, Converter={StaticResource ReadingModeToFlowDirectionConverter}, Mode=OneWay}"
+                      ItemsSource="{x:Bind ViewModel.ChapterPages, Mode=OneWay}"
+                      SelectedIndex="{x:Bind ViewModel.CurrentPageIndex, Mode=TwoWay}">
                 <FlipView.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <VirtualizingStackPanel Orientation="{Binding ReadingMode, Converter={StaticResource ReadingModeToOrientationConverter}}" />
+                        <VirtualizingStackPanel Orientation="{Binding ReadingMode, Converter={StaticResource ReadingModeToOrientationConverter}, Mode=OneWay}" />
                     </ItemsPanelTemplate>
                 </FlipView.ItemsPanel>
 
@@ -267,37 +267,37 @@
                     Width="48"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Stretch"
-                    Command="{Binding ForwardPageNavigationButtonCommand}"
+                    Command="{x:Bind ViewModel.ForwardPageNavigationButtonCommand, Mode=OneWay}"
                     Content="{ui:FontIcon Glyph=&#xE96F;}"
                     Style="{StaticResource PageNavigationButtonStyle}"
-                    Visibility="{Binding IsHorizontalPageNavigationButtonsVisible}" />
+                    Visibility="{x:Bind ViewModel.IsHorizontalPageNavigationButtonsVisible, Mode=OneWay}" />
             <Button x:Name="RightEdgeButton"
                     Grid.Row="1"
                     Width="48"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Stretch"
-                    Command="{Binding BackwardPageNavigationButtonCommand}"
+                    Command="{x:Bind ViewModel.BackwardPageNavigationButtonCommand, Mode=OneWay}"
                     Content="{ui:FontIcon Glyph=&#xE970;}"
                     Style="{StaticResource PageNavigationButtonStyle}"
-                    Visibility="{Binding IsHorizontalPageNavigationButtonsVisible}" />
+                    Visibility="{x:Bind ViewModel.IsHorizontalPageNavigationButtonsVisible, Mode=OneWay}" />
             <Button x:Name="TopEdgeButton"
                     Grid.Row="1"
                     Height="48"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Top"
-                    Command="{Binding ForwardPageNavigationButtonCommand}"
+                    Command="{x:Bind ViewModel.ForwardPageNavigationButtonCommand, Mode=OneWay}"
                     Content="{ui:FontIcon Glyph=&#xE96D;}"
                     Style="{StaticResource PageNavigationButtonStyle}"
-                    Visibility="{Binding IsVerticalPageNavigationButtonsVisible}" />
+                    Visibility="{x:Bind ViewModel.IsVerticalPageNavigationButtonsVisible, Mode=OneWay}" />
             <Button x:Name="BottomEdgeButton"
                     Grid.Row="1"
                     Height="48"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Bottom"
-                    Command="{Binding BackwardPageNavigationButtonCommand}"
+                    Command="{x:Bind ViewModel.BackwardPageNavigationButtonCommand, Mode=OneWay}"
                     Content="{ui:FontIcon Glyph=&#xE96E;}"
                     Style="{StaticResource PageNavigationButtonStyle}"
-                    Visibility="{Binding IsVerticalPageNavigationButtonsVisible}" />
+                    Visibility="{x:Bind ViewModel.IsVerticalPageNavigationButtonsVisible, Mode=OneWay}" />
 
             <TextBlock Grid.Row="1"
                        Margin="0,0,0,8"
@@ -305,16 +305,16 @@
                        VerticalAlignment="Bottom"
                        FontSize="12"
                        Foreground="{StaticResource TextFillColorSecondaryBrush}"
-                       Text="{Binding PageIndicatorText}"
-                       Visibility="{Binding IsHorizontalPageNavigationButtonsVisible}" />
+                       Text="{x:Bind ViewModel.PageIndicatorText, Mode=OneWay}"
+                       Visibility="{x:Bind ViewModel.IsHorizontalPageNavigationButtonsVisible, Mode=OneWay}" />
             <TextBlock Grid.Row="1"
                        Margin="0,8,8,0"
                        HorizontalAlignment="Right"
                        VerticalAlignment="Center"
                        FontSize="12"
                        Foreground="{StaticResource TextFillColorSecondaryBrush}"
-                       Text="{Binding PageIndicatorText}"
-                       Visibility="{Binding IsVerticalPageNavigationButtonsVisible}" />
+                       Text="{x:Bind ViewModel.PageIndicatorText, Mode=OneWay}"
+                       Visibility="{x:Bind ViewModel.IsVerticalPageNavigationButtonsVisible, Mode=OneWay}" />
         </Grid>
     </Grid>
 </Page>

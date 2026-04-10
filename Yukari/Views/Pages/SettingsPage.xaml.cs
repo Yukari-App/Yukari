@@ -5,10 +5,14 @@ namespace Yukari.Views.Pages
 {
     public sealed partial class SettingsPage : Page
     {
+        public SettingsPageViewModel ViewModel { get; set; }
+
         public SettingsPage()
         {
             InitializeComponent();
-            DataContext = App.GetService<SettingsPageViewModel>();
+
+            ViewModel = App.GetService<SettingsPageViewModel>();
+            DataContext = ViewModel;
         }
     }
 }

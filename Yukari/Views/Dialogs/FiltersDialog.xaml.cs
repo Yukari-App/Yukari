@@ -5,10 +5,14 @@ namespace Yukari.Views.Dialogs
 {
     public sealed partial class FiltersDialog : ContentDialog
     {
+        public FiltersDialogViewModel ViewModel { get; set; }
+
         public FiltersDialog(FiltersDialogViewModel viewModel)
         {
             InitializeComponent();
-            DataContext = viewModel;
+
+            ViewModel = viewModel;
+            DataContext = ViewModel;
         }
     }
 }

@@ -61,9 +61,9 @@
                         Spacing="2">
 
                 <ComboBox Height="34"
-                          IsEnabled="{Binding NoSources, Converter={StaticResource BooleanNegationConverter}}"
-                          ItemsSource="{Binding ComicSources}"
-                          SelectedItem="{Binding SelectedComicSource, Mode=TwoWay}">
+                          IsEnabled="{x:Bind ViewModel.NoSources, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
+                          ItemsSource="{x:Bind ViewModel.ComicSources, Mode=OneWay}"
+                          SelectedItem="{x:Bind ViewModel.SelectedComicSource, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="models:ComicSourceModel">
                             <StackPanel Orientation="Horizontal" Spacing="6">
@@ -82,7 +82,7 @@
                         Padding="0"
                         Background="Transparent"
                         BorderBrush="Transparent"
-                        Command="{Binding FilterCommand}"
+                        Command="{x:Bind ViewModel.FilterCommand}"
                         Content="{ui:FontIcon Glyph=&#xE71C;}" />
 
             </StackPanel>
@@ -93,20 +93,20 @@
                       Height="60"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
-                      IsActive="{Binding IsContentLoading}"
-                      Visibility="{Binding IsContentLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                      IsActive="{x:Bind ViewModel.IsContentLoading, Mode=OneWay}"
+                      Visibility="{x:Bind ViewModel.IsContentLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
         <TextBlock Grid.Row="1"
                    HorizontalAlignment="Center"
                    Style="{StaticResource BodyLargeStrongTextBlockStyle}"
                    Text="No results found."
-                   Visibility="{Binding NoResults, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                   Visibility="{x:Bind ViewModel.NoResults, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
         <TextBlock Grid.Row="1"
                    HorizontalAlignment="Center"
                    Style="{StaticResource BodyLargeStrongTextBlockStyle}"
                    TextAlignment="Center"
-                   Visibility="{Binding NoSources, Converter={StaticResource BooleanToVisibilityConverter}}">
+                   Visibility="{x:Bind ViewModel.NoSources, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
             It looks like you don't have any Comic Sources. Add one at<LineBreak />
             Settings > Sources > Comic Sources > Add New Source</TextBlock>
 
@@ -114,7 +114,7 @@
                   IsItemClickEnabled="True"
                   ItemClick="GridView_ItemClick"
                   ItemTemplate="{StaticResource ComicTemplate}"
-                  ItemsSource="{Binding SearchedComics}"
+                  ItemsSource="{x:Bind ViewModel.SearchedComics, Mode=OneWay}"
                   SelectionMode="None" />
     </Grid>
 </Page>

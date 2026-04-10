@@ -137,20 +137,20 @@
                       Height="60"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
-                      IsActive="{Binding IsContentLoading}"
-                      Visibility="{Binding IsContentLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                      IsActive="{x:Bind ViewModel.IsContentLoading, Mode=OneWay}"
+                      Visibility="{x:Bind ViewModel.IsContentLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
         <TextBlock Grid.Row="1"
                    HorizontalAlignment="Center"
                    Style="{StaticResource BodyLargeStrongTextBlockStyle}"
                    Text="No favorites found."
-                   Visibility="{Binding NoFavorites, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                   Visibility="{x:Bind ViewModel.NoFavorites, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
         <GridView Grid.Row="1"
                   IsItemClickEnabled="True"
                   ItemClick="GridView_ItemClick"
                   ItemTemplate="{StaticResource ComicTemplate}"
-                  ItemsSource="{Binding FavoriteComics}"
+                  ItemsSource="{x:Bind ViewModel.FavoriteComics, Mode=OneWay}"
                   SelectionMode="None" />
     </Grid>
 </Page>

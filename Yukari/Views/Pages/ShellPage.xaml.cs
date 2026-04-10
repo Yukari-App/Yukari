@@ -9,10 +9,13 @@ namespace Yukari.Views.Pages
 {
     public sealed partial class ShellPage : Page
     {
+        public ShellPageViewModel ViewModel { get; set; }
+
         public ShellPage()
         {
             InitializeComponent();
-            DataContext = App.GetService<ShellPageViewModel>();
+            ViewModel = App.GetService<ShellPageViewModel>();
+            DataContext = ViewModel;
 
             var messenger = App.GetService<IMessenger>();
 

@@ -7,38 +7,32 @@ namespace Yukari.Views.Pages
 {
     public sealed partial class DiscoverPage : Page
     {
+        public DiscoverPageViewModel ViewModel { get; set; }
+
         public DiscoverPage()
         {
             InitializeComponent();
 
-            DataContext = App.GetService<DiscoverPageViewModel>();
+            ViewModel = App.GetService<DiscoverPageViewModel>();
+            DataContext = ViewModel;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
-            if (DataContext is DiscoverPageViewModel viewModel)
-            {
-                viewModel.OnNavigatedTo();
-            }
+            ViewModel.OnNavigatedTo();
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-
-            if (DataContext is DiscoverPageViewModel viewModel)
-                viewModel.OnNavigatedFrom();
+            ViewModel.OnNavigatedFrom();
         }
 
         private void GridView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (
-                DataContext is DiscoverPageViewModel viewModel
-                && e.ClickedItem is ComicItemViewModel comicItem
-            )
-                viewModel.NavigateToComicCommand.Execute(comicItem.Key);
+            if (e.ClickedItem is ComicItemViewModel comicItem)
+                ViewModel.NavigateToComicCommand.Execute(comicItem.Key);
         }
     }
 }

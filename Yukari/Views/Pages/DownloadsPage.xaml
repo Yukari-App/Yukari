@@ -26,9 +26,9 @@
                         Orientation="Horizontal"
                         Spacing="2">
 
-                <ToggleButton Command="{Binding TogglePauseCommand}">
+                <ToggleButton Command="{x:Bind ViewModel.TogglePauseCommand}">
                     <ToggleButton.Content>
-                        <FontIcon Glyph="{Binding PauseIcon}" />
+                        <FontIcon Glyph="{x:Bind ViewModel.PauseIcon, Mode=OneWay}" />
                     </ToggleButton.Content>
                 </ToggleButton>
                 <AppBarSeparator />
