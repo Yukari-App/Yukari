@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
 using Yukari.Models;
@@ -10,43 +11,56 @@ namespace Yukari.Services.Comics
 {
     public interface IComicService
     {
-        Task<Result<IReadOnlyList<Filter>>> GetSourceFiltersAsync(string sourceName);
+        Task<Result<IReadOnlyList<Filter>>> GetSourceFiltersAsync(
+            string sourceName,
+            CancellationToken ct = default
+        );
         Task<Result<IReadOnlyDictionary<string, string>>> GetSourceLanguagesAsync(
-            string sourceName
+            string sourceName,
+            CancellationToken ct = default
         );
 
         Task<Result<IReadOnlyList<ComicModel>>> SearchComicsAsync(
             string sourceName,
             string? queryText,
-            IReadOnlyDictionary<string, IReadOnlyList<string>> filters
+            IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+            CancellationToken ct = default
         );
         Task<Result<IReadOnlyList<ComicModel>>> GetFavoriteComicsAsync(
             string? queryText,
-            string filter
+            string filter,
+            CancellationToken ct = default
         );
         Task<Result<ComicAggregate?>> GetComicDetailsAsync(
             ContentKey ComicKey,
-            bool forceWeb = false
+            bool forceWeb = false,
+            CancellationToken ct = default
         );
         Task<Result<ComicReadingProgress>> GetComicReadingProgressAsync(
             ContentKey comicKey,
-            string language
+            string language,
+            CancellationToken ct = default
         );
         Task<Result<IReadOnlyList<ChapterAggregate>>> GetAllChaptersAsync(
             ContentKey ComicKey,
             string language,
-            bool forceWeb = false
+            bool forceWeb = false,
+            CancellationToken ct = default
         );
         Task<Result<ChapterUserData>> GetChapterUserDataAsync(
             ContentKey comicKey,
-            ContentKey chapterKey
+            ContentKey chapterKey,
+            CancellationToken ct = default
         );
         Task<Result<IReadOnlyList<ChapterPageModel>>> GetChapterPagesAsync(
             ContentKey comicKey,
             ContentKey chapterKey,
-            bool forceWeb = false
+            bool forceWeb = false,
+            CancellationToken ct = default
         );
-        Task<Result<IReadOnlyList<ComicSourceModel>>> GetComicSourcesAsync();
+        Task<Result<IReadOnlyList<ComicSourceModel>>> GetComicSourcesAsync(
+            CancellationToken ct = default
+        );
 
         Task<Result> UpsertFavoriteComicAsync(ContentKey comic);
         Task<Result> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);

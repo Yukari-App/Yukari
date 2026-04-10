@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
 using Yukari.Helpers;
@@ -33,81 +34,92 @@ namespace Yukari.Services.Comics
 
         // --- Read Methods ---
 
-        public async Task<Result<IReadOnlyList<Filter>>> GetSourceFiltersAsync(string sourceName)
+        public async Task<Result<IReadOnlyList<Filter>>> GetSourceFiltersAsync(
+            string sourceName,
+            CancellationToken ct = default
+        )
         {
             return await ExecuteAsync(
-                async () =>
+                async (ct) =>
                 {
-                    await LoadComicSourceAsync(sourceName);
+                    await LoadComicSourceAsync(sourceName, ct);
                     return _srcService.GetFilters();
                 },
-                "Error getting source filters"
+                "Error getting source filters",
+                ct
             );
         }
 
         public async Task<Result<IReadOnlyDictionary<string, string>>> GetSourceLanguagesAsync(
-            string sourceName
+            string sourceName,
+            CancellationToken ct = default
         )
         {
             return await ExecuteAsync(
-                async () =>
+                async (ct) =>
                 {
-                    await LoadComicSourceAsync(sourceName);
+                    await LoadComicSourceAsync(sourceName, ct);
                     return _srcService.GetLanguages();
                 },
-                "Error getting source languages"
+                "Error getting source languages",
+                ct
             );
         }
 
         public async Task<Result<IReadOnlyList<ComicModel>>> SearchComicsAsync(
             string sourceName,
             string? queryText,
-            IReadOnlyDictionary<string, IReadOnlyList<string>> filters
+            IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+            CancellationToken ct = default
         )
         {
             return await ExecuteAsync(
-                async () =>
+                async (ct) =>
                 {
-                    await LoadComicSourceAsync(sourceName);
+                    await LoadComicSourceAsync(sourceName, ct);
 
                     return string.IsNullOrEmpty(queryText)
-                        ? await _srcService.GetTrendingComicsAsync(filters)
-                        : await _srcService.SearchComicsAsync(queryText, filters);
+                        ? await _srcService.GetTrendingComicsAsync(filters, ct)
+                        : await _srcService.SearchComicsAsync(queryText, filters, ct);
                 },
-                "Error fetching comics"
+                "Error fetching comics",
+                ct
             );
         }
 
         public async Task<Result<IReadOnlyList<ComicModel>>> GetFavoriteComicsAsync(
             string? queryText,
-            string filter
+            string filter,
+            CancellationToken ct = default
         )
         {
             return await ExecuteAsync(
-                () => _dbService.GetFavoriteComicsAsync(queryText),
-                "Error fetching favorite comics"
+                (ct) => _dbService.GetFavoriteComicsAsync(queryText, ct),
+                "Error fetching favorite comics",
+                ct
             );
         }
 
         public async Task<Result<ComicAggregate?>> GetComicDetailsAsync(
             ContentKey comicKey,
-            bool forceWeb = false
+            bool forceWeb = false,
+            CancellationToken ct = default
         )
         {
             return await ExecuteAsync(
-                async () =>
+                async (ct) =>
                 {
-                    var userData = await _dbService.GetComicUserDataAsync(comicKey);
+                    var userData = await _dbService.GetComicUserDataAsync(comicKey, ct);
                     ComicModel? comic;
 
                     if (userData.IsFavorite && !forceWeb)
                     {
-                        comic = await _dbService.GetComicDetailsAsync(comicKey);
+                        comic = await _dbService.GetComicDetailsAsync(comicKey, ct);
                     }
                     else
                     {
-                        await LoadComicSourceAsync(comicKey.Source);
-                        comic = await _srcService.GetComicDetailsAsync(comicKey.Id);
+                        await LoadComicSourceAsync(comicKey.Source, ct);
+                        comic = await _srcService.GetComicDetailsAsync(comicKey.Id, ct);
                     }
 
                     if (comic == null)
@@ -115,46 +127,51 @@ namespace Yukari.Services.Comics
 
                     return new ComicAggregate(comic, userData);
                 },
-                "Error fetching comic details"
+                "Error fetching comic details",
+                ct
             );
         }
 
         public async Task<Result<ComicReadingProgress>> GetComicReadingProgressAsync(
             ContentKey comicKey,
-            string language
+            string language,
+            CancellationToken ct = default
         )
         {
             return await ExecuteAsync(
-                () => _dbService.GetComicReadingProgressAsync(comicKey, language),
-                "Error fetching comic reading progress"
+                (ct) => _dbService.GetComicReadingProgressAsync(comicKey, language, ct),
+                "Error fetching comic reading progress",
+                ct
             );
         }
 
         public async Task<Result<IReadOnlyList<ChapterAggregate>>> GetAllChaptersAsync(
             ContentKey comicKey,
             string language,
-            bool forceWeb = false
+            bool forceWeb = false,
+            CancellationToken ct = default
         )
         {
             return await ExecuteAsync(
-                async () =>
+                async (ct) =>
                 {
-                    var userDataMap = await _dbService.GetAllChaptersUserDataMapAsync(comicKey);
+                    var userDataMap = await _dbService.GetAllChaptersUserDataMapAsync(comicKey, ct);
                     IReadOnlyList<ChapterModel> chapters;
-                    var comicUserData = await _dbService.GetComicUserDataAsync(comicKey);
+                    var comicUserData = await _dbService.GetComicUserDataAsync(comicKey, ct);
 
                     if (comicUserData.IsFavorite && !forceWeb)
                     {
-                        chapters = await _dbService.GetAllChaptersAsync(comicKey, language);
+                        chapters = await _dbService.GetAllChaptersAsync(comicKey, language, ct);
                         if (chapters.Count == 0)
-                            chapters = await FetchAndCacheChaptersAsync(comicKey, language);
+                            chapters = await FetchAndCacheChaptersAsync(comicKey, language, ct: ct);
                     }
                     else
                     {
                         chapters = await FetchAndCacheChaptersAsync(
                             comicKey,
                             language,
-                            comicUserData.IsFavorite
+                            comicUserData.IsFavorite,
+                            ct
                         );
                     }
 
@@ -167,39 +184,44 @@ namespace Yukari.Services.Comics
                             })
                             .ToList() as IReadOnlyList<ChapterAggregate>;
                 },
-                "Error fetching chapters"
+                "Error fetching chapters",
+                ct
             );
         }
 
         public async Task<Result<ChapterUserData>> GetChapterUserDataAsync(
             ContentKey comicKey,
-            ContentKey chapterKey
+            ContentKey chapterKey,
+            CancellationToken ct = default
         )
         {
             return await ExecuteAsync(
-                () => _dbService.GetChapterUserDataAsync(comicKey, chapterKey),
-                "Error fetching chapter user data"
+                (ct) => _dbService.GetChapterUserDataAsync(comicKey, chapterKey, ct),
+                "Error fetching chapter user data",
+                ct
             );
         }
 
         public async Task<Result<IReadOnlyList<ChapterPageModel>>> GetChapterPagesAsync(
             ContentKey comicKey,
             ContentKey chapterKey,
-            bool forceWeb = false
+            bool forceWeb = false,
+            CancellationToken ct = default
         )
         {
             return await ExecuteAsync(
-                async () =>
+                async (ct) =>
                 {
                     var chapterUserData = await _dbService.GetChapterUserDataAsync(
                         comicKey,
-                        chapterKey
+                        chapterKey,
+                        ct
                     );
                     IReadOnlyList<ChapterPageModel> pages;
 
                     if (chapterUserData.IsDownloaded && !forceWeb)
                     {
-                        pages = await _dbService.GetChapterPagesAsync(comicKey, chapterKey);
+                        pages = await _dbService.GetChapterPagesAsync(comicKey, chapterKey, ct);
                         if (pages.Count == 0)
                             throw new InvalidOperationException(
                                 "Chapter marked as downloaded, but no pages found locally. Try downloading again."
@@ -207,21 +229,29 @@ namespace Yukari.Services.Comics
                     }
                     else
                     {
-                        await LoadComicSourceAsync(comicKey.Source);
-                        pages = await _srcService.GetChapterPagesAsync(comicKey.Id, chapterKey.Id);
+                        await LoadComicSourceAsync(comicKey.Source, ct);
+                        pages = await _srcService.GetChapterPagesAsync(
+                            comicKey.Id,
+                            chapterKey.Id,
+                            ct
+                        );
                     }
 
                     return pages;
                 },
-                "Error fetching chapter pages"
+                "Error fetching chapter pages",
+                ct
             );
         }
 
-        public async Task<Result<IReadOnlyList<ComicSourceModel>>> GetComicSourcesAsync()
+        public async Task<Result<IReadOnlyList<ComicSourceModel>>> GetComicSourcesAsync(
+            CancellationToken ct = default
+        )
         {
             return await ExecuteAsync(
-                () => _dbService.GetComicSourcesAsync(),
-                "Error fetching comic sources"
+                (ct) => _dbService.GetComicSourcesAsync(ct),
+                "Error fetching comic sources",
+                ct
             );
         }
 
@@ -378,11 +408,12 @@ namespace Yukari.Services.Comics
         private async Task<IReadOnlyList<ChapterModel>> FetchAndCacheChaptersAsync(
             ContentKey comicKey,
             string language,
-            bool shouldSave = true
+            bool shouldSave = true,
+            CancellationToken ct = default
         )
         {
-            await LoadComicSourceAsync(comicKey.Source);
-            var chapters = await _srcService.GetAllChaptersAsync(comicKey.Id, language);
+            await LoadComicSourceAsync(comicKey.Source, ct);
+            var chapters = await _srcService.GetAllChaptersAsync(comicKey.Id, language, ct);
 
             if (shouldSave)
                 await _dbService.UpsertChaptersAsync(comicKey, language, chapters);
@@ -390,10 +421,10 @@ namespace Yukari.Services.Comics
             return chapters;
         }
 
-        private async Task LoadComicSourceAsync(string sourceName)
+        private async Task LoadComicSourceAsync(string sourceName, CancellationToken ct = default)
         {
             var comicSource =
-                (await _dbService.GetComicSourceDetailsAsync(sourceName))
+                (await _dbService.GetComicSourceDetailsAsync(sourceName, ct))
                 ?? throw new InvalidOperationException(
                     $"The source '{sourceName}' is not registered in the database."
                 );
@@ -401,14 +432,18 @@ namespace Yukari.Services.Comics
         }
 
         private async Task<Result<T>> ExecuteAsync<T>(
-            Func<Task<T>> action,
-            string errorMessagePrefix
+            Func<CancellationToken, Task<T>> action,
+            string errorMessagePrefix,
+            CancellationToken ct = default
         )
         {
             try
             {
-                var result = await action();
-                return Result<T>.Success(result);
+                return Result<T>.Success(await action(ct));
+            }
+            catch (OperationCanceledException)
+            {
+                return Result<T>.Cancelled();
             }
             catch (Exception ex) when (IsNetworkError(ex))
             {

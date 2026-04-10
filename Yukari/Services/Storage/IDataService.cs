@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Yukari.Models;
 using Yukari.Models.Data;
@@ -8,24 +9,44 @@ namespace Yukari.Services.Storage
 {
     public interface IDataService
     {
-        Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(string? queryText = null);
-        Task<ComicModel?> GetComicDetailsAsync(ContentKey ComicKey);
-        Task<ComicUserData> GetComicUserDataAsync(ContentKey ComicKey);
+        Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(
+            string? queryText = null,
+            CancellationToken ct = default
+        );
+        Task<ComicModel?> GetComicDetailsAsync(ContentKey ComicKey, CancellationToken ct = default);
+        Task<ComicUserData> GetComicUserDataAsync(
+            ContentKey ComicKey,
+            CancellationToken ct = default
+        );
         Task<ComicReadingProgress> GetComicReadingProgressAsync(
             ContentKey comicKey,
-            string language
+            string language,
+            CancellationToken ct = default
         );
-        Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(ContentKey ComicKey, string language);
+        Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(
+            ContentKey ComicKey,
+            string language,
+            CancellationToken ct = default
+        );
         Task<Dictionary<string, ChapterUserData>> GetAllChaptersUserDataMapAsync(
-            ContentKey comicKey
+            ContentKey comicKey,
+            CancellationToken ct = default
         );
-        Task<ChapterUserData> GetChapterUserDataAsync(ContentKey comicKey, ContentKey chapterKey);
+        Task<ChapterUserData> GetChapterUserDataAsync(
+            ContentKey comicKey,
+            ContentKey chapterKey,
+            CancellationToken ct = default
+        );
         Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(
             ContentKey comicKey,
-            ContentKey chapterKey
+            ContentKey chapterKey,
+            CancellationToken ct = default
         );
-        Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync();
-        Task<ComicSourceModel?> GetComicSourceDetailsAsync(string sourceName);
+        Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync(CancellationToken ct = default);
+        Task<ComicSourceModel?> GetComicSourceDetailsAsync(
+            string sourceName,
+            CancellationToken ct = default
+        );
 
         Task UpsertFavoriteComicAsync(ComicModel comic);
         Task UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);

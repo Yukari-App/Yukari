@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
 using Yukari.Core.Sources;
@@ -52,47 +53,54 @@ namespace Yukari.Services.Sources
 
         public async Task<IReadOnlyList<ComicModel>> SearchComicsAsync(
             string query,
-            IReadOnlyDictionary<string, IReadOnlyList<string>> filters
+            IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+            CancellationToken ct = default
         )
         {
             if (_currentSource == null)
                 throw new InvalidOperationException("No source loaded.");
-            var comics = await _currentSource.SearchAsync(query, filters);
 
-            return comics.Select(c => MapToModel(c)).ToList();
+            var comics = await _currentSource.SearchAsync(query, filters, ct);
+            return comics.Select(MapToModel).ToList();
         }
 
         public async Task<IReadOnlyList<ComicModel>> GetTrendingComicsAsync(
-            IReadOnlyDictionary<string, IReadOnlyList<string>> filters
+            IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+            CancellationToken ct = default
         )
         {
             if (_currentSource == null)
                 throw new InvalidOperationException("No source loaded.");
-            var comics = await _currentSource.GetTrendingAsync(filters);
 
-            return comics.Select(c => MapToModel(c)).ToList();
+            var comics = await _currentSource.GetTrendingAsync(filters, ct);
+            return comics.Select(MapToModel).ToList();
         }
 
-        public async Task<ComicModel?> GetComicDetailsAsync(string comicId)
+        public async Task<ComicModel?> GetComicDetailsAsync(
+            string comicId,
+            CancellationToken ct = default
+        )
         {
             if (_currentSource == null)
                 throw new InvalidOperationException("No source loaded.");
-            var comic = await _currentSource.GetDetailsAsync(comicId);
 
+            var comic = await _currentSource.GetDetailsAsync(comicId, ct);
             if (comic == null)
                 return null;
+
             return MapToModel(comic);
         }
 
         public async Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(
             string comicId,
-            string language
+            string language,
+            CancellationToken ct = default
         )
         {
             if (_currentSource == null)
                 throw new InvalidOperationException("No source loaded.");
-            var chapters = await _currentSource.GetAllChaptersAsync(comicId, language);
 
+            var chapters = await _currentSource.GetAllChaptersAsync(comicId, language, ct);
             return chapters
                 .Select(c => new ChapterModel
                 {
@@ -112,13 +120,14 @@ namespace Yukari.Services.Sources
 
         public async Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(
             string comicId,
-            string chapterId
+            string chapterId,
+            CancellationToken ct = default
         )
         {
             if (_currentSource == null)
                 throw new InvalidOperationException("No source loaded.");
-            var pages = await _currentSource.GetChapterPagesAsync(comicId, chapterId);
 
+            var pages = await _currentSource.GetChapterPagesAsync(comicId, chapterId, ct);
             return pages
                 .Select(p => new ChapterPageModel
                 {

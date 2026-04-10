@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.Sqlite;
@@ -123,7 +124,8 @@ namespace Yukari.Services.Storage
         }
 
         public async Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(
-            string? queryText = null
+            string? queryText = null,
+            CancellationToken ct = default
         )
         {
             using var connection = await GetOpenConnectionAsync();
@@ -143,14 +145,20 @@ namespace Yukari.Services.Storage
             ";
 
             var result = await connection.QueryAsync<ComicModel>(
-                sql,
-                new { QueryText = queryText?.Trim() }
+                new CommandDefinition(
+                    sql,
+                    new { QueryText = queryText?.Trim() },
+                    cancellationToken: ct
+                )
             );
 
             return result.ToList();
         }
 
-        public async Task<ComicModel?> GetComicDetailsAsync(ContentKey ComicKey)
+        public async Task<ComicModel?> GetComicDetailsAsync(
+            ContentKey ComicKey,
+            CancellationToken ct = default
+        )
         {
             using var connection = await GetOpenConnectionAsync();
 
@@ -167,12 +175,18 @@ namespace Yukari.Services.Storage
             ";
 
             return await connection.QueryFirstOrDefaultAsync<ComicModel>(
-                sql,
-                new { Id = ComicKey.Id, Source = ComicKey.Source }
+                new CommandDefinition(
+                    sql,
+                    new { Id = ComicKey.Id, Source = ComicKey.Source },
+                    cancellationToken: ct
+                )
             );
         }
 
-        public async Task<ComicUserData> GetComicUserDataAsync(ContentKey ComicKey)
+        public async Task<ComicUserData> GetComicUserDataAsync(
+            ContentKey ComicKey,
+            CancellationToken ct = default
+        )
         {
             using var connection = await GetOpenConnectionAsync();
 
@@ -184,8 +198,11 @@ namespace Yukari.Services.Storage
             ";
 
             var result = await connection.QueryFirstOrDefaultAsync<ComicUserData>(
-                sql,
-                new { Id = ComicKey.Id, Source = ComicKey.Source }
+                new CommandDefinition(
+                    sql,
+                    new { Id = ComicKey.Id, Source = ComicKey.Source },
+                    cancellationToken: ct
+                )
             );
 
             return result ?? new ComicUserData();
@@ -193,7 +210,8 @@ namespace Yukari.Services.Storage
 
         public async Task<ComicReadingProgress> GetComicReadingProgressAsync(
             ContentKey comicKey,
-            string language
+            string language,
+            CancellationToken ct = default
         )
         {
             using var connection = await GetOpenConnectionAsync();
@@ -206,13 +224,16 @@ namespace Yukari.Services.Storage
             ";
 
             var result = await connection.QueryFirstOrDefaultAsync<ComicReadingProgress>(
-                sql,
-                new
-                {
-                    Id = comicKey.Id,
-                    Source = comicKey.Source,
-                    Language = language,
-                }
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        Id = comicKey.Id,
+                        Source = comicKey.Source,
+                        Language = language,
+                    },
+                    cancellationToken: ct
+                )
             );
 
             return result ?? new ComicReadingProgress() { LanguageCode = language };
@@ -220,7 +241,8 @@ namespace Yukari.Services.Storage
 
         public async Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(
             ContentKey comicKey,
-            string language
+            string language,
+            CancellationToken ct = default
         )
         {
             using var connection = await GetOpenConnectionAsync();
@@ -235,20 +257,24 @@ namespace Yukari.Services.Storage
             ";
 
             var result = await connection.QueryAsync<ChapterModel>(
-                sql,
-                new
-                {
-                    Id = comicKey.Id,
-                    Source = comicKey.Source,
-                    Language = language,
-                }
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        Id = comicKey.Id,
+                        Source = comicKey.Source,
+                        Language = language,
+                    },
+                    cancellationToken: ct
+                )
             );
 
             return result.ToList();
         }
 
         public async Task<Dictionary<string, ChapterUserData>> GetAllChaptersUserDataMapAsync(
-            ContentKey comicKey
+            ContentKey comicKey,
+            CancellationToken ct = default
         )
         {
             using var connection = await GetOpenConnectionAsync();
@@ -265,7 +291,13 @@ namespace Yukari.Services.Storage
                 int? LastPageRead,
                 bool IsDownloaded,
                 bool IsRead
-            )>(sql, new { Id = comicKey.Id, Source = comicKey.Source });
+            )>(
+                new CommandDefinition(
+                    sql,
+                    new { Id = comicKey.Id, Source = comicKey.Source },
+                    cancellationToken: ct
+                )
+            );
 
             return result.ToDictionary(
                 x => x.Id,
@@ -280,7 +312,8 @@ namespace Yukari.Services.Storage
 
         public async Task<ChapterUserData> GetChapterUserDataAsync(
             ContentKey comicKey,
-            ContentKey chapterKey
+            ContentKey chapterKey,
+            CancellationToken ct = default
         )
         {
             using var connection = await GetOpenConnectionAsync();
@@ -293,13 +326,16 @@ namespace Yukari.Services.Storage
             ";
 
             var result = await connection.QueryFirstOrDefaultAsync<ChapterUserData>(
-                sql,
-                new
-                {
-                    id = chapterKey.Id,
-                    comicId = comicKey.Id,
-                    source = comicKey.Source,
-                }
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        id = chapterKey.Id,
+                        comicId = comicKey.Id,
+                        source = comicKey.Source,
+                    },
+                    cancellationToken: ct
+                )
             );
 
             return result ?? new ChapterUserData();
@@ -307,24 +343,32 @@ namespace Yukari.Services.Storage
 
         public Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(
             ContentKey comicKey,
-            ContentKey chapterKey
+            ContentKey chapterKey,
+            CancellationToken ct = default
         )
         {
             throw new NotImplementedException("Chapter downloads are not supported yet.");
         }
 
-        public async Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync()
+        public async Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync(
+            CancellationToken ct = default
+        )
         {
             using var connection = await GetOpenConnectionAsync();
 
             const string sql =
                 @"SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled FROM ComicSources;";
 
-            var result = await connection.QueryAsync<ComicSourceModel>(sql);
+            var result = await connection.QueryAsync<ComicSourceModel>(
+                new CommandDefinition(sql, cancellationToken: ct)
+            );
             return result.ToList();
         }
 
-        public async Task<ComicSourceModel?> GetComicSourceDetailsAsync(string sourceName)
+        public async Task<ComicSourceModel?> GetComicSourceDetailsAsync(
+            string sourceName,
+            CancellationToken ct = default
+        )
         {
             using var connection = await GetOpenConnectionAsync();
 
@@ -336,8 +380,7 @@ namespace Yukari.Services.Storage
             ";
 
             return await connection.QueryFirstOrDefaultAsync<ComicSourceModel>(
-                sql,
-                new { name = sourceName }
+                new CommandDefinition(sql, new { name = sourceName }, cancellationToken: ct)
             );
         }
 
