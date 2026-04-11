@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -25,6 +26,9 @@ namespace Yukari.ViewModels.Pages
         private readonly IMessenger _messenger;
 
         private ContentKey? _comicKey;
+
+        private CancellationTokenSource _navigationCts = new();
+        private CancellationTokenSource _chaptersCts = new();
 
         [ObservableProperty]
         public partial ComicModel? Comic { get; set; }
@@ -119,6 +123,12 @@ namespace Yukari.ViewModels.Pages
 
             await RefreshComicAsync();
             await RefreshChaptersAsync();
+        }
+
+        public void OnNavigatedFrom()
+        {
+            _navigationCts.Cancel();
+            _navigationCts.Dispose();
         }
 
         private bool CanContinueReading() => Comic != null && IsInterfaceReady;
@@ -263,7 +273,13 @@ namespace Yukari.ViewModels.Pages
                 Year = 0,
             };
 
-            var result = await _comicService.GetComicDetailsAsync(_comicKey);
+            var result = await _comicService.GetComicDetailsAsync(
+                _comicKey,
+                ct: _navigationCts.Token
+            );
+
+            if (result.IsCancelled)
+                return;
 
             if (result.IsSuccess)
             {
@@ -308,9 +324,26 @@ namespace Yukari.ViewModels.Pages
         {
             if (IsComicLoading || _comicKey == null || string.IsNullOrEmpty(SelectedLang))
                 return;
+
+            _chaptersCts.Cancel();
+            _chaptersCts.Dispose();
+            _chaptersCts = new CancellationTokenSource();
+
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
+                _chaptersCts.Token,
+                _navigationCts.Token
+            );
+
             IsChaptersLoading = true;
 
-            var result = await _comicService.GetAllChaptersAsync(_comicKey, SelectedLang);
+            var result = await _comicService.GetAllChaptersAsync(
+                _comicKey,
+                SelectedLang,
+                ct: linkedCts.Token
+            );
+
+            if (result.IsCancelled)
+                return;
 
             if (result.IsSuccess)
             {

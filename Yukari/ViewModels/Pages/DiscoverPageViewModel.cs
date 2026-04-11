@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -31,6 +32,7 @@ namespace Yukari.ViewModels.Pages
         private IReadOnlyDictionary<string, IReadOnlyList<string>>? _appliedFilters;
 
         private string _searchText = string.Empty;
+        private CancellationTokenSource _searchCts = new();
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(NoSources), nameof(NoResults))]
@@ -172,14 +174,23 @@ namespace Yukari.ViewModels.Pages
         {
             if (SelectedComicSource == null)
                 return;
+
+            _searchCts.Cancel();
+            _searchCts.Dispose();
+            _searchCts = new CancellationTokenSource();
+
             IsContentLoading = true;
 
             SearchedComics = new List<ComicItemViewModel>();
             var result = await _comicService.SearchComicsAsync(
                 SelectedComicSource.Name,
                 _searchText,
-                _appliedFilters ?? new Dictionary<string, IReadOnlyList<string>>()
+                _appliedFilters ?? new Dictionary<string, IReadOnlyList<string>>(),
+                _searchCts.Token
             );
+
+            if (result.IsCancelled)
+                return;
 
             if (result.IsSuccess)
                 SearchedComics = result

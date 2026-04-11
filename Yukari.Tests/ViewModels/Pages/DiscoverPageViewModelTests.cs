@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Moq;
-using Xunit;
 using Yukari.Core.Models;
 using Yukari.Messages;
 using Yukari.Models;
@@ -56,7 +55,8 @@ namespace Yukari.Tests.ViewModels.Pages
                     s.SearchComicsAsync(
                         It.IsAny<string>(),
                         It.IsAny<string>(),
-                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>()
+                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                        It.IsAny<CancellationToken>()
                     )
                 )
                 .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Success(new List<ComicModel>()));
@@ -189,7 +189,8 @@ namespace Yukari.Tests.ViewModels.Pages
                     s.SearchComicsAsync(
                         "TestSource",
                         "test search",
-                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>()
+                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                        It.IsAny<CancellationToken>()
                     )
                 )
                 .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Success(new List<ComicModel>()));
@@ -205,7 +206,8 @@ namespace Yukari.Tests.ViewModels.Pages
                     s.SearchComicsAsync(
                         It.IsAny<string>(),
                         "test search",
-                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>()
+                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                        It.IsAny<CancellationToken>()
                     ),
                 Times.Once()
             );
@@ -239,7 +241,8 @@ namespace Yukari.Tests.ViewModels.Pages
                     s.SearchComicsAsync(
                         "TestSource",
                         "",
-                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>()
+                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                        It.IsAny<CancellationToken>()
                     )
                 )
                 .ReturnsAsync(
@@ -268,7 +271,8 @@ namespace Yukari.Tests.ViewModels.Pages
                     s.SearchComicsAsync(
                         "TestSource",
                         "",
-                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>()
+                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                        It.IsAny<CancellationToken>()
                     ),
                 Times.Once()
             );
@@ -415,7 +419,8 @@ namespace Yukari.Tests.ViewModels.Pages
                         It.IsAny<string>(),
                         It.Is<Dictionary<string, IReadOnlyList<string>>>(f =>
                             f.ContainsKey("test") && f["test"].Contains("value")
-                        )
+                        ),
+                        It.IsAny<CancellationToken>()
                     )
                 )
                 .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Success(new List<ComicModel>()));
@@ -440,7 +445,8 @@ namespace Yukari.Tests.ViewModels.Pages
                         It.IsAny<string>(),
                         It.Is<Dictionary<string, IReadOnlyList<string>>>(f =>
                             f.ContainsKey("test") && f["test"].Contains("value")
-                        )
+                        ),
+                        It.IsAny<CancellationToken>()
                     ),
                 Times.Once()
             );
@@ -462,7 +468,8 @@ namespace Yukari.Tests.ViewModels.Pages
                     s.SearchComicsAsync(
                         "ErrorSource",
                         It.IsAny<string>(),
-                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>()
+                        It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                        It.IsAny<CancellationToken>()
                     )
                 )
                 .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Failure("API error"));

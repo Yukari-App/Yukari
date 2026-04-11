@@ -23,6 +23,12 @@ namespace Yukari.Views.Pages
             await ViewModel.InitializeAsync();
         }
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            ViewModel.OnNavigatedFrom();
+        }
+
         private void GridView_ItemClick(object sender, ItemClickEventArgs e)
         {
             if (e.ClickedItem is ComicItemViewModel comicItem)

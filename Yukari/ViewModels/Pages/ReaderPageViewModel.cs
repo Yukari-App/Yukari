@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -29,6 +30,9 @@ namespace Yukari.ViewModels.Pages
         private ChapterAggregate[]? _chapters;
 
         private int _currentChapterIndex = -1;
+
+        private CancellationTokenSource _navigationCts = new();
+        private CancellationTokenSource _chapterLoadCts = new();
 
         [ObservableProperty]
         public partial string? ComicTitle { get; set; }
@@ -127,7 +131,15 @@ namespace Yukari.ViewModels.Pages
             _language = selectedLang;
             ComicTitle = comicTitle;
 
-            var result = await _comicService.GetAllChaptersAsync(comicKey, selectedLang);
+            var result = await _comicService.GetAllChaptersAsync(
+                comicKey,
+                selectedLang,
+                ct: _navigationCts.Token
+            );
+
+            if (result.IsCancelled)
+                return;
+
             if (!result.IsSuccess)
             {
                 await TriggerErrorAndReturn(result.Error!);
@@ -177,6 +189,15 @@ namespace Yukari.ViewModels.Pages
             )
                 return;
 
+            _chapterLoadCts.Cancel();
+            _chapterLoadCts.Dispose();
+            _chapterLoadCts = new CancellationTokenSource();
+
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
+                _chapterLoadCts.Token,
+                _navigationCts.Token
+            );
+
             IsLoading = true;
 
             CurrentChapter = _chapters[_currentChapterIndex].Chapter;
@@ -184,8 +205,13 @@ namespace Yukari.ViewModels.Pages
 
             var pagesResult = await _comicService.GetChapterPagesAsync(
                 _comicKey,
-                new(CurrentChapter.Id, CurrentChapter.Source)
+                new(CurrentChapter.Id, CurrentChapter.Source),
+                ct: linkedCts.Token
             );
+
+            if (pagesResult.IsCancelled)
+                return;
+
             if (pagesResult.IsSuccess)
             {
                 ChapterPages = pagesResult
@@ -210,6 +236,8 @@ namespace Yukari.ViewModels.Pages
         private async Task GoBack()
         {
             await SaveReadingProgressAsync();
+            _navigationCts.Cancel();
+            _navigationCts.Dispose();
 
             _messenger.Send(new SetFullscreenMessage(false));
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));

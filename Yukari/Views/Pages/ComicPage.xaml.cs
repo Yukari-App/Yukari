@@ -26,5 +26,11 @@ namespace Yukari.Views.Pages
                 await ViewModel.InitializeAsync(ComicKey);
             }
         }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            ViewModel.OnNavigatedFrom();
+        }
     }
 }
