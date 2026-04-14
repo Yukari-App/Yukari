@@ -4,6 +4,8 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:converters="using:Yukari.Helpers.UI.Converters"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:enums="using:Yukari.Enums"
+      xmlns:helpers="using:Yukari.Helpers.UI"
       xmlns:local="using:Yukari.Views.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:models="using:Yukari.Models"
@@ -78,27 +80,16 @@
                                           HorizontalContentAlignment="Stretch"
                                           Description="Change the direction and flow of reading"
                                           Header="Reading Mode"
-                                          HeaderIcon="{ui:FontIcon Glyph=&#xE736;}"
-                                          IsEnabled="False">
-                        <ComboBox SelectedIndex="0">
-                            <ComboBoxItem>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon VerticalAlignment="Center" FontSize="14" Glyph="&#xF0B0;" />
-                                    <TextBlock VerticalAlignment="Center" Text="right-to-left" />
-                                </StackPanel>
-                            </ComboBoxItem>
-                            <ComboBoxItem>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon VerticalAlignment="Center" FontSize="14" Glyph="&#xF0AF;" />
-                                    <TextBlock VerticalAlignment="Center" Text="left-to-right" />
-                                </StackPanel>
-                            </ComboBoxItem>
-                            <ComboBoxItem>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon VerticalAlignment="Center" FontSize="14" Glyph="&#xF0AE;" />
-                                    <TextBlock VerticalAlignment="Center" Text="Vertical" />
-                                </StackPanel>
-                            </ComboBoxItem>
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xE736;}">
+                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableReadingModes}" SelectedItem="{x:Bind ViewModel.SelectedReadingMode, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="enums:ReadingMode">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon VerticalAlignment="Center" FontSize="14" Glyph="{x:Bind helpers:ReadingModeHelper.ToGlyph((enums:ReadingMode))}" />
+                                        <TextBlock VerticalAlignment="Center" Text="{x:Bind helpers:ReadingModeHelper.ToDisplayName((enums:ReadingMode))}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
                         </ComboBox>
                     </toolkit:SettingsCard>
 
@@ -106,13 +97,13 @@
                                           HorizontalContentAlignment="Stretch"
                                           Description="Adjust how comic pages fit your screen"
                                           Header="Scaling Mode"
-                                          HeaderIcon="{ui:FontIcon Glyph=&#xE9A6;}"
-                                          IsEnabled="False">
-                        <ComboBox SelectedIndex="0">
-                            <ComboBoxItem>Fit screen</ComboBoxItem>
-                            <ComboBoxItem>Fit width</ComboBoxItem>
-                            <ComboBoxItem>Fit height</ComboBoxItem>
-                            <ComboBoxItem>Original size</ComboBoxItem>
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xE9A6;}">
+                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableScalingModes}" SelectedItem="{x:Bind ViewModel.SelectedScalingMode, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="enums:ScalingMode">
+                                    <TextBlock Text="{x:Bind helpers:ScalingModeHelper.ToDisplayName((enums:ScalingMode))}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
                         </ComboBox>
                     </toolkit:SettingsCard>
 

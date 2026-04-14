@@ -23,9 +23,17 @@ namespace Yukari.ViewModels.Pages
         public string YukariVersion { get; } = AppInfoHelper.Version;
 
         public ThemeMode[] AvailableThemeModes { get; } = Enum.GetValues<ThemeMode>();
+        public ReadingMode[] AvailableReadingModes { get; } = Enum.GetValues<ReadingMode>();
+        public ScalingMode[] AvailableScalingModes { get; } = Enum.GetValues<ScalingMode>();
 
         [ObservableProperty]
         public partial ThemeMode SelectedThemeMode { get; set; }
+
+        [ObservableProperty]
+        public partial ReadingMode SelectedReadingMode { get; set; }
+
+        [ObservableProperty]
+        public partial ScalingMode SelectedScalingMode { get; set; }
 
         [ObservableProperty]
         public partial ComicSourceModel? DefaultComicSource { get; set; }
@@ -49,10 +57,6 @@ namespace Yukari.ViewModels.Pages
             _dialogService = dialogService;
 
             _ = LoadSettingsAsync();
-
-            _notificationService.ShowWarning(
-                "Settings are not currently persisted, except adding ComicSources and changing theme"
-            );
         }
 
         public async Task OnNavigatedFromAsync() => await _settingsService.SaveAsync();
@@ -60,6 +64,8 @@ namespace Yukari.ViewModels.Pages
         private async Task LoadSettingsAsync()
         {
             SelectedThemeMode = _settingsService.Current.Theme;
+            SelectedReadingMode = _settingsService.Current.ReadingMode;
+            SelectedScalingMode = _settingsService.Current.ScalingMode;
 
             await LoadComicSourcesAsync();
             if (ComicSources.Count > 0)
@@ -108,6 +114,12 @@ namespace Yukari.ViewModels.Pages
 
         partial void OnSelectedThemeModeChanged(ThemeMode value) =>
             _settingsService.Set(s => s.Theme, value);
+
+        partial void OnSelectedReadingModeChanged(ReadingMode value) =>
+            _settingsService.Set(s => s.ReadingMode, value);
+
+        partial void OnSelectedScalingModeChanged(ScalingMode value) =>
+            _settingsService.Set(s => s.ScalingMode, value);
 
         partial void OnDefaultComicSourceChanged(ComicSourceModel? value) =>
             _settingsService.Set(s => s.DefaultComicSourceName, value?.Name);
