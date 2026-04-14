@@ -62,6 +62,13 @@ namespace Yukari.ViewModels.Pages
             SelectedThemeMode = _settingsService.Current.Theme;
 
             await LoadComicSourcesAsync();
+            if (ComicSources.Count > 0)
+            {
+                DefaultComicSource =
+                    ComicSources.FirstOrDefault(s =>
+                        s.Name == _settingsService.Current.DefaultComicSourceName
+                    ) ?? ComicSources.First();
+            }
         }
 
         [RelayCommand]
@@ -79,6 +86,11 @@ namespace Yukari.ViewModels.Pages
             }
 
             await LoadComicSourcesAsync();
+            DefaultComicSource ??=
+                ComicSources.FirstOrDefault(s =>
+                    s.Name == _settingsService.Current.DefaultComicSourceName
+                ) ?? ComicSources.FirstOrDefault();
+
             _notificationService.ShowSuccess("Comic source added successfully.");
         }
 
@@ -96,5 +108,8 @@ namespace Yukari.ViewModels.Pages
 
         partial void OnSelectedThemeModeChanged(ThemeMode value) =>
             _settingsService.Set(s => s.Theme, value);
+
+        partial void OnDefaultComicSourceChanged(ComicSourceModel? value) =>
+            _settingsService.Set(s => s.DefaultComicSourceName, value?.Name);
     }
 }
