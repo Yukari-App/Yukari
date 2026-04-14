@@ -63,20 +63,10 @@
                     </TextBlock>
                     <toolkit:SettingsCard HorizontalAlignment="Stretch"
                                           HorizontalContentAlignment="Stretch"
-                                          Description="Select the default language for chapters"
-                                          Header="Default Language"
-                                          HeaderIcon="{ui:FontIcon Glyph=&#xF2B7;}">
-                        <ComboBox SelectedIndex="0">
-                            <ComboBoxItem>en-US</ComboBoxItem>
-                            <ComboBoxItem>pt-BR</ComboBoxItem>
-                        </ComboBox>
-                    </toolkit:SettingsCard>
-
-                    <toolkit:SettingsCard HorizontalAlignment="Stretch"
-                                          HorizontalContentAlignment="Stretch"
                                           Description="Synchronizes favorite comic data and chapters on startup"
                                           Header="Update Comics on Startup"
-                                          HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xE895;}"
+                                          IsEnabled="False">
                         <ToggleSwitch />
                     </toolkit:SettingsCard>
 
@@ -88,7 +78,8 @@
                                           HorizontalContentAlignment="Stretch"
                                           Description="Change the direction and flow of reading"
                                           Header="Reading Mode"
-                                          HeaderIcon="{ui:FontIcon Glyph=&#xE736;}">
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xE736;}"
+                                          IsEnabled="False">
                         <ComboBox SelectedIndex="0">
                             <ComboBoxItem>
                                 <StackPanel Orientation="Horizontal" Spacing="6">
@@ -115,7 +106,8 @@
                                           HorizontalContentAlignment="Stretch"
                                           Description="Adjust how comic pages fit your screen"
                                           Header="Scaling Mode"
-                                          HeaderIcon="{ui:FontIcon Glyph=&#xE9A6;}">
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xE9A6;}"
+                                          IsEnabled="False">
                         <ComboBox SelectedIndex="0">
                             <ComboBoxItem>Fit screen</ComboBoxItem>
                             <ComboBoxItem>Fit width</ComboBoxItem>
