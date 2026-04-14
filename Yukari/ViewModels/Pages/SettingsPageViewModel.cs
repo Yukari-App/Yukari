@@ -1,22 +1,31 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Yukari.Enums;
 using Yukari.Helpers;
 using Yukari.Models;
 using Yukari.Services.Comics;
+using Yukari.Services.Settings;
 using Yukari.Services.UI;
 
 namespace Yukari.ViewModels.Pages
 {
     public partial class SettingsPageViewModel : ObservableObject
     {
+        private readonly ISettingsService _settingsService;
         private readonly IComicService _comicService;
         private readonly INotificationService _notificationService;
         private readonly IDialogService _dialogService;
 
         public string YukariVersion { get; } = AppInfoHelper.Version;
+
+        public ThemeMode[] AvailableThemeModes { get; } = Enum.GetValues<ThemeMode>();
+
+        [ObservableProperty]
+        public partial ThemeMode SelectedThemeMode { get; set; }
 
         [ObservableProperty]
         public partial ComicSourceModel? DefaultComicSource { get; set; }
@@ -28,20 +37,31 @@ namespace Yukari.ViewModels.Pages
         public bool IsComicSourcesEmpty => ComicSources.Count == 0;
 
         public SettingsPageViewModel(
+            ISettingsService settingsService,
             IComicService comicService,
             INotificationService notificationService,
             IDialogService dialogService
         )
         {
+            _settingsService = settingsService;
             _comicService = comicService;
             _notificationService = notificationService;
             _dialogService = dialogService;
 
-            _ = LoadComicSourcesAsync();
+            _ = LoadSettingsAsync();
 
             _notificationService.ShowWarning(
-                "Settings are not currently persisted, except adding ComicSources"
+                "Settings are not currently persisted, except adding ComicSources and changing theme"
             );
+        }
+
+        public async Task OnNavigatedFromAsync() => await _settingsService.SaveAsync();
+
+        private async Task LoadSettingsAsync()
+        {
+            SelectedThemeMode = _settingsService.Current.Theme;
+
+            await LoadComicSourcesAsync();
         }
 
         [RelayCommand]
@@ -73,5 +93,8 @@ namespace Yukari.ViewModels.Pages
 
             ComicSources = result.Value!.ToList();
         }
+
+        partial void OnSelectedThemeModeChanged(ThemeMode value) =>
+            _settingsService.Set(s => s.Theme, value);
     }
 }

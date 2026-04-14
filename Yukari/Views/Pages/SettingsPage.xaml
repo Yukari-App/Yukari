@@ -54,11 +54,7 @@
                                           Description="Select the application theme"
                                           Header="Application Theme"
                                           HeaderIcon="{ui:FontIcon Glyph=}">
-                        <ComboBox SelectedIndex="0">
-                            <ComboBoxItem>Light</ComboBoxItem>
-                            <ComboBoxItem>Dark</ComboBoxItem>
-                            <ComboBoxItem>System</ComboBoxItem>
-                        </ComboBox>
+                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableThemeModes}" SelectedItem="{x:Bind ViewModel.SelectedThemeMode, Mode=TwoWay}" />
                     </toolkit:SettingsCard>
 
                     <!--  Preferences Section  -->
