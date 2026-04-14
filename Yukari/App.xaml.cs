@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Yukari.Services;
 using Yukari.Services.Comics;
+using Yukari.Services.Settings;
 using Yukari.Services.Sources;
 using Yukari.Services.Storage;
 using Yukari.Services.UI;
@@ -37,6 +38,7 @@ namespace Yukari
             services.AddSingleton<INotificationService, NotificationService>();
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<ISettingsService, SettingsService>();
             services.AddSingleton<IDataService, DataService>();
             services.AddSingleton<IDownloadService, DownloadService>();
             services.AddSingleton<ISourceService, SourceService>();
@@ -46,6 +48,9 @@ namespace Yukari
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
+            var settings = GetService<ISettingsService>();
+            await settings.LoadAsync();
+
             MainWindow = new MainWindow();
             MainWindow.Activate();
 
