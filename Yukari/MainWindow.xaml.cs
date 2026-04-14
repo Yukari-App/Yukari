@@ -1,13 +1,18 @@
 using System;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Windows.Graphics;
+using Windows.UI;
+using Yukari.Enums;
 using Yukari.Messages;
+using Yukari.Models.Settings;
+using Yukari.Services.Settings;
 using Yukari.Views.Pages;
 
 namespace Yukari
@@ -17,27 +22,30 @@ namespace Yukari
         private const string WindowTitle = "Yukari";
         private const string WindowIconPath = "Assets/AppIcon.ico";
 
-        private const int MinWidth = 656;
+        private const int MinWidth = 654;
         private const int MinHeight = 500;
-        private const int DefaultWidth = 1200;
-        private const int DefaultHeight = 700;
 
         private readonly IMessenger _messenger;
+        private readonly ISettingsService _settingsService;
 
         private readonly double _scaleFactor;
         private readonly OverlappedPresenter _presenter;
 
-        private Frame _rootFrame = new() { Content = new SplashPage() };
+        private readonly Frame _rootFrame = new() { Content = new SplashPage() };
 
         public MainWindow()
         {
             InitializeComponent();
             _messenger = App.GetService<IMessenger>();
+            _settingsService = App.GetService<ISettingsService>();
 
             Title = WindowTitle;
             AppWindow.SetIcon(WindowIconPath);
             ExtendsContentIntoTitleBar = true;
             AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
+
+            Content = _rootFrame;
+            SetTheme(_settingsService.Current.Theme);
 
             _presenter = OverlappedPresenter.Create();
             _presenter.PreferredMinimumWidth = MinWidth;
@@ -45,9 +53,21 @@ namespace Yukari
             AppWindow.SetPresenter(_presenter);
 
             _scaleFactor = GetScaleFactor();
-            AppWindow.Resize(new SizeInt32((int)(DefaultWidth * _scaleFactor), (int)(DefaultHeight * _scaleFactor)));
+            AppWindow.MoveAndResize(
+                new RectInt32(
+                    (int)(_settingsService.Current.MainWindowState.Left * _scaleFactor),
+                    (int)(_settingsService.Current.MainWindowState.Top * _scaleFactor),
+                    (int)(_settingsService.Current.MainWindowState.Width * _scaleFactor),
+                    (int)(_settingsService.Current.MainWindowState.Height * _scaleFactor)
+                )
+            );
 
-            Content = _rootFrame;
+            if (_settingsService.Current.MainWindowState.IsMaximized)
+                _presenter.Maximize();
+
+            _settingsService.SettingChanged += Settings_Changed;
+            Closed += MainWindow_Closed;
+
             _messenger.RegisterAll(this);
         }
 
@@ -65,6 +85,70 @@ namespace Yukari
                 AppWindow.SetPresenter(AppWindowPresenterKind.FullScreen);
             else
                 AppWindow.SetPresenter(_presenter);
+        }
+
+        private void SetTheme(ThemeMode themeMode)
+        {
+            var newTheme = themeMode switch
+            {
+                ThemeMode.Light => ElementTheme.Light,
+                ThemeMode.Dark => ElementTheme.Dark,
+                _ => ElementTheme.Default,
+            };
+            _rootFrame.RequestedTheme = newTheme;
+
+            if (newTheme == ElementTheme.Default)
+                newTheme =
+                    Application.Current.RequestedTheme == ApplicationTheme.Dark
+                        ? ElementTheme.Dark
+                        : ElementTheme.Light;
+
+            Color buttonHoverBackgroundColor =
+                newTheme == ElementTheme.Dark ? Color.FromArgb(255, 61, 61, 61) : Colors.LightGray;
+
+            Color foregroundColor = newTheme == ElementTheme.Dark ? Colors.White : Colors.Black;
+
+            var titleBar = AppWindow.TitleBar;
+            titleBar.ButtonHoverBackgroundColor = buttonHoverBackgroundColor;
+            titleBar.ForegroundColor = foregroundColor;
+            titleBar.ButtonForegroundColor = foregroundColor;
+            titleBar.ButtonHoverForegroundColor = foregroundColor;
+        }
+
+        private void Settings_Changed(object? sender, SettingsChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(AppSettings.Theme))
+                SetTheme(e.NewValue is ThemeMode newTheme ? newTheme : ThemeMode.System);
+        }
+
+        private async void MainWindow_Closed(object sender, WindowEventArgs args)
+        {
+            args.Handled = true;
+
+            var isMaximized = _presenter.State == OverlappedPresenterState.Maximized;
+            var lastWindowState = new WindowState
+            {
+                IsMaximized = isMaximized,
+                Width = isMaximized
+                    ? _settingsService.Current.MainWindowState.Width
+                    : AppWindow.Size.Width / _scaleFactor,
+                Height = isMaximized
+                    ? _settingsService.Current.MainWindowState.Height
+                    : AppWindow.Size.Height / _scaleFactor,
+                Left = isMaximized
+                    ? _settingsService.Current.MainWindowState.Left
+                    : AppWindow.Position.X / _scaleFactor,
+                Top = isMaximized
+                    ? _settingsService.Current.MainWindowState.Top
+                    : AppWindow.Position.Y / _scaleFactor,
+            };
+
+            _settingsService.Set(s => s.MainWindowState, lastWindowState);
+            await _settingsService.SaveAsync();
+
+            _settingsService.SettingChanged -= Settings_Changed;
+            Closed -= MainWindow_Closed;
+            Close();
         }
 
         [DllImport("user32.dll")]
