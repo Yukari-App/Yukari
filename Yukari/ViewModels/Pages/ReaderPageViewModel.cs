@@ -12,6 +12,7 @@ using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.Settings;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
@@ -20,6 +21,7 @@ namespace Yukari.ViewModels.Pages
     public partial class ReaderPageViewModel : ObservableObject
     {
         private readonly IComicService _comicService;
+        private readonly ISettingsService _settingsService;
         private readonly INotificationService _notificationService;
         private readonly IMessenger _messenger;
 
@@ -110,13 +112,17 @@ namespace Yukari.ViewModels.Pages
 
         public ReaderPageViewModel(
             IComicService comicService,
+            ISettingsService settingsService,
             INotificationService notificationService,
             IMessenger messenger
         )
         {
             _comicService = comicService;
+            _settingsService = settingsService;
             _notificationService = notificationService;
             _messenger = messenger;
+
+            LoadReaderSettings();
         }
 
         public async Task InitializeAsync(
@@ -236,6 +242,7 @@ namespace Yukari.ViewModels.Pages
         private async Task GoBack()
         {
             await SaveReadingProgressAsync();
+            await SaveReaderSettingsAsync();
             _navigationCts.Cancel();
             _navigationCts.Dispose();
 
@@ -290,6 +297,19 @@ namespace Yukari.ViewModels.Pages
         [RelayCommand]
         private void SetScreenSize((double width, double height) size) =>
             _displaySettings.ScreenSize = size;
+
+        private void LoadReaderSettings()
+        {
+            ReadingMode = _settingsService.Current.ReadingMode;
+            ScalingMode = _settingsService.Current.ScalingMode;
+        }
+
+        private async Task SaveReaderSettingsAsync()
+        {
+            _settingsService.Current.ReadingMode = ReadingMode;
+            _settingsService.Current.ScalingMode = ScalingMode;
+            await _settingsService.SaveAsync();
+        }
 
         private async Task SaveReadingProgressAsync()
         {
