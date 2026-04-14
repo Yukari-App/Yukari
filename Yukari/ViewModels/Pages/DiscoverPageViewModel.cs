@@ -10,6 +10,7 @@ using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.Settings;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
@@ -21,6 +22,7 @@ namespace Yukari.ViewModels.Pages
             IRecipient<ComicSourcesUpdatedMessage>
     {
         private readonly IComicService _comicService;
+        private readonly ISettingsService _settingsService;
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
         private readonly IMessenger _messenger;
@@ -59,12 +61,14 @@ namespace Yukari.ViewModels.Pages
 
         public DiscoverPageViewModel(
             IComicService comicService,
+            ISettingsService settingsService,
             IDialogService dialogService,
             INotificationService notificationService,
             IMessenger messenger
         )
         {
             _comicService = comicService;
+            _settingsService = settingsService;
             _dialogService = dialogService;
             _notificationService = notificationService;
             _messenger = messenger;
@@ -143,7 +147,10 @@ namespace Yukari.ViewModels.Pages
                     || !ComicSources!.Any(x => x.Name == SelectedComicSource.Name)
                 )
                 {
-                    SelectedComicSource = ComicSources?.FirstOrDefault();
+                    SelectedComicSource =
+                        ComicSources?.FirstOrDefault(s =>
+                            s.Name == _settingsService.Current.DefaultComicSourceName
+                        ) ?? ComicSources?.FirstOrDefault();
                 }
             }
             else
