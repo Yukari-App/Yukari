@@ -5,6 +5,7 @@ using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Services.Comics;
+using Yukari.Services.Settings;
 using Yukari.Services.UI;
 using Yukari.Tests.TestUtils;
 using Yukari.ViewModels.Components;
@@ -15,6 +16,7 @@ namespace Yukari.Tests.ViewModels.Pages
     public class DiscoverPageViewModelTests
     {
         private readonly Mock<IComicService> _comicServiceMock;
+        private readonly Mock<ISettingsService> _settingsServiceMock;
         private readonly Mock<IDialogService> _dialogServiceMock;
         private readonly Mock<INotificationService> _notificationServiceMock;
         private readonly FakeMessenger _fakeMessenger;
@@ -24,6 +26,7 @@ namespace Yukari.Tests.ViewModels.Pages
         public DiscoverPageViewModelTests()
         {
             _comicServiceMock = new Mock<IComicService>();
+            _settingsServiceMock = new Mock<ISettingsService>();
             _dialogServiceMock = new Mock<IDialogService>();
             _notificationServiceMock = new Mock<INotificationService>();
             _fakeMessenger = new FakeMessenger();
@@ -32,6 +35,7 @@ namespace Yukari.Tests.ViewModels.Pages
 
             _sut = new DiscoverPageViewModel(
                 _comicServiceMock.Object,
+                _settingsServiceMock.Object,
                 _dialogServiceMock.Object,
                 _notificationServiceMock.Object,
                 _fakeMessenger
