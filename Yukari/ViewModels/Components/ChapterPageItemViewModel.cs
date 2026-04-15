@@ -8,7 +8,7 @@ namespace Yukari.ViewModels.Components
     public partial class ChapterPageItemViewModel : ObservableObject
     {
         private readonly ChapterPageModel _model;
-        private readonly ReaderDisplaySettings _settings;
+        private readonly ReaderDisplayContext _displayContext;
 
         [ObservableProperty]
         public partial string? ImageUrl { get; set; }
@@ -17,29 +17,29 @@ namespace Yukari.ViewModels.Components
         public partial bool IsLoading { get; set; } = true;
 
         public double PageMaxWidth =>
-            _settings.ScalingMode switch
+            _displayContext.ScalingMode switch
             {
-                ScalingMode.FitScreen or ScalingMode.FitWidth => _settings.ScreenSize.Width,
+                ScalingMode.FitScreen or ScalingMode.FitWidth => _displayContext.ScreenSize.Width,
                 _ => double.PositiveInfinity,
             };
 
         public double PageMaxHeight =>
-            _settings.ScalingMode switch
+            _displayContext.ScalingMode switch
             {
-                ScalingMode.FitScreen or ScalingMode.FitHeight => _settings.ScreenSize.Height,
+                ScalingMode.FitScreen or ScalingMode.FitHeight => _displayContext.ScreenSize.Height,
                 _ => double.PositiveInfinity,
             };
 
         [ObservableProperty]
         public partial bool HasError { get; set; } = false;
 
-        public ChapterPageItemViewModel(ChapterPageModel model, ReaderDisplaySettings settings)
+        public ChapterPageItemViewModel(ChapterPageModel model, ReaderDisplayContext settings)
         {
             _model = model;
-            _settings = settings;
+            _displayContext = settings;
             ImageUrl = _model.ImageUrl;
 
-            _settings.PropertyChanged += (_, e) =>
+            _displayContext.PropertyChanged += (_, e) =>
             {
                 OnPropertyChanged(nameof(PageMaxWidth));
                 OnPropertyChanged(nameof(PageMaxHeight));

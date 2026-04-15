@@ -3,7 +3,7 @@ using Yukari.Enums;
 
 namespace Yukari.ViewModels.Components
 {
-    public partial class ReaderDisplaySettings : ObservableObject
+    public partial class ReaderDisplayContext : ObservableObject
     {
         [ObservableProperty]
         public partial (double Width, double Height) ScreenSize { get; set; }

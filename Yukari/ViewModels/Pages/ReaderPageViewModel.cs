@@ -25,7 +25,7 @@ namespace Yukari.ViewModels.Pages
         private readonly INotificationService _notificationService;
         private readonly IMessenger _messenger;
 
-        private readonly ReaderDisplaySettings _displaySettings = new();
+        private readonly ReaderDisplayContext _displayContext = new();
 
         private ContentKey? _comicKey;
         private string? _language;
@@ -221,7 +221,7 @@ namespace Yukari.ViewModels.Pages
             if (pagesResult.IsSuccess)
             {
                 ChapterPages = pagesResult
-                    .Value!.Select(p => new ChapterPageItemViewModel(p, _displaySettings))
+                    .Value!.Select(p => new ChapterPageItemViewModel(p, _displayContext))
                     .ToList();
 
                 var chapterUserData = _chapters[_currentChapterIndex].UserData;
@@ -296,7 +296,7 @@ namespace Yukari.ViewModels.Pages
 
         [RelayCommand]
         private void SetScreenSize((double width, double height) size) =>
-            _displaySettings.ScreenSize = size;
+            _displayContext.ScreenSize = size;
 
         private void LoadReaderSettings()
         {
@@ -362,7 +362,6 @@ namespace Yukari.ViewModels.Pages
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
         }
 
-        partial void OnScalingModeChanged(ScalingMode value) =>
-            _displaySettings.ScalingMode = value;
+        partial void OnScalingModeChanged(ScalingMode value) => _displayContext.ScalingMode = value;
     }
 }
