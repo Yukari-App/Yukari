@@ -1,8 +1,10 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using Yukari.Helpers;
 using Yukari.Services;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
@@ -54,7 +56,20 @@ namespace Yukari
             MainWindow = new MainWindow();
             MainWindow.Activate();
 
-            await InitializeAppAsync();
+            try
+            {
+                var migrator = new DatabaseMigrator(
+                    $"Data Source={Path.Combine(AppDataHelper.GetDataPath(), "yukari.db")}"
+                );
+                await migrator.MigrateAsync();
+
+                await InitializeAppAsync();
+            }
+            catch (Exception ex)
+            {
+                // MainWindow.NavigateToError(ex);
+                return;
+            }
 
             MainWindow.SetMicaBackdrop();
             MainWindow.NavigateToShell();
