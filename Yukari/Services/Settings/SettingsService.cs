@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Yukari.Helpers;
+using Yukari.Models.DTO;
 using Yukari.Models.Settings;
 
 namespace Yukari.Services.Settings

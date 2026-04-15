@@ -11,6 +11,7 @@ using Windows.Graphics;
 using Windows.UI;
 using Yukari.Enums;
 using Yukari.Messages;
+using Yukari.Models.DTO;
 using Yukari.Models.Settings;
 using Yukari.Services.Settings;
 using Yukari.Views.Pages;

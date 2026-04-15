@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Yukari.Models.DTO;
 using Yukari.Models.Settings;
 
 namespace Yukari.Services.Settings
@@ -16,12 +17,5 @@ namespace Yukari.Services.Settings
         void Reset();
 
         event EventHandler<SettingsChangedEventArgs> SettingChanged;
-    }
-
-    public class SettingsChangedEventArgs : EventArgs
-    {
-        public required string PropertyName { get; init; }
-        public object? OldValue { get; init; }
-        public object? NewValue { get; init; }
     }
 }
