@@ -30,6 +30,9 @@ namespace Yukari.ViewModels.Pages
         public partial ThemeMode SelectedThemeMode { get; set; }
 
         [ObservableProperty]
+        public partial bool IsAutoFullscreen { get; set; }
+
+        [ObservableProperty]
         public partial ReadingMode SelectedReadingMode { get; set; }
 
         [ObservableProperty]
@@ -64,6 +67,7 @@ namespace Yukari.ViewModels.Pages
         private async Task LoadSettingsAsync()
         {
             SelectedThemeMode = _settingsService.Current.Theme;
+            IsAutoFullscreen = _settingsService.Current.AutoFullscreen;
             SelectedReadingMode = _settingsService.Current.ReadingMode;
             SelectedScalingMode = _settingsService.Current.ScalingMode;
 
@@ -114,6 +118,9 @@ namespace Yukari.ViewModels.Pages
 
         partial void OnSelectedThemeModeChanged(ThemeMode value) =>
             _settingsService.Set(s => s.Theme, value);
+
+        partial void OnIsAutoFullscreenChanged(bool value) =>
+            _settingsService.Set(s => s.AutoFullscreen, value);
 
         partial void OnSelectedReadingModeChanged(ReadingMode value) =>
             _settingsService.Set(s => s.ReadingMode, value);

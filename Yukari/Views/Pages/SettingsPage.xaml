@@ -78,6 +78,14 @@
                     </TextBlock>
                     <toolkit:SettingsCard HorizontalAlignment="Stretch"
                                           HorizontalContentAlignment="Stretch"
+                                          Description="Automatically enter in Fullscreen mode"
+                                          Header="Fullscreen"
+                                          HeaderIcon="{ui:FontIcon Glyph=&#xE740;}">
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoFullscreen, Mode=TwoWay}" />
+                    </toolkit:SettingsCard>
+
+                    <toolkit:SettingsCard HorizontalAlignment="Stretch"
+                                          HorizontalContentAlignment="Stretch"
                                           Description="Change the direction and flow of reading"
                                           Header="Reading Mode"
                                           HeaderIcon="{ui:FontIcon Glyph=&#xE736;}">
