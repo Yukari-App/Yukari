@@ -6,6 +6,7 @@ namespace Yukari.Models.Settings
     {
         public ThemeMode Theme { get; set; } = ThemeMode.System;
 
+        public bool AutoFullscreen { get; set; } = false;
         public ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
         public ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
 
