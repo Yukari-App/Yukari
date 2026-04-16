@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page x:Class="Yukari.Views.Pages.InitializationErrorPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:Yukari.Views.Pages"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d">
+
+    <Grid RowDefinitions="Auto, *, Auto">
+        <Grid x:Name="AppTitleBar"
+              Height="48"
+              Margin="14,0,0,0"
+              Padding="0"
+              VerticalAlignment="Top"
+              AutomationProperties.AutomationId="AppTitleBar"
+              ColumnDefinitions="Auto, Auto, *, 144">
+            <Image Width="19"
+                   Height="19"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   Source="/Assets/Square44x44Logo.altform-unplated_targetsize-48.png" />
+            <TextBlock Grid.Column="1"
+                       Margin="12,0,0,0"
+                       VerticalAlignment="Center"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Text="Yukari" />
+        </Grid>
+        <Grid Grid.Row="1"
+              Margin="16"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              RowDefinitions="Auto, Auto, *, Auto"
+              RowSpacing="8">
+            <FontIcon FontSize="96" Foreground="{StaticResource SystemFillColorCriticalBrush}" Glyph="&#xEB90;" />
+            <TextBlock Grid.Row="1"
+                       HorizontalAlignment="Center"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Text="An Error Occurred During Yukari Initialization" />
+            <ScrollViewer Grid.Row="2"
+                          MaxWidth="820"
+                          MaxHeight="280"
+                          Padding="16"
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                          BorderThickness="1"
+                          CornerRadius="8"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <TextBlock x:Name="ErrorMessageTextBlock"
+                           FontFamily="Consolas"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           IsTextSelectionEnabled="True"
+                           TextWrapping="Wrap" />
+            </ScrollViewer>
+            <TextBlock Grid.Row="3"
+                       HorizontalAlignment="Center"
+                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                       Text="Try reopening the app again. If the problem persists, please send feedback using the buttons below."
+                       TextAlignment="Center" />
+
+        </Grid>
+        <Grid Grid.Row="2" Margin="4,0,4,4" ColumnDefinitions="Auto, *, Auto">
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
+                <HyperlinkButton Content="Send FeedBack" NavigateUri="https://github.com/Yukari-App/Yukari/issues" />
+                <HyperlinkButton Content="Project Repository" NavigateUri="https://github.com/Yukari-App/Yukari" />
+            </StackPanel>
+            <TextBlock x:Name="VersionTextBlock"
+                       Grid.Column="2"
+                       Margin="0,0,8,0"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       IsTextSelectionEnabled="True" />
+        </Grid>
+    </Grid>
+</Page>
