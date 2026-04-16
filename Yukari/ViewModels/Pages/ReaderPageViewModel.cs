@@ -300,6 +300,12 @@ namespace Yukari.ViewModels.Pages
 
         private void LoadReaderSettings()
         {
+            if (_settingsService.Current.AutoFullscreen)
+            {
+                IsFullscreen = true;
+                _messenger.Send(new SetFullscreenMessage(true));
+            }
+
             ReadingMode = _settingsService.Current.ReadingMode;
             ScalingMode = _settingsService.Current.ScalingMode;
         }
@@ -359,6 +365,7 @@ namespace Yukari.ViewModels.Pages
             _notificationService.ShowError(errorMessage);
 
             await Task.Delay(1000);
+            _messenger.Send(new SetFullscreenMessage(false));
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
         }
 
