@@ -64,15 +64,17 @@ namespace Yukari
                 await migrator.MigrateAsync();
 
                 await InitializeAppAsync();
+
+                MainWindow.NavigateToShell();
             }
             catch (Exception ex)
             {
-                // MainWindow.NavigateToError(ex);
-                return;
+                MainWindow.NavigateToError(ex);
             }
-
-            MainWindow.SetMicaBackdrop();
-            MainWindow.NavigateToShell();
+            finally
+            {
+                MainWindow.SetMicaBackdrop();
+            }
         }
 
         public static T GetService<T>()
