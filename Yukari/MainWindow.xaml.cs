@@ -80,6 +80,13 @@ namespace Yukari
         public void NavigateToShell() =>
             _rootFrame.Navigate(typeof(ShellPage), null, new DrillInNavigationTransitionInfo());
 
+        public void NavigateToError(Exception ex) =>
+            _rootFrame.Navigate(
+                typeof(InitializationErrorPage),
+                ex,
+                new DrillInNavigationTransitionInfo()
+            );
+
         private void SetFullscreenState(bool isFullscreen)
         {
             if (isFullscreen)
