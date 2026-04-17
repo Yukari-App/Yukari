@@ -20,6 +20,8 @@ namespace Yukari.ViewModels.Pages
         private readonly INotificationService _notificationService;
         private readonly IDialogService _dialogService;
 
+        private bool _isInitializing = true;
+
         public string YukariVersion { get; } = AppInfoHelper.Version;
 
         public ThemeMode[] AvailableThemeModes { get; } = Enum.GetValues<ThemeMode>();
@@ -79,6 +81,8 @@ namespace Yukari.ViewModels.Pages
                         s.Name == _settingsService.Current.DefaultComicSourceName
                     ) ?? ComicSources.First();
             }
+
+            _isInitializing = false;
         }
 
         [RelayCommand]
@@ -116,17 +120,24 @@ namespace Yukari.ViewModels.Pages
             ComicSources = result.Value!.ToList();
         }
 
+        private void ApplySetting<T>(Expression<Func<AppSettings, T>> selector, T value)
+        {
+            if (_isInitializing)
+                return;
+            _settingsService.Set(selector, value);
+        }
+
         partial void OnSelectedThemeModeChanged(ThemeMode value) =>
-            _settingsService.Set(s => s.Theme, value);
+            ApplySetting(s => s.Theme, value);
 
         partial void OnIsAutoFullscreenChanged(bool value) =>
-            _settingsService.Set(s => s.AutoFullscreen, value);
+            ApplySetting(s => s.AutoFullscreen, value);
 
         partial void OnSelectedReadingModeChanged(ReadingMode value) =>
-            _settingsService.Set(s => s.ReadingMode, value);
+            ApplySetting(s => s.ReadingMode, value);
 
         partial void OnSelectedScalingModeChanged(ScalingMode value) =>
-            _settingsService.Set(s => s.ScalingMode, value);
+            ApplySetting(s => s.ScalingMode, value);
 
         partial void OnDefaultComicSourceChanged(ComicSourceModel? value) =>
             _settingsService.Set(s => s.DefaultComicSourceName, value?.Name);
