@@ -59,6 +59,7 @@ namespace Yukari.Services.Storage.Migrations
                     Pages INTEGER NOT NULL,
                     IsAvailable INTEGER NOT NULL DEFAULT 1,
                     PRIMARY KEY (Id, ComicId, Source)
+                    UNIQUE (Id, Source)
                 );
 
                 CREATE TABLE IF NOT EXISTS ChapterUserData (
