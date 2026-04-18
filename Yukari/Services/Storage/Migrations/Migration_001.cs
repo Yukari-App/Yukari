@@ -13,7 +13,7 @@ namespace Yukari.Services.Storage.Migrations
         public async Task UpAsync(SqliteConnection connection, DbTransaction transaction)
         {
             await connection.ExecuteAsync(
-                @"
+                """
                 CREATE TABLE IF NOT EXISTS Comics (
                     Id TEXT NOT NULL,
                     Source TEXT NOT NULL,
@@ -89,7 +89,7 @@ namespace Yukari.Services.Storage.Migrations
                     DllPath TEXT NOT NULL,
                     IsEnabled INTEGER NOT NULL DEFAULT 1
                 );
-                ",
+                """,
                 transaction: transaction
             );
         }

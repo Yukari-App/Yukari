@@ -13,9 +13,9 @@ namespace Yukari.Services.Storage
             string? queryText = null,
             CancellationToken ct = default
         );
-        Task<ComicModel?> GetComicDetailsAsync(ContentKey ComicKey, CancellationToken ct = default);
+        Task<ComicModel?> GetComicDetailsAsync(ContentKey comicKey, CancellationToken ct = default);
         Task<ComicUserData> GetComicUserDataAsync(
-            ContentKey ComicKey,
+            ContentKey comicKey,
             CancellationToken ct = default
         );
         Task<ComicReadingProgress> GetComicReadingProgressAsync(
@@ -24,7 +24,7 @@ namespace Yukari.Services.Storage
             CancellationToken ct = default
         );
         Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(
-            ContentKey ComicKey,
+            ContentKey comicKey,
             string language,
             CancellationToken ct = default
         );

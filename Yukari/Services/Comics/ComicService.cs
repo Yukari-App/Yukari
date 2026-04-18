@@ -343,11 +343,11 @@ namespace Yukari.Services.Comics
         public async Task<Result> UpsertChaptersIsReadAsync(
             ContentKey comicKey,
             string[] chapterIDs,
-            bool IsRead
+            bool isRead
         )
         {
             return await ExecuteAsync(
-                () => _dbService.UpsertChaptersIsReadAsync(comicKey, chapterIDs, IsRead),
+                () => _dbService.UpsertChaptersIsReadAsync(comicKey, chapterIDs, isRead),
                 "Error setting read status"
             );
         }

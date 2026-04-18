@@ -42,8 +42,7 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 SELECT c.Id, c.Source, c.Title, c.CoverImageUrl
                 FROM Comics c
                 INNER JOIN ComicUserData u 
@@ -54,7 +53,7 @@ namespace Yukari.Services.Storage
                         OR c.Title  LIKE '%' || @QueryText || '%' COLLATE NOCASE
                         OR c.Author LIKE '%' || @QueryText || '%' COLLATE NOCASE
                     )
-            ";
+                """;
 
             var result = await connection.QueryAsync<ComicModel>(
                 new CommandDefinition(
@@ -68,14 +67,13 @@ namespace Yukari.Services.Storage
         }
 
         public async Task<ComicModel?> GetComicDetailsAsync(
-            ContentKey ComicKey,
+            ContentKey comicKey,
             CancellationToken ct = default
         )
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 SELECT 
                     c.Id, c.Source, c.ComicUrl, c.Title, c.Author, c.Description, 
                     c.Tags, c.Year, c.CoverImageUrl, c.Langs,
@@ -84,35 +82,34 @@ namespace Yukari.Services.Storage
                 INNER JOIN ComicUserData u 
                     ON c.Id = u.ComicId AND c.Source = u.Source
                 WHERE c.Id = @Id AND c.Source = @Source;
-            ";
+                """;
 
             return await connection.QueryFirstOrDefaultAsync<ComicModel>(
                 new CommandDefinition(
                     sql,
-                    new { Id = ComicKey.Id, Source = ComicKey.Source },
+                    new { Id = comicKey.Id, Source = comicKey.Source },
                     cancellationToken: ct
                 )
             );
         }
 
         public async Task<ComicUserData> GetComicUserDataAsync(
-            ContentKey ComicKey,
+            ContentKey comicKey,
             CancellationToken ct = default
         )
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 SELECT IsFavorite, LastSelectedLang, DownloadedLangs
                 FROM ComicUserData
                 WHERE ComicId = @Id AND Source = @Source;
-            ";
+                """;
 
             var result = await connection.QueryFirstOrDefaultAsync<ComicUserData>(
                 new CommandDefinition(
                     sql,
-                    new { Id = ComicKey.Id, Source = ComicKey.Source },
+                    new { Id = comicKey.Id, Source = comicKey.Source },
                     cancellationToken: ct
                 )
             );
@@ -128,12 +125,11 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 SELECT Language, LastChapterId
                 FROM ComicReadingProgress
                 WHERE ComicId = @Id AND Source = @Source AND Language = @Language
-            ";
+                """;
 
             var result = await connection.QueryFirstOrDefaultAsync<ComicReadingProgress>(
                 new CommandDefinition(
@@ -159,14 +155,13 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 SELECT Id, ComicId, Source,
-                       Title, Number, Volume,
-                       Language, Groups, LastUpdate, Pages
+                        Title, Number, Volume,
+                        Language, Groups, LastUpdate, Pages
                 FROM Chapters
                 WHERE ComicId = @Id AND Source = @Source AND Language = @Language;
-            ";
+                """;
 
             var result = await connection.QueryAsync<ChapterModel>(
                 new CommandDefinition(
@@ -191,12 +186,11 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 SELECT Id, LastPageRead, IsDownloaded, IsRead 
                 FROM ChapterUserData
                 WHERE ComicId = @Id AND Source = @Source
-            ";
+                """;
 
             var result = await connection.QueryAsync<(
                 string Id,
@@ -230,12 +224,11 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 SELECT LastPageRead, IsDownloaded, IsRead
                 FROM ChapterUserData
                 WHERE Id = @id AND ComicId = @comicId AND Source = @source;
-            ";
+                """;
 
             var result = await connection.QueryFirstOrDefaultAsync<ChapterUserData>(
                 new CommandDefinition(
@@ -284,12 +277,11 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled
                 FROM ComicSources 
                 WHERE Name = @name;
-            ";
+                """;
 
             return await connection.QueryFirstOrDefaultAsync<ComicSourceModel>(
                 new CommandDefinition(sql, new { name = sourceName }, cancellationToken: ct)
@@ -302,8 +294,7 @@ namespace Yukari.Services.Storage
 
             using var transaction = await connection.BeginTransactionAsync();
 
-            const string sqlComic =
-                @"
+            const string sqlComic = """
                 INSERT INTO Comics 
                 (Id, Source, ComicUrl, Title, Author, Description, Tags, Year, CoverImageUrl, Langs, IsAvailable)
                 VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Tags, @Year, @CoverImageUrl, @Langs, @IsAvailable)
@@ -317,17 +308,16 @@ namespace Yukari.Services.Storage
                     CoverImageUrl = excluded.CoverImageUrl,
                     Langs = excluded.Langs,
                     IsAvailable = excluded.IsAvailable;
-            ";
+                """;
 
             await connection.ExecuteAsync(sqlComic, comic, transaction);
 
-            const string sqlUserData =
-                @"
-            INSERT INTO ComicUserData (ComicId, Source, IsFavorite, DownloadedLangs)
-            VALUES (@ComicId, @Source, @IsFavorite, @DownloadedLangs)
-                ON CONFLICT(ComicId, Source) DO UPDATE SET
-                IsFavorite = excluded.IsFavorite;
-            ";
+            const string sqlUserData = """
+                INSERT INTO ComicUserData (ComicId, Source, IsFavorite, DownloadedLangs)
+                VALUES (@ComicId, @Source, @IsFavorite, @DownloadedLangs)
+                    ON CONFLICT(ComicId, Source) DO UPDATE SET
+                    IsFavorite = excluded.IsFavorite;
+                """;
 
             await connection.ExecuteAsync(
                 sqlUserData,
@@ -348,15 +338,14 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 INSERT INTO ComicUserData (ComicId, Source, IsFavorite, LastSelectedLang, DownloadedLangs)
                 VALUES (@ComicId, @Source, @IsFavorite, @LastSelectedLang, @DownloadedLangs)
                 ON CONFLICT(ComicId, Source) DO UPDATE SET
                     IsFavorite = excluded.IsFavorite,
                     LastSelectedLang = COALESCE(excluded.LastSelectedLang, ComicUserData.LastSelectedLang),
                     DownloadedLangs = COALESCE(excluded.DownloadedLangs, ComicUserData.DownloadedLangs);
-            ";
+                """;
 
             await connection.ExecuteAsync(
                 sql,
@@ -378,13 +367,12 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 INSERT INTO ComicReadingProgress (ComicId, Source, Language, LastChapterId)
                 VALUES (@ComicId, @Source, @Language, @LastChapterId)
                 ON CONFLICT(ComicId, Source, Language) DO UPDATE SET
                     LastChapterId = excluded.LastChapterId;
-            ";
+                """;
 
             await connection.ExecuteAsync(
                 sql,
@@ -402,8 +390,7 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 INSERT INTO Chapters 
                 (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages)
                 VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages)
@@ -415,7 +402,7 @@ namespace Yukari.Services.Storage
                     Groups = excluded.Groups,
                     LastUpdate = excluded.LastUpdate,
                     Pages = excluded.Pages;
-            ";
+                """;
 
             await connection.ExecuteAsync(sql, chapter);
         }
@@ -429,12 +416,11 @@ namespace Yukari.Services.Storage
             using var connection = await GetOpenConnectionAsync();
             using var transaction = await connection.BeginTransactionAsync();
 
-            const string sqlReset =
-                @"
+            const string sqlReset = """
                 UPDATE Chapters 
                 SET IsAvailable = 0 
                 WHERE ComicId = @ComicId AND Source = @Source AND Language = @Language;
-            ";
+                """;
 
             await connection.ExecuteAsync(
                 sqlReset,
@@ -447,8 +433,7 @@ namespace Yukari.Services.Storage
                 transaction
             );
 
-            const string sqlUpsert =
-                @"
+            const string sqlUpsert = """
                 INSERT INTO Chapters 
                 (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages, IsAvailable)
                 VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages, 1)
@@ -461,7 +446,7 @@ namespace Yukari.Services.Storage
                     LastUpdate = excluded.LastUpdate,
                     Pages = excluded.Pages,
                     IsAvailable = 1;
-            ";
+                """;
 
             await connection.ExecuteAsync(sqlUpsert, chapters, transaction);
 
@@ -476,15 +461,14 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 INSERT INTO ChapterUserData (Id, ComicId, Source, LastPageRead, IsDownloaded, IsRead)
                 VALUES (@Id, @ComicId, @Source, @LastPageRead, @IsDownloaded, @IsRead)
                 ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
                     LastPageRead = COALESCE(excluded.LastPageRead, ChapterUserData.LastPageRead),
                     IsDownloaded = excluded.IsDownloaded,
                     IsRead = excluded.IsRead;
-            ";
+                """;
 
             await connection.ExecuteAsync(
                 sql,
@@ -512,14 +496,13 @@ namespace Yukari.Services.Storage
             using var connection = await GetOpenConnectionAsync();
             using var transaction = await connection.BeginTransactionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 INSERT INTO ChapterUserData (Id, ComicId, Source, LastPageRead, IsRead)
                 VALUES (@Id, @ComicId, @Source, @LastPageRead, @IsRead)
                 ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
                     LastPageRead = CASE WHEN @IsRead = 1 THEN ChapterUserData.LastPageRead ELSE 0 END,
                     IsRead = excluded.IsRead;
-                ";
+                """;
 
             var parameters = chapterIDs.Select(id => new
             {
@@ -543,17 +526,16 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
-            INSERT INTO ComicSources (Name, Version, LogoUrl, Description, DllPath, IsEnabled)
-            VALUES (@Name, @Version, @LogoUrl, @Description, @DllPath, @IsEnabled)
-            ON CONFLICT(Name) DO UPDATE SET
-                Version = excluded.Version,
-                LogoUrl = excluded.LogoUrl,
-                Description = excluded.Description,
-                DllPath = excluded.DllPath,
-                IsEnabled = excluded.IsEnabled;
-            ";
+            const string sql = """
+                INSERT INTO ComicSources (Name, Version, LogoUrl, Description, DllPath, IsEnabled)
+                VALUES (@Name, @Version, @LogoUrl, @Description, @DllPath, @IsEnabled)
+                ON CONFLICT(Name) DO UPDATE SET
+                    Version = excluded.Version,
+                    LogoUrl = excluded.LogoUrl,
+                    Description = excluded.Description,
+                    DllPath = excluded.DllPath,
+                    IsEnabled = 1;
+                """;
 
             await connection.ExecuteAsync(sql, comicSource);
         }
@@ -571,13 +553,12 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql =
-                @"
+            const string sql = """
                 UPDATE ComicUserData 
                 SET IsFavorite = 0,
                     DownloadedLangs = '[]'
                 WHERE ComicId = @Id AND Source = @Source;
-            ";
+                """;
 
             await connection.ExecuteAsync(sql, new { Id = comicKey.Id, Source = comicKey.Source });
         }
@@ -588,7 +569,7 @@ namespace Yukari.Services.Storage
             using var transaction = await connection.BeginTransactionAsync();
 
             await connection.ExecuteAsync(
-                "DELETE FROM ChapterUserData WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
+                @"DELETE FROM ChapterUserData WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
                 new
                 {
                     Id = chapterKey.Id,
@@ -599,7 +580,7 @@ namespace Yukari.Services.Storage
             );
 
             await connection.ExecuteAsync(
-                "DELETE FROM Chapters WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
+                @"DELETE FROM Chapters WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
                 new
                 {
                     Id = chapterKey.Id,
@@ -616,7 +597,7 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
-            const string sql = "DELETE FROM ComicSources WHERE Name = @Name;";
+            const string sql = @"DELETE FROM ComicSources WHERE Name = @Name;";
             await connection.ExecuteAsync(sql, new { Name = sourceName });
         }
 
@@ -625,8 +606,7 @@ namespace Yukari.Services.Storage
             using var connection = await GetOpenConnectionAsync();
             using var transaction = await connection.BeginTransactionAsync();
 
-            const string sqlDeleteChapters =
-                @"
+            const string sqlDeleteChapters = """
                 DELETE FROM Chapters 
                 WHERE NOT EXISTS (
                     SELECT 1 FROM ComicUserData u 
@@ -634,10 +614,9 @@ namespace Yukari.Services.Storage
                         AND u.Source = Chapters.Source 
                         AND u.IsFavorite = 1
                 );
-            ";
+                """;
 
-            const string sqlDeleteChapterUserData =
-                @"
+            const string sqlDeleteChapterUserData = """
                 DELETE FROM ChapterUserData 
                 WHERE NOT EXISTS (
                     SELECT 1 FROM ComicUserData u 
@@ -645,10 +624,9 @@ namespace Yukari.Services.Storage
                         AND u.Source = ChapterUserData.Source 
                         AND u.IsFavorite = 1
                 );
-            ";
+                """;
 
-            const string sqlDeleteComics =
-                @"
+            const string sqlDeleteComics = """
                 DELETE FROM Comics 
                 WHERE NOT EXISTS (
                     SELECT 1 FROM ComicUserData u 
@@ -656,7 +634,7 @@ namespace Yukari.Services.Storage
                         AND u.Source = Comics.Source 
                         AND u.IsFavorite = 1
                 );
-            ";
+                """;
 
             const string sqlDeleteComicUserData =
                 @"DELETE FROM ComicUserData WHERE IsFavorite = 0;";
