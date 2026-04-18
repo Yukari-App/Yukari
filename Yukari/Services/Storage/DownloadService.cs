@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -41,6 +42,25 @@ namespace Yukari.Services.Storage
             catch
             {
                 return imageUrl;
+            }
+        }
+
+        public async Task CleanupUnfavoriteComicsAsync(IReadOnlyList<ContentKey> unfavoriteComics)
+        {
+            foreach (var comicKey in unfavoriteComics)
+            {
+                var comicDataPath = AppDataHelper.GetComicDataPath(comicKey);
+                if (Directory.Exists(comicDataPath))
+                {
+                    try
+                    {
+                        await Task.Run(() => Directory.Delete(comicDataPath, true));
+                    }
+                    catch
+                    {
+                        // TO-DO: Log error
+                    }
+                }
             }
         }
     }
