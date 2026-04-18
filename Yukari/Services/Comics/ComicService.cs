@@ -405,7 +405,11 @@ namespace Yukari.Services.Comics
         public async Task<Result> CleanupUnfavoriteComicsDataAsync()
         {
             return await ExecuteAsync(
-                () => _dbService.CleanupUnfavoriteComicsDataAsync(),
+                async () =>
+                {
+                    var unfavoriteComics = await _dbService.CleanupUnfavoriteComicsDataAsync();
+                    await _dloadService.CleanupUnfavoriteComicsAsync(unfavoriteComics);
+                },
                 "Error cleaning up data"
             );
         }
