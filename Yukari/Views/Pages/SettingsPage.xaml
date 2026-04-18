@@ -186,6 +186,14 @@
                         </ComboBox>
                     </toolkit:SettingsCard>
 
+                    <!--  Storage Section  -->
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
+                        <Span><Bold>Storage</Bold></Span>
+                    </TextBlock>
+                    <toolkit:SettingsCard Description="Removes chapters and comics data that are no longer in your favorites" Header="Clean Up Storage" HeaderIcon="{ui:FontIcon Glyph=&#xE74D;}">
+                        <Button Command="{x:Bind ViewModel.CleanUpStorageCommand}" Content="Clean Up" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                    </toolkit:SettingsCard>
+
                     <!--  About Section  -->
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Span><Bold>About</Bold></Span>

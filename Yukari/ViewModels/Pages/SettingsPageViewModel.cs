@@ -171,6 +171,19 @@ namespace Yukari.ViewModels.Pages
             _messenger.Send(new ComicSourcesUpdatedMessage());
         }
 
+        [RelayCommand]
+        private async Task CleanUpStorageAsync()
+        {
+            var result = await _comicService.CleanupUnfavoriteComicsDataAsync();
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+                return;
+            }
+
+            _notificationService.ShowSuccess("Storage cleaned up successfully.");
+        }
+
         private async Task LoadComicSourcesAsync()
         {
             var result = await _comicService.GetComicSourcesAsync();
