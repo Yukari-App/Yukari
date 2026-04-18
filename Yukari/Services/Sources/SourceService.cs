@@ -17,16 +17,18 @@ namespace Yukari.Services.Sources
         private Dictionary<string, Type> _sourceTypeCache = new();
 
         private IComicSource? _currentSource;
+        private string? _currentSourceName;
 
         public async Task LoadSourceAsync(ComicSourceModel comicSource)
         {
-            if (_currentSource?.Name == comicSource.Name)
+            if (_currentSourceName == comicSource.Name)
                 return;
 
             if (_currentSource != null)
             {
                 await _currentSource.DisposeAsync();
                 _currentSource = null;
+                _currentSourceName = null;
             }
 
             try
@@ -38,6 +40,7 @@ namespace Yukari.Services.Sources
                 }
 
                 _currentSource = (IComicSource)Activator.CreateInstance(type)!;
+                _currentSourceName = comicSource.Name;
             }
             catch (Exception ex)
             {
@@ -143,17 +146,21 @@ namespace Yukari.Services.Sources
         public ComicSourceModel GetComicSourceModelFromAssembly(string dllPath)
         {
             var type = GetSourceTypeFromAssembly(dllPath);
-            var sourceInstance = (IComicSource)Activator.CreateInstance(type)!;
+            var comicSourceMetadata =
+                type.GetCustomAttribute<ComicSourceMetadataAttribute>()
+                ?? throw new InvalidOperationException(
+                    $"{type.Name} is missing [ComicSourceMetadata] attribute."
+                );
 
-            if (!_sourceTypeCache.ContainsKey(sourceInstance.Name))
-                _sourceTypeCache[sourceInstance.Name] = type;
+            if (!_sourceTypeCache.ContainsKey(comicSourceMetadata.Name))
+                _sourceTypeCache[comicSourceMetadata.Name] = type;
 
             return new ComicSourceModel
             {
-                Name = sourceInstance.Name,
-                Version = sourceInstance.Version,
-                LogoUrl = sourceInstance.LogoUrl,
-                Description = sourceInstance.Description,
+                Name = comicSourceMetadata.Name,
+                Version = comicSourceMetadata.Version,
+                LogoUrl = comicSourceMetadata.LogoUrl,
+                Description = comicSourceMetadata.Description,
                 DllPath = dllPath,
                 IsEnabled = true,
             };
