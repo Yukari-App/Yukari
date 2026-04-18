@@ -70,6 +70,6 @@ namespace Yukari.Services.Storage
         Task RemoveFavoriteComicAsync(ContentKey comicKey);
         Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey);
         Task RemoveComicSourceAsync(string sourceName);
-        Task CleanupUnfavoriteComicsDataAsync();
+        Task<IReadOnlyList<ContentKey>> CleanupUnfavoriteComicsDataAsync();
     }
 }

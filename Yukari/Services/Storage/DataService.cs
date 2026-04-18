@@ -601,9 +601,23 @@ namespace Yukari.Services.Storage
             await connection.ExecuteAsync(sql, new { Name = sourceName });
         }
 
-        public async Task CleanupUnfavoriteComicsDataAsync()
+        public async Task<IReadOnlyList<ContentKey>> CleanupUnfavoriteComicsDataAsync()
         {
             using var connection = await GetOpenConnectionAsync();
+
+            const string sqlGetUnfavoriteComics = """
+                SELECT c.Id, c.Source
+                FROM Comics c
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM ComicUserData u 
+                    WHERE u.ComicId = c.Id 
+                        AND u.Source = c.Source 
+                        AND u.IsFavorite = 1
+                );
+                """;
+
+            var unfavoriteComics = await connection.QueryAsync<ContentKey>(sqlGetUnfavoriteComics);
+
             using var transaction = await connection.BeginTransactionAsync();
 
             const string sqlDeleteChapters = """
@@ -646,6 +660,8 @@ namespace Yukari.Services.Storage
 
             await transaction.CommitAsync();
             await connection.ExecuteAsync("VACUUM;");
+
+            return unfavoriteComics.ToList();
         }
     }
 }
