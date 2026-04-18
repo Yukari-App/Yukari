@@ -211,7 +211,11 @@ namespace Yukari.ViewModels.Pages
         partial void OnSelectedScalingModeChanged(ScalingMode value) =>
             ApplySetting(s => s.ScalingMode, value);
 
-        partial void OnDefaultComicSourceChanged(ComicSourceModel? value) =>
+        partial void OnDefaultComicSourceChanged(ComicSourceModel? value)
+        {
+            if (value == null)
+                return;
             ApplySetting(s => s.DefaultComicSourceName, value?.Name);
+        }
     }
 }
