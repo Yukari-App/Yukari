@@ -558,6 +558,15 @@ namespace Yukari.Services.Storage
             await connection.ExecuteAsync(sql, comicSource);
         }
 
+        public async Task UpdateComicSourceIsEnabledAsync(string sourceName, bool isEnabled)
+        {
+            using var connection = await GetOpenConnectionAsync();
+            await connection.ExecuteAsync(
+                @"UPDATE ComicSources SET IsEnabled = @IsEnabled WHERE Name = @Name;",
+                new { Name = sourceName, IsEnabled = isEnabled }
+            );
+        }
+
         public async Task RemoveFavoriteComicAsync(ContentKey comicKey)
         {
             using var connection = await GetOpenConnectionAsync();
