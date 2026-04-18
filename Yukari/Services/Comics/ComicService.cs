@@ -428,6 +428,12 @@ namespace Yukari.Services.Comics
                 ?? throw new InvalidOperationException(
                     $"The source '{sourceName}' is not registered in the database."
                 );
+
+            if (!comicSource.IsEnabled)
+                throw new InvalidOperationException(
+                    $"The source '{sourceName}' is currently disabled. Please enable it in the settings."
+                );
+
             await _srcService.LoadSourceAsync(comicSource);
         }
 
