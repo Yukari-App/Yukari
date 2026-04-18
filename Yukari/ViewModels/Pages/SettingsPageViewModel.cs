@@ -1,15 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Enums;
 using Yukari.Helpers;
+using Yukari.Messages;
 using Yukari.Models;
+using Yukari.Models.Settings;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
 using Yukari.Services.UI;
+using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages
 {
@@ -19,6 +24,7 @@ namespace Yukari.ViewModels.Pages
         private readonly IComicService _comicService;
         private readonly INotificationService _notificationService;
         private readonly IDialogService _dialogService;
+        private readonly IMessenger _messenger;
 
         private bool _isInitializing = true;
 
@@ -44,22 +50,29 @@ namespace Yukari.ViewModels.Pages
         public partial ComicSourceModel? DefaultComicSource { get; set; }
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsComicSourcesEmpty))]
-        public partial List<ComicSourceModel> ComicSources { get; set; } = new();
+        [NotifyPropertyChangedFor(nameof(IsAnyComicSourceEnabled))]
+        public partial List<ComicSourceModel> AvailableComicSources { get; set; } = new();
 
-        public bool IsComicSourcesEmpty => ComicSources.Count == 0;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsComicSourcesEmpty))]
+        public partial List<ComicSourceItemViewModel> ComicSourceItems { get; set; } = new();
+
+        public bool IsAnyComicSourceEnabled => AvailableComicSources.Count > 0;
+        public bool IsComicSourcesEmpty => ComicSourceItems.Count == 0;
 
         public SettingsPageViewModel(
             ISettingsService settingsService,
             IComicService comicService,
             INotificationService notificationService,
-            IDialogService dialogService
+            IDialogService dialogService,
+            IMessenger messenger
         )
         {
             _settingsService = settingsService;
             _comicService = comicService;
             _notificationService = notificationService;
             _dialogService = dialogService;
+            _messenger = messenger;
 
             _ = LoadSettingsAsync();
         }
@@ -74,12 +87,12 @@ namespace Yukari.ViewModels.Pages
             SelectedScalingMode = _settingsService.Current.ScalingMode;
 
             await LoadComicSourcesAsync();
-            if (ComicSources.Count > 0)
+            if (AvailableComicSources.Count > 0)
             {
                 DefaultComicSource =
-                    ComicSources.FirstOrDefault(s =>
+                    AvailableComicSources.FirstOrDefault(s =>
                         s.Name == _settingsService.Current.DefaultComicSourceName
-                    ) ?? ComicSources.First();
+                    ) ?? AvailableComicSources.First();
             }
 
             _isInitializing = false;
@@ -100,12 +113,62 @@ namespace Yukari.ViewModels.Pages
             }
 
             await LoadComicSourcesAsync();
-            DefaultComicSource ??=
-                ComicSources.FirstOrDefault(s =>
+
+            DefaultComicSource =
+                AvailableComicSources.FirstOrDefault(s =>
                     s.Name == _settingsService.Current.DefaultComicSourceName
-                ) ?? ComicSources.FirstOrDefault();
+                ) ?? AvailableComicSources.First();
 
             _notificationService.ShowSuccess("Comic source added successfully.");
+            _messenger.Send(new ComicSourcesUpdatedMessage());
+        }
+
+        [RelayCommand]
+        private async Task RemoveComicSourceAsync(ComicSourceItemViewModel comicSourceItem)
+        {
+            var result = await _comicService.RemoveComicSourceAsync(
+                comicSourceItem.ComicSource.Name
+            );
+
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+                return;
+            }
+
+            await LoadComicSourcesAsync();
+            DefaultComicSource =
+                AvailableComicSources.FirstOrDefault(s =>
+                    s.Name == _settingsService.Current.DefaultComicSourceName
+                ) ?? AvailableComicSources.FirstOrDefault();
+
+            _messenger.Send(new ComicSourcesUpdatedMessage());
+        }
+
+        [RelayCommand]
+        private async Task OnComicSourceIsEnabledChanged((string Name, bool IsEnabled) args)
+        {
+            var result = await _comicService.UpdateComicSourceIsEnabledAsync(
+                args.Name,
+                args.IsEnabled
+            );
+            if (!result.IsSuccess)
+            {
+                _notificationService.ShowError(result.Error!);
+                return;
+            }
+
+            AvailableComicSources = ComicSourceItems
+                .Where(cs => cs.IsEnabled)
+                .Select(cs => cs.ComicSource)
+                .ToList();
+
+            DefaultComicSource =
+                AvailableComicSources.FirstOrDefault(s =>
+                    s.Name == _settingsService.Current.DefaultComicSourceName
+                ) ?? AvailableComicSources.FirstOrDefault();
+
+            _messenger.Send(new ComicSourcesUpdatedMessage());
         }
 
         private async Task LoadComicSourcesAsync()
@@ -117,7 +180,16 @@ namespace Yukari.ViewModels.Pages
                 return;
             }
 
-            ComicSources = result.Value!.ToList();
+            var comicSources = result.Value!;
+
+            AvailableComicSources = comicSources.Where(cs => cs.IsEnabled).ToList();
+            ComicSourceItems = comicSources
+                .Select(cs => new ComicSourceItemViewModel(
+                    cs,
+                    RemoveComicSourceCommand,
+                    ComicSourceIsEnabledChangedCommand
+                ))
+                .ToList();
         }
 
         private void ApplySetting<T>(Expression<Func<AppSettings, T>> selector, T value)
@@ -140,6 +212,6 @@ namespace Yukari.ViewModels.Pages
             ApplySetting(s => s.ScalingMode, value);
 
         partial void OnDefaultComicSourceChanged(ComicSourceModel? value) =>
-            _settingsService.Set(s => s.DefaultComicSourceName, value?.Name);
+            ApplySetting(s => s.DefaultComicSourceName, value?.Name);
     }
 }

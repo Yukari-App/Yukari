@@ -11,6 +11,7 @@
       xmlns:models="using:Yukari.Models"
       xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
       xmlns:ui="using:CommunityToolkit.WinUI"
+      xmlns:vmc="using:Yukari.ViewModels.Components"
       mc:Ignorable="d">
 
     <Page.Resources>
@@ -124,7 +125,7 @@
                                               Description="Sources from which the comic will be extracted"
                                               Header="Comic Sources"
                                               HeaderIcon="{ui:FontIcon Glyph=&#xE753;}"
-                                              ItemsSource="{x:Bind ViewModel.ComicSources, Mode=OneWay}">
+                                              ItemsSource="{x:Bind ViewModel.ComicSourceItems, Mode=OneWay}">
                         <Button Command="{x:Bind ViewModel.AddComicSourceCommand, Mode=OneWay}" Content="Add New Source" />
                         <toolkit:SettingsExpander.ItemsHeader>
                             <InfoBar Title="You haven't added any sources yet"
@@ -136,10 +137,10 @@
                                      Visibility="{x:Bind ViewModel.IsComicSourcesEmpty, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
                         </toolkit:SettingsExpander.ItemsHeader>
                         <toolkit:SettingsExpander.ItemTemplate>
-                            <DataTemplate x:DataType="models:ComicSourceModel">
-                                <toolkit:SettingsCard Description="{x:Bind Description}" Header="{x:Bind Name}">
+                            <DataTemplate x:DataType="vmc:ComicSourceItemViewModel">
+                                <toolkit:SettingsCard Description="{x:Bind ComicSource.Description}" Header="{x:Bind ComicSource.Name}">
                                     <toolkit:SettingsCard.HeaderIcon>
-                                        <ImageIcon Source="{x:Bind LogoUrl}" />
+                                        <ImageIcon Source="{x:Bind ComicSource.LogoUrl}" />
                                     </toolkit:SettingsCard.HeaderIcon>
                                     <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Spacing="8">
                                         <ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
@@ -151,7 +152,10 @@
                                                 Content="{ui:FontIcon Glyph=&#xE712;}">
                                             <Button.Flyout>
                                                 <MenuFlyout>
-                                                    <MenuFlyoutItem Icon="Delete" Text="Delete" />
+                                                    <MenuFlyoutItem Command="{x:Bind DeleteCommand}"
+                                                                    CommandParameter="{x:Bind}"
+                                                                    Icon="Delete"
+                                                                    Text="Delete" />
                                                 </MenuFlyout>
                                             </Button.Flyout>
                                         </Button>
@@ -166,8 +170,8 @@
                                           Description="Set default comic source"
                                           Header="Default Source"
                                           HeaderIcon="{ui:FontIcon Glyph=&#xE930;}"
-                                          IsEnabled="{x:Bind ViewModel.IsComicSourcesEmpty, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}">
-                        <ComboBox ItemsSource="{x:Bind ViewModel.ComicSources, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.DefaultComicSource, Mode=TwoWay}">
+                                          IsEnabled="{x:Bind ViewModel.IsAnyComicSourceEnabled, Mode=OneWay}">
+                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableComicSources, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.DefaultComicSource, Mode=TwoWay}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="models:ComicSourceModel">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
