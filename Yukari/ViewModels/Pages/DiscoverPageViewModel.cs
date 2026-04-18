@@ -212,7 +212,12 @@ namespace Yukari.ViewModels.Pages
         async partial void OnSelectedComicSourceChanged(ComicSourceModel? value)
         {
             if (value == null)
+            {
+                SearchedComics = null;
+                _availableFilters = null;
+                _appliedFilters = null;
                 return;
+            }
 
             await UpdateAvailableFiltersAsync();
             await UpdateDisplayedComicsAsync();
