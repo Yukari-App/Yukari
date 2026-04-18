@@ -352,13 +352,12 @@ namespace Yukari.Services.Comics
             );
         }
 
-        public async Task<Result> UpsertComicSourceAsync(string pluginPath, bool isEnabled = true)
+        public async Task<Result> UpsertComicSourceAsync(string pluginPath)
         {
             try
             {
                 var comicSource = _srcService.GetComicSourceModelFromAssembly(pluginPath);
                 comicSource.DllPath = AppDataHelper.CopyDllToPluginsDirectory(pluginPath);
-                comicSource.IsEnabled = isEnabled;
 
                 await _dbService.UpsertComicSourceAsync(comicSource);
                 return Result.Success();
@@ -373,6 +372,14 @@ namespace Yukari.Services.Comics
             {
                 return Result.Failure($"Error saving comic source: {ex.Message}");
             }
+        }
+
+        public async Task<Result> UpdateComicSourceIsEnabledAsync(string sourceName, bool isEnabled)
+        {
+            return await ExecuteAsync(
+                () => _dbService.UpdateComicSourceIsEnabledAsync(sourceName, isEnabled),
+                "Error updating comic source status"
+            );
         }
 
         public async Task<Result> RemoveFavoriteComicAsync(ContentKey comicKey)

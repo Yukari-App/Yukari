@@ -79,7 +79,8 @@ namespace Yukari.Services.Comics
             string[] chapterIDs,
             bool IsRead
         );
-        Task<Result> UpsertComicSourceAsync(string pluginPath, bool isEnabled = true);
+        Task<Result> UpsertComicSourceAsync(string pluginPath);
+        Task<Result> UpdateComicSourceIsEnabledAsync(string sourceName, bool isEnabled);
 
         Task<Result> RemoveFavoriteComicAsync(ContentKey comicKey);
         Task<Result> RemoveComicSourceAsync(string sourceName);
