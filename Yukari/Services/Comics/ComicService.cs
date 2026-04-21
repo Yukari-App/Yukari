@@ -43,7 +43,7 @@ namespace Yukari.Services.Comics
                 async (ct) =>
                 {
                     await LoadComicSourceAsync(sourceName, ct);
-                    return _srcService.GetFilters();
+                    return Result<IReadOnlyList<Filter>>.Success(_srcService.GetFilters());
                 },
                 "Error getting source filters",
                 ct
@@ -59,7 +59,9 @@ namespace Yukari.Services.Comics
                 async (ct) =>
                 {
                     await LoadComicSourceAsync(sourceName, ct);
-                    return _srcService.GetLanguages();
+                    return Result<IReadOnlyDictionary<string, string>>.Success(
+                        _srcService.GetLanguages()
+                    );
                 },
                 "Error getting source languages",
                 ct
@@ -77,10 +79,11 @@ namespace Yukari.Services.Comics
                 async (ct) =>
                 {
                     await LoadComicSourceAsync(sourceName, ct);
-
-                    return string.IsNullOrEmpty(queryText)
+                    var comics = string.IsNullOrEmpty(queryText)
                         ? await _srcService.GetTrendingComicsAsync(filters, ct)
                         : await _srcService.SearchComicsAsync(queryText, filters, ct);
+
+                    return Result<IReadOnlyList<ComicModel>>.Success(comics);
                 },
                 "Error fetching comics",
                 ct
@@ -94,7 +97,10 @@ namespace Yukari.Services.Comics
         )
         {
             return await ExecuteAsync(
-                (ct) => _dbService.GetFavoriteComicsAsync(queryText, ct),
+                async (ct) =>
+                    Result<IReadOnlyList<ComicModel>>.Success(
+                        await _dbService.GetFavoriteComicsAsync(queryText, ct)
+                    ),
                 "Error fetching favorite comics",
                 ct
             );
@@ -123,9 +129,9 @@ namespace Yukari.Services.Comics
                     }
 
                     if (comic == null)
-                        return null;
+                        return Result<ComicAggregate?>.Success(null);
 
-                    return new ComicAggregate(comic, userData);
+                    return Result<ComicAggregate?>.Success(new ComicAggregate(comic, userData));
                 },
                 "Error fetching comic details",
                 ct
@@ -139,7 +145,10 @@ namespace Yukari.Services.Comics
         )
         {
             return await ExecuteAsync(
-                (ct) => _dbService.GetComicReadingProgressAsync(comicKey, language, ct),
+                async (ct) =>
+                    Result<ComicReadingProgress>.Success(
+                        await _dbService.GetComicReadingProgressAsync(comicKey, language, ct)
+                    ),
                 "Error fetching comic reading progress",
                 ct
             );
@@ -175,14 +184,16 @@ namespace Yukari.Services.Comics
                         );
                     }
 
-                    return chapters
+                    return Result<IReadOnlyList<ChapterAggregate>>.Success(
+                        chapters
                             .Select(c =>
                             {
                                 var userData =
                                     userDataMap.GetValueOrDefault(c.Id) ?? new ChapterUserData();
                                 return new ChapterAggregate(c, userData);
                             })
-                            .ToList() as IReadOnlyList<ChapterAggregate>;
+                            .ToList()
+                    );
                 },
                 "Error fetching chapters",
                 ct
@@ -196,7 +207,10 @@ namespace Yukari.Services.Comics
         )
         {
             return await ExecuteAsync(
-                (ct) => _dbService.GetChapterUserDataAsync(comicKey, chapterKey, ct),
+                async (ct) =>
+                    Result<ChapterUserData>.Success(
+                        await _dbService.GetChapterUserDataAsync(comicKey, chapterKey, ct)
+                    ),
                 "Error fetching chapter user data",
                 ct
             );
@@ -237,7 +251,7 @@ namespace Yukari.Services.Comics
                         );
                     }
 
-                    return pages;
+                    return Result<IReadOnlyList<ChapterPageModel>>.Success(pages);
                 },
                 "Error fetching chapter pages",
                 ct
@@ -249,7 +263,10 @@ namespace Yukari.Services.Comics
         )
         {
             return await ExecuteAsync(
-                (ct) => _dbService.GetComicSourcesAsync(ct),
+                async (ct) =>
+                    Result<IReadOnlyList<ComicSourceModel>>.Success(
+                        await _dbService.GetComicSourcesAsync(ct)
+                    ),
                 "Error fetching comic sources",
                 ct
             );
@@ -269,14 +286,14 @@ namespace Yukari.Services.Comics
                     {
                         var comicUserData = await _dbService.GetComicUserDataAsync(comicKey);
                         if (!comicUserData.IsFavorite)
-                            throw new InvalidOperationException(
+                            return Result.Failure(
                                 "The comic doesn't exist in the source and cannot be favorited."
                             );
 
                         comicDetails =
                             await _dbService.GetComicDetailsAsync(comicKey)
                             ?? throw new InvalidOperationException(
-                                "Comic not found locally for update."
+                                $"Comic '{comicKey.Id}' is marked as favorite but was not found in the database. Data may be corrupted."
                             );
 
                         comicDetails.IsAvailable = false;
@@ -290,6 +307,7 @@ namespace Yukari.Services.Comics
                         comicDetails.CoverImageUrl = localCover;
 
                     await _dbService.UpsertFavoriteComicAsync(comicDetails);
+                    return Result.Success();
                 },
                 "Failed to add to favorites"
             );
@@ -301,7 +319,11 @@ namespace Yukari.Services.Comics
         )
         {
             return await ExecuteAsync(
-                () => _dbService.UpsertComicUserDataAsync(comicKey, comicUserData),
+                async () =>
+                {
+                    await _dbService.UpsertComicUserDataAsync(comicKey, comicUserData);
+                    return Result.Success();
+                },
                 "Error saving progress"
             );
         }
@@ -312,7 +334,11 @@ namespace Yukari.Services.Comics
         )
         {
             return await ExecuteAsync(
-                () => _dbService.UpsertComicReadingProgressAsync(comicKey, progress),
+                async () =>
+                {
+                    await _dbService.UpsertComicReadingProgressAsync(comicKey, progress);
+                    return Result.Success();
+                },
                 "Error saving comic reading progress"
             );
         }
@@ -323,6 +349,7 @@ namespace Yukari.Services.Comics
                 async () =>
                 {
                     await FetchAndCacheChaptersAsync(comicKey, language);
+                    return Result.Success();
                 },
                 "Error persisting chapters"
             );
@@ -335,7 +362,15 @@ namespace Yukari.Services.Comics
         )
         {
             return await ExecuteAsync(
-                () => _dbService.UpsertChapterUserDataAsync(comicKey, chapterKey, chapterUserData),
+                async () =>
+                {
+                    await _dbService.UpsertChapterUserDataAsync(
+                        comicKey,
+                        chapterKey,
+                        chapterUserData
+                    );
+                    return Result.Success();
+                },
                 "Error saving chapter progress"
             );
         }
@@ -347,37 +382,47 @@ namespace Yukari.Services.Comics
         )
         {
             return await ExecuteAsync(
-                () => _dbService.UpsertChaptersIsReadAsync(comicKey, chapterIDs, isRead),
+                async () =>
+                {
+                    await _dbService.UpsertChaptersIsReadAsync(comicKey, chapterIDs, isRead);
+                    return Result.Success();
+                },
                 "Error setting read status"
             );
         }
 
         public async Task<Result> UpsertComicSourceAsync(string pluginPath)
         {
-            try
-            {
-                var comicSource = _srcService.GetComicSourceModelFromAssembly(pluginPath);
-                comicSource.DllPath = AppDataHelper.CopyDllToPluginsDirectory(pluginPath);
-
-                await _dbService.UpsertComicSourceAsync(comicSource);
-                return Result.Success();
-            }
-            catch (IOException)
-            {
-                return Result.Failure(
-                    "The source is already in use and cannot be updated now. Restart Yukari and try again."
-                );
-            }
-            catch (Exception ex)
-            {
-                return Result.Failure($"Error saving comic source: {ex.Message}");
-            }
+            return await ExecuteAsync(
+                async () =>
+                {
+                    try
+                    {
+                        var comicSource = _srcService.GetComicSourceModelFromAssembly(pluginPath);
+                        comicSource.DllPath = AppDataHelper.CopyDllToPluginsDirectory(pluginPath);
+                        await _dbService.UpsertComicSourceAsync(comicSource);
+                        return Result.Success();
+                    }
+                    catch (IOException)
+                    {
+                        return Result.Failure(
+                            "The source is already in use and cannot be updated now. Restart Yukari and try again.",
+                            "Error saving comic source"
+                        );
+                    }
+                },
+                "Error saving comic source"
+            );
         }
 
         public async Task<Result> UpdateComicSourceIsEnabledAsync(string sourceName, bool isEnabled)
         {
             return await ExecuteAsync(
-                () => _dbService.UpdateComicSourceIsEnabledAsync(sourceName, isEnabled),
+                async () =>
+                {
+                    await _dbService.UpdateComicSourceIsEnabledAsync(sourceName, isEnabled);
+                    return Result.Success();
+                },
                 "Error updating comic source status"
             );
         }
@@ -389,6 +434,7 @@ namespace Yukari.Services.Comics
                 {
                     await _dbService.RemoveFavoriteComicAsync(comicKey);
                     // TO-DO: In the future, scan the downloads folder and delete folders containing IDs that are no longer in the database.
+                    return Result.Success();
                 },
                 "Error removing from favorites"
             );
@@ -397,7 +443,11 @@ namespace Yukari.Services.Comics
         public async Task<Result> RemoveComicSourceAsync(string sourceName)
         {
             return await ExecuteAsync(
-                () => _dbService.RemoveComicSourceAsync(sourceName),
+                async () =>
+                {
+                    await _dbService.RemoveComicSourceAsync(sourceName);
+                    return Result.Success();
+                },
                 "Error removing comic source"
             );
         }
@@ -409,6 +459,7 @@ namespace Yukari.Services.Comics
                 {
                     var unfavoriteComics = await _dbService.CleanupUnfavoriteComicsDataAsync();
                     await _dloadService.CleanupUnfavoriteComicsAsync(unfavoriteComics);
+                    return Result.Success();
                 },
                 "Error cleaning up data"
             );
@@ -449,14 +500,14 @@ namespace Yukari.Services.Comics
         }
 
         private async Task<Result<T>> ExecuteAsync<T>(
-            Func<CancellationToken, Task<T>> action,
-            string errorMessagePrefix,
+            Func<CancellationToken, Task<Result<T>>> action,
+            string errorTitle,
             CancellationToken ct = default
         )
         {
             try
             {
-                return Result<T>.Success(await action(ct));
+                return await action(ct);
             }
             catch (OperationCanceledException)
             {
@@ -465,34 +516,32 @@ namespace Yukari.Services.Comics
             catch (Exception ex) when (IsNetworkError(ex))
             {
                 return Result<T>.Failure(
-                    $"{errorMessagePrefix}: No internet connection or source is offline."
+                    "No internet connection or source is offline.",
+                    errorTitle
                 );
             }
             catch (Exception ex)
             {
                 // Here I can add global logging in the future.
                 var message = ex.InnerException?.Message ?? ex.Message;
-                return Result<T>.Failure($"{errorMessagePrefix}: {message}");
+                return Result<T>.Failure(message, errorTitle);
             }
         }
 
-        private async Task<Result> ExecuteAsync(Func<Task> action, string errorMessagePrefix)
+        private async Task<Result> ExecuteAsync(Func<Task<Result>> action, string errorTitle)
         {
             try
             {
-                await action();
-                return Result.Success();
+                return await action();
             }
             catch (Exception ex) when (IsNetworkError(ex))
             {
-                return Result.Failure(
-                    $"{errorMessagePrefix}: No internet connection or source is offline."
-                );
+                return Result.Failure("No internet connection or source is offline.", errorTitle);
             }
             catch (Exception ex)
             {
                 var message = ex.InnerException?.Message ?? ex.Message;
-                return Result.Failure($"{errorMessagePrefix}: {message}");
+                return Result.Failure(message, errorTitle);
             }
         }
 
