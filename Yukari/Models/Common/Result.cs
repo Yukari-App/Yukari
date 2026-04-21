@@ -1,39 +1,45 @@
+using Yukari.Enums;
+
 namespace Yukari.Models.Common
 {
     public class Result
     {
-        public bool IsSuccess { get; }
-        public bool IsCancelled { get; }
+        public ResultKind Kind { get; }
+
+        public bool IsSuccess => Kind == ResultKind.Success;
+        public bool IsCancelled => Kind == ResultKind.Cancelled;
+        public string? ErrorTitle { get; }
         public string? Error { get; }
 
-        protected Result(bool isSuccess, bool isCancelled, string? error)
+        protected Result(ResultKind kind, string? errorTitle, string? error)
         {
-            IsSuccess = isSuccess;
-            IsCancelled = isCancelled;
+            Kind = kind;
+            ErrorTitle = errorTitle;
             Error = error;
         }
 
-        public static Result Success() => new(true, false, null);
+        public static Result Success() => new(ResultKind.Success, null, null);
 
-        public static Result Failure(string error) => new(false, false, error);
+        public static Result PendingRestart() => new(ResultKind.SuccessPendingRestart, null, null);
 
-        public static Result Cancelled() => new(false, true, null);
+        public static Result Cancelled() => new(ResultKind.Cancelled, null, null);
+
+        public static Result Failure(string error, string? errorTitle = null) =>
+            new(ResultKind.Failure, errorTitle, error);
     }
 
     public class Result<T> : Result
     {
         public T? Value { get; }
 
-        private Result(bool isSuccess, bool isCancelled, T? value, string? error)
-            : base(isSuccess, isCancelled, error)
-        {
-            Value = value;
-        }
+        private Result(ResultKind kind, string? errorTitle, string? error, T? value)
+            : base(kind, errorTitle, error) => Value = value;
 
-        public static Result<T> Success(T value) => new(true, false, value, null);
+        public static Result<T> Success(T value) => new(ResultKind.Success, null, null, value);
 
-        public static new Result<T> Failure(string error) => new(false, false, default, error);
+        public static new Result<T> Cancelled() => new(ResultKind.Cancelled, null, null, default);
 
-        public static new Result<T> Cancelled() => new(false, true, default, null);
+        public static new Result<T> Failure(string error, string? errorTitle = null) =>
+            new(ResultKind.Failure, errorTitle, error, default);
     }
 }
