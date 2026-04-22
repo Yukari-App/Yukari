@@ -88,7 +88,9 @@ namespace Yukari.Services.Storage.Migrations
                     LogoUrl TEXT,
                     Description TEXT,
                     DllPath TEXT NOT NULL,
-                    IsEnabled INTEGER NOT NULL DEFAULT 1
+                    IsEnabled INTEGER NOT NULL DEFAULT 1,
+                    PendingRemoval INTEGER NOT NULL DEFAULT 0,
+                    PendingUpdatePath TEXT    
                 );
                 """,
                 transaction: transaction
