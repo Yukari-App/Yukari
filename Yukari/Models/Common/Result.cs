@@ -26,6 +26,9 @@ namespace Yukari.Models.Common
 
         public static Result Failure(string error, string? errorTitle = null) =>
             new(ResultKind.Failure, errorTitle, error);
+
+        public static Result ComicSourceDisabled(string error, string? errorTitle = null) =>
+            new(ResultKind.ComicSourceDisabled, errorTitle, error);
     }
 
     public class Result<T> : Result
@@ -41,5 +44,8 @@ namespace Yukari.Models.Common
 
         public static new Result<T> Failure(string error, string? errorTitle = null) =>
             new(ResultKind.Failure, errorTitle, error, default);
+
+        public static new Result<T> ComicSourceDisabled(string error, string? errorTitle = null) =>
+            new(ResultKind.ComicSourceDisabled, errorTitle, error, default);
     }
 }

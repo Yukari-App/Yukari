@@ -8,5 +8,6 @@ namespace Yukari.Enums
         Cancelled,
 
         Failure,
+        ComicSourceDisabled,
     }
 }
