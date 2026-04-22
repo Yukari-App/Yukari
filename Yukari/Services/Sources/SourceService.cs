@@ -44,7 +44,10 @@ namespace Yukari.Services.Sources
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to load source {comicSource.Name}", ex);
+                throw new InvalidOperationException(
+                    $"Failed to load source {comicSource.Name}",
+                    ex
+                );
             }
         }
 
