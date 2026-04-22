@@ -288,6 +288,42 @@ namespace Yukari.Services.Storage
             );
         }
 
+        public async Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesPendingRemovalAsync(
+            CancellationToken ct = default
+        )
+        {
+            using var connection = await GetOpenConnectionAsync();
+
+            const string sql = """
+                SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled
+                FROM ComicSources 
+                WHERE PendingRemoval = 1;
+                """;
+
+            var result = await connection.QueryAsync<ComicSourceModel>(
+                new CommandDefinition(sql, cancellationToken: ct)
+            );
+            return result.ToList();
+        }
+
+        public async Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesPendingUpdateAsync(
+            CancellationToken ct = default
+        )
+        {
+            using var connection = await GetOpenConnectionAsync();
+
+            const string sql = """
+                SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled, PendingUpdatePath
+                FROM ComicSources 
+                WHERE PendingUpdatePath IS NOT NULL;
+                """;
+
+            var result = await connection.QueryAsync<ComicSourceModel>(
+                new CommandDefinition(sql, cancellationToken: ct)
+            );
+            return result.ToList();
+        }
+
         public async Task UpsertFavoriteComicAsync(ComicModel comic)
         {
             using var connection = await GetOpenConnectionAsync();
@@ -598,6 +634,15 @@ namespace Yukari.Services.Storage
             using var connection = await GetOpenConnectionAsync();
 
             const string sql = @"DELETE FROM ComicSources WHERE Name = @Name;";
+            await connection.ExecuteAsync(sql, new { Name = sourceName });
+        }
+
+        public async Task ClearComicSourcePendingUpdateAsync(string sourceName)
+        {
+            using var connection = await GetOpenConnectionAsync();
+
+            const string sql =
+                @"UPDATE ComicSources SET PendingUpdatePath = NULL WHERE Name = @Name;";
             await connection.ExecuteAsync(sql, new { Name = sourceName });
         }
 

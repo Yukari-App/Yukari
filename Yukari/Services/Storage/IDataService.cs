@@ -47,6 +47,12 @@ namespace Yukari.Services.Storage
             string sourceName,
             CancellationToken ct = default
         );
+        Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesPendingRemovalAsync(
+            CancellationToken ct = default
+        );
+        Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesPendingUpdateAsync(
+            CancellationToken ct = default
+        );
 
         Task UpsertFavoriteComicAsync(ComicModel comic);
         Task UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
@@ -70,6 +76,8 @@ namespace Yukari.Services.Storage
         Task RemoveFavoriteComicAsync(ContentKey comicKey);
         Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey);
         Task RemoveComicSourceAsync(string sourceName);
+
+        Task ClearComicSourcePendingUpdateAsync(string sourceName);
         Task<IReadOnlyList<ContentKey>> CleanupUnfavoriteComicsDataAsync();
     }
 }
