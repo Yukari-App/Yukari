@@ -63,6 +63,11 @@ namespace Yukari
                 );
                 await migrator.MigrateAsync();
 
+                var dbService = GetService<IDataService>();
+                var comicService = GetService<IComicService>();
+                await ProcessPendingComicSourcesRemovalsAsync(dbService, comicService);
+                await ProcessPendingComicSourcesUpdatesAsync(dbService, comicService);
+
                 await InitializeAppAsync();
 
                 MainWindow.NavigateToShell();
@@ -83,6 +88,39 @@ namespace Yukari
         private async Task InitializeAppAsync()
         {
             await Task.Delay(400);
+        }
+
+        private async Task ProcessPendingComicSourcesRemovalsAsync(
+            IDataService dbService,
+            IComicService comicService
+        )
+        {
+            var pending = await dbService.GetComicSourcesPendingRemovalAsync();
+            foreach (var source in pending)
+            {
+                var result = await comicService.RemoveComicSourceAsync(source.Name);
+                if (!result.IsSuccess)
+                {
+                    // TO-DO: Log the error and notify the user that the source could not be removed
+                }
+            }
+        }
+
+        private async Task ProcessPendingComicSourcesUpdatesAsync(
+            IDataService dbService,
+            IComicService comicService
+        )
+        {
+            var pending = await dbService.GetComicSourcesPendingUpdateAsync();
+            foreach (var source in pending)
+            {
+                var result = await comicService.UpsertComicSourceAsync(source.PendingUpdatePath!);
+                if (!result.IsSuccess)
+                {
+                    // TO-DO: Invalid or corrupted plugin, notify it and log the error
+                }
+                await dbService.UpdateComicSourcePendingUpdateAsync(source.Name, null);
+            }
         }
     }
 }
