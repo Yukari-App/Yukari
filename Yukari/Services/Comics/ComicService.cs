@@ -398,17 +398,19 @@ namespace Yukari.Services.Comics
                 {
                     try
                     {
-                        var comicSource = _srcService.GetComicSourceModelFromAssembly(pluginPath);
-                        comicSource.DllPath = AppDataHelper.CopyDllToPluginsDirectory(pluginPath);
+                        var newPath = AppDataHelper.CopyDllToPluginsDirectory(pluginPath);
+                        var comicSource = _srcService.GetComicSourceModelFromAssembly(newPath);
                         await _dbService.UpsertComicSourceAsync(comicSource);
                         return Result.Success();
                     }
-                    catch (IOException)
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                     {
-                        return Result.Failure(
-                            "The source is already in use and cannot be updated now. Restart Yukari and try again.",
-                            "Error saving comic source"
+                        var metadata = _srcService.GetComicSourceModelFromAssembly(pluginPath);
+                        await _dbService.UpdateComicSourcePendingUpdateAsync(
+                            metadata.Name,
+                            pluginPath
                         );
+                        return Result.PendingRestart();
                     }
                 },
                 "Error saving comic source"
@@ -445,8 +447,28 @@ namespace Yukari.Services.Comics
             return await ExecuteAsync(
                 async () =>
                 {
-                    await _dbService.RemoveComicSourceAsync(sourceName);
-                    return Result.Success();
+                    try
+                    {
+                        var comicSource =
+                            await _dbService.GetComicSourceDetailsAsync(sourceName)
+                            ?? throw new InvalidOperationException(
+                                $"The source '{sourceName}' is not registered in the database."
+                            );
+
+                        if (
+                            !string.IsNullOrWhiteSpace(comicSource.DllPath)
+                            && File.Exists(comicSource.DllPath)
+                        )
+                            File.Delete(comicSource.DllPath);
+
+                        await _dbService.RemoveComicSourceAsync(sourceName);
+                        return Result.Success();
+                    }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                    {
+                        await _dbService.UpdateComicSourcePendingRemovalAsync(sourceName, true);
+                        return Result.PendingRestart();
+                    }
                 },
                 "Error removing comic source"
             );
