@@ -3,8 +3,10 @@ namespace Yukari.Enums
     public enum ResultKind
     {
         Success,
-        SuccessPendingRestart,
+        PendingRestart,
+
         Cancelled,
+
         Failure,
     }
 }

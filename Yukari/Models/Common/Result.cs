@@ -20,7 +20,7 @@ namespace Yukari.Models.Common
 
         public static Result Success() => new(ResultKind.Success, null, null);
 
-        public static Result PendingRestart() => new(ResultKind.SuccessPendingRestart, null, null);
+        public static Result PendingRestart() => new(ResultKind.PendingRestart, null, null);
 
         public static Result Cancelled() => new(ResultKind.Cancelled, null, null);
 
