@@ -89,7 +89,10 @@ namespace Yukari.ViewModels.Pages
             !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading && !NoChapters;
 
         public bool IsLanguageSelectionAvailable =>
-            !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading;
+            !IsFavoriteStatusChanging
+            && !IsComicLoading
+            && !IsChaptersLoading
+            && Comic?.Langs.Length > 0;
 
         public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
         public string DownloadAllIcon =>
@@ -322,7 +325,7 @@ namespace Yukari.ViewModels.Pages
 
         private async Task RefreshChaptersAsync()
         {
-            if (IsComicLoading || _comicKey == null || string.IsNullOrEmpty(SelectedLang))
+            if (IsComicLoading || _comicKey == null)
                 return;
 
             _chaptersCts.Cancel();
@@ -335,6 +338,13 @@ namespace Yukari.ViewModels.Pages
             );
 
             IsChaptersLoading = true;
+
+            if (string.IsNullOrEmpty(SelectedLang))
+            {
+                Chapters = null;
+                IsChaptersLoading = false;
+                return;
+            }
 
             var result = await _comicService.GetAllChaptersAsync(
                 _comicKey,
@@ -397,10 +407,14 @@ namespace Yukari.ViewModels.Pages
 
         async partial void OnSelectedLangChanged(string? value)
         {
-            if (IsComicLoading || value == null)
+            if (IsComicLoading)
                 return;
 
             await RefreshChaptersAsync();
+
+            if (string.IsNullOrEmpty(value))
+                return;
+
             var result = await _comicService.UpsertComicUserDataAsync(
                 _comicKey!,
                 new() { IsFavorite = IsFavorite, LastSelectedLang = value }
