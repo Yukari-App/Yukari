@@ -585,6 +585,30 @@ namespace Yukari.Services.Storage
             );
         }
 
+        public async Task UpdateComicSourcePendingRemovalAsync(
+            string sourceName,
+            bool pendingRemoval
+        )
+        {
+            using var connection = await GetOpenConnectionAsync();
+            await connection.ExecuteAsync(
+                @"UPDATE ComicSources SET PendingRemoval = @PendingRemoval WHERE Name = @Name;",
+                new { Name = sourceName, PendingRemoval = pendingRemoval }
+            );
+        }
+
+        public async Task UpdateComicSourcePendingUpdateAsync(
+            string sourceName,
+            string? pendingUpdatePath
+        )
+        {
+            using var connection = await GetOpenConnectionAsync();
+            await connection.ExecuteAsync(
+                @"UPDATE ComicSources SET PendingUpdatePath = @PendingUpdatePath WHERE Name = @Name;",
+                new { Name = sourceName, PendingUpdatePath = pendingUpdatePath }
+            );
+        }
+
         public async Task RemoveFavoriteComicAsync(ContentKey comicKey)
         {
             using var connection = await GetOpenConnectionAsync();
@@ -634,15 +658,6 @@ namespace Yukari.Services.Storage
             using var connection = await GetOpenConnectionAsync();
 
             const string sql = @"DELETE FROM ComicSources WHERE Name = @Name;";
-            await connection.ExecuteAsync(sql, new { Name = sourceName });
-        }
-
-        public async Task ClearComicSourcePendingUpdateAsync(string sourceName)
-        {
-            using var connection = await GetOpenConnectionAsync();
-
-            const string sql =
-                @"UPDATE ComicSources SET PendingUpdatePath = NULL WHERE Name = @Name;";
             await connection.ExecuteAsync(sql, new { Name = sourceName });
         }
 

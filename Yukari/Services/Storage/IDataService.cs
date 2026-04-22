@@ -72,12 +72,13 @@ namespace Yukari.Services.Storage
         Task UpsertChaptersIsReadAsync(ContentKey comicKey, string[] chapterIDs, bool IsRead);
         Task UpsertComicSourceAsync(ComicSourceModel comicSource);
         Task UpdateComicSourceIsEnabledAsync(string sourceName, bool isEnabled);
+        Task UpdateComicSourcePendingRemovalAsync(string sourceName, bool pendingRemoval);
+        Task UpdateComicSourcePendingUpdateAsync(string sourceName, string? pendingUpdatePath);
 
         Task RemoveFavoriteComicAsync(ContentKey comicKey);
         Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey);
         Task RemoveComicSourceAsync(string sourceName);
 
-        Task ClearComicSourcePendingUpdateAsync(string sourceName);
         Task<IReadOnlyList<ContentKey>> CleanupUnfavoriteComicsDataAsync();
     }
 }
