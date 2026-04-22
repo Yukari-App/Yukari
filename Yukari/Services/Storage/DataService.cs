@@ -650,6 +650,8 @@ namespace Yukari.Services.Storage
         {
             using var connection = await GetOpenConnectionAsync();
 
+            using var transaction = await connection.BeginTransactionAsync();
+
             const string sqlGetUnfavoriteComics = """
                 SELECT c.Id, c.Source
                 FROM Comics c
@@ -661,9 +663,10 @@ namespace Yukari.Services.Storage
                 );
                 """;
 
-            var unfavoriteComics = await connection.QueryAsync<ContentKey>(sqlGetUnfavoriteComics);
-
-            using var transaction = await connection.BeginTransactionAsync();
+            var unfavoriteComics = await connection.QueryAsync<ContentKey>(
+                sqlGetUnfavoriteComics,
+                transaction: transaction
+            );
 
             const string sqlDeleteChapters = """
                 DELETE FROM Chapters 
