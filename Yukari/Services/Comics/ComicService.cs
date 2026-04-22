@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
+using Yukari.Exceptions;
 using Yukari.Helpers;
 using Yukari.Models;
 using Yukari.Models.Common;
@@ -514,7 +515,7 @@ namespace Yukari.Services.Comics
                 );
 
             if (!comicSource.IsEnabled)
-                throw new InvalidOperationException(
+                throw new ComicSourceDisabledException(
                     $"The source '{sourceName}' is currently disabled. Please enable it in the settings."
                 );
 
@@ -534,6 +535,10 @@ namespace Yukari.Services.Comics
             catch (OperationCanceledException)
             {
                 return Result<T>.Cancelled();
+            }
+            catch (ComicSourceDisabledException ex)
+            {
+                return Result<T>.ComicSourceDisabled(ex.Message, errorTitle);
             }
             catch (Exception ex) when (IsNetworkError(ex))
             {
@@ -555,6 +560,10 @@ namespace Yukari.Services.Comics
             try
             {
                 return await action();
+            }
+            catch (ComicSourceDisabledException ex)
+            {
+                return Result.ComicSourceDisabled(ex.Message, errorTitle);
             }
             catch (Exception ex) when (IsNetworkError(ex))
             {
