@@ -106,9 +106,16 @@ namespace Yukari.ViewModels.Pages
                 return;
 
             var result = await _comicService.UpsertComicSourceAsync(pluginPath);
+            if (result.Kind == ResultKind.PendingRestart)
+            {
+                _notificationService.ShowWarning(
+                    "The source is already in use and cannot be updated now. Restart Yukari to complete the update."
+                );
+                return;
+            }
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!);
+                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
                 return;
             }
 
@@ -130,9 +137,16 @@ namespace Yukari.ViewModels.Pages
                 comicSourceItem.ComicSource.Name
             );
 
+            if (result.Kind == ResultKind.PendingRestart)
+            {
+                _notificationService.ShowWarning(
+                    "The source is currently in use and cannot be removed. Restart Yukari to complete the removal."
+                );
+                return;
+            }
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!);
+                _notificationService.ShowError(result.Error!, result.ErrorTitle ?? "Error");
                 return;
             }
 
