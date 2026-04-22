@@ -29,6 +29,7 @@ namespace Yukari.ViewModels.Pages
         private bool _isInitializing = true;
 
         public string YukariVersion { get; } = AppInfoHelper.Version;
+        public string CoreVersion { get; } = AppInfoHelper.CoreVersion;
 
         public ThemeMode[] AvailableThemeModes { get; } = Enum.GetValues<ThemeMode>();
         public ReadingMode[] AvailableReadingModes { get; } = Enum.GetValues<ReadingMode>();
