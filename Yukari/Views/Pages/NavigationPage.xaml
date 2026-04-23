@@ -65,8 +65,14 @@
             </NavigationView.MenuItems>
 
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Content="Downloads" Icon="Download" Tag="Yukari.Views.Pages.DownloadsPage" />
-                <NavigationViewItem Content="Help" Icon="Help" Tag="Yukari.Views.Pages.HelpPage" />
+                <NavigationViewItem Content="Downloads"
+                                    Icon="Download"
+                                    IsEnabled="False"
+                                    Tag="Yukari.Views.Pages.DownloadsPage" />
+                <NavigationViewItem Content="Help"
+                                    Icon="Help"
+                                    IsEnabled="False"
+                                    Tag="Yukari.Views.Pages.HelpPage" />
             </NavigationView.FooterMenuItems>
 
             <Frame x:Name="ContentFrame" Padding="16,16,0,0" Navigated="ContentFrame_Navigated">
