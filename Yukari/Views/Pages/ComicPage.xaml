@@ -256,13 +256,6 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                            <ProgressRing Width="28"
-                                          Height="28"
-                                          Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
-                                          IsIndeterminate="False"
-                                          Visibility="{x:Bind ViewModel.IsDownloadingAllChapters, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
-                                          Value="45" />
-
                             <ToggleButton Command="{x:Bind ViewModel.ToggleDownloadAllChaptersCommand}" IsChecked="{x:Bind ViewModel.IsAllChaptersDownloaded, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.DownloadAllIcon, Mode=OneWay}" />

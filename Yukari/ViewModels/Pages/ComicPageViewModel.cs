@@ -80,10 +80,6 @@ namespace Yukari.ViewModels.Pages
         [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
         public partial bool IsAllChaptersDownloaded { get; set; }
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
-        public partial bool IsDownloadingAllChapters { get; set; }
-
         public bool NoChapters => !IsChaptersLoading && (Chapters == null || Chapters.Count == 0);
         public bool IsInterfaceReady =>
             !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading && !NoChapters;
@@ -95,14 +91,8 @@ namespace Yukari.ViewModels.Pages
             && Comic?.Langs.Length > 0;
 
         public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
-        public string DownloadAllIcon =>
-            IsAllChaptersDownloaded ? "\uE74D"
-            : IsDownloadingAllChapters ? "\uF78A"
-            : "\uE896";
-        public string DownloadAllText =>
-            IsAllChaptersDownloaded ? "Delete All"
-            : IsDownloadingAllChapters ? "Downloading..."
-            : "Download All";
+        public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : "\uE896";
+        public string DownloadAllText => IsAllChaptersDownloaded ? "Delete All" : "Download All";
 
         public ComicPageViewModel(
             IComicService comicService,
