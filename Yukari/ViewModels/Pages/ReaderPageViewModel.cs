@@ -318,8 +318,8 @@ namespace Yukari.ViewModels.Pages
 
         private async Task SaveReaderSettingsAsync()
         {
-            _settingsService.Current.ReadingMode = ReadingMode;
-            _settingsService.Current.ScalingMode = ScalingMode;
+            _settingsService.Set(s => s.ReadingMode, ReadingMode);
+            _settingsService.Set(s => s.ScalingMode, ScalingMode);
             await _settingsService.SaveAsync();
         }
 
