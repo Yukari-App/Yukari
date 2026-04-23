@@ -77,7 +77,7 @@ namespace Yukari.Services.Storage
                 SELECT 
                     c.Id, c.Source, c.ComicUrl, c.Title, c.Author, c.Description, 
                     c.Tags, c.Year, c.CoverImageUrl, c.Langs, c.IsAvailable,
-                    u.IsFavorite, u.LastSelectedLang, u.DownloadedLangs
+                    u.IsFavorite, u.LastSelectedLang
                 FROM Comics c
                 INNER JOIN ComicUserData u 
                     ON c.Id = u.ComicId AND c.Source = u.Source
@@ -101,7 +101,7 @@ namespace Yukari.Services.Storage
             using var connection = await GetOpenConnectionAsync();
 
             const string sql = """
-                SELECT IsFavorite, LastSelectedLang, DownloadedLangs
+                SELECT IsFavorite, LastSelectedLang
                 FROM ComicUserData
                 WHERE ComicId = @Id AND Source = @Source;
                 """;
@@ -350,8 +350,8 @@ namespace Yukari.Services.Storage
             await connection.ExecuteAsync(sqlComic, comic, transaction);
 
             const string sqlUserData = """
-                INSERT INTO ComicUserData (ComicId, Source, IsFavorite, DownloadedLangs)
-                VALUES (@ComicId, @Source, @IsFavorite, @DownloadedLangs)
+                INSERT INTO ComicUserData (ComicId, Source, IsFavorite)
+                VALUES (@ComicId, @Source, @IsFavorite)
                     ON CONFLICT(ComicId, Source) DO UPDATE SET
                     IsFavorite = excluded.IsFavorite;
                 """;
@@ -363,7 +363,6 @@ namespace Yukari.Services.Storage
                     ComicId = comic.Id,
                     Source = comic.Source,
                     IsFavorite = true,
-                    DownloadedLangs = "[]",
                 },
                 transaction
             );
@@ -376,12 +375,11 @@ namespace Yukari.Services.Storage
             using var connection = await GetOpenConnectionAsync();
 
             const string sql = """
-                INSERT INTO ComicUserData (ComicId, Source, IsFavorite, LastSelectedLang, DownloadedLangs)
-                VALUES (@ComicId, @Source, @IsFavorite, @LastSelectedLang, @DownloadedLangs)
+                INSERT INTO ComicUserData (ComicId, Source, IsFavorite, LastSelectedLang)
+                VALUES (@ComicId, @Source, @IsFavorite, @LastSelectedLang)
                 ON CONFLICT(ComicId, Source) DO UPDATE SET
                     IsFavorite = excluded.IsFavorite,
-                    LastSelectedLang = COALESCE(excluded.LastSelectedLang, ComicUserData.LastSelectedLang),
-                    DownloadedLangs = COALESCE(excluded.DownloadedLangs, ComicUserData.DownloadedLangs);
+                    LastSelectedLang = COALESCE(excluded.LastSelectedLang, ComicUserData.LastSelectedLang);
                 """;
 
             await connection.ExecuteAsync(
@@ -392,7 +390,6 @@ namespace Yukari.Services.Storage
                     Source = comicKey.Source,
                     comicUserData.IsFavorite,
                     comicUserData.LastSelectedLang,
-                    comicUserData.DownloadedLangs,
                 }
             );
         }
@@ -616,8 +613,7 @@ namespace Yukari.Services.Storage
 
             const string sql = """
                 UPDATE ComicUserData 
-                SET IsFavorite = 0,
-                    DownloadedLangs = '[]'
+                SET IsFavorite = 0
                 WHERE ComicId = @Id AND Source = @Source;
                 """;
 

@@ -34,7 +34,6 @@ namespace Yukari.Services.Storage.Migrations
                     Source TEXT NOT NULL,
                     IsFavorite INTEGER NOT NULL DEFAULT 0,
                     LastSelectedLang TEXT,
-                    DownloadedLangs TEXT NOT NULL,
                     PRIMARY KEY (ComicId, Source)
                 );
 
