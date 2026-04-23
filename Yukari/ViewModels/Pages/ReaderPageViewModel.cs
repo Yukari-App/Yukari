@@ -10,6 +10,7 @@ using Yukari.Enums;
 using Yukari.Helpers.UI;
 using Yukari.Messages;
 using Yukari.Models;
+using Yukari.Models.Common;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
@@ -148,7 +149,7 @@ namespace Yukari.ViewModels.Pages
 
             if (!result.IsSuccess)
             {
-                await TriggerErrorAndReturn(result.Error!);
+                await HandleNotSuccessResultAndNavigateBack(result);
                 return;
             }
 
@@ -156,7 +157,12 @@ namespace Yukari.ViewModels.Pages
 
             if (_chapters.Length == 0)
             {
-                await TriggerErrorAndReturn("No chapters found for this language.");
+                await TriggerNotificationAndNavigateBack(() =>
+                    _notificationService.ShowWarning(
+                        "No chapters found for this language.",
+                        "No Chapters Found"
+                    )
+                );
                 return;
             }
 
@@ -170,7 +176,7 @@ namespace Yukari.ViewModels.Pages
             if (_currentChapterIndex == -1)
             {
                 _currentChapterIndex = 0;
-                _notificationService.ShowWarning(
+                _notificationService.ShowError(
                     "Selected chapter not found. Loading first chapter instead."
                 );
             }
@@ -232,7 +238,7 @@ namespace Yukari.ViewModels.Pages
             }
             else
             {
-                await TriggerErrorAndReturn(pagesResult.Error!);
+                await HandleNotSuccessResultAndNavigateBack(pagesResult);
             }
 
             IsLoading = false;
@@ -360,10 +366,21 @@ namespace Yukari.ViewModels.Pages
             }
         }
 
-        private async Task TriggerErrorAndReturn(string errorMessage)
+        private async Task HandleNotSuccessResultAndNavigateBack(Result result)
         {
-            _notificationService.ShowError(errorMessage);
+            if (result.Kind == ResultKind.ComicSourceDisabled)
+                await TriggerNotificationAndNavigateBack(() =>
+                    _notificationService.ShowWarning(result.Error!, "ComicSource Disabled")
+                );
+            else
+                await TriggerNotificationAndNavigateBack(() =>
+                    _notificationService.ShowError(result.Error!, result.ErrorTitle!)
+                );
+        }
 
+        private async Task TriggerNotificationAndNavigateBack(Action showNotification)
+        {
+            showNotification();
             await Task.Delay(1000);
             _messenger.Send(new SetFullscreenMessage(false));
             _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));

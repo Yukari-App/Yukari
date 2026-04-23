@@ -146,7 +146,7 @@ namespace Yukari.ViewModels.Pages
 
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!);
+                HandleNotSuccessResult(result);
                 return;
             }
 
@@ -190,7 +190,7 @@ namespace Yukari.ViewModels.Pages
             else
             {
                 IsFavorite = !newState;
-                _notificationService.ShowError(result.Error!);
+                HandleNotSuccessResult(result);
             }
 
             IsFavoriteStatusChanging = false;
@@ -207,7 +207,7 @@ namespace Yukari.ViewModels.Pages
             var result = await _comicService.UpsertFavoriteComicAsync(_comicKey);
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!);
+                HandleNotSuccessResult(result);
                 return;
             }
 
@@ -302,7 +302,7 @@ namespace Yukari.ViewModels.Pages
             else
             {
                 SetErrorStateForComics();
-                _notificationService.ShowError(result.Error!);
+                HandleNotSuccessResult(result);
             }
 
             IsComicLoading = false;
@@ -374,7 +374,7 @@ namespace Yukari.ViewModels.Pages
             else
             {
                 Chapters = null;
-                _notificationService.ShowError(result.Error!);
+                HandleNotSuccessResult(result);
             }
 
             IsChaptersLoading = false;
@@ -398,11 +398,19 @@ namespace Yukari.ViewModels.Pages
             );
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!);
+                HandleNotSuccessResult(result);
                 return;
             }
 
             await RefreshChaptersAsync();
+        }
+
+        private void HandleNotSuccessResult(Result result)
+        {
+            if (result.Kind == ResultKind.ComicSourceDisabled)
+                _notificationService.ShowWarning(result.Error!, "Source Disabled");
+            else if (!result.IsSuccess)
+                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
         }
 
         async partial void OnSelectedLangChanged(string? value)
@@ -421,7 +429,7 @@ namespace Yukari.ViewModels.Pages
             );
 
             if (!result.IsSuccess)
-                _notificationService.ShowError(result.Error!);
+                HandleNotSuccessResult(result);
         }
     }
 }
