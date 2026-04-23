@@ -76,7 +76,7 @@ namespace Yukari.Services.Storage
             const string sql = """
                 SELECT 
                     c.Id, c.Source, c.ComicUrl, c.Title, c.Author, c.Description, 
-                    c.Tags, c.Year, c.CoverImageUrl, c.Langs,
+                    c.Tags, c.Year, c.CoverImageUrl, c.Langs, c.IsAvailable,
                     u.IsFavorite, u.LastSelectedLang, u.DownloadedLangs
                 FROM Comics c
                 INNER JOIN ComicUserData u 
@@ -158,7 +158,8 @@ namespace Yukari.Services.Storage
             const string sql = """
                 SELECT Id, ComicId, Source,
                         Title, Number, Volume,
-                        Language, Groups, LastUpdate, Pages
+                        Language, Groups, LastUpdate,
+                        Pages, IsAvailable
                 FROM Chapters
                 WHERE ComicId = @Id AND Source = @Source AND Language = @Language;
                 """;
