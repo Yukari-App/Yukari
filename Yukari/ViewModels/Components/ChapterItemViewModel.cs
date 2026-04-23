@@ -29,7 +29,12 @@ namespace Yukari.ViewModels.Components
         [ObservableProperty]
         public partial int? LastPageRead { get; set; }
 
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(DownloadIcon))]
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(
+            nameof(DownloadIcon),
+            nameof(IsChapterAvailable),
+            nameof(IsDownloadAvailable)
+        )]
         public partial bool IsDownloaded { get; set; }
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(DownloadIcon))]
@@ -38,7 +43,8 @@ namespace Yukari.ViewModels.Components
         [ObservableProperty, NotifyPropertyChangedFor(nameof(ReadIcon))]
         public partial bool IsRead { get; set; }
 
-        public bool IsDownloadAvailable => _isComicFavorite;
+        public bool IsChapterAvailable => Chapter.IsAvailable || IsDownloaded;
+        public bool IsDownloadAvailable => _isComicFavorite && IsChapterAvailable;
 
         public string DownloadIcon =>
             IsDownloaded ? "\uE74D"

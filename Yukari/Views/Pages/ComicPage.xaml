@@ -38,7 +38,11 @@
                     BorderThickness="1"
                     Command="{x:Bind NavigateToReaderCommand}"
                     CommandParameter="{x:Bind Key}"
-                    CornerRadius="4">
+                    CornerRadius="4"
+                    IsEnabled="{x:Bind IsChapterAvailable, Mode=OneWay}">
+                <Button.Resources>
+                    <Color x:Key="ButtonBorderBrushDisabled">Transparent</Color>
+                </Button.Resources>
                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8">
                     <Grid Grid.Column="0" RowDefinitions="Auto, Auto, *">
                         <TextBlock Grid.Row="0"
@@ -56,6 +60,11 @@
                                 VerticalAlignment="Top"
                                 Orientation="Horizontal"
                                 Spacing="4">
+                        <StackPanel.Resources>
+                            <Color x:Key="ButtonBackgroundDisabled">Transparent</Color>
+                            <Color x:Key="ToggleButtonBackgroundDisabled">Transparent</Color>
+                            <Color x:Key="ToggleButtonBorderBrushDisabled">Transparent</Color>
+                        </StackPanel.Resources>
                         <ProgressRing Width="28"
                                       Height="28"
                                       Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
