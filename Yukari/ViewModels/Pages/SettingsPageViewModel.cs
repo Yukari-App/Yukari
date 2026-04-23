@@ -147,7 +147,7 @@ namespace Yukari.ViewModels.Pages
             }
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!, result.ErrorTitle ?? "Error");
+                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
                 return;
             }
 
@@ -169,7 +169,7 @@ namespace Yukari.ViewModels.Pages
             );
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!);
+                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
                 return;
             }
 
@@ -192,7 +192,7 @@ namespace Yukari.ViewModels.Pages
             var result = await _comicService.CleanupUnfavoriteComicsDataAsync();
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!);
+                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
                 return;
             }
 
@@ -204,7 +204,7 @@ namespace Yukari.ViewModels.Pages
             var result = await _comicService.GetComicSourcesAsync();
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!);
+                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
                 return;
             }
 

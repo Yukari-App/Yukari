@@ -476,13 +476,16 @@ namespace Yukari.Tests.ViewModels.Pages
                         It.IsAny<CancellationToken>()
                     )
                 )
-                .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Failure("API error"));
+                .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Failure("API error", "Error"));
 
             // Act
             await SetSelectedSourceAndWait("ErrorSource");
 
             // Assert
-            _notificationServiceMock.Verify(n => n.ShowError("API error"), Times.AtLeastOnce);
+            _notificationServiceMock.Verify(
+                n => n.ShowError("API error", "Error"),
+                Times.AtLeastOnce
+            );
             _sut.IsContentLoading.Should().BeFalse();
         }
 

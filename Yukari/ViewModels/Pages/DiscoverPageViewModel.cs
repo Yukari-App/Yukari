@@ -155,7 +155,7 @@ namespace Yukari.ViewModels.Pages
             }
             else
             {
-                _notificationService.ShowError(result.Error!);
+                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
             }
         }
 
@@ -169,7 +169,7 @@ namespace Yukari.ViewModels.Pages
 
             if (!result.IsSuccess)
             {
-                _notificationService.ShowError(result.Error!);
+                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
                 return;
             }
 
@@ -204,7 +204,7 @@ namespace Yukari.ViewModels.Pages
                     .Value!.Select(comic => new ComicItemViewModel(comic))
                     .ToList();
             else
-                _notificationService.ShowError(result.Error!);
+                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
 
             IsContentLoading = false;
         }

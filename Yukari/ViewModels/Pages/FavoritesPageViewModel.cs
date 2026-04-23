@@ -83,7 +83,7 @@ namespace Yukari.ViewModels.Pages
                     .Value!.Select(comic => new ComicItemViewModel(comic))
                     .ToList();
             else
-                _notificationService.ShowError(result.Error!);
+                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
 
             IsContentLoading = false;
         }
