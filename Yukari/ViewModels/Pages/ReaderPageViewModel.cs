@@ -153,7 +153,9 @@ namespace Yukari.ViewModels.Pages
                 return;
             }
 
-            _chapters = result.Value!.ToArray();
+            _chapters = result
+                .Value!.Where(c => c.Chapter.IsAvailable || c.UserData.IsDownloaded)
+                .ToArray();
 
             if (_chapters.Length == 0)
             {
