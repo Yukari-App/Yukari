@@ -56,6 +56,7 @@ namespace Yukari.Services.Storage.Migrations
                     Groups TEXT,
                     LastUpdate TEXT,
                     Pages INTEGER NOT NULL,
+                    SortOrder INTEGER NOT NULL DEFAULT 0,
                     IsAvailable INTEGER NOT NULL DEFAULT 1,
                     PRIMARY KEY (Id, ComicId, Source)
                     UNIQUE (Id, Source)

@@ -157,11 +157,12 @@ namespace Yukari.Services.Storage
 
             const string sql = """
                 SELECT Id, ComicId, Source,
-                        Title, Number, Volume,
-                        Language, Groups, LastUpdate,
-                        Pages, IsAvailable
+                    Title, Number, Volume,
+                    Language, Groups, LastUpdate,
+                    Pages, IsAvailable
                 FROM Chapters
-                WHERE ComicId = @Id AND Source = @Source AND Language = @Language;
+                WHERE ComicId = @Id AND Source = @Source AND Language = @Language
+                ORDER BY SortOrder ASC;
                 """;
 
             var result = await connection.QueryAsync<ChapterModel>(
@@ -451,8 +452,8 @@ namespace Yukari.Services.Storage
             using var transaction = await connection.BeginTransactionAsync();
 
             const string sqlReset = """
-                UPDATE Chapters 
-                SET IsAvailable = 0 
+                UPDATE Chapters
+                SET IsAvailable = 0
                 WHERE ComicId = @ComicId AND Source = @Source AND Language = @Language;
                 """;
 
@@ -469,8 +470,8 @@ namespace Yukari.Services.Storage
 
             const string sqlUpsert = """
                 INSERT INTO Chapters 
-                (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages, IsAvailable)
-                VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages, 1)
+                (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages, SortOrder, IsAvailable)
+                VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages, @SortOrder, 1)
                 ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
                     Title = excluded.Title,
                     Number = excluded.Number,
@@ -479,10 +480,31 @@ namespace Yukari.Services.Storage
                     Groups = excluded.Groups,
                     LastUpdate = excluded.LastUpdate,
                     Pages = excluded.Pages,
+                    SortOrder = excluded.SortOrder,
                     IsAvailable = 1;
                 """;
 
-            await connection.ExecuteAsync(sqlUpsert, chapters, transaction);
+            await connection.ExecuteAsync(
+                sqlUpsert,
+                chapters.Select(
+                    (c, index) =>
+                        new
+                        {
+                            c.Id,
+                            c.ComicId,
+                            c.Source,
+                            c.Title,
+                            c.Number,
+                            c.Volume,
+                            c.Language,
+                            c.Groups,
+                            c.LastUpdate,
+                            c.Pages,
+                            SortOrder = index,
+                        }
+                ),
+                transaction
+            );
 
             await transaction.CommitAsync();
         }
