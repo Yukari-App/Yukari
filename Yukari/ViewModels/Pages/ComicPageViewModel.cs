@@ -31,6 +31,7 @@ namespace Yukari.ViewModels.Pages
         private CancellationTokenSource _chaptersCts = new();
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsComicAvailable))]
         public partial ComicModel? Comic { get; set; }
 
         [ObservableProperty]
@@ -80,6 +81,7 @@ namespace Yukari.ViewModels.Pages
         [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
         public partial bool IsAllChaptersDownloaded { get; set; }
 
+        public bool IsComicAvailable => Comic?.IsAvailable ?? true;
         public bool NoChapters => !IsChaptersLoading && (Chapters == null || Chapters.Count == 0);
         public bool IsInterfaceReady =>
             !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading && !NoChapters;
