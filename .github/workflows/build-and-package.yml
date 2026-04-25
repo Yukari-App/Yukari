@@ -1,11 +1,10 @@
 name: CI - Build and Package
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
+  push:
+    tags:
+      - '**'
 
 jobs:
   build:
