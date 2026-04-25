@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
     <LangVersion>preview</LangVersion>
     <RootNamespace>Yukari</RootNamespace>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
@@ -32,13 +32,38 @@
     <AssemblyCopyright>Copyright © TXG0Fk3. All rights reserved.</AssemblyCopyright>
   </PropertyGroup>
 
-  <Target Name="RemoveFoldersWithMuiFiles" AfterTargets="Build">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <Target Name="CleanPublish" AfterTargets="Publish">
     <ItemGroup>
-      <RemovingFiles Include="$(OutDir)*\*.mui" Exclude="$(OutDir)en-us\*.mui" />
-      <RemovingFolders Include="@(RemovingFiles->'%(RootDir)%(Directory)')" />
+      <_AiFiles Include="$(PublishDir)Microsoft.Windows.AI.*" />
+      <_NpuDetectFolder Include="$(PublishDir)NpuDetect" />
     </ItemGroup>
-    <RemoveDir Directories="@(RemovingFolders)" />
+    <Delete Files="@(_AiFiles)" />
+    <RemoveDir Directories="@(_NpuDetectFolder)" />
+
+    <ItemGroup>
+      <_MuiFiles Include="$(PublishDir)**\*.mui" Exclude="$(PublishDir)en-us\*.mui" />
+      <_MuiFolders Include="@(_MuiFiles->'%(RootDir)%(Directory)')" />
+    </ItemGroup>
+    <RemoveDir Directories="@(_MuiFolders)" />
   </Target>
+
+  <ItemGroup>
+    <Content Include="Assets\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+
+    <None Include="$(TargetDir)$(TargetName).pri">
+      <Link>$(TargetName).pri</Link>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
@@ -56,11 +81,5 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1721" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260416003" />
     <PackageReference Include="Yukari.Core" Version="1.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="Views\Pages\InitializationErrorPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
 </Project>
