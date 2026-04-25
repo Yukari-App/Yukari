@@ -1,4 +1,4 @@
-name: Build and Package
+name: CI - Build and Package
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
     - name: Create Minimal Zip
       shell: pwsh
       run: |
-        Compress-Archive -Path Yukari/bin/x64/Release/net10.0-windows*/win-x64/publish/* -DestinationPath Yukari.Minimal.x64.zip
+        Compress-Archive -Path Yukari/bin/Release/net10.0-windows*/win-x64/publish/* -DestinationPath Yukari.Minimal.x64.zip
 
     - name: Publish Full for Setup
       run: dotnet publish Yukari/Yukari.csproj -c Release -r win-x64 --self-contained true -p:PublishProfile=win-x64.pubxml

@@ -4,7 +4,7 @@
 #define MyAppExeName "Yukari.exe"
 #define MyArch "x64"
 
-#define AppPublishPath "..\Yukari\bin\" + MyArch + "\Release\net10.0-windows10.0.22621.0\win-" + MyArch + "\publish\"
+#define AppPublishPath "..\Yukari\bin\Release\net10.0-windows10.0.22621.0\win-" + MyArch + "\publish\"
 #define FullExePath AppPublishPath + MyAppExeName
 
 #ifExist FullExePath
