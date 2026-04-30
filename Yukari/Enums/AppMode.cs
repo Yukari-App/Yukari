@@ -1,8 +1,7 @@
-namespace Yukari.Enums
+namespace Yukari.Enums;
+
+public enum AppMode
 {
-    public enum AppMode
-    {
-        Navigation,
-        Reader,
-    }
+    Navigation,
+    Reader,
 }

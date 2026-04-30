@@ -1,10 +1,9 @@
-namespace Yukari.Enums
+namespace Yukari.Enums;
+
+public enum AppPage
 {
-    public enum AppPage
-    {
-        FavoritesPage,
-        DiscoverPage,
-        ComicPage,
-        Other,
-    }
+    FavoritesPage,
+    DiscoverPage,
+    ComicPage,
+    Other,
 }

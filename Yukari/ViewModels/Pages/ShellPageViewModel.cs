@@ -5,28 +5,25 @@ using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Messages;
 using Yukari.Models;
 
-namespace Yukari.ViewModels.Pages
+namespace Yukari.ViewModels.Pages;
+
+public partial class ShellPageViewModel : ObservableRecipient, IRecipient<ShowNotificationMessage>
 {
-    public partial class ShellPageViewModel
-        : ObservableRecipient,
-            IRecipient<ShowNotificationMessage>
+    public ObservableCollection<NotificationModel> Notifications { get; } = new();
+
+    public ShellPageViewModel(IMessenger messenger)
+        : base(messenger)
     {
-        public ObservableCollection<NotificationModel> Notifications { get; } = new();
+        IsActive = true;
+    }
 
-        public ShellPageViewModel(IMessenger messenger)
-            : base(messenger)
-        {
-            IsActive = true;
-        }
+    public async void Receive(ShowNotificationMessage message)
+    {
+        var notification = message.Notification;
 
-        public async void Receive(ShowNotificationMessage message)
-        {
-            var notification = message.Notification;
+        Notifications.Add(notification);
 
-            Notifications.Add(notification);
-
-            await Task.Delay(10000);
-            Notifications.Remove(notification);
-        }
+        await Task.Delay(10000);
+        Notifications.Remove(notification);
     }
 }

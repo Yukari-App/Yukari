@@ -1,11 +1,10 @@
 using System;
 
-namespace Yukari.Models.DTO
+namespace Yukari.Models.DTO;
+
+public class SettingsChangedEventArgs : EventArgs
 {
-    public class SettingsChangedEventArgs : EventArgs
-    {
-        public required string PropertyName { get; init; }
-        public object? OldValue { get; init; }
-        public object? NewValue { get; init; }
-    }
+    public required string PropertyName { get; init; }
+    public object? OldValue { get; init; }
+    public object? NewValue { get; init; }
 }

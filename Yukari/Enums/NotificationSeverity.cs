@@ -1,10 +1,9 @@
-namespace Yukari.Enums
+namespace Yukari.Enums;
+
+public enum NotificationSeverity
 {
-    public enum NotificationSeverity
-    {
-        Info,
-        Success,
-        Warning,
-        Error,
-    }
+    Info,
+    Success,
+    Warning,
+    Error,
 }

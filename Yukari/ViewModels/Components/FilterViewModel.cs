@@ -3,44 +3,43 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Yukari.Core.Models;
 
-namespace Yukari.ViewModels.Components
+namespace Yukari.ViewModels.Components;
+
+public partial class FilterViewModel : ObservableObject
 {
-    public partial class FilterViewModel : ObservableObject
+    public string Key { get; }
+    public string DisplayName { get; }
+    public bool AllowMultiple { get; }
+
+    public ObservableCollection<FilterOptionViewModel> Options { get; }
+
+    public FilterOptionViewModel? SelectedOptionIfNotAllowMultiple
     {
-        public string Key { get; }
-        public string DisplayName { get; }
-        public bool AllowMultiple { get; }
-
-        public ObservableCollection<FilterOptionViewModel> Options { get; }
-
-        public FilterOptionViewModel? SelectedOptionIfNotAllowMultiple
+        get => Options.FirstOrDefault(o => o.IsSelected);
+        set
         {
-            get => Options.FirstOrDefault(o => o.IsSelected);
-            set
-            {
-                if (value is null)
-                    return;
+            if (value is null)
+                return;
 
-                foreach (var opt in Options)
-                    opt.IsSelected = false;
+            foreach (var opt in Options)
+                opt.IsSelected = false;
 
-                value.IsSelected = true;
+            value.IsSelected = true;
 
-                OnPropertyChanged();
-            }
+            OnPropertyChanged();
         }
+    }
 
-        public FilterViewModel(Filter filter)
-        {
-            Key = filter.Key;
-            DisplayName = filter.DisplayName;
-            AllowMultiple = filter.AllowMultiple;
+    public FilterViewModel(Filter filter)
+    {
+        Key = filter.Key;
+        DisplayName = filter.DisplayName;
+        AllowMultiple = filter.AllowMultiple;
 
-            Options = new ObservableCollection<FilterOptionViewModel>(
-                (filter.Options ?? Enumerable.Empty<FilterOption>()).Select(
-                    o => new FilterOptionViewModel(o)
-                )
-            );
-        }
+        Options = new ObservableCollection<FilterOptionViewModel>(
+            (filter.Options ?? Enumerable.Empty<FilterOption>()).Select(
+                o => new FilterOptionViewModel(o)
+            )
+        );
     }
 }

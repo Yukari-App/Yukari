@@ -1,4 +1,3 @@
-namespace Yukari.Messages
-{
-    public record ComicSourcesUpdatedMessage();
-}
+namespace Yukari.Messages;
+
+public record ComicSourcesUpdatedMessage();

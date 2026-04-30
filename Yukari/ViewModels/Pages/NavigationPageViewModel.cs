@@ -8,79 +8,78 @@ using Yukari.Enums;
 using Yukari.Messages;
 using Yukari.Services.UI;
 
-namespace Yukari.ViewModels.Pages
+namespace Yukari.ViewModels.Pages;
+
+public partial class NavigationPageViewModel
+    : ObservableObject,
+        IRecipient<NavigateMessage>,
+        IRecipient<SetSearchTextMessage>
 {
-    public partial class NavigationPageViewModel
-        : ObservableObject,
-            IRecipient<NavigateMessage>,
-            IRecipient<SetSearchTextMessage>
+    private readonly INavigationService _navigationService;
+    private readonly IMessenger _messenger;
+
+    private CancellationTokenSource? _cts;
+
+    [ObservableProperty]
+    public partial string SearchText { get; set; } = String.Empty;
+
+    public bool IsBackEnabled => _navigationService.CanGoBack;
+    public bool IsSearchEnabled =>
+        _navigationService.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;
+
+    public NavigationPageViewModel(INavigationService navigationService, IMessenger messenger)
     {
-        private readonly INavigationService _navigationService;
-        private readonly IMessenger _messenger;
+        _navigationService = navigationService;
+        _messenger = messenger;
 
-        private CancellationTokenSource? _cts;
+        _messenger.RegisterAll(this);
+    }
 
-        [ObservableProperty]
-        public partial string SearchText { get; set; } = String.Empty;
+    public void Receive(NavigateMessage message) => OnNavigate(message);
 
-        public bool IsBackEnabled => _navigationService.CanGoBack;
-        public bool IsSearchEnabled =>
-            _navigationService.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;
+    public void Receive(SetSearchTextMessage message) =>
+        SearchText = message.SearchText ?? string.Empty;
 
-        public NavigationPageViewModel(INavigationService navigationService, IMessenger messenger)
-        {
-            _navigationService = navigationService;
-            _messenger = messenger;
+    [RelayCommand]
+    private void OnNavigate(NavigateMessage request)
+    {
+        if (request.PageType == null)
+            return;
 
-            _messenger.RegisterAll(this);
-        }
+        _navigationService.Navigate(request.PageType, request.Parameter);
+        OnPropertyChanged(nameof(IsBackEnabled));
 
-        public void Receive(NavigateMessage message) => OnNavigate(message);
+        RefreshSearchBox();
+    }
 
-        public void Receive(SetSearchTextMessage message) =>
-            SearchText = message.SearchText ?? string.Empty;
-
-        [RelayCommand]
-        private void OnNavigate(NavigateMessage request)
-        {
-            if (request.PageType == null)
-                return;
-
-            _navigationService.Navigate(request.PageType, request.Parameter);
+    [RelayCommand]
+    private void OnBack()
+    {
+        if (_navigationService.GoBack())
             OnPropertyChanged(nameof(IsBackEnabled));
 
-            RefreshSearchBox();
-        }
+        RefreshSearchBox();
+    }
 
-        [RelayCommand]
-        private void OnBack()
+    [RelayCommand]
+    private async Task OnSearchTextChanged()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = new CancellationTokenSource();
+
+        try
         {
-            if (_navigationService.GoBack())
-                OnPropertyChanged(nameof(IsBackEnabled));
-
-            RefreshSearchBox();
+            await Task.Delay(400, _cts.Token);
+            _messenger.Send(new SearchChangedMessage(SearchText));
         }
+        catch (TaskCanceledException) { }
+    }
 
-        [RelayCommand]
-        private async Task OnSearchTextChanged()
-        {
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-
-            try
-            {
-                await Task.Delay(400, _cts.Token);
-                _messenger.Send(new SearchChangedMessage(SearchText));
-            }
-            catch (TaskCanceledException) { }
-        }
-
-        private void RefreshSearchBox()
-        {
-            if (_navigationService.CurrentPage != AppPage.DiscoverPage)
-                SearchText = string.Empty;
-            OnPropertyChanged(nameof(IsSearchEnabled));
-        }
+    private void RefreshSearchBox()
+    {
+        if (_navigationService.CurrentPage != AppPage.DiscoverPage)
+            SearchText = string.Empty;
+        OnPropertyChanged(nameof(IsSearchEnabled));
     }
 }

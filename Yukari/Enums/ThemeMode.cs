@@ -1,9 +1,8 @@
-namespace Yukari.Enums
+namespace Yukari.Enums;
+
+public enum ThemeMode
 {
-    public enum ThemeMode
-    {
-        Light,
-        Dark,
-        System,
-    }
+    Light,
+    Dark,
+    System,
 }

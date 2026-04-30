@@ -3,24 +3,23 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Yukari.Helpers;
 
-namespace Yukari.Views.Pages
+namespace Yukari.Views.Pages;
+
+public sealed partial class InitializationErrorPage : Page
 {
-    public sealed partial class InitializationErrorPage : Page
+    public InitializationErrorPage()
     {
-        public InitializationErrorPage()
-        {
-            InitializeComponent();
+        InitializeComponent();
 
-            VersionTextBlock.Text = $"Version {AppInfoHelper.Version}";
-        }
+        VersionTextBlock.Text = $"Version {AppInfoHelper.Version}";
+    }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        if (e.Parameter is Exception ex)
         {
-            base.OnNavigatedTo(e);
-            if (e.Parameter is Exception ex)
-            {
-                ErrorMessageTextBlock.Text = ex.ToString();
-            }
+            ErrorMessageTextBlock.Text = ex.ToString();
         }
     }
 }

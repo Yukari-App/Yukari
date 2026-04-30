@@ -15,413 +15,405 @@ using Yukari.Services.Comics;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
-namespace Yukari.ViewModels.Pages
+namespace Yukari.ViewModels.Pages;
+
+public partial class ComicPageViewModel
+    : ObservableObject,
+        IRecipient<ChapterUserDataUpdatedMessage>
 {
-    public partial class ComicPageViewModel
-        : ObservableObject,
-            IRecipient<ChapterUserDataUpdatedMessage>
+    private readonly IComicService _comicService;
+    private readonly INotificationService _notificationService;
+    private readonly IMessenger _messenger;
+
+    private ContentKey? _comicKey;
+
+    private CancellationTokenSource _navigationCts = new();
+    private CancellationTokenSource _chaptersCts = new();
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsComicAvailable))]
+    public partial ComicModel? Comic { get; set; }
+
+    [ObservableProperty]
+    public partial List<ChapterItemViewModel>? Chapters { get; set; }
+
+    [ObservableProperty]
+    public partial string? SelectedLang { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FavoriteIcon))]
+    [NotifyCanExecuteChangedFor(nameof(ToggleDownloadAllChaptersCommand))]
+    public partial bool IsFavorite { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsInterfaceReady), nameof(IsLanguageSelectionAvailable))]
+    [NotifyCanExecuteChangedFor(
+        nameof(ContinueReadingCommand),
+        nameof(ToggleDownloadAllChaptersCommand)
+    )]
+    public partial bool IsFavoriteStatusChanging { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsInterfaceReady), nameof(IsLanguageSelectionAvailable))]
+    [NotifyCanExecuteChangedFor(
+        nameof(ContinueReadingCommand),
+        nameof(ToggleFavoriteCommand),
+        nameof(UpdateCommand),
+        nameof(ToggleDownloadAllChaptersCommand)
+    )]
+    public partial bool IsComicLoading { get; set; } = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(
+        nameof(IsInterfaceReady),
+        nameof(NoChapters),
+        nameof(IsLanguageSelectionAvailable)
+    )]
+    [NotifyCanExecuteChangedFor(
+        nameof(ContinueReadingCommand),
+        nameof(ToggleFavoriteCommand),
+        nameof(UpdateCommand),
+        nameof(ToggleDownloadAllChaptersCommand)
+    )]
+    public partial bool IsChaptersLoading { get; set; } = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
+    public partial bool IsAllChaptersDownloaded { get; set; }
+
+    public bool IsComicAvailable => Comic?.IsAvailable ?? true;
+    public bool NoChapters => !IsChaptersLoading && (Chapters == null || Chapters.Count == 0);
+    public bool IsInterfaceReady =>
+        !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading && !NoChapters;
+
+    public bool IsLanguageSelectionAvailable =>
+        !IsFavoriteStatusChanging
+        && !IsComicLoading
+        && !IsChaptersLoading
+        && Comic?.Langs.Length > 0;
+
+    public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
+    public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : "\uE896";
+    public string DownloadAllText => IsAllChaptersDownloaded ? "Delete All" : "Download All";
+
+    public ComicPageViewModel(
+        IComicService comicService,
+        INotificationService notificationService,
+        IMessenger messenger
+    )
     {
-        private readonly IComicService _comicService;
-        private readonly INotificationService _notificationService;
-        private readonly IMessenger _messenger;
+        _comicService = comicService;
+        _notificationService = notificationService;
+        _messenger = messenger;
 
-        private ContentKey? _comicKey;
+        _messenger.RegisterAll(this);
+    }
 
-        private CancellationTokenSource _navigationCts = new();
-        private CancellationTokenSource _chaptersCts = new();
+    public void Receive(ChapterUserDataUpdatedMessage message) =>
+        Chapters?.FirstOrDefault(c => c.Key.Equals(message.ChapterKey))?.RefreshUserDataAsync();
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsComicAvailable))]
-        public partial ComicModel? Comic { get; set; }
+    public async Task InitializeAsync(ContentKey comicKey)
+    {
+        _comicKey = comicKey;
 
-        [ObservableProperty]
-        public partial List<ChapterItemViewModel>? Chapters { get; set; }
+        await RefreshComicAsync();
+        await RefreshChaptersAsync();
+    }
 
-        [ObservableProperty]
-        public partial string? SelectedLang { get; set; }
+    public void OnNavigatedFrom()
+    {
+        _navigationCts.Cancel();
+        _navigationCts.Dispose();
+    }
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(FavoriteIcon))]
-        [NotifyCanExecuteChangedFor(nameof(ToggleDownloadAllChaptersCommand))]
-        public partial bool IsFavorite { get; set; }
+    private bool CanContinueReading() => Comic != null && IsInterfaceReady;
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsInterfaceReady), nameof(IsLanguageSelectionAvailable))]
-        [NotifyCanExecuteChangedFor(
-            nameof(ContinueReadingCommand),
-            nameof(ToggleDownloadAllChaptersCommand)
-        )]
-        public partial bool IsFavoriteStatusChanging { get; set; }
+    [RelayCommand(CanExecute = nameof(CanContinueReading))]
+    private async Task ContinueReadingAsync()
+    {
+        if (_comicKey == null || Comic == null || SelectedLang == null)
+            return;
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsInterfaceReady), nameof(IsLanguageSelectionAvailable))]
-        [NotifyCanExecuteChangedFor(
-            nameof(ContinueReadingCommand),
-            nameof(ToggleFavoriteCommand),
-            nameof(UpdateCommand),
-            nameof(ToggleDownloadAllChaptersCommand)
-        )]
-        public partial bool IsComicLoading { get; set; } = true;
+        var result = await _comicService.GetComicReadingProgressAsync(_comicKey, SelectedLang);
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(
-            nameof(IsInterfaceReady),
-            nameof(NoChapters),
-            nameof(IsLanguageSelectionAvailable)
-        )]
-        [NotifyCanExecuteChangedFor(
-            nameof(ContinueReadingCommand),
-            nameof(ToggleFavoriteCommand),
-            nameof(UpdateCommand),
-            nameof(ToggleDownloadAllChaptersCommand)
-        )]
-        public partial bool IsChaptersLoading { get; set; } = true;
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
-        public partial bool IsAllChaptersDownloaded { get; set; }
-
-        public bool IsComicAvailable => Comic?.IsAvailable ?? true;
-        public bool NoChapters => !IsChaptersLoading && (Chapters == null || Chapters.Count == 0);
-        public bool IsInterfaceReady =>
-            !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading && !NoChapters;
-
-        public bool IsLanguageSelectionAvailable =>
-            !IsFavoriteStatusChanging
-            && !IsComicLoading
-            && !IsChaptersLoading
-            && Comic?.Langs.Length > 0;
-
-        public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
-        public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : "\uE896";
-        public string DownloadAllText => IsAllChaptersDownloaded ? "Delete All" : "Download All";
-
-        public ComicPageViewModel(
-            IComicService comicService,
-            INotificationService notificationService,
-            IMessenger messenger
-        )
+        if (!result.IsSuccess)
         {
-            _comicService = comicService;
-            _notificationService = notificationService;
-            _messenger = messenger;
-
-            _messenger.RegisterAll(this);
+            HandleNotSuccessResult(result);
+            return;
         }
 
-        public void Receive(ChapterUserDataUpdatedMessage message) =>
-            Chapters?.FirstOrDefault(c => c.Key.Equals(message.ChapterKey))?.RefreshUserDataAsync();
+        var currentProgress = result.Value;
 
-        public async Task InitializeAsync(ContentKey comicKey)
+        var chapterKey = !string.IsNullOrEmpty(currentProgress?.LastChapterId)
+            ? new ContentKey(currentProgress.LastChapterId, Comic.Source)
+            : null;
+
+        _messenger.Send(
+            new SwitchAppModeMessage(
+                AppMode.Reader,
+                new ReaderNavigationArgs(_comicKey, Comic.Title, chapterKey, SelectedLang, true)
+            )
+        );
+    }
+
+    private bool CanToggleFavorite() => Comic != null && !IsChaptersLoading;
+
+    [RelayCommand(CanExecute = nameof(CanToggleFavorite))]
+    private async Task ToggleFavoriteAsync()
+    {
+        if (_comicKey == null)
+            return;
+        IsFavoriteStatusChanging = true;
+
+        bool newState = IsFavorite;
+
+        Result result;
+        if (newState)
         {
-            _comicKey = comicKey;
-
-            await RefreshComicAsync();
-            await RefreshChaptersAsync();
-        }
-
-        public void OnNavigatedFrom()
-        {
-            _navigationCts.Cancel();
-            _navigationCts.Dispose();
-        }
-
-        private bool CanContinueReading() => Comic != null && IsInterfaceReady;
-
-        [RelayCommand(CanExecute = nameof(CanContinueReading))]
-        private async Task ContinueReadingAsync()
-        {
-            if (_comicKey == null || Comic == null || SelectedLang == null)
-                return;
-
-            var result = await _comicService.GetComicReadingProgressAsync(_comicKey, SelectedLang);
-
-            if (!result.IsSuccess)
-            {
-                HandleNotSuccessResult(result);
-                return;
-            }
-
-            var currentProgress = result.Value;
-
-            var chapterKey = !string.IsNullOrEmpty(currentProgress?.LastChapterId)
-                ? new ContentKey(currentProgress.LastChapterId, Comic.Source)
-                : null;
-
-            _messenger.Send(
-                new SwitchAppModeMessage(
-                    AppMode.Reader,
-                    new ReaderNavigationArgs(_comicKey, Comic.Title, chapterKey, SelectedLang, true)
-                )
-            );
-        }
-
-        private bool CanToggleFavorite() => Comic != null && !IsChaptersLoading;
-
-        [RelayCommand(CanExecute = nameof(CanToggleFavorite))]
-        private async Task ToggleFavoriteAsync()
-        {
-            if (_comicKey == null)
-                return;
-            IsFavoriteStatusChanging = true;
-
-            bool newState = IsFavorite;
-
-            Result result;
-            if (newState)
-            {
-                result = await _comicService.UpsertFavoriteComicAsync(_comicKey);
-                if (result.IsSuccess)
-                    await _comicService.UpsertChaptersAsync(_comicKey, SelectedLang ?? "");
-            }
-            else
-                result = await _comicService.RemoveFavoriteComicAsync(_comicKey);
-
+            result = await _comicService.UpsertFavoriteComicAsync(_comicKey);
             if (result.IsSuccess)
-                await RefreshChaptersAsync();
-            else
-            {
-                IsFavorite = !newState;
-                HandleNotSuccessResult(result);
-            }
-
-            IsFavoriteStatusChanging = false;
+                await _comicService.UpsertChaptersAsync(_comicKey, SelectedLang ?? "");
         }
+        else
+            result = await _comicService.RemoveFavoriteComicAsync(_comicKey);
 
-        private bool CanUpdate() => Comic != null && !IsChaptersLoading;
-
-        [RelayCommand(CanExecute = nameof(CanUpdate))]
-        private async Task UpdateAsync()
-        {
-            if (_comicKey == null)
-                return;
-
-            var result = await _comicService.UpsertFavoriteComicAsync(_comicKey);
-            if (!result.IsSuccess)
-            {
-                HandleNotSuccessResult(result);
-                return;
-            }
-
-            await _comicService.UpsertChaptersAsync(_comicKey, SelectedLang ?? "");
-
-            await RefreshComicAsync();
+        if (result.IsSuccess)
             await RefreshChaptersAsync();
-
-            _notificationService.ShowSuccess("Comic data updated successfully.");
+        else
+        {
+            IsFavorite = !newState;
+            HandleNotSuccessResult(result);
         }
 
-        private bool CanOpenInBrowser() => !string.IsNullOrEmpty(Comic?.ComicUrl);
+        IsFavoriteStatusChanging = false;
+    }
 
-        [RelayCommand(CanExecute = nameof(CanOpenInBrowser))]
-        private async Task OpenInBrowserAsync() =>
-            await Windows.System.Launcher.LaunchUriAsync(new Uri(Comic!.ComicUrl!));
+    private bool CanUpdate() => Comic != null && !IsChaptersLoading;
 
-        private bool CanToggleDownloadAllChapters() => IsFavorite && IsInterfaceReady;
+    [RelayCommand(CanExecute = nameof(CanUpdate))]
+    private async Task UpdateAsync()
+    {
+        if (_comicKey == null)
+            return;
 
-        [RelayCommand(CanExecute = nameof(CanToggleDownloadAllChapters))]
-        private void ToggleDownloadAllChapters()
+        var result = await _comicService.UpsertFavoriteComicAsync(_comicKey);
+        if (!result.IsSuccess)
         {
-            _notificationService.ShowWarning("Download chapters feature is not implemented yet.");
-            IsAllChaptersDownloaded = !IsAllChaptersDownloaded;
+            HandleNotSuccessResult(result);
+            return;
         }
 
-        [RelayCommand]
-        private void NavigateToReader(ContentKey chapterKey) =>
-            _messenger.Send(
-                new SwitchAppModeMessage(
-                    AppMode.Reader,
-                    new ReaderNavigationArgs(_comicKey!, Comic!.Title, chapterKey, SelectedLang!)
-                )
-            );
+        await _comicService.UpsertChaptersAsync(_comicKey, SelectedLang ?? "");
 
-        [RelayCommand]
-        private async Task MarkPreviousChaptersAsRead(ChapterItemViewModel item)
+        await RefreshComicAsync();
+        await RefreshChaptersAsync();
+
+        _notificationService.ShowSuccess("Comic data updated successfully.");
+    }
+
+    private bool CanOpenInBrowser() => !string.IsNullOrEmpty(Comic?.ComicUrl);
+
+    [RelayCommand(CanExecute = nameof(CanOpenInBrowser))]
+    private async Task OpenInBrowserAsync() =>
+        await Windows.System.Launcher.LaunchUriAsync(new Uri(Comic!.ComicUrl!));
+
+    private bool CanToggleDownloadAllChapters() => IsFavorite && IsInterfaceReady;
+
+    [RelayCommand(CanExecute = nameof(CanToggleDownloadAllChapters))]
+    private void ToggleDownloadAllChapters()
+    {
+        _notificationService.ShowWarning("Download chapters feature is not implemented yet.");
+        IsAllChaptersDownloaded = !IsAllChaptersDownloaded;
+    }
+
+    [RelayCommand]
+    private void NavigateToReader(ContentKey chapterKey) =>
+        _messenger.Send(
+            new SwitchAppModeMessage(
+                AppMode.Reader,
+                new ReaderNavigationArgs(_comicKey!, Comic!.Title, chapterKey, SelectedLang!)
+            )
+        );
+
+    [RelayCommand]
+    private async Task MarkPreviousChaptersAsRead(ChapterItemViewModel item)
+    {
+        var index = Chapters!.IndexOf(item);
+        if (index <= 0)
+            return;
+
+        var chapterIDs = Chapters.Take(index).Select(c => c.Key.Id).ToArray();
+
+        await UpdateChaptersReadStatusAsync(chapterIDs, true);
+    }
+
+    [RelayCommand]
+    private Task MarkAllAsRead() => MarkAllChaptersReadStatus(true);
+
+    [RelayCommand]
+    private Task MarkAllAsUnread() => MarkAllChaptersReadStatus(false);
+
+    private async Task RefreshComicAsync()
+    {
+        if (_comicKey == null)
+            return;
+        IsComicLoading = true;
+
+        Comic = new ComicModel
         {
-            var index = Chapters!.IndexOf(item);
-            if (index <= 0)
-                return;
+            Id = "",
+            Source = "",
+            Title = "Loading...",
+            Tags = new[] { "Loading..." },
+            Year = 0,
+        };
 
-            var chapterIDs = Chapters.Take(index).Select(c => c.Key.Id).ToArray();
+        var result = await _comicService.GetComicDetailsAsync(_comicKey, ct: _navigationCts.Token);
 
-            await UpdateChaptersReadStatusAsync(chapterIDs, true);
-        }
+        if (result.IsCancelled)
+            return;
 
-        [RelayCommand]
-        private Task MarkAllAsRead() => MarkAllChaptersReadStatus(true);
-
-        [RelayCommand]
-        private Task MarkAllAsUnread() => MarkAllChaptersReadStatus(false);
-
-        private async Task RefreshComicAsync()
+        if (result.IsSuccess)
         {
-            if (_comicKey == null)
-                return;
-            IsComicLoading = true;
-
-            Comic = new ComicModel
-            {
-                Id = "",
-                Source = "",
-                Title = "Loading...",
-                Tags = new[] { "Loading..." },
-                Year = 0,
-            };
-
-            var result = await _comicService.GetComicDetailsAsync(
-                _comicKey,
-                ct: _navigationCts.Token
-            );
-
-            if (result.IsCancelled)
-                return;
-
-            if (result.IsSuccess)
-            {
-                var comicAggregate = result.Value;
-                if (comicAggregate == null)
-                {
-                    SetErrorStateForComics();
-                    return;
-                }
-
-                Comic = comicAggregate.Comic;
-
-                var userData = comicAggregate.UserData;
-                IsFavorite = userData.IsFavorite;
-                SelectedLang = userData.LastSelectedLang ?? Comic.Langs.FirstOrDefault()?.Key;
-            }
-            else
+            var comicAggregate = result.Value;
+            if (comicAggregate == null)
             {
                 SetErrorStateForComics();
-                HandleNotSuccessResult(result);
+                return;
             }
 
-            IsComicLoading = false;
+            Comic = comicAggregate.Comic;
+
+            var userData = comicAggregate.UserData;
+            IsFavorite = userData.IsFavorite;
+            SelectedLang = userData.LastSelectedLang ?? Comic.Langs.FirstOrDefault()?.Key;
+        }
+        else
+        {
+            SetErrorStateForComics();
+            HandleNotSuccessResult(result);
         }
 
-        private void SetErrorStateForComics()
+        IsComicLoading = false;
+    }
+
+    private void SetErrorStateForComics()
+    {
+        Comic = new ComicModel
         {
-            Comic = new ComicModel
-            {
-                Id = "",
-                Source = "",
-                Title = "Error",
-                Author = "Error",
-                Description = "An error occurred while loading the comic.",
-                Tags = new[] { "N/A" },
-                Year = 0,
-                CoverImageUrl = null,
-            };
-        }
+            Id = "",
+            Source = "",
+            Title = "Error",
+            Author = "Error",
+            Description = "An error occurred while loading the comic.",
+            Tags = new[] { "N/A" },
+            Year = 0,
+            CoverImageUrl = null,
+        };
+    }
 
-        private async Task RefreshChaptersAsync()
+    private async Task RefreshChaptersAsync()
+    {
+        if (IsComicLoading || _comicKey == null)
+            return;
+
+        _chaptersCts.Cancel();
+        _chaptersCts.Dispose();
+        _chaptersCts = new CancellationTokenSource();
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
+            _chaptersCts.Token,
+            _navigationCts.Token
+        );
+
+        IsChaptersLoading = true;
+
+        if (string.IsNullOrEmpty(SelectedLang))
         {
-            if (IsComicLoading || _comicKey == null)
-                return;
-
-            _chaptersCts.Cancel();
-            _chaptersCts.Dispose();
-            _chaptersCts = new CancellationTokenSource();
-
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
-                _chaptersCts.Token,
-                _navigationCts.Token
-            );
-
-            IsChaptersLoading = true;
-
-            if (string.IsNullOrEmpty(SelectedLang))
-            {
-                Chapters = null;
-                IsChaptersLoading = false;
-                return;
-            }
-
-            var result = await _comicService.GetAllChaptersAsync(
-                _comicKey,
-                SelectedLang,
-                ct: linkedCts.Token
-            );
-
-            if (result.IsCancelled)
-                return;
-
-            if (result.IsSuccess)
-            {
-                var chapterAggregates = result.Value;
-
-                Chapters = chapterAggregates
-                    ?.Select(c => new ChapterItemViewModel(
-                        _comicService,
-                        _notificationService,
-                        c,
-                        _comicKey,
-                        IsFavorite,
-                        NavigateToReaderCommand,
-                        MarkPreviousChaptersAsReadCommand
-                    ))
-                    .ToList();
-            }
-            else
-            {
-                Chapters = null;
-                HandleNotSuccessResult(result);
-            }
-
+            Chapters = null;
             IsChaptersLoading = false;
+            return;
         }
 
-        private async Task MarkAllChaptersReadStatus(bool isRead)
+        var result = await _comicService.GetAllChaptersAsync(
+            _comicKey,
+            SelectedLang,
+            ct: linkedCts.Token
+        );
+
+        if (result.IsCancelled)
+            return;
+
+        if (result.IsSuccess)
         {
-            if (Chapters == null || Chapters.Count == 0)
-                return;
+            var chapterAggregates = result.Value;
 
-            var chapterIDs = Chapters.Select(c => c.Key.Id).ToArray();
-            await UpdateChaptersReadStatusAsync(chapterIDs, isRead);
+            Chapters = chapterAggregates
+                ?.Select(c => new ChapterItemViewModel(
+                    _comicService,
+                    _notificationService,
+                    c,
+                    _comicKey,
+                    IsFavorite,
+                    NavigateToReaderCommand,
+                    MarkPreviousChaptersAsReadCommand
+                ))
+                .ToList();
         }
-
-        private async Task UpdateChaptersReadStatusAsync(string[] chapterIDs, bool isRead)
+        else
         {
-            var result = await _comicService.UpsertChaptersIsReadAsync(
-                _comicKey!,
-                chapterIDs,
-                isRead
-            );
-            if (!result.IsSuccess)
-            {
-                HandleNotSuccessResult(result);
-                return;
-            }
-
-            await RefreshChaptersAsync();
+            Chapters = null;
+            HandleNotSuccessResult(result);
         }
 
-        private void HandleNotSuccessResult(Result result)
+        IsChaptersLoading = false;
+    }
+
+    private async Task MarkAllChaptersReadStatus(bool isRead)
+    {
+        if (Chapters == null || Chapters.Count == 0)
+            return;
+
+        var chapterIDs = Chapters.Select(c => c.Key.Id).ToArray();
+        await UpdateChaptersReadStatusAsync(chapterIDs, isRead);
+    }
+
+    private async Task UpdateChaptersReadStatusAsync(string[] chapterIDs, bool isRead)
+    {
+        var result = await _comicService.UpsertChaptersIsReadAsync(_comicKey!, chapterIDs, isRead);
+        if (!result.IsSuccess)
         {
-            if (result.Kind == ResultKind.ComicSourceDisabled)
-                _notificationService.ShowWarning(result.Error!, "Source Disabled");
-            else if (!result.IsSuccess)
-                _notificationService.ShowError(result.Error!, result.ErrorTitle!);
+            HandleNotSuccessResult(result);
+            return;
         }
 
-        async partial void OnSelectedLangChanged(string? value)
-        {
-            if (IsComicLoading)
-                return;
+        await RefreshChaptersAsync();
+    }
 
-            await RefreshChaptersAsync();
+    private void HandleNotSuccessResult(Result result)
+    {
+        if (result.Kind == ResultKind.ComicSourceDisabled)
+            _notificationService.ShowWarning(result.Error!, "Source Disabled");
+        else if (!result.IsSuccess)
+            _notificationService.ShowError(result.Error!, result.ErrorTitle!);
+    }
 
-            if (string.IsNullOrEmpty(value))
-                return;
+    async partial void OnSelectedLangChanged(string? value)
+    {
+        if (IsComicLoading)
+            return;
 
-            var result = await _comicService.UpsertComicUserDataAsync(
-                _comicKey!,
-                new() { IsFavorite = IsFavorite, LastSelectedLang = value }
-            );
+        await RefreshChaptersAsync();
 
-            if (!result.IsSuccess)
-                HandleNotSuccessResult(result);
-        }
+        if (string.IsNullOrEmpty(value))
+            return;
+
+        var result = await _comicService.UpsertComicUserDataAsync(
+            _comicKey!,
+            new() { IsFavorite = IsFavorite, LastSelectedLang = value }
+        );
+
+        if (!result.IsSuccess)
+            HandleNotSuccessResult(result);
     }
 }

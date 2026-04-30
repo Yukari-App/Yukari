@@ -1,8 +1,7 @@
-namespace Yukari.Models.Data
+namespace Yukari.Models.Data;
+
+public class ComicUserData
 {
-    public class ComicUserData
-    {
-        public string? LastSelectedLang { get; set; }
-        public bool IsFavorite { get; set; }
-    }
+    public string? LastSelectedLang { get; set; }
+    public bool IsFavorite { get; set; }
 }

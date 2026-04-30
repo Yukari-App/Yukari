@@ -5,40 +5,39 @@ using Yukari.Enums;
 using Yukari.Messages;
 using Yukari.ViewModels.Pages;
 
-namespace Yukari.Views.Pages
+namespace Yukari.Views.Pages;
+
+public sealed partial class ShellPage : Page
 {
-    public sealed partial class ShellPage : Page
+    public ShellPageViewModel ViewModel { get; set; }
+
+    public ShellPage()
     {
-        public ShellPageViewModel ViewModel { get; set; }
+        InitializeComponent();
+        ViewModel = App.GetService<ShellPageViewModel>();
+        DataContext = ViewModel;
 
-        public ShellPage()
-        {
-            InitializeComponent();
-            ViewModel = App.GetService<ShellPageViewModel>();
-            DataContext = ViewModel;
+        var messenger = App.GetService<IMessenger>();
 
-            var messenger = App.GetService<IMessenger>();
+        messenger.Register<SwitchAppModeMessage>(
+            this,
+            (r, m) =>
+            {
+                var pageType =
+                    m.appMode == AppMode.Reader ? typeof(ReaderPage) : typeof(NavigationPage);
+                var transitionInfo =
+                    m.appMode == AppMode.Reader
+                        ? new SlideNavigationTransitionInfo()
+                        {
+                            Effect = SlideNavigationTransitionEffect.FromRight,
+                        }
+                        : new SlideNavigationTransitionInfo()
+                        {
+                            Effect = SlideNavigationTransitionEffect.FromLeft,
+                        };
 
-            messenger.Register<SwitchAppModeMessage>(
-                this,
-                (r, m) =>
-                {
-                    var pageType =
-                        m.appMode == AppMode.Reader ? typeof(ReaderPage) : typeof(NavigationPage);
-                    var transitionInfo =
-                        m.appMode == AppMode.Reader
-                            ? new SlideNavigationTransitionInfo()
-                            {
-                                Effect = SlideNavigationTransitionEffect.FromRight,
-                            }
-                            : new SlideNavigationTransitionInfo()
-                            {
-                                Effect = SlideNavigationTransitionEffect.FromLeft,
-                            };
-
-                    ShellFrame.Navigate(pageType, m.Parameter, transitionInfo);
-                }
-            );
-        }
+                ShellFrame.Navigate(pageType, m.Parameter, transitionInfo);
+            }
+        );
     }
 }

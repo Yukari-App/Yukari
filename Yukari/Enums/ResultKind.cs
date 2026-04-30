@@ -1,13 +1,12 @@
-namespace Yukari.Enums
+namespace Yukari.Enums;
+
+public enum ResultKind
 {
-    public enum ResultKind
-    {
-        Success,
-        PendingRestart,
+    Success,
+    PendingRestart,
 
-        Cancelled,
+    Cancelled,
 
-        Failure,
-        ComicSourceDisabled,
-    }
+    Failure,
+    ComicSourceDisabled,
 }

@@ -4,18 +4,17 @@ using System.Threading.Tasks;
 using Yukari.Models.DTO;
 using Yukari.Models.Settings;
 
-namespace Yukari.Services.Settings
+namespace Yukari.Services.Settings;
+
+public interface ISettingsService
 {
-    public interface ISettingsService
-    {
-        AppSettings Current { get; }
+    AppSettings Current { get; }
 
-        void Set<T>(Expression<Func<AppSettings, T>> selector, T value);
+    void Set<T>(Expression<Func<AppSettings, T>> selector, T value);
 
-        Task SaveAsync();
-        Task LoadAsync();
-        void Reset();
+    Task SaveAsync();
+    Task LoadAsync();
+    void Reset();
 
-        event EventHandler<SettingsChangedEventArgs> SettingChanged;
-    }
+    event EventHandler<SettingsChangedEventArgs> SettingChanged;
 }

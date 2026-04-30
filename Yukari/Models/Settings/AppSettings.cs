@@ -1,16 +1,15 @@
 using Yukari.Enums;
 
-namespace Yukari.Models.Settings
+namespace Yukari.Models.Settings;
+
+public class AppSettings
 {
-    public class AppSettings
-    {
-        public ThemeMode Theme { get; set; } = ThemeMode.System;
+    public ThemeMode Theme { get; set; } = ThemeMode.System;
 
-        public bool AutoFullscreen { get; set; } = false;
-        public ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
-        public ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
+    public bool AutoFullscreen { get; set; } = false;
+    public ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
+    public ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
 
-        public string? DefaultComicSourceName { get; set; }
-        public WindowState MainWindowState { get; set; } = new();
-    }
+    public string? DefaultComicSourceName { get; set; }
+    public WindowState MainWindowState { get; set; } = new();
 }

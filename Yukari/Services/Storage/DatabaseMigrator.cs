@@ -6,77 +6,76 @@ using Dapper;
 using Microsoft.Data.Sqlite;
 using Yukari.Services.Storage.Migrations;
 
-namespace Yukari.Services.Storage
+namespace Yukari.Services.Storage;
+
+internal class DatabaseMigrator
 {
-    internal class DatabaseMigrator
+    private readonly string _connectionString;
+
+    private static readonly IReadOnlyList<IMigration> AllMigrations = [new Migration_001()];
+
+    public DatabaseMigrator(string connectionString)
     {
-        private readonly string _connectionString;
+        _connectionString = connectionString;
+    }
 
-        private static readonly IReadOnlyList<IMigration> AllMigrations = [new Migration_001()];
+    public async Task MigrateAsync()
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
 
-        public DatabaseMigrator(string connectionString)
+        int currentVersion = await GetCurrentVersionAsync(connection);
+        int targetVersion = AllMigrations.Max(m => m.Version);
+
+        if (currentVersion == targetVersion)
+            return;
+
+        if (currentVersion > targetVersion)
+            throw new InvalidOperationException(
+                $"The database is in version {currentVersion}, but the app supports up to version {targetVersion}. "
+                    + "Please update the application."
+            );
+
+        var pending = AllMigrations
+            .Where(m => m.Version > currentVersion)
+            .OrderBy(m => m.Version)
+            .ToList();
+
+        foreach (var migration in pending)
         {
-            _connectionString = connectionString;
+            await ApplyMigrationAsync(connection, migration);
         }
+    }
 
-        public async Task MigrateAsync()
+    private async Task ApplyMigrationAsync(SqliteConnection connection, IMigration migration)
+    {
+        using var transaction = await connection.BeginTransactionAsync();
+
+        try
         {
-            using var connection = new SqliteConnection(_connectionString);
-            await connection.OpenAsync();
+            await migration.UpAsync(connection, transaction);
 
-            int currentVersion = await GetCurrentVersionAsync(connection);
-            int targetVersion = AllMigrations.Max(m => m.Version);
+            await connection.ExecuteAsync(
+                $"PRAGMA user_version = {migration.Version};",
+                transaction: transaction
+            );
 
-            if (currentVersion == targetVersion)
-                return;
-
-            if (currentVersion > targetVersion)
-                throw new InvalidOperationException(
-                    $"The database is in version {currentVersion}, but the app supports up to version {targetVersion}. "
-                        + "Please update the application."
-                );
-
-            var pending = AllMigrations
-                .Where(m => m.Version > currentVersion)
-                .OrderBy(m => m.Version)
-                .ToList();
-
-            foreach (var migration in pending)
-            {
-                await ApplyMigrationAsync(connection, migration);
-            }
+            await transaction.CommitAsync();
         }
-
-        private async Task ApplyMigrationAsync(SqliteConnection connection, IMigration migration)
+        catch (Exception ex)
         {
-            using var transaction = await connection.BeginTransactionAsync();
+            await transaction.RollbackAsync();
 
-            try
-            {
-                await migration.UpAsync(connection, transaction);
-
-                await connection.ExecuteAsync(
-                    $"PRAGMA user_version = {migration.Version};",
-                    transaction: transaction
-                );
-
-                await transaction.CommitAsync();
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-
-                throw new InvalidOperationException(
-                    $"Migration {migration.Version} ({migration.Description}) failed: {ex.Message}",
-                    ex
-                );
-            }
+            throw new InvalidOperationException(
+                $"Migration {migration.Version} ({migration.Description}) failed: {ex.Message}",
+                ex
+            );
         }
+    }
 
-        private static async Task<int> GetCurrentVersionAsync(SqliteConnection connection)
-        {
-            var result = await connection.QueryFirstAsync<int>("PRAGMA user_version;");
-            return result;
-        }
+    private static async Task<int> GetCurrentVersionAsync(SqliteConnection connection)
+    {
+        var result = await connection.QueryFirstAsync<int>("PRAGMA user_version;");
+        return result;
     }
 }

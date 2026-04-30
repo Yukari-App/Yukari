@@ -1,12 +1,11 @@
 using Microsoft.UI.Xaml.Controls;
 
-namespace Yukari.Views.Pages
+namespace Yukari.Views.Pages;
+
+public sealed partial class SplashPage : Page
 {
-    public sealed partial class SplashPage : Page
+    public SplashPage()
     {
-        public SplashPage()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

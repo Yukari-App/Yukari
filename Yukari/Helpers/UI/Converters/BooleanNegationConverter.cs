@@ -1,23 +1,22 @@
 using System;
 using Microsoft.UI.Xaml.Data;
 
-namespace Yukari.Helpers.UI.Converters
+namespace Yukari.Helpers.UI.Converters;
+
+public class BooleanNegationConverter : IValueConverter
 {
-    public class BooleanNegationConverter : IValueConverter
+    public object Convert(object value, Type targetType, object parameter, string language)
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        if (value is bool boolValue)
         {
-            if (value is bool boolValue)
-            {
-                return !boolValue;
-            }
-
-            return value;
+            return !boolValue;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
-        }
+        return value;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
     }
 }

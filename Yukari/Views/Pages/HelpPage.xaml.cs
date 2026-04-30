@@ -1,12 +1,11 @@
 using Microsoft.UI.Xaml.Controls;
 
-namespace Yukari.Views.Pages
+namespace Yukari.Views.Pages;
+
+public sealed partial class HelpPage : Page
 {
-    public sealed partial class HelpPage : Page
+    public HelpPage()
     {
-        public HelpPage()
-        {
-            this.InitializeComponent();
-        }
+        this.InitializeComponent();
     }
 }

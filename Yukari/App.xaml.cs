@@ -13,114 +13,113 @@ using Yukari.Services.Storage;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Pages;
 
-namespace Yukari
+namespace Yukari;
+
+public partial class App : Application
 {
-    public partial class App : Application
+    private static MainWindow? MainWindow;
+
+    private readonly IServiceProvider _services;
+
+    public App()
     {
-        private static MainWindow? MainWindow;
+        InitializeComponent();
+        Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US"; // Change the default language of the application
 
-        private readonly IServiceProvider _services;
+        var services = new ServiceCollection();
+        services.AddTransient<ShellPageViewModel>();
+        services.AddTransient<NavigationPageViewModel>();
+        services.AddTransient<ReaderPageViewModel>();
+        services.AddTransient<FavoritesPageViewModel>();
+        services.AddTransient<DiscoverPageViewModel>();
+        services.AddTransient<DownloadsPageViewModel>();
+        services.AddTransient<SettingsPageViewModel>();
+        services.AddTransient<ComicPageViewModel>();
 
-        public App()
+        services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
+        services.AddSingleton<INotificationService, NotificationService>();
+        services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IDataService, DataService>();
+        services.AddSingleton<IDownloadService, DownloadService>();
+        services.AddSingleton<ISourceService, SourceService>();
+        services.AddSingleton<IComicService, ComicService>();
+        _services = services.BuildServiceProvider();
+    }
+
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
+    {
+        var settings = GetService<ISettingsService>();
+        await settings.LoadAsync();
+
+        MainWindow = new MainWindow();
+        MainWindow.Activate();
+
+        try
         {
-            InitializeComponent();
-            Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US"; // Change the default language of the application
+            var migrator = new DatabaseMigrator(
+                $"Data Source={Path.Combine(AppDataHelper.GetDataPath(), "yukari.db")}"
+            );
+            await migrator.MigrateAsync();
 
-            var services = new ServiceCollection();
-            services.AddTransient<ShellPageViewModel>();
-            services.AddTransient<NavigationPageViewModel>();
-            services.AddTransient<ReaderPageViewModel>();
-            services.AddTransient<FavoritesPageViewModel>();
-            services.AddTransient<DiscoverPageViewModel>();
-            services.AddTransient<DownloadsPageViewModel>();
-            services.AddTransient<SettingsPageViewModel>();
-            services.AddTransient<ComicPageViewModel>();
+            var dbService = GetService<IDataService>();
+            var comicService = GetService<IComicService>();
+            await ProcessPendingComicSourcesRemovalsAsync(dbService, comicService);
+            await ProcessPendingComicSourcesUpdatesAsync(dbService, comicService);
 
-            services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
-            services.AddSingleton<INotificationService, NotificationService>();
-            services.AddSingleton<INavigationService, NavigationService>();
-            services.AddSingleton<IDialogService, DialogService>();
-            services.AddSingleton<ISettingsService, SettingsService>();
-            services.AddSingleton<IDataService, DataService>();
-            services.AddSingleton<IDownloadService, DownloadService>();
-            services.AddSingleton<ISourceService, SourceService>();
-            services.AddSingleton<IComicService, ComicService>();
-            _services = services.BuildServiceProvider();
+            await InitializeAppAsync();
+
+            MainWindow.NavigateToShell();
         }
-
-        protected override async void OnLaunched(LaunchActivatedEventArgs args)
+        catch (Exception ex)
         {
-            var settings = GetService<ISettingsService>();
-            await settings.LoadAsync();
-
-            MainWindow = new MainWindow();
-            MainWindow.Activate();
-
-            try
-            {
-                var migrator = new DatabaseMigrator(
-                    $"Data Source={Path.Combine(AppDataHelper.GetDataPath(), "yukari.db")}"
-                );
-                await migrator.MigrateAsync();
-
-                var dbService = GetService<IDataService>();
-                var comicService = GetService<IComicService>();
-                await ProcessPendingComicSourcesRemovalsAsync(dbService, comicService);
-                await ProcessPendingComicSourcesUpdatesAsync(dbService, comicService);
-
-                await InitializeAppAsync();
-
-                MainWindow.NavigateToShell();
-            }
-            catch (Exception ex)
-            {
-                MainWindow.NavigateToError(ex);
-            }
-            finally
-            {
-                MainWindow.SetMicaBackdrop();
-            }
+            MainWindow.NavigateToError(ex);
         }
-
-        public static T GetService<T>()
-            where T : class => ((App)Current)._services.GetRequiredService<T>();
-
-        private async Task InitializeAppAsync()
+        finally
         {
-            await Task.Delay(400);
+            MainWindow.SetMicaBackdrop();
         }
+    }
 
-        private async Task ProcessPendingComicSourcesRemovalsAsync(
-            IDataService dbService,
-            IComicService comicService
-        )
+    public static T GetService<T>()
+        where T : class => ((App)Current)._services.GetRequiredService<T>();
+
+    private async Task InitializeAppAsync()
+    {
+        await Task.Delay(400);
+    }
+
+    private async Task ProcessPendingComicSourcesRemovalsAsync(
+        IDataService dbService,
+        IComicService comicService
+    )
+    {
+        var pending = await dbService.GetComicSourcesPendingRemovalAsync();
+        foreach (var source in pending)
         {
-            var pending = await dbService.GetComicSourcesPendingRemovalAsync();
-            foreach (var source in pending)
+            var result = await comicService.RemoveComicSourceAsync(source.Name);
+            if (!result.IsSuccess)
             {
-                var result = await comicService.RemoveComicSourceAsync(source.Name);
-                if (!result.IsSuccess)
-                {
-                    // TO-DO: Log the error and notify the user that the source could not be removed
-                }
+                // TO-DO: Log the error and notify the user that the source could not be removed
             }
         }
+    }
 
-        private async Task ProcessPendingComicSourcesUpdatesAsync(
-            IDataService dbService,
-            IComicService comicService
-        )
+    private async Task ProcessPendingComicSourcesUpdatesAsync(
+        IDataService dbService,
+        IComicService comicService
+    )
+    {
+        var pending = await dbService.GetComicSourcesPendingUpdateAsync();
+        foreach (var source in pending)
         {
-            var pending = await dbService.GetComicSourcesPendingUpdateAsync();
-            foreach (var source in pending)
+            var result = await comicService.UpsertComicSourceAsync(source.PendingUpdatePath!);
+            if (!result.IsSuccess)
             {
-                var result = await comicService.UpsertComicSourceAsync(source.PendingUpdatePath!);
-                if (!result.IsSuccess)
-                {
-                    // TO-DO: Invalid or corrupted plugin, notify it and log the error
-                }
-                await dbService.UpdateComicSourcePendingUpdateAsync(source.Name, null);
+                // TO-DO: Invalid or corrupted plugin, notify it and log the error
             }
+            await dbService.UpdateComicSourcePendingUpdateAsync(source.Name, null);
         }
     }
 }

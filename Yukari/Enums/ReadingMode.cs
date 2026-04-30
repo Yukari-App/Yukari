@@ -1,9 +1,8 @@
-namespace Yukari.Enums
+namespace Yukari.Enums;
+
+public enum ReadingMode
 {
-    public enum ReadingMode
-    {
-        RightToLeft,
-        LeftToRight,
-        Vertical,
-    }
+    RightToLeft,
+    LeftToRight,
+    Vertical,
 }

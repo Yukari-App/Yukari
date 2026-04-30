@@ -1,10 +1,9 @@
-namespace Yukari.Enums
+namespace Yukari.Enums;
+
+public enum ScalingMode
 {
-    public enum ScalingMode
-    {
-        FitScreen,
-        FitWidth,
-        FitHeight,
-        OriginalSize,
-    }
+    FitScreen,
+    FitWidth,
+    FitHeight,
+    OriginalSize,
 }
