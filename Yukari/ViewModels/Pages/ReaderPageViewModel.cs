@@ -10,7 +10,6 @@ using Yukari.Enums;
 using Yukari.Helpers.UI;
 using Yukari.Messages;
 using Yukari.Models;
-using Yukari.Models.Common;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
@@ -108,8 +107,22 @@ public partial class ReaderPageViewModel : ObservableObject
     public partial ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsLoading), nameof(IsLoaded), nameof(IsError))]
     [NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))]
-    public partial bool IsLoading { get; set; } = true;
+    public partial LoadState ChapterState { get; set; } = LoadState.Loading;
+
+    [ObservableProperty]
+    public partial bool IsWarning { get; set; } = false;
+
+    [ObservableProperty]
+    public partial string? ChapterErrorTitle { get; set; }
+
+    [ObservableProperty]
+    public partial string? ChapterErrorMessage { get; set; }
+
+    public bool IsLoading => ChapterState == LoadState.Loading;
+    public bool IsLoaded => ChapterState == LoadState.Loaded;
+    public bool IsError => ChapterState == LoadState.Error;
 
     public ReaderPageViewModel(
         IComicService comicService,
@@ -149,7 +162,10 @@ public partial class ReaderPageViewModel : ObservableObject
 
         if (!result.IsSuccess)
         {
-            await HandleNotSuccessResultAndNavigateBack(result);
+            ChapterState = LoadState.Error;
+            IsWarning = result.Kind == ResultKind.ComicSourceDisabled;
+            ChapterErrorTitle = IsWarning ? "Comic Source Disabled" : result.ErrorTitle;
+            ChapterErrorMessage = result.Error;
             return;
         }
 
@@ -159,12 +175,9 @@ public partial class ReaderPageViewModel : ObservableObject
 
         if (_chapters.Length == 0)
         {
-            await TriggerNotificationAndNavigateBack(() =>
-                _notificationService.ShowWarning(
-                    "No chapters found for this language.",
-                    "No Chapters Found"
-                )
-            );
+            ChapterState = LoadState.Error;
+            ChapterErrorTitle = "No Chapters Found";
+            ChapterErrorMessage = "No chapters found for this language.";
             return;
         }
 
@@ -176,7 +189,7 @@ public partial class ReaderPageViewModel : ObservableObject
         if (_currentChapterIndex == -1)
         {
             _currentChapterIndex = 0;
-            _notificationService.ShowError(
+            _notificationService.ShowWarning(
                 "Selected chapter not found. Loading first chapter instead."
             );
         }
@@ -208,7 +221,7 @@ public partial class ReaderPageViewModel : ObservableObject
             _navigationCts.Token
         );
 
-        IsLoading = true;
+        ChapterState = LoadState.Loading;
 
         CurrentChapter = _chapters[_currentChapterIndex].Chapter;
         ChapterTitle = CurrentChapter.ToDisplayTitle();
@@ -222,24 +235,26 @@ public partial class ReaderPageViewModel : ObservableObject
         if (pagesResult.IsCancelled)
             return;
 
-        if (pagesResult.IsSuccess)
+        if (!pagesResult.IsSuccess)
         {
-            ChapterPages = pagesResult
-                .Value!.Select(p => new ChapterPageItemViewModel(p, _displayContext))
-                .ToList();
-
-            var chapterUserData = _chapters[_currentChapterIndex].UserData;
-            CurrentPageIndex =
-                chapterUserData.LastPageRead > 0 && (!chapterUserData.IsRead && !forceFirstPage)
-                    ? chapterUserData.LastPageRead.Value - 1
-                    : 0;
-        }
-        else
-        {
-            await HandleNotSuccessResultAndNavigateBack(pagesResult);
+            ChapterState = LoadState.Error;
+            IsWarning = pagesResult.Kind == ResultKind.ComicSourceDisabled;
+            ChapterErrorTitle = IsWarning ? "Comic Source Disabled" : pagesResult.ErrorTitle;
+            ChapterErrorMessage = pagesResult.Error;
+            return;
         }
 
-        IsLoading = false;
+        ChapterPages = pagesResult
+            .Value!.Select(p => new ChapterPageItemViewModel(p, _displayContext))
+            .ToList();
+
+        var chapterUserData = _chapters[_currentChapterIndex].UserData;
+        CurrentPageIndex =
+            chapterUserData.LastPageRead > 0 && (!chapterUserData.IsRead && !forceFirstPage)
+                ? chapterUserData.LastPageRead.Value - 1
+                : 0;
+
+        ChapterState = LoadState.Loaded;
     }
 
     [RelayCommand]
@@ -362,26 +377,6 @@ public partial class ReaderPageViewModel : ObservableObject
         {
             _notificationService.ShowError(comicProgressResult.Error!);
         }
-    }
-
-    private async Task HandleNotSuccessResultAndNavigateBack(Result result)
-    {
-        if (result.Kind == ResultKind.ComicSourceDisabled)
-            await TriggerNotificationAndNavigateBack(() =>
-                _notificationService.ShowWarning(result.Error!, "ComicSource Disabled")
-            );
-        else
-            await TriggerNotificationAndNavigateBack(() =>
-                _notificationService.ShowError(result.Error!, result.ErrorTitle!)
-            );
-    }
-
-    private async Task TriggerNotificationAndNavigateBack(Action showNotification)
-    {
-        showNotification();
-        await Task.Delay(1000);
-        _messenger.Send(new SetFullscreenMessage(false));
-        _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
     }
 
     partial void OnScalingModeChanged(ScalingMode value) => _displayContext.ScalingMode = value;

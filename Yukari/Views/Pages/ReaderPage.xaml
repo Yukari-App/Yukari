@@ -39,9 +39,6 @@
             <Color x:Key="ButtonBackgroundDisabled">Transparent</Color>
             <Color x:Key="ButtonBorderBrushDisabled">Transparent</Color>
         </Grid.Resources>
-        <Grid.ChildrenTransitions>
-            <RepositionThemeTransition />
-        </Grid.ChildrenTransitions>
 
         <Grid x:Name="AppTitleBar"
               Grid.Row="0"
@@ -167,11 +164,15 @@
               PointerEntered="ContentSection_PointerEntered"
               PointerExited="ContentSection_PointerExited"
               SizeChanged="ContentSection_SizeChanged">
+            <Grid.Transitions>
+                <RepositionThemeTransition />
+            </Grid.Transitions>
             <FlipView x:Name="PagesFlipView"
                       Background="Transparent"
                       FlowDirection="{x:Bind ViewModel.ReadingMode, Converter={StaticResource ReadingModeToFlowDirectionConverter}, Mode=OneWay}"
                       ItemsSource="{x:Bind ViewModel.ChapterPages, Mode=OneWay}"
-                      SelectedIndex="{x:Bind ViewModel.CurrentPageIndex, Mode=TwoWay}">
+                      SelectedIndex="{x:Bind ViewModel.CurrentPageIndex, Mode=TwoWay}"
+                      Visibility="{x:Bind ViewModel.IsLoaded, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                 <FlipView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <VirtualizingStackPanel Orientation="{Binding ReadingMode, Converter={StaticResource ReadingModeToOrientationConverter}, Mode=OneWay}" />
@@ -315,6 +316,65 @@
                        Foreground="{StaticResource TextFillColorSecondaryBrush}"
                        Text="{x:Bind ViewModel.PageIndicatorText, Mode=OneWay}"
                        Visibility="{x:Bind ViewModel.IsVerticalPageNavigationButtonsVisible, Mode=OneWay}" />
+        </Grid>
+
+        <Grid Grid.Row="1"
+              VerticalAlignment="Center"
+              RowDefinitions="Auto, Auto"
+              RowSpacing="8"
+              Visibility="{x:Bind ViewModel.IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <ProgressRing Width="64"
+                          Height="64"
+                          HorizontalAlignment="Center"
+                          IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                          IsIndeterminate="True" />
+            <TextBlock Grid.Row="1"
+                       HorizontalAlignment="Center"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Text="Loading Chapter..." />
+        </Grid>
+
+
+        <Grid Grid.Row="1"
+              Margin="16"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              RowDefinitions="Auto, Auto, Auto, *, Auto"
+              RowSpacing="8"
+              Visibility="{x:Bind ViewModel.IsError, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <FontIcon FontSize="64"
+                      Foreground="{StaticResource SystemFillColorCriticalBrush}"
+                      Glyph="&#xEB90;"
+                      Visibility="{x:Bind ViewModel.IsWarning, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
+            <FontIcon FontSize="64"
+                      Foreground="{StaticResource SystemFillColorCautionBrush}"
+                      Glyph="&#xF167;"
+                      Visibility="{x:Bind ViewModel.IsWarning, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+            <TextBlock Grid.Row="1"
+                       HorizontalAlignment="Center"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Text="{x:Bind ViewModel.ChapterErrorTitle, Mode=OneWay}" />
+            <ScrollViewer Grid.Row="2"
+                          MaxWidth="820"
+                          MaxHeight="280"
+                          Padding="16"
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                          BorderThickness="1"
+                          CornerRadius="8"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <TextBlock FontFamily="Consolas"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           IsTextSelectionEnabled="True"
+                           Text="{x:Bind ViewModel.ChapterErrorMessage, Mode=OneWay}"
+                           TextWrapping="Wrap" />
+            </ScrollViewer>
+            <TextBlock Grid.Row="3"
+                       HorizontalAlignment="Center"
+                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                       Text="Try going back and selecting the chapter again."
+                       TextAlignment="Center" />
         </Grid>
     </Grid>
 </Page>

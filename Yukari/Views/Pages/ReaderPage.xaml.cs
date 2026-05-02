@@ -50,9 +50,13 @@ public sealed partial class ReaderPage : Page
 
     private async void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(ReaderPageViewModel.ReadingMode))
+        if (
+            e.PropertyName
+            is nameof(ReaderPageViewModel.ReadingMode)
+                or nameof(ReaderPageViewModel.ChapterState)
+        )
         {
-            await HandleReadingModeChangedAsync();
+            await ForceFlipViewUpdateAsync();
         }
     }
 
@@ -74,9 +78,9 @@ public sealed partial class ReaderPage : Page
     private void ContentSection_SizeChanged(object sender, SizeChangedEventArgs e) =>
         UpdateScreenSize(e.NewSize.Width, e.NewSize.Height);
 
-    private async Task HandleReadingModeChangedAsync()
+    private async Task ForceFlipViewUpdateAsync()
     {
-        if (PagesFlipView == null)
+        if (PagesFlipView == null || PagesFlipView.Items.Count == 0)
             return;
 
         var backupIndex = PagesFlipView.SelectedIndex;
