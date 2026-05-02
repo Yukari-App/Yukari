@@ -54,14 +54,20 @@ public partial class ComicPageViewModel
     public partial bool IsFavoriteStatusChanging { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsInterfaceReady), nameof(IsLanguageSelectionAvailable))]
+    [NotifyPropertyChangedFor(nameof(IsComicLoading), nameof(IsComicError), nameof(IsComicLoaded))]
     [NotifyCanExecuteChangedFor(
         nameof(ContinueReadingCommand),
         nameof(ToggleFavoriteCommand),
         nameof(UpdateCommand),
         nameof(ToggleDownloadAllChaptersCommand)
     )]
-    public partial bool IsComicLoading { get; set; } = true;
+    public partial LoadState ComicLoadState { get; set; } = LoadState.Loading;
+
+    [ObservableProperty]
+    public partial string? ComicErrorTitle { get; set; }
+
+    [ObservableProperty]
+    public partial string? ComicErrorMessage { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(
@@ -81,16 +87,16 @@ public partial class ComicPageViewModel
     [NotifyPropertyChangedFor(nameof(DownloadAllIcon), nameof(DownloadAllText))]
     public partial bool IsAllChaptersDownloaded { get; set; }
 
+    public bool IsComicLoading => ComicLoadState == LoadState.Loading;
+    public bool IsComicError => ComicLoadState == LoadState.Error;
+    public bool IsComicLoaded => ComicLoadState == LoadState.Loaded;
+
     public bool IsComicAvailable => Comic?.IsAvailable ?? true;
     public bool NoChapters => !IsChaptersLoading && (Chapters == null || Chapters.Count == 0);
-    public bool IsInterfaceReady =>
-        !IsFavoriteStatusChanging && !IsComicLoading && !IsChaptersLoading && !NoChapters;
+    public bool IsInterfaceReady => !IsFavoriteStatusChanging && !IsChaptersLoading && !NoChapters;
 
     public bool IsLanguageSelectionAvailable =>
-        !IsFavoriteStatusChanging
-        && !IsComicLoading
-        && !IsChaptersLoading
-        && Comic?.Langs.Length > 0;
+        !IsFavoriteStatusChanging && !IsChaptersLoading && Comic?.Langs.Length > 0;
 
     public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
     public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : "\uE896";
@@ -257,64 +263,44 @@ public partial class ComicPageViewModel
     {
         if (_comicKey == null)
             return;
-        IsComicLoading = true;
-
-        Comic = new ComicModel
-        {
-            Id = "",
-            Source = "",
-            Title = "Loading...",
-            Tags = new[] { "Loading..." },
-            Year = 0,
-        };
+        ComicLoadState = LoadState.Loading;
 
         var result = await _comicService.GetComicDetailsAsync(_comicKey, ct: _navigationCts.Token);
 
         if (result.IsCancelled)
             return;
 
-        if (result.IsSuccess)
+        if (!result.IsSuccess)
         {
-            var comicAggregate = result.Value;
-            if (comicAggregate == null)
-            {
-                SetErrorStateForComics();
-                return;
-            }
-
-            Comic = comicAggregate.Comic;
-
-            var userData = comicAggregate.UserData;
-            IsFavorite = userData.IsFavorite;
-            SelectedLang = userData.LastSelectedLang ?? Comic.Langs.FirstOrDefault()?.Key;
-        }
-        else
-        {
-            SetErrorStateForComics();
-            HandleNotSuccessResult(result);
+            Comic = null;
+            ComicLoadState = LoadState.Error;
+            ComicErrorTitle = result.ErrorTitle;
+            ComicErrorMessage = result.Error;
+            return;
         }
 
-        IsComicLoading = false;
-    }
-
-    private void SetErrorStateForComics()
-    {
-        Comic = new ComicModel
+        var comicAggregate = result.Value;
+        if (comicAggregate == null)
         {
-            Id = "",
-            Source = "",
-            Title = "Error",
-            Author = "Error",
-            Description = "An error occurred while loading the comic.",
-            Tags = new[] { "N/A" },
-            Year = 0,
-            CoverImageUrl = null,
-        };
+            Comic = null;
+            ComicLoadState = LoadState.Error;
+            ComicErrorTitle = "Comic not found";
+            ComicErrorMessage = "You are trying to access a comic that probably doesn't exist";
+            return;
+        }
+
+        Comic = comicAggregate.Comic;
+
+        var userData = comicAggregate.UserData;
+        IsFavorite = userData.IsFavorite;
+        SelectedLang = userData.LastSelectedLang ?? Comic.Langs.FirstOrDefault()?.Key;
+
+        ComicLoadState = LoadState.Loaded;
     }
 
     private async Task RefreshChaptersAsync()
     {
-        if (IsComicLoading || _comicKey == null)
+        if (!IsComicLoaded || _comicKey == null)
             return;
 
         _chaptersCts.Cancel();
@@ -400,7 +386,7 @@ public partial class ComicPageViewModel
 
     async partial void OnSelectedLangChanged(string? value)
     {
-        if (IsComicLoading)
+        if (!IsComicLoaded)
             return;
 
         await RefreshChaptersAsync();

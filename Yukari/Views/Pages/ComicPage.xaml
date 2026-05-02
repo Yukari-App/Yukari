@@ -117,223 +117,270 @@
         </DataTemplate>
     </Page.Resources>
 
-    <Grid RowDefinitions="Auto, *">
-        <Grid Grid.Row="0"
-              MaxWidth="1000"
-              Padding="20,14,36,16"
-              ColumnDefinitions="*, Auto, Auto"
-              ColumnSpacing="8">
-            <Grid Grid.Column="0"
-                  HorizontalAlignment="Left"
-                  VerticalAlignment="Center"
-                  ColumnDefinitions="Auto, *"
+    <Grid>
+        <Grid RowDefinitions="Auto, *" Visibility="{x:Bind ViewModel.IsComicLoaded, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <Grid Grid.Row="0"
+                  MaxWidth="1000"
+                  Padding="20,14,36,16"
+                  ColumnDefinitions="*, Auto, Auto"
                   ColumnSpacing="8">
-                <FontIcon Grid.Column="0" FontSize="24" Glyph="&#xE82D;" />
+                <Grid Grid.Column="0"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Center"
+                      ColumnDefinitions="Auto, *"
+                      ColumnSpacing="8">
+                    <FontIcon Grid.Column="0" FontSize="24" Glyph="&#xE82D;" />
+                    <TextBlock Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource TitleTextBlockStyle}"
+                               Text="{x:Bind ViewModel.Comic.Title, Mode=OneWay}"
+                               TextWrapping="NoWrap"
+                               ToolTipService.ToolTip="{x:Bind ViewModel.Comic.Title, Mode=OneWay}" />
+                </Grid>
+
                 <TextBlock Grid.Column="1"
                            VerticalAlignment="Center"
-                           Style="{StaticResource TitleTextBlockStyle}"
-                           Text="{x:Bind ViewModel.Comic.Title, Mode=OneWay}"
-                           TextWrapping="NoWrap"
-                           ToolTipService.ToolTip="{x:Bind ViewModel.Comic.Title, Mode=OneWay}" />
+                           FontSize="12"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Text="{x:Bind ViewModel.Comic.Source, Mode=OneWay}" />
+
+                <StackPanel Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal"
+                            Spacing="4">
+                    <Button Command="{x:Bind ViewModel.ContinueReadingCommand}" Style="{StaticResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="16" Glyph="&#xF5B0;" />
+                            <TextBlock Text="Continue" />
+                        </StackPanel>
+                    </Button>
+
+                    <ToggleButton Width="32"
+                                  Height="32"
+                                  Padding="0"
+                                  Background="Transparent"
+                                  BorderBrush="Transparent"
+                                  Command="{x:Bind ViewModel.ToggleFavoriteCommand}"
+                                  IsChecked="{x:Bind ViewModel.IsFavorite, Mode=TwoWay}">
+                        <FontIcon Glyph="{x:Bind ViewModel.FavoriteIcon, Mode=OneWay}" />
+                    </ToggleButton>
+
+                    <Button Width="32"
+                            Height="32"
+                            Padding="0"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Content="{ui:FontIcon Glyph=&#xE712;}">
+                        <Button.Flyout>
+                            <MenuFlyout Placement="Bottom">
+                                <MenuFlyoutItem Icon="Pin" Text="Pin" Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                                <MenuFlyoutSeparator Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                                <MenuFlyoutItem Command="{x:Bind ViewModel.UpdateCommand}"
+                                                Icon="Refresh"
+                                                Text="Update"
+                                                Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                                <MenuFlyoutSeparator Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                                <MenuFlyoutItem Command="{x:Bind ViewModel.OpenInBrowserCommand}" Icon="Globe" Text="Open in browser" />
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
             </Grid>
 
-            <TextBlock Grid.Column="1"
-                       VerticalAlignment="Center"
-                       FontSize="12"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Style="{StaticResource CaptionTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Comic.Source, Mode=OneWay}" />
 
-            <StackPanel Grid.Column="2"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Orientation="Horizontal"
-                        Spacing="4">
-                <Button Command="{x:Bind ViewModel.ContinueReadingCommand}" Style="{StaticResource AccentButtonStyle}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon FontSize="16" Glyph="&#xF5B0;" />
-                        <TextBlock Text="Continue" />
-                    </StackPanel>
-                </Button>
+            <ScrollViewer Grid.Row="1">
+                <Grid MaxWidth="1000" Padding="0,0,16,16" RowDefinitions="Auto, Auto">
+                    <InfoBar Title="This comic is no longer available in its source."
+                             Grid.Row="0"
+                             Margin="0,0,0,16"
+                             IsClosable="False"
+                             IsOpen="True"
+                             Message="You can still read downloaded chapters."
+                             Severity="Warning"
+                             Visibility="{x:Bind ViewModel.IsComicAvailable, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
 
-                <ToggleButton Width="32"
-                              Height="32"
-                              Padding="0"
-                              Background="Transparent"
-                              BorderBrush="Transparent"
-                              Command="{x:Bind ViewModel.ToggleFavoriteCommand}"
-                              IsChecked="{x:Bind ViewModel.IsFavorite, Mode=TwoWay}">
-                    <FontIcon Glyph="{x:Bind ViewModel.FavoriteIcon, Mode=OneWay}" />
-                </ToggleButton>
+                    <Grid Grid.Row="1" RowDefinitions="Auto, Auto, Auto" RowSpacing="16">
+                        <Grid Grid.Row="0"
+                              HorizontalAlignment="Center"
+                              ColumnDefinitions="Auto, *"
+                              ColumnSpacing="16">
+                            <Border Grid.Column="0"
+                                    MaxWidth="200"
+                                    MaxHeight="280"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    CornerRadius="8">
+                                <Image Source="{Binding Comic.CoverImageUrl, Mode=OneWay}" Stretch="Fill" />
+                            </Border>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE716;" />
+                                    <TextBlock VerticalAlignment="Center"
+                                               FontSize="20"
+                                               Style="{StaticResource TitleTextBlockStyle}"
+                                               Text="Author(s)" />
+                                </StackPanel>
+                                <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.Comic.Author, Mode=OneWay}" />
 
-                <Button Width="32"
-                        Height="32"
-                        Padding="0"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Content="{ui:FontIcon Glyph=&#xE712;}">
-                    <Button.Flyout>
-                        <MenuFlyout Placement="Bottom">
-                            <MenuFlyoutItem Icon="Pin" Text="Pin" Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
-                            <MenuFlyoutSeparator Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
-                            <MenuFlyoutItem Command="{x:Bind ViewModel.UpdateCommand}"
-                                            Icon="Refresh"
-                                            Text="Update"
-                                            Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
-                            <MenuFlyoutSeparator Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
-                            <MenuFlyoutItem Command="{x:Bind ViewModel.OpenInBrowserCommand}" Icon="Globe" Text="Open in browser" />
-                        </MenuFlyout>
-                    </Button.Flyout>
-                </Button>
-            </StackPanel>
-        </Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE787;" />
+                                    <TextBlock VerticalAlignment="Center"
+                                               FontSize="20"
+                                               Style="{StaticResource TitleTextBlockStyle}"
+                                               Text="Published" />
+                                </StackPanel>
+                                <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.Comic.Year, Mode=OneWay}" />
 
-
-        <ScrollViewer Grid.Row="1">
-            <Grid MaxWidth="1000" Padding="0,0,16,16" RowDefinitions="Auto, Auto">
-                <InfoBar Title="This comic is no longer available in its source."
-                         Grid.Row="0"
-                         Margin="0,0,0,16"
-                         IsClosable="False"
-                         IsOpen="True"
-                         Message="You can still read downloaded chapters."
-                         Severity="Warning"
-                         Visibility="{x:Bind ViewModel.IsComicAvailable, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
-
-                <Grid Grid.Row="1" RowDefinitions="Auto, Auto, Auto" RowSpacing="16">
-                    <Grid Grid.Row="0"
-                          HorizontalAlignment="Center"
-                          ColumnDefinitions="Auto, *"
-                          ColumnSpacing="16">
-                        <Border Grid.Column="0"
-                                MaxWidth="200"
-                                MaxHeight="280"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Top"
-                                CornerRadius="8">
-                            <Image Source="{Binding Comic.CoverImageUrl, Mode=OneWay}" Stretch="Fill" />
-                        </Border>
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE716;" />
-                                <TextBlock VerticalAlignment="Center"
-                                           FontSize="20"
-                                           Style="{StaticResource TitleTextBlockStyle}"
-                                           Text="Author(s)" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE8EC;" />
+                                    <TextBlock VerticalAlignment="Center"
+                                               FontSize="20"
+                                               Style="{StaticResource TitleTextBlockStyle}"
+                                               Text="Tags" />
+                                </StackPanel>
+                                <ItemsView Margin="0,8,0,0"
+                                           ItemTemplate="{StaticResource TagsTemplate}"
+                                           ItemsSource="{x:Bind ViewModel.Comic.Tags, Mode=OneWay}"
+                                           SelectionMode="None">
+                                    <ItemsView.Layout>
+                                        <LinedFlowLayout LineSpacing="5" MinItemSpacing="5" />
+                                    </ItemsView.Layout>
+                                </ItemsView>
                             </StackPanel>
-                            <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.Comic.Author, Mode=OneWay}" />
-
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE787;" />
-                                <TextBlock VerticalAlignment="Center"
-                                           FontSize="20"
-                                           Style="{StaticResource TitleTextBlockStyle}"
-                                           Text="Published" />
-                            </StackPanel>
-                            <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.Comic.Year, Mode=OneWay}" />
-
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE8EC;" />
-                                <TextBlock VerticalAlignment="Center"
-                                           FontSize="20"
-                                           Style="{StaticResource TitleTextBlockStyle}"
-                                           Text="Tags" />
-                            </StackPanel>
-                            <ItemsView Margin="0,8,0,0"
-                                       ItemTemplate="{StaticResource TagsTemplate}"
-                                       ItemsSource="{x:Bind ViewModel.Comic.Tags, Mode=OneWay}"
-                                       SelectionMode="None">
-                                <ItemsView.Layout>
-                                    <LinedFlowLayout LineSpacing="5" MinItemSpacing="5" />
-                                </ItemsView.Layout>
-                            </ItemsView>
-                        </StackPanel>
-                    </Grid>
-
-                    <StackPanel Grid.Row="1" Spacing="8">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE946;" />
-                            <TextBlock VerticalAlignment="Center"
-                                       FontSize="20"
-                                       Style="{StaticResource TitleTextBlockStyle}"
-                                       Text="Synopsis" />
-                        </StackPanel>
-                        <ScrollViewer MaxHeight="120">
-                            <TextBlock FontSize="16"
-                                       Style="{StaticResource BodyTextBlockStyle}"
-                                       Text="{x:Bind ViewModel.Comic.Description, Mode=OneWay}"
-                                       TextAlignment="Justify"
-                                       TextWrapping="WrapWholeWords" />
-                        </ScrollViewer>
-                    </StackPanel>
-
-                    <Grid Grid.Row="2" RowDefinitions="Auto, *" RowSpacing="12">
-                        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" ColumnSpacing="8">
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                                <FontIcon VerticalAlignment="Center" FontSize="24" Glyph="&#xE736;" />
-                                <TextBlock VerticalAlignment="Center"
-                                           FontSize="24"
-                                           Style="{StaticResource TitleTextBlockStyle}"
-                                           Text="Chapters" />
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                                <ToggleButton Command="{x:Bind ViewModel.ToggleDownloadAllChaptersCommand}" IsChecked="{x:Bind ViewModel.IsAllChaptersDownloaded, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.DownloadAllIcon, Mode=OneWay}" />
-                                        <TextBlock Text="{x:Bind ViewModel.DownloadAllText, Mode=OneWay}" />
-                                    </StackPanel>
-                                </ToggleButton>
-
-                                <ComboBox DisplayMemberPath="DisplayName"
-                                          IsEnabled="{x:Bind ViewModel.IsLanguageSelectionAvailable, Mode=OneWay}"
-                                          ItemsSource="{x:Bind ViewModel.Comic.Langs, Mode=OneWay}"
-                                          SelectedValue="{x:Bind ViewModel.SelectedLang, Mode=TwoWay}"
-                                          SelectedValuePath="Key" />
-
-                                <Button Width="32"
-                                        Height="32"
-                                        Padding="0"
-                                        Background="Transparent"
-                                        BorderBrush="Transparent"
-                                        Content="{ui:FontIcon Glyph=&#xE712;}"
-                                        IsEnabled="{x:Bind ViewModel.IsInterfaceReady, Mode=OneWay}">
-                                    <Button.Flyout>
-                                        <MenuFlyout Placement="Bottom">
-                                            <MenuFlyoutItem Command="{x:Bind ViewModel.MarkAllAsReadCommand}" Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark all as read" />
-                                            <MenuFlyoutItem Command="{x:Bind ViewModel.MarkAllAsUnreadCommand}" Icon="{ui:FontIcon Glyph=&#xED1A;}" Text="Mark all as unread" />
-                                            <MenuFlyoutSeparator />
-                                            <MenuFlyoutItem Icon="Refresh" Text="Reset all" />
-                                        </MenuFlyout>
-                                    </Button.Flyout>
-                                </Button>
-                            </StackPanel>
-
                         </Grid>
 
-                        <ProgressRing Grid.Row="1"
-                                      Width="40"
-                                      Height="40"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      IsActive="{x:Bind ViewModel.IsChaptersLoading, Mode=OneWay}"
-                                      Visibility="{x:Bind ViewModel.IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                        <StackPanel Grid.Row="1" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE946;" />
+                                <TextBlock VerticalAlignment="Center"
+                                           FontSize="20"
+                                           Style="{StaticResource TitleTextBlockStyle}"
+                                           Text="Synopsis" />
+                            </StackPanel>
+                            <ScrollViewer MaxHeight="120">
+                                <TextBlock FontSize="16"
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.Comic.Description, Mode=OneWay}"
+                                           TextAlignment="Justify"
+                                           TextWrapping="WrapWholeWords" />
+                            </ScrollViewer>
+                        </StackPanel>
 
-                        <TextBlock Grid.Row="1"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Style="{StaticResource BodyLargeStrongTextBlockStyle}"
-                                   Text="No chapters found in this language."
-                                   Visibility="{x:Bind ViewModel.NoChapters, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                        <Grid Grid.Row="2" RowDefinitions="Auto, *" RowSpacing="12">
+                            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                    <FontIcon VerticalAlignment="Center" FontSize="24" Glyph="&#xE736;" />
+                                    <TextBlock VerticalAlignment="Center"
+                                               FontSize="24"
+                                               Style="{StaticResource TitleTextBlockStyle}"
+                                               Text="Chapters" />
+                                </StackPanel>
 
-                        <ItemsRepeater Grid.Row="1"
-                                       IsTapEnabled="False"
-                                       ItemTemplate="{StaticResource ChaptersTemplate}"
-                                       ItemsSource="{x:Bind ViewModel.Chapters, Mode=OneWay}"
-                                       Visibility="{x:Bind ViewModel.IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                    <ToggleButton Command="{x:Bind ViewModel.ToggleDownloadAllChaptersCommand}" IsChecked="{x:Bind ViewModel.IsAllChaptersDownloaded, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.DownloadAllIcon, Mode=OneWay}" />
+                                            <TextBlock Text="{x:Bind ViewModel.DownloadAllText, Mode=OneWay}" />
+                                        </StackPanel>
+                                    </ToggleButton>
+
+                                    <ComboBox DisplayMemberPath="DisplayName"
+                                              IsEnabled="{x:Bind ViewModel.IsLanguageSelectionAvailable, Mode=OneWay}"
+                                              ItemsSource="{x:Bind ViewModel.Comic.Langs, Mode=OneWay}"
+                                              SelectedValue="{x:Bind ViewModel.SelectedLang, Mode=TwoWay}"
+                                              SelectedValuePath="Key" />
+
+                                    <Button Width="32"
+                                            Height="32"
+                                            Padding="0"
+                                            Background="Transparent"
+                                            BorderBrush="Transparent"
+                                            Content="{ui:FontIcon Glyph=&#xE712;}"
+                                            IsEnabled="{x:Bind ViewModel.IsInterfaceReady, Mode=OneWay}">
+                                        <Button.Flyout>
+                                            <MenuFlyout Placement="Bottom">
+                                                <MenuFlyoutItem Command="{x:Bind ViewModel.MarkAllAsReadCommand}" Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark all as read" />
+                                                <MenuFlyoutItem Command="{x:Bind ViewModel.MarkAllAsUnreadCommand}" Icon="{ui:FontIcon Glyph=&#xED1A;}" Text="Mark all as unread" />
+                                                <MenuFlyoutSeparator />
+                                                <MenuFlyoutItem Icon="Refresh" Text="Reset all" />
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </StackPanel>
+
+                            </Grid>
+
+                            <ProgressRing Grid.Row="1"
+                                          Width="40"
+                                          Height="40"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          IsActive="{x:Bind ViewModel.IsChaptersLoading, Mode=OneWay}"
+                                          Visibility="{x:Bind ViewModel.IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+
+                            <TextBlock Grid.Row="1"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource BodyLargeStrongTextBlockStyle}"
+                                       Text="No chapters found in this language."
+                                       Visibility="{x:Bind ViewModel.NoChapters, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+
+                            <ItemsRepeater Grid.Row="1"
+                                           IsTapEnabled="False"
+                                           ItemTemplate="{StaticResource ChaptersTemplate}"
+                                           ItemsSource="{x:Bind ViewModel.Chapters, Mode=OneWay}"
+                                           Visibility="{x:Bind ViewModel.IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
+                        </Grid>
                     </Grid>
                 </Grid>
-            </Grid>
-        </ScrollViewer>
+            </ScrollViewer>
+        </Grid>
+
+        <ProgressRing Width="64"
+                      Height="64"
+                      Padding="0,0,16,16"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      IsActive="{x:Bind ViewModel.IsComicLoading, Mode=OneWay}"
+                      IsIndeterminate="True"
+                      Visibility="{x:Bind ViewModel.IsComicLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+
+        <Grid MaxWidth="1000"
+              Padding="0,0,16,16"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              RowDefinitions="Auto, Auto, Auto, *, Auto"
+              RowSpacing="8"
+              Visibility="{x:Bind ViewModel.IsComicError, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <FontIcon FontSize="64" Foreground="{StaticResource SystemFillColorCriticalBrush}" Glyph="&#xEB90;" />
+            <TextBlock Grid.Row="1"
+                       HorizontalAlignment="Center"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Text="{x:Bind ViewModel.ComicErrorTitle, Mode=OneWay}" />
+            <ScrollViewer Grid.Row="2"
+                          MaxWidth="820"
+                          MaxHeight="280"
+                          Padding="16"
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                          BorderThickness="1"
+                          CornerRadius="8"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <TextBlock FontFamily="Consolas"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           IsTextSelectionEnabled="True"
+                           Text="{x:Bind ViewModel.ComicErrorMessage, Mode=OneWay}"
+                           TextWrapping="Wrap" />
+            </ScrollViewer>
+            <TextBlock Grid.Row="3"
+                       HorizontalAlignment="Center"
+                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                       Text="Try going back and selecting the comic again."
+                       TextAlignment="Center" />
+
+        </Grid>
     </Grid>
 </Page>
