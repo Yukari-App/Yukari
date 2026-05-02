@@ -144,7 +144,7 @@
                                                      CommandParameter="FitHeight"
                                                      GroupName="ScalingMode"
                                                      IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitHeight, Mode=OneWay}"
-                                                     Text="Fit heigth" />
+                                                     Text="Fit height" />
                                 <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetScalingModeCommand}"
                                                      CommandParameter="OriginalSize"
                                                      GroupName="ScalingMode"
