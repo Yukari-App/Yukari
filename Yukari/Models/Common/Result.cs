@@ -42,9 +42,11 @@ public class Result<T> : Result
 
     public static new Result<T> Cancelled() => new(ResultKind.Cancelled, null, null, default);
 
-    public static new Result<T> Failure(string error, string? errorTitle = null) =>
+    public static new Result<T> Failure(string error, string errorTitle = "An Error Occurred") =>
         new(ResultKind.Failure, errorTitle, error, default);
 
-    public static new Result<T> ComicSourceDisabled(string error, string? errorTitle = null) =>
-        new(ResultKind.ComicSourceDisabled, errorTitle, error, default);
+    public static new Result<T> ComicSourceDisabled(
+        string error,
+        string errorTitle = "Comic Source Disabled"
+    ) => new(ResultKind.ComicSourceDisabled, errorTitle, error, default);
 }
