@@ -12,6 +12,8 @@ namespace Yukari.Services.UI;
 internal class DialogService : IDialogService
 {
     private XamlRoot? _xamlRoot;
+    private ElementTheme AppTheme =>
+        _xamlRoot?.Content is FrameworkElement fe ? fe.RequestedTheme : ElementTheme.Default;
 
     public void Initialize(XamlRoot root) => _xamlRoot = root;
 
@@ -26,6 +28,7 @@ internal class DialogService : IDialogService
         {
             XamlRoot =
                 _xamlRoot ?? throw new InvalidOperationException("XamlRoot must be initialized."),
+            RequestedTheme = AppTheme,
         };
 
         await dialog.ShowAsync();
