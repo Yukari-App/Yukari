@@ -158,6 +158,9 @@ public sealed partial class ReaderPage : Page
         }
     }
 
+    private void PageScrollViewer_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) =>
+        (sender as ScrollViewer)!.ZoomToFactor(1);
+
     private void UpdateCursor(ScrollViewer sv)
     {
         if (CanPan(sv))

@@ -209,6 +209,7 @@
                 <FlipView.ItemTemplate>
                     <DataTemplate x:DataType="vmc:ChapterPageItemViewModel">
                         <ScrollViewer x:Name="PageScrollViewer"
+                                      DoubleTapped="PageScrollViewer_DoubleTapped"
                                       FlowDirection="LeftToRight"
                                       HorizontalScrollBarVisibility="Hidden"
                                       HorizontalScrollMode="Auto"
