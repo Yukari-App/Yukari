@@ -5,12 +5,15 @@ using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Windows.Graphics;
+using Windows.System;
 using Windows.UI;
 using Yukari.Enums;
 using Yukari.Messages;
+using Yukari.Messages.Shortcuts;
 using Yukari.Models.DTO;
 using Yukari.Models.Settings;
 using Yukari.Services.Settings;
@@ -67,6 +70,7 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
             _presenter.Maximize();
 
         _settingsService.SettingChanged += Settings_Changed;
+        Content.KeyDown += OnKeyDown;
         Closed += MainWindow_Closed;
 
         _messenger.RegisterAll(this);
@@ -126,6 +130,15 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
     {
         if (e.PropertyName == nameof(AppSettings.Theme))
             SetTheme(e.NewValue is ThemeMode newTheme ? newTheme : ThemeMode.System);
+    }
+
+    private void OnKeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == VirtualKey.F11)
+        {
+            _messenger.Send(new FullscreenShortcutMessage());
+            e.Handled = true;
+        }
     }
 
     private async void MainWindow_Closed(object sender, WindowEventArgs args)
