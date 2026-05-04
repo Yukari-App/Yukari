@@ -47,7 +47,8 @@
               Padding="0"
               VerticalAlignment="Top"
               AutomationProperties.AutomationId="AppTitleBar"
-              Background="Transparent">
+              Background="Transparent"
+              Visibility="{x:Bind ViewModel.IsFullscreen, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />

@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Enums;
 using Yukari.Helpers.UI;
 using Yukari.Messages;
+using Yukari.Messages.Shortcuts;
 using Yukari.Models;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
@@ -18,7 +19,7 @@ using Yukari.ViewModels.Components;
 
 namespace Yukari.ViewModels.Pages;
 
-public partial class ReaderPageViewModel : ObservableObject
+public partial class ReaderPageViewModel : ObservableObject, IRecipient<FullscreenShortcutMessage>
 {
     private readonly IComicService _comicService;
     private readonly ISettingsService _settingsService;
@@ -136,7 +137,14 @@ public partial class ReaderPageViewModel : ObservableObject
         _notificationService = notificationService;
         _messenger = messenger;
 
+        _messenger.RegisterAll(this);
         LoadReaderSettings();
+    }
+
+    public void Receive(FullscreenShortcutMessage message)
+    {
+        IsFullscreen = !IsFullscreen;
+        _messenger.Send(new SetFullscreenMessage(IsFullscreen));
     }
 
     public async Task InitializeAsync(
