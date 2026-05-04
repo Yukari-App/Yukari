@@ -273,6 +273,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         _navigationCts.Cancel();
         _navigationCts.Dispose();
 
+        _messenger.UnregisterAll(this);
         _messenger.Send(new SetFullscreenMessage(false));
         _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
     }
