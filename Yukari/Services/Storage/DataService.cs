@@ -37,28 +37,40 @@ internal class DataService : IDataService
 
     public async Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(
         string? queryText = null,
+        string? collectionName = null,
         CancellationToken ct = default
     )
     {
         using var connection = await GetOpenConnectionAsync();
-
         const string sql = """
             SELECT c.Id, c.Source, c.Title, c.CoverImageUrl
             FROM Comics c
-            INNER JOIN ComicUserData u 
-                ON c.Id = u.ComicId AND c.Source = u.Source
+            INNER JOIN ComicUserData u ON c.Id = u.ComicId AND c.Source = u.Source
             WHERE u.IsFavorite = 1
                 AND (
                     @QueryText IS NULL OR TRIM(@QueryText) = ''
                     OR c.Title  LIKE '%' || @QueryText || '%' COLLATE NOCASE
                     OR c.Author LIKE '%' || @QueryText || '%' COLLATE NOCASE
                 )
+                AND (
+                    @CollectionName IS NULL
+                    OR EXISTS (
+                        SELECT 1 FROM ComicCollections cc
+                        INNER JOIN Collections col ON cc.CollectionId = col.Id
+                        WHERE cc.ComicId = c.Id
+                            AND cc.Source = c.Source
+                            AND col.Name = @CollectionName
+                    )
+                )
             """;
 
         var result = await connection.QueryAsync<ComicModel>(
-            new CommandDefinition(sql, new { QueryText = queryText?.Trim() }, cancellationToken: ct)
+            new CommandDefinition(
+                sql,
+                new { QueryText = queryText?.Trim(), CollectionName = collectionName },
+                cancellationToken: ct
+            )
         );
-
         return result.ToList();
     }
 
@@ -96,7 +108,7 @@ internal class DataService : IDataService
     {
         using var connection = await GetOpenConnectionAsync();
 
-        const string sql = """
+        const string sqlUserData = """
             SELECT IsFavorite, LastSelectedLang
             FROM ComicUserData
             WHERE ComicId = @Id AND Source = @Source;
@@ -104,13 +116,45 @@ internal class DataService : IDataService
 
         var result = await connection.QueryFirstOrDefaultAsync<ComicUserData>(
             new CommandDefinition(
-                sql,
+                sqlUserData,
                 new { Id = comicKey.Id, Source = comicKey.Source },
                 cancellationToken: ct
             )
         );
 
-        return result ?? new ComicUserData();
+        if (result == null)
+            return new ComicUserData();
+
+        const string sqlCollections = """
+            SELECT col.Name
+            FROM Collections col
+            INNER JOIN ComicCollections cc ON col.Id = cc.CollectionId
+            WHERE cc.ComicId = @Id AND cc.Source = @Source
+            ORDER BY col.Name;
+            """;
+
+        var collections = await connection.QueryAsync<string>(
+            new CommandDefinition(
+                sqlCollections,
+                new { Id = comicKey.Id, Source = comicKey.Source },
+                cancellationToken: ct
+            )
+        );
+
+        result.Collections = collections.ToList();
+        return result;
+    }
+
+    public async Task<IReadOnlyList<string>> GetCollectionsAsync(CancellationToken ct = default)
+    {
+        using var connection = await GetOpenConnectionAsync();
+        var result = await connection.QueryAsync<string>(
+            new CommandDefinition(
+                "SELECT Name FROM Collections ORDER BY Name;",
+                cancellationToken: ct
+            )
+        );
+        return result.ToList();
     }
 
     public async Task<ComicReadingProgress> GetComicReadingProgressAsync(
@@ -391,6 +435,55 @@ internal class DataService : IDataService
         );
     }
 
+    public async Task InsertCollectionAsync(string name)
+    {
+        using var connection = await GetOpenConnectionAsync();
+        await connection.ExecuteAsync(
+            @"INSERT OR IGNORE INTO Collections(Name) VALUES(@Name);",
+            new { Name = name }
+        );
+    }
+
+    public async Task RenameCollectionAsync(string oldName, string newName)
+    {
+        using var connection = await GetOpenConnectionAsync();
+
+        var exists = await connection.ExecuteScalarAsync<int>(
+            "SELECT COUNT(1) FROM Collections WHERE Name = @Name;",
+            new { Name = newName }
+        );
+
+        if (exists > 0)
+            throw new InvalidOperationException($"A collection named '{newName}' already exists.");
+
+        await connection.ExecuteAsync(
+            @"UPDATE Collections SET Name = @NewName WHERE Name = @OldName;",
+            new { OldName = oldName, NewName = newName }
+        );
+    }
+
+    public async Task AddComicToCollectionAsync(ContentKey comicKey, string collectionName)
+    {
+        using var connection = await GetOpenConnectionAsync();
+        const string sql = """
+            INSERT OR IGNORE INTO ComicCollections (ComicId, Source, CollectionId)
+            VALUES (
+                @ComicId,
+                @Source,
+                (SELECT Id FROM Collections WHERE Name = @CollectionName)
+            );
+            """;
+        await connection.ExecuteAsync(
+            sql,
+            new
+            {
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+                CollectionName = collectionName,
+            }
+        );
+    }
+
     public async Task UpsertComicReadingProgressAsync(
         ContentKey comicKey,
         ComicReadingProgress progress
@@ -633,6 +726,35 @@ internal class DataService : IDataService
             """;
 
         await connection.ExecuteAsync(sql, new { Id = comicKey.Id, Source = comicKey.Source });
+    }
+
+    public async Task RemoveCollectionAsync(string collectionName)
+    {
+        using var connection = await GetOpenConnectionAsync();
+        await connection.ExecuteAsync(
+            "DELETE FROM Collections WHERE Name = @Name;",
+            new { Name = collectionName }
+        );
+    }
+
+    public async Task RemoveComicFromCollectionAsync(ContentKey comicKey, string collectionName)
+    {
+        using var connection = await GetOpenConnectionAsync();
+        const string sql = """
+            DELETE FROM ComicCollections
+            WHERE ComicId = @ComicId
+                AND Source = @Source
+                AND CollectionId = (SELECT Id FROM Collections WHERE Name = @CollectionName);
+            """;
+        await connection.ExecuteAsync(
+            sql,
+            new
+            {
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+                CollectionName = collectionName,
+            }
+        );
     }
 
     public async Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey)

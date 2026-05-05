@@ -11,10 +11,12 @@ public interface IDataService
 {
     Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(
         string? queryText = null,
+        string? collectionName = null,
         CancellationToken ct = default
     );
     Task<ComicModel?> GetComicDetailsAsync(ContentKey comicKey, CancellationToken ct = default);
     Task<ComicUserData> GetComicUserDataAsync(ContentKey comicKey, CancellationToken ct = default);
+    Task<IReadOnlyList<string>> GetCollectionsAsync(CancellationToken ct = default);
     Task<ComicReadingProgress> GetComicReadingProgressAsync(
         ContentKey comicKey,
         string language,
@@ -53,6 +55,9 @@ public interface IDataService
 
     Task UpsertFavoriteComicAsync(ComicModel comic);
     Task UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
+    Task InsertCollectionAsync(string name);
+    Task RenameCollectionAsync(string oldName, string newName);
+    Task AddComicToCollectionAsync(ContentKey comicKey, string collectionName);
     Task UpsertComicReadingProgressAsync(ContentKey comicKey, ComicReadingProgress progress);
     Task UpsertChapterAsync(ChapterModel chapter);
     Task UpsertChaptersAsync(
@@ -73,6 +78,8 @@ public interface IDataService
     Task UpdateComicSourcePendingUpdateAsync(string sourceName, string? pendingUpdatePath);
 
     Task RemoveFavoriteComicAsync(ContentKey comicKey);
+    Task RemoveCollectionAsync(string collectionName);
+    Task RemoveComicFromCollectionAsync(ContentKey comicKey, string collectionName);
     Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey);
     Task RemoveComicSourceAsync(string sourceName);
 
