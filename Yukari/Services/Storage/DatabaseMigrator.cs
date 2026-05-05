@@ -12,7 +12,11 @@ internal class DatabaseMigrator
 {
     private readonly string _connectionString;
 
-    private static readonly IReadOnlyList<IMigration> AllMigrations = [new Migration_001()];
+    private static readonly IReadOnlyList<IMigration> AllMigrations =
+    [
+        new Migration_001(),
+        new Migration_002(),
+    ];
 
     public DatabaseMigrator(string connectionString)
     {
