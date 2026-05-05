@@ -93,14 +93,14 @@ internal class ComicService : IComicService
 
     public async Task<Result<IReadOnlyList<ComicModel>>> GetFavoriteComicsAsync(
         string? queryText,
-        string filter,
+        string? collectionName,
         CancellationToken ct = default
     )
     {
         return await ExecuteAsync(
             async (ct) =>
                 Result<IReadOnlyList<ComicModel>>.Success(
-                    await _dbService.GetFavoriteComicsAsync(queryText, ct)
+                    await _dbService.GetFavoriteComicsAsync(queryText, collectionName, ct)
                 ),
             "Error fetching favorite comics",
             ct
@@ -135,6 +135,18 @@ internal class ComicService : IComicService
                 return Result<ComicAggregate?>.Success(new ComicAggregate(comic, userData));
             },
             "Error fetching comic details",
+            ct
+        );
+    }
+
+    public async Task<Result<IReadOnlyList<string>>> GetCollectionsAsync(
+        CancellationToken ct = default
+    )
+    {
+        return await ExecuteAsync(
+            async (ct) =>
+                Result<IReadOnlyList<string>>.Success(await _dbService.GetCollectionsAsync(ct)),
+            "Error fetching collections",
             ct
         );
     }
@@ -325,6 +337,42 @@ internal class ComicService : IComicService
         );
     }
 
+    public async Task<Result> CreateCollectionAsync(string name)
+    {
+        return await ExecuteAsync(
+            async () =>
+            {
+                await _dbService.InsertCollectionAsync(name);
+                return Result.Success();
+            },
+            "Error creating collection"
+        );
+    }
+
+    public async Task<Result> RenameCollectionAsync(string oldName, string newName)
+    {
+        return await ExecuteAsync(
+            async () =>
+            {
+                await _dbService.RenameCollectionAsync(oldName, newName);
+                return Result.Success();
+            },
+            "Error renaming collection"
+        );
+    }
+
+    public async Task<Result> AddComicToCollectionAsync(ContentKey comicKey, string collectionName)
+    {
+        return await ExecuteAsync(
+            async () =>
+            {
+                await _dbService.AddComicToCollectionAsync(comicKey, collectionName);
+                return Result.Success();
+            },
+            "Error adding comic to collection"
+        );
+    }
+
     public async Task<Result> UpsertComicReadingProgressAsync(
         ContentKey comicKey,
         ComicReadingProgress progress
@@ -429,6 +477,33 @@ internal class ComicService : IComicService
                 return Result.Success();
             },
             "Error removing from favorites"
+        );
+    }
+
+    public async Task<Result> RemoveCollectionAsync(string collectionName)
+    {
+        return await ExecuteAsync(
+            async () =>
+            {
+                await _dbService.RemoveCollectionAsync(collectionName);
+                return Result.Success();
+            },
+            "Error removing collection"
+        );
+    }
+
+    public async Task<Result> RemoveComicFromCollectionAsync(
+        ContentKey comicKey,
+        string collectionName
+    )
+    {
+        return await ExecuteAsync(
+            async () =>
+            {
+                await _dbService.RemoveComicFromCollectionAsync(comicKey, collectionName);
+                return Result.Success();
+            },
+            "Error removing comic from collection"
         );
     }
 

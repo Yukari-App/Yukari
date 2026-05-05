@@ -69,7 +69,7 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
         IsContentLoading = true;
 
         FavoriteComics = new List<ComicItemViewModel>();
-        var result = await _comicService.GetFavoriteComicsAsync(searchText, "all", linkedCts.Token);
+        var result = await _comicService.GetFavoriteComicsAsync(searchText, null, linkedCts.Token);
 
         if (result.IsCancelled)
             return;

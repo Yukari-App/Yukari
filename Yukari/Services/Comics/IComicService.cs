@@ -28,7 +28,7 @@ public interface IComicService
     );
     Task<Result<IReadOnlyList<ComicModel>>> GetFavoriteComicsAsync(
         string? queryText,
-        string filter,
+        string? collectionName,
         CancellationToken ct = default
     );
     Task<Result<ComicAggregate?>> GetComicDetailsAsync(
@@ -36,6 +36,7 @@ public interface IComicService
         bool forceWeb = false,
         CancellationToken ct = default
     );
+    Task<Result<IReadOnlyList<string>>> GetCollectionsAsync(CancellationToken ct = default);
     Task<Result<ComicReadingProgress>> GetComicReadingProgressAsync(
         ContentKey comicKey,
         string language,
@@ -64,6 +65,9 @@ public interface IComicService
 
     Task<Result> UpsertFavoriteComicAsync(ContentKey comic);
     Task<Result> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
+    Task<Result> CreateCollectionAsync(string name);
+    Task<Result> RenameCollectionAsync(string oldName, string newName);
+    Task<Result> AddComicToCollectionAsync(ContentKey comicKey, string collectionName);
     Task<Result> UpsertComicReadingProgressAsync(
         ContentKey comicKey,
         ComicReadingProgress progress
@@ -79,6 +83,8 @@ public interface IComicService
     Task<Result> UpdateComicSourceIsEnabledAsync(string sourceName, bool isEnabled);
 
     Task<Result> RemoveFavoriteComicAsync(ContentKey comicKey);
+    Task<Result> RemoveCollectionAsync(string collectionName);
+    Task<Result> RemoveComicFromCollectionAsync(ContentKey comicKey, string collectionName);
     Task<Result> RemoveComicSourceAsync(string sourceName);
     Task<Result> CleanupUnfavoriteComicsDataAsync();
 }
