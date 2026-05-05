@@ -14,7 +14,9 @@ namespace Yukari.Services.Sources;
 
 internal class SourceService : ISourceService
 {
-    private Dictionary<string, Type> _sourceTypeCache = new();
+    // Caches the Type per source name to avoid reloading the assembly on every source switch.
+    // The assembly itself stays in memory for the lifetime of the process (Default context).
+    private readonly Dictionary<string, Type> _sourceTypeCache = new();
 
     private IComicSource? _currentSource;
     private string? _currentSourceName;
@@ -35,6 +37,9 @@ internal class SourceService : ISourceService
         {
             if (!_sourceTypeCache.TryGetValue(comicSource.Name, out var type))
             {
+                // AssemblyLoadContext.Default is intentionally used instead of a collectible context.
+                // Plugins are small and rarely removed during a session — the complexity of a collectible
+                // context is not justified. DLL removal is handled by deferred deletion at next startup.
                 type = GetSourceTypeFromAssembly(comicSource.DllPath);
                 _sourceTypeCache[comicSource.Name] = type;
             }

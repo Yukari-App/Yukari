@@ -61,6 +61,9 @@ internal class SettingsService : ISettingsService
         File.Move(tmpPath, _filePath, overwrite: true);
     }
 
+    // Always use Set() to mutate settings instead of accessing Current properties directly.
+    // Set() fires SettingChanged, which MainWindow listens to for applying theme changes at runtime.
+    // Direct mutation via Current bypasses the event and changes won't be reflected until restart.
     public void Set<T>(Expression<Func<AppSettings, T>> selector, T value)
     {
         Expression body = selector.Body;

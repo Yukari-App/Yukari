@@ -174,6 +174,8 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
     [DllImport("user32.dll")]
     private static extern int GetDpiForWindow(IntPtr hwnd);
 
+    // DPI scaling factor is used to convert logical coordinates to physical pixels
+    // for MoveAndResize, which operates in physical pixels on WinUI3.
     private double GetScaleFactor()
     {
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);

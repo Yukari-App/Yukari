@@ -12,6 +12,9 @@ internal class DatabaseMigrator
 {
     private readonly string _connectionString;
 
+    // Migrations must never be reordered, removed, or edited after being released.
+    // A published migration has already run on user databases — modifying it would
+    // create schema divergence between users who installed before and after the change.
     private static readonly IReadOnlyList<IMigration> AllMigrations =
     [
         new Migration_001(),
@@ -59,6 +62,8 @@ internal class DatabaseMigrator
         {
             await migration.UpAsync(connection, transaction);
 
+            // PRAGMA user_version is updated inside the same transaction as the migration SQL.
+            // If the SQL fails, the version is not advanced — the migration will be retried on next startup.
             await connection.ExecuteAsync(
                 $"PRAGMA user_version = {migration.Version};",
                 transaction: transaction

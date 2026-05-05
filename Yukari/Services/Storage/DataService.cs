@@ -31,6 +31,9 @@ internal class DataService : IDataService
     {
         var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
+
+        // PRAGMA foreign_keys is OFF by default in SQLite and does not persist between connections.
+        // It must be re-enabled on every new connection.
         await connection.ExecuteAsync("PRAGMA foreign_keys = ON;");
         return connection;
     }
@@ -814,6 +817,8 @@ internal class DataService : IDataService
             transaction: transaction
         );
 
+        // Chapters are deleted via CASCADE when Comics are deleted (FK set in Migration_002).
+        // ChapterUserData and ComicReadingProgress have no CASCADE FK and must be deleted explicitly.
         await connection.ExecuteAsync(
             """
             DELETE FROM ChapterUserData 

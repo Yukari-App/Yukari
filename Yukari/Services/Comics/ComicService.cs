@@ -119,6 +119,8 @@ internal class ComicService : IComicService
                 var userData = await _dbService.GetComicUserDataAsync(comicKey, ct);
                 ComicModel? comic;
 
+                // Cache-first: reads from DB for favorites to avoid unnecessary network calls.
+                // forceWeb bypasses the cache when the user explicitly requests a refresh.
                 if (userData.IsFavorite && !forceWeb)
                 {
                     comic = await _dbService.GetComicDetailsAsync(comicKey, ct);
@@ -529,6 +531,9 @@ internal class ComicService : IComicService
                     await _dbService.RemoveComicSourceAsync(sourceName);
                     return Result.Success();
                 }
+                // DLL files loaded by AssemblyLoadContext.Default cannot be deleted while the process is running.
+                // Removal and updates are deferred to the next startup via PendingRemoval/PendingUpdatePath,
+                // when no plugin assembly has been loaded yet.
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 {
                     await _dbService.UpdateComicSourcePendingRemovalAsync(sourceName, true);
@@ -586,6 +591,9 @@ internal class ComicService : IComicService
         await _srcService.LoadSourceAsync(comicSource);
     }
 
+    // Wraps all public operations: catches OperationCanceledException, ComicSourceDisabledException,
+    // network errors, and generic exceptions — converting them into Result<T>.
+    // No public method in this service needs its own try/catch.
     private async Task<Result<T>> ExecuteAsync<T>(
         Func<CancellationToken, Task<Result<T>>> action,
         string errorTitle,

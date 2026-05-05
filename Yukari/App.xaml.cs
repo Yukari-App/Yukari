@@ -65,6 +65,9 @@ public partial class App : Application
 
             var dbService = GetService<IDataService>();
             var comicService = GetService<IComicService>();
+
+            // Removals must be processed before updates: a source could be removed and
+            // re-added with the same name in the same startup cycle.
             await ProcessPendingComicSourcesRemovalsAsync(dbService, comicService);
             await ProcessPendingComicSourcesUpdatesAsync(dbService, comicService);
 

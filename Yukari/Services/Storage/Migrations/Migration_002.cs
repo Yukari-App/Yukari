@@ -32,6 +32,9 @@ internal class Migration_002 : IMigration
             transaction: transaction
         );
 
+        // Migration_001 had a redundant UNIQUE (Id, Source) constraint on Chapters alongside
+        // PRIMARY KEY (Id, ComicId, Source), and ChapterPages had a FK pointing to a partial
+        // key of Chapters. This migration recreates both tables with the correct constraints.
         // 2. Recreate the Chapters table without the redundant UNIQUE constraint and with an explicit FK for Comics
         await connection.ExecuteAsync(
             """
