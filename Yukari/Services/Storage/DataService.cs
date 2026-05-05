@@ -108,41 +108,41 @@ internal class DataService : IDataService
     {
         using var connection = await GetOpenConnectionAsync();
 
-        const string sqlUserData = """
-            SELECT IsFavorite, LastSelectedLang
-            FROM ComicUserData
-            WHERE ComicId = @Id AND Source = @Source;
+        const string sql = """
+            SELECT 
+                cud.IsFavorite,
+                cud.LastSelectedLang,
+                (SELECT GROUP_CONCAT(col.Name, char(31))
+                 FROM ComicCollections cc 
+                 INNER JOIN Collections col ON cc.CollectionId = col.Id
+                 WHERE cc.ComicId = cud.ComicId AND cc.Source = cud.Source) AS CollectionsStr
+            FROM ComicUserData cud
+            WHERE cud.ComicId = @Id AND cud.Source = @Source;
             """;
 
-        var result = await connection.QueryFirstOrDefaultAsync<ComicUserData>(
+        var row = await connection.QueryFirstOrDefaultAsync<(
+            bool IsFavorite,
+            string? LastSelectedLang,
+            string? CollectionsStr
+        )>(
             new CommandDefinition(
-                sqlUserData,
+                sql,
                 new { Id = comicKey.Id, Source = comicKey.Source },
                 cancellationToken: ct
             )
         );
 
-        if (result == null)
+        if (row.Equals(default))
             return new ComicUserData();
 
-        const string sqlCollections = """
-            SELECT col.Name
-            FROM Collections col
-            INNER JOIN ComicCollections cc ON col.Id = cc.CollectionId
-            WHERE cc.ComicId = @Id AND cc.Source = @Source
-            ORDER BY col.Name;
-            """;
-
-        var collections = await connection.QueryAsync<string>(
-            new CommandDefinition(
-                sqlCollections,
-                new { Id = comicKey.Id, Source = comicKey.Source },
-                cancellationToken: ct
-            )
-        );
-
-        result.Collections = collections.ToList();
-        return result;
+        return new ComicUserData
+        {
+            IsFavorite = row.IsFavorite,
+            LastSelectedLang = row.LastSelectedLang,
+            Collections = row.CollectionsStr is not null
+                ? row.CollectionsStr.Split('\x1F').ToList()
+                : new List<string>(),
+        };
     }
 
     public async Task<IReadOnlyList<string>> GetCollectionsAsync(CancellationToken ct = default)
