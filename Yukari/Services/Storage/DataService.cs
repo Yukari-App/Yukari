@@ -718,14 +718,14 @@ internal class DataService : IDataService
     public async Task RemoveFavoriteComicAsync(ContentKey comicKey)
     {
         using var connection = await GetOpenConnectionAsync();
-
-        const string sql = """
+        await connection.ExecuteAsync(
+            """
             UPDATE ComicUserData 
             SET IsFavorite = 0
             WHERE ComicId = @Id AND Source = @Source;
-            """;
-
-        await connection.ExecuteAsync(sql, new { Id = comicKey.Id, Source = comicKey.Source });
+            """,
+            new { Id = comicKey.Id, Source = comicKey.Source }
+        );
     }
 
     public async Task RemoveCollectionAsync(string collectionName)
@@ -740,14 +740,13 @@ internal class DataService : IDataService
     public async Task RemoveComicFromCollectionAsync(ContentKey comicKey, string collectionName)
     {
         using var connection = await GetOpenConnectionAsync();
-        const string sql = """
+        await connection.ExecuteAsync(
+            """
             DELETE FROM ComicCollections
             WHERE ComicId = @ComicId
                 AND Source = @Source
                 AND CollectionId = (SELECT Id FROM Collections WHERE Name = @CollectionName);
-            """;
-        await connection.ExecuteAsync(
-            sql,
+            """,
             new
             {
                 ComicId = comicKey.Id,
@@ -801,7 +800,8 @@ internal class DataService : IDataService
 
         using var transaction = await connection.BeginTransactionAsync();
 
-        const string sqlGetUnfavoriteComics = """
+        var unfavoriteComics = await connection.QueryAsync<ContentKey>(
+            """
             SELECT c.Id, c.Source
             FROM Comics c
             WHERE NOT EXISTS (
@@ -810,24 +810,12 @@ internal class DataService : IDataService
                     AND u.Source = c.Source 
                     AND u.IsFavorite = 1
             );
-            """;
-
-        var unfavoriteComics = await connection.QueryAsync<ContentKey>(
-            sqlGetUnfavoriteComics,
+            """,
             transaction: transaction
         );
 
-        const string sqlDeleteChapters = """
-            DELETE FROM Chapters 
-            WHERE NOT EXISTS (
-                SELECT 1 FROM ComicUserData u 
-                WHERE u.ComicId = Chapters.ComicId 
-                    AND u.Source = Chapters.Source 
-                    AND u.IsFavorite = 1
-            );
-            """;
-
-        const string sqlDeleteChapterUserData = """
+        await connection.ExecuteAsync(
+            """
             DELETE FROM ChapterUserData 
             WHERE NOT EXISTS (
                 SELECT 1 FROM ComicUserData u 
@@ -835,9 +823,12 @@ internal class DataService : IDataService
                     AND u.Source = ChapterUserData.Source 
                     AND u.IsFavorite = 1
             );
-            """;
+            """,
+            transaction: transaction
+        );
 
-        const string sqlDeleteComics = """
+        await connection.ExecuteAsync(
+            """
             DELETE FROM Comics 
             WHERE NOT EXISTS (
                 SELECT 1 FROM ComicUserData u 
@@ -845,14 +836,27 @@ internal class DataService : IDataService
                     AND u.Source = Comics.Source 
                     AND u.IsFavorite = 1
             );
-            """;
+            """,
+            transaction: transaction
+        );
 
-        const string sqlDeleteComicUserData = @"DELETE FROM ComicUserData WHERE IsFavorite = 0;";
+        await connection.ExecuteAsync(
+            """
+            DELETE FROM ComicReadingProgress
+            WHERE NOT EXISTS (
+                SELECT 1 FROM ComicUserData u
+                WHERE u.ComicId = ComicReadingProgress.ComicId
+                    AND u.Source = ComicReadingProgress.Source
+                    AND u.IsFavorite = 1
+            );
+            """,
+            transaction: transaction
+        );
 
-        await connection.ExecuteAsync(sqlDeleteChapters, transaction: transaction);
-        await connection.ExecuteAsync(sqlDeleteChapterUserData, transaction: transaction);
-        await connection.ExecuteAsync(sqlDeleteComics, transaction: transaction);
-        await connection.ExecuteAsync(sqlDeleteComicUserData, transaction: transaction);
+        await connection.ExecuteAsync(
+            @"DELETE FROM ComicUserData WHERE IsFavorite = 0;",
+            transaction: transaction
+        );
 
         await transaction.CommitAsync();
         await connection.ExecuteAsync("VACUUM;");
