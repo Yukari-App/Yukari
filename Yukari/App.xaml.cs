@@ -34,7 +34,7 @@ public partial class App : Application
                 path: Path.Combine(AppDataHelper.GetAppDataPath(), "Logs", "yukari-.log"),
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 7,
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] ({SourceContext}) {Message:lj}{NewLine}{Exception}"
             )
             .CreateLogger();
 
