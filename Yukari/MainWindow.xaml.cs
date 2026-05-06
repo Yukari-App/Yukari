@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
+using Serilog;
 using Windows.Graphics;
 using Windows.System;
 using Windows.UI;
@@ -168,6 +169,9 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
 
         _settingsService.SettingChanged -= Settings_Changed;
         Closed -= MainWindow_Closed;
+
+        Log.Information("Yukari closing — session ended");
+        await Log.CloseAndFlushAsync();
         Close();
     }
 

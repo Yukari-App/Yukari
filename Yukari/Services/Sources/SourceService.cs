@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Yukari.Core.Models;
 using Yukari.Core.Sources;
 using Yukari.Models;
@@ -14,12 +15,19 @@ namespace Yukari.Services.Sources;
 
 internal class SourceService : ISourceService
 {
+    private readonly ILogger<SourceService> _logger;
+
     // Caches the Type per source name to avoid reloading the assembly on every source switch.
     // The assembly itself stays in memory for the lifetime of the process (Default context).
     private readonly Dictionary<string, Type> _sourceTypeCache = new();
 
     private IComicSource? _currentSource;
     private string? _currentSourceName;
+
+    public SourceService(ILogger<SourceService> logger)
+    {
+        _logger = logger;
+    }
 
     public async Task LoadSourceAsync(ComicSourceModel comicSource)
     {
@@ -35,6 +43,12 @@ internal class SourceService : ISourceService
 
         try
         {
+            _logger.LogInformation(
+                "Loading comic source '{SourceName}' instance from {DllPath}",
+                comicSource.Name,
+                comicSource.DllPath
+            );
+
             if (!_sourceTypeCache.TryGetValue(comicSource.Name, out var type))
             {
                 // AssemblyLoadContext.Default is intentionally used instead of a collectible context.
@@ -159,6 +173,12 @@ internal class SourceService : ISourceService
         if (!_sourceTypeCache.ContainsKey(comicSourceMetadata.Name))
             _sourceTypeCache[comicSourceMetadata.Name] = type;
 
+        _logger.LogInformation(
+            "Plugin loaded from '{DllPath}' — Name: '{Name}', Version: {Version}",
+            dllPath,
+            comicSourceMetadata.Name,
+            comicSourceMetadata.Version
+        );
         return new ComicSourceModel
         {
             Name = comicSourceMetadata.Name,

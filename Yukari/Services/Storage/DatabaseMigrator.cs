@@ -4,12 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 using Yukari.Services.Storage.Migrations;
 
 namespace Yukari.Services.Storage;
 
 internal class DatabaseMigrator
 {
+    private readonly ILogger<DatabaseMigrator> _logger;
     private readonly string _connectionString;
 
     // Migrations must never be reordered, removed, or edited after being released.
@@ -21,8 +23,9 @@ internal class DatabaseMigrator
         new Migration_002(),
     ];
 
-    public DatabaseMigrator(string connectionString)
+    public DatabaseMigrator(ILogger<DatabaseMigrator> logger, string connectionString)
     {
+        _logger = logger;
         _connectionString = connectionString;
     }
 
@@ -50,8 +53,14 @@ internal class DatabaseMigrator
 
         foreach (var migration in pending)
         {
+            _logger.LogInformation(
+                "Running migration {Version}: {Description}",
+                migration.Version,
+                migration.Description
+            );
             await ApplyMigrationAsync(connection, migration);
         }
+        _logger.LogInformation("Database migration completed. Version: {Version}", targetVersion);
     }
 
     private async Task ApplyMigrationAsync(SqliteConnection connection, IMigration migration)
@@ -75,6 +84,7 @@ internal class DatabaseMigrator
         {
             await transaction.RollbackAsync();
 
+            _logger.LogError(ex, "Migration {Version} failed", migration.Version);
             throw new InvalidOperationException(
                 $"Migration {migration.Version} ({migration.Description}) failed: {ex.Message}",
                 ex

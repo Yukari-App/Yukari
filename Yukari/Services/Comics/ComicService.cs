@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Yukari.Core.Models;
 using Yukari.Exceptions;
 using Yukari.Helpers;
@@ -21,16 +22,19 @@ internal class ComicService : IComicService
     private readonly IDataService _dbService;
     private readonly ISourceService _srcService;
     private readonly IDownloadService _dloadService;
+    private readonly ILogger<ComicService> _logger;
 
     public ComicService(
         IDataService dbService,
         ISourceService srcService,
-        IDownloadService dloadService
+        IDownloadService dloadService,
+        ILogger<ComicService> logger
     )
     {
         _dbService = dbService;
         _srcService = srcService;
         _dloadService = dloadService;
+        _logger = logger;
     }
 
     // --- Read Methods ---
@@ -79,6 +83,13 @@ internal class ComicService : IComicService
         return await ExecuteAsync(
             async (ct) =>
             {
+                _logger.LogDebug(
+                    "Searching {Source} for '{Query}' with filters {@Filters}",
+                    sourceName,
+                    queryText,
+                    filters
+                );
+
                 await LoadComicSourceAsync(sourceName, ct);
                 var comics = string.IsNullOrEmpty(queryText)
                     ? await _srcService.GetTrendingComicsAsync(filters, ct)
@@ -187,7 +198,14 @@ internal class ComicService : IComicService
                 {
                     chapters = await _dbService.GetAllChaptersAsync(comicKey, language, ct);
                     if (chapters.Count == 0)
+                    {
+                        _logger.LogWarning(
+                            "No chapters in cache for {ComicKey} from {Source}, fetching from web",
+                            comicKey,
+                            comicKey.Source
+                        );
                         chapters = await FetchAndCacheChaptersAsync(comicKey, language, ct: ct);
+                    }
                 }
                 else
                 {
@@ -318,6 +336,12 @@ internal class ComicService : IComicService
                     comicDetails.CoverImageUrl = localCover;
 
                 await _dbService.UpsertFavoriteComicAsync(comicDetails);
+
+                _logger.LogInformation(
+                    "Comic '{Id}' from '{Source}' added to favorites",
+                    comicKey.Id,
+                    comicKey.Source
+                );
                 return Result.Success();
             },
             "Failed to add to favorites"
@@ -333,6 +357,12 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.UpsertComicUserDataAsync(comicKey, comicUserData);
+
+                _logger.LogDebug(
+                    "User data updated for comic '{Id}' from '{Source}'",
+                    comicKey.Id,
+                    comicKey.Source
+                );
                 return Result.Success();
             },
             "Error saving progress"
@@ -345,6 +375,8 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.InsertCollectionAsync(name);
+
+                _logger.LogInformation("Collection '{Name}' created", name);
                 return Result.Success();
             },
             "Error creating collection"
@@ -357,6 +389,12 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.RenameCollectionAsync(oldName, newName);
+
+                _logger.LogInformation(
+                    "Collection '{OldName}' renamed to '{NewName}'",
+                    oldName,
+                    newName
+                );
                 return Result.Success();
             },
             "Error renaming collection"
@@ -369,6 +407,13 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.AddComicToCollectionAsync(comicKey, collectionName);
+
+                _logger.LogInformation(
+                    "Comic '{Id}' from '{Source}' added to collection '{CollectionName}'",
+                    comicKey.Id,
+                    comicKey.Source,
+                    collectionName
+                );
                 return Result.Success();
             },
             "Error adding comic to collection"
@@ -384,6 +429,14 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.UpsertComicReadingProgressAsync(comicKey, progress);
+
+                _logger.LogDebug(
+                    "Reading progress saved for comic '{Id}' from '{Source}' - Language: {Language}, LastChapterId: {LastChapterId}",
+                    comicKey.Id,
+                    comicKey.Source,
+                    progress.LanguageCode,
+                    progress.LastChapterId
+                );
                 return Result.Success();
             },
             "Error saving comic reading progress"
@@ -396,6 +449,13 @@ internal class ComicService : IComicService
             async () =>
             {
                 await FetchAndCacheChaptersAsync(comicKey, language);
+
+                _logger.LogInformation(
+                    "Chapters updated for comic '{Id}' from '{Source}' - Language: {Language}'",
+                    comicKey.Id,
+                    comicKey.Source,
+                    language
+                );
                 return Result.Success();
             },
             "Error persisting chapters"
@@ -412,6 +472,13 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.UpsertChapterUserDataAsync(comicKey, chapterKey, chapterUserData);
+
+                _logger.LogDebug(
+                    "User data saved for chapter '{ChapterId}' of comic '{ComicId}' from '{Source}'",
+                    chapterKey.Id,
+                    comicKey.Id,
+                    comicKey.Source
+                );
                 return Result.Success();
             },
             "Error saving chapter progress"
@@ -428,6 +495,13 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.UpsertChaptersIsReadAsync(comicKey, chapterIDs, isRead);
+
+                _logger.LogInformation(
+                    "{Count} chapters marked as {Status} for comic '{Id}'",
+                    chapterIDs.Length,
+                    isRead ? "read" : "unread",
+                    comicKey.Id
+                );
                 return Result.Success();
             },
             "Error setting read status"
@@ -444,11 +518,23 @@ internal class ComicService : IComicService
                     var newPath = AppDataHelper.CopyDllToPluginsDirectory(pluginPath);
                     var comicSource = _srcService.GetComicSourceModelFromAssembly(newPath);
                     await _dbService.UpsertComicSourceAsync(comicSource);
+
+                    _logger.LogInformation(
+                        "Comic source '{SourceName}' (version {Version}) has been added/updated",
+                        comicSource.Name,
+                        comicSource.Version
+                    );
                     return Result.Success();
                 }
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 {
                     var metadata = _srcService.GetComicSourceModelFromAssembly(pluginPath);
+
+                    _logger.LogWarning(
+                        ex,
+                        "Could not replace DLL for source '{SourceName}' because it's in use. Marking for pending update on next restart.",
+                        metadata.Name
+                    );
                     await _dbService.UpdateComicSourcePendingUpdateAsync(metadata.Name, pluginPath);
                     return Result.PendingRestart();
                 }
@@ -463,6 +549,12 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.UpdateComicSourceIsEnabledAsync(sourceName, isEnabled);
+
+                _logger.LogInformation(
+                    "Comic source '{SourceName}' has been {Status}",
+                    sourceName,
+                    isEnabled ? "enabled" : "disabled"
+                );
                 return Result.Success();
             },
             "Error updating comic source status"
@@ -476,6 +568,12 @@ internal class ComicService : IComicService
             {
                 await _dbService.RemoveFavoriteComicAsync(comicKey);
                 // TO-DO: In the future, scan the downloads folder and delete folders containing IDs that are no longer in the database.
+
+                _logger.LogInformation(
+                    "Comic '{Id}' from '{Source}' removed from favorites",
+                    comicKey.Id,
+                    comicKey.Source
+                );
                 return Result.Success();
             },
             "Error removing from favorites"
@@ -488,6 +586,8 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.RemoveCollectionAsync(collectionName);
+
+                _logger.LogInformation("Collection '{Name}' removed", collectionName);
                 return Result.Success();
             },
             "Error removing collection"
@@ -503,6 +603,13 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.RemoveComicFromCollectionAsync(comicKey, collectionName);
+
+                _logger.LogInformation(
+                    "Comic '{Id}' from '{Source}' removed from collection '{CollectionName}'",
+                    comicKey.Id,
+                    comicKey.Source,
+                    collectionName
+                );
                 return Result.Success();
             },
             "Error removing comic from collection"
@@ -529,6 +636,8 @@ internal class ComicService : IComicService
                         File.Delete(comicSource.DllPath);
 
                     await _dbService.RemoveComicSourceAsync(sourceName);
+
+                    _logger.LogInformation("Comic source '{SourceName}' removed", sourceName);
                     return Result.Success();
                 }
                 // DLL files loaded by AssemblyLoadContext.Default cannot be deleted while the process is running.
@@ -536,6 +645,11 @@ internal class ComicService : IComicService
                 // when no plugin assembly has been loaded yet.
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 {
+                    _logger.LogWarning(
+                        ex,
+                        "Could not delete DLL for source '{SourceName}' because it's in use. Marking for pending removal on next restart.",
+                        sourceName
+                    );
                     await _dbService.UpdateComicSourcePendingRemovalAsync(sourceName, true);
                     return Result.PendingRestart();
                 }
@@ -551,6 +665,8 @@ internal class ComicService : IComicService
             {
                 var unfavoriteComics = await _dbService.CleanupUnfavoriteComicsDataAsync();
                 await _dloadService.CleanupUnfavoriteComicsAsync(unfavoriteComics);
+
+                _logger.LogInformation("Storage cleanup completed");
                 return Result.Success();
             },
             "Error cleaning up data"
@@ -584,9 +700,16 @@ internal class ComicService : IComicService
             );
 
         if (!comicSource.IsEnabled)
+        {
+            _logger.LogWarning(
+                "Attempted to load disabled comic source '{SourceName}'",
+                sourceName
+            );
+
             throw new ComicSourceDisabledException(
                 $"The source '{sourceName}' is currently disabled. Please enable it in the settings."
             );
+        }
 
         await _srcService.LoadSourceAsync(comicSource);
     }
@@ -614,11 +737,12 @@ internal class ComicService : IComicService
         }
         catch (Exception ex) when (IsNetworkError(ex))
         {
+            _logger.LogWarning(ex, "Network error in {Operation}", errorTitle);
             return Result<T>.Failure("No internet connection or source is offline.", errorTitle);
         }
         catch (Exception ex)
         {
-            // Here I can add global logging in the future.
+            _logger.LogError(ex, "Unhandled error in ComicService — {ErrorTitle}", errorTitle);
             var message = ex.InnerException?.Message ?? ex.Message;
             return Result<T>.Failure(message, errorTitle);
         }
@@ -636,10 +760,12 @@ internal class ComicService : IComicService
         }
         catch (Exception ex) when (IsNetworkError(ex))
         {
+            _logger.LogWarning(ex, "Network error in {Operation}", errorTitle);
             return Result.Failure("No internet connection or source is offline.", errorTitle);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Unhandled error in ComicService — {ErrorTitle}", errorTitle);
             var message = ex.InnerException?.Message ?? ex.Message;
             return Result.Failure(message, errorTitle);
         }

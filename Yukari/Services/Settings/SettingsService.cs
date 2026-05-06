@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Yukari.Helpers;
 using Yukari.Models.DTO;
 using Yukari.Models.Settings;
@@ -13,6 +14,8 @@ namespace Yukari.Services.Settings;
 
 internal class SettingsService : ISettingsService
 {
+    private readonly ILogger<SettingsService> _logger;
+
     private readonly string _filePath;
     private readonly JsonSerializerOptions _jsonOptions;
     private AppSettings _current = new();
@@ -20,8 +23,9 @@ internal class SettingsService : ISettingsService
     public AppSettings Current => _current;
     public event EventHandler<SettingsChangedEventArgs>? SettingChanged;
 
-    public SettingsService()
+    public SettingsService(ILogger<SettingsService> logger)
     {
+        _logger = logger;
         _filePath = Path.Combine(AppDataHelper.GetAppDataPath(), "settings.json");
 
         _jsonOptions = new JsonSerializerOptions
@@ -47,7 +51,7 @@ internal class SettingsService : ISettingsService
         }
         catch (Exception ex)
         {
-            // TO-DO: Log error
+            _logger.LogWarning(ex, "Failed to load settings — using defaults");
             _current = new AppSettings();
         }
     }
@@ -55,10 +59,17 @@ internal class SettingsService : ISettingsService
     public async Task SaveAsync()
     {
         var json = JsonSerializer.Serialize(_current, _jsonOptions);
-
         var tmpPath = _filePath + ".tmp";
-        await File.WriteAllTextAsync(tmpPath, json);
-        File.Move(tmpPath, _filePath, overwrite: true);
+
+        try
+        {
+            await File.WriteAllTextAsync(tmpPath, json);
+            File.Move(tmpPath, _filePath, overwrite: true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save settings");
+        }
     }
 
     // Always use Set() to mutate settings instead of accessing Current properties directly.
