@@ -60,8 +60,6 @@
                                     Tag="Yukari.Views.Pages.FavoritesPage" />
                 <NavigationViewItem Content="Discover" Icon="Library" Tag="Yukari.Views.Pages.DiscoverPage" />
 
-                <NavigationViewItemHeader Content="Pinned" />
-
             </NavigationView.MenuItems>
 
             <NavigationView.FooterMenuItems>

@@ -175,8 +175,6 @@
                             Content="{ui:FontIcon Glyph=&#xE712;}">
                         <Button.Flyout>
                             <MenuFlyout Placement="Bottom">
-                                <MenuFlyoutItem Icon="Pin" Text="Pin" Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
-                                <MenuFlyoutSeparator Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
                                 <MenuFlyoutItem Command="{x:Bind ViewModel.UpdateCommand}"
                                                 Icon="Refresh"
                                                 Text="Update"
