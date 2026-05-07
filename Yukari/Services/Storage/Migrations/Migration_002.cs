@@ -59,46 +59,36 @@ internal class Migration_002 : IMigration
             SELECT Id, ComicId, Source, Title, Number, Volume,
                    Language, Groups, LastUpdate, Pages, SortOrder, IsAvailable
             FROM Chapters;
+
+            DROP TABLE IF EXISTS Chapters;
+            ALTER TABLE Chapters_new RENAME TO Chapters;
             """,
             transaction: transaction
         );
 
-        // 3. Recreate ChapterPages, add the ComicId column, enhance PK uniqueness, and correct FK to point to the full primary key of Chapters
+        // 3. Recreate ChapterPages, remove Id column, rename PageNumber to Number,
+        // add the ComicId column, enhance PK uniqueness, and correct FK to point to the full primary key of Chapters
+        // There is no need to copy data from the old ChapterPages, as it will certainly be empty since Yukari does not yet support downloads
         await connection.ExecuteAsync(
             """
             CREATE TABLE ChapterPages_new (
-                Id TEXT NOT NULL,
+                Number INTEGER NOT NULL,
                 ChapterId TEXT NOT NULL,
                 ComicId TEXT NOT NULL,
                 Source TEXT NOT NULL,
-                PageNumber INTEGER NOT NULL,
                 ImageUrl TEXT NOT NULL,
-                PRIMARY KEY (ChapterId, ComicId, Source, Id),
+                PRIMARY KEY (ChapterId, ComicId, Source, Number),
                 FOREIGN KEY (ChapterId, ComicId, Source)
                     REFERENCES Chapters(Id, ComicId, Source) ON DELETE CASCADE
             );
 
-            INSERT INTO ChapterPages_new
-            SELECT cp.Id, cp.ChapterId, ch.ComicId, cp.Source, cp.PageNumber, cp.ImageUrl
-            FROM ChapterPages cp
-            INNER JOIN Chapters ch ON cp.ChapterId = ch.Id AND cp.Source = ch.Source;
-            """,
-            transaction: transaction
-        );
-
-        // 4. Drop old Chapters and ChapterPages tables and rename the new ones
-        await connection.ExecuteAsync(
-            """
-            DROP TABLE IF EXISTS Chapters;
             DROP TABLE IF EXISTS ChapterPages;
-
-            ALTER TABLE Chapters_new RENAME TO Chapters;
             ALTER TABLE ChapterPages_new RENAME TO ChapterPages;
             """,
             transaction: transaction
         );
 
-        // 5. Performance indexes
+        // 4. Performance indexes
         await connection.ExecuteAsync(
             """
             CREATE INDEX IF NOT EXISTS IX_Chapters_ComicId_Source
@@ -112,6 +102,18 @@ internal class Migration_002 : IMigration
 
             CREATE INDEX IF NOT EXISTS IX_ComicReadingProgress_ComicId_Source
                 ON ComicReadingProgress (ComicId, Source);
+            """,
+            transaction: transaction
+        );
+
+        // 5. Update groups from Chapters table from single string to JSON array format
+        await connection.ExecuteAsync(
+            """
+            UPDATE Chapters
+            SET Groups = '["' || Groups || '"]'
+            WHERE Groups IS NOT NULL
+                AND Groups != ''
+                AND Groups NOT LIKE '[%]';
             """,
             transaction: transaction
         );

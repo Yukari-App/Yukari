@@ -51,6 +51,10 @@ internal class DatabaseMigrator
             .OrderBy(m => m.Version)
             .ToList();
 
+        // Explicitly disable foreign key constraints on every connection.
+        // Migrations must be able to run arbitrary SQL, including schema changes that may temporarily violate constraints.
+        await connection.ExecuteAsync("PRAGMA foreign_keys = OFF;");
+
         foreach (var migration in pending)
         {
             _logger.LogInformation(

@@ -32,8 +32,9 @@ internal class DataService : IDataService
         var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
-        // PRAGMA foreign_keys is OFF by default in SQLite and does not persist between connections.
-        // It must be re-enabled on every new connection.
+        // Explicitly enable foreign key constraints on every connection.
+        // SQLite disables them by default unless the native library was compiled with
+        // SQLITE_DEFAULT_FOREIGN_KEYS=1, which cannot be guaranteed across all environments.
         await connection.ExecuteAsync("PRAGMA foreign_keys = ON;");
         return connection;
     }
@@ -583,7 +584,7 @@ internal class DataService : IDataService
                     new
                     {
                         c.Id,
-                        c.ComicId,
+                        ComicId = comicKey.Id,
                         c.Source,
                         c.Title,
                         c.Number,
