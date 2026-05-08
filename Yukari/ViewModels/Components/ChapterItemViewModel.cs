@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -12,6 +14,8 @@ namespace Yukari.ViewModels.Components;
 
 public partial class ChapterItemViewModel : ObservableObject
 {
+    private const int MaxGroupsToShow = 3;
+
     private readonly IComicService _comicService;
     private readonly INotificationService _notificationService;
 
@@ -25,6 +29,12 @@ public partial class ChapterItemViewModel : ObservableObject
     public ContentKey Key => new(Chapter.Id, Chapter.Source);
 
     public string? DisplayTitle { get; }
+
+    public IEnumerable<string> DisplayGroups => Chapter.Groups.Take(MaxGroupsToShow);
+
+    public bool HasMoreGroups => Chapter.Groups.Length > MaxGroupsToShow;
+    public string ExtraGroupsText =>
+        HasMoreGroups ? $"+{Chapter.Groups.Length - MaxGroupsToShow}" : string.Empty;
 
     [ObservableProperty]
     public partial int? LastPageRead { get; set; }

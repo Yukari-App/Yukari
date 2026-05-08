@@ -21,6 +21,8 @@ public partial class ComicPageViewModel
     : ObservableObject,
         IRecipient<ChapterUserDataUpdatedMessage>
 {
+    private const int MaxTagsToShow = 16;
+
     private readonly IComicService _comicService;
     private readonly INotificationService _notificationService;
     private readonly IMessenger _messenger;
@@ -31,8 +33,20 @@ public partial class ComicPageViewModel
     private CancellationTokenSource _chaptersCts = new();
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsComicAvailable))]
+    [NotifyPropertyChangedFor(
+        nameof(IsComicAvailable),
+        nameof(DisplayTags),
+        nameof(HasHiddenTags),
+        nameof(HiddenTagsText)
+    )]
     public partial ComicModel? Comic { get; set; }
+
+    public IEnumerable<string> DisplayTags =>
+        Comic?.Tags.Take(MaxTagsToShow) ?? Enumerable.Empty<string>();
+
+    public bool HasHiddenTags => Comic?.Tags.Length > MaxTagsToShow;
+    public string HiddenTagsText =>
+        HasHiddenTags ? $"{Comic?.Tags.Length - MaxTagsToShow} are hidden" : string.Empty;
 
     [ObservableProperty]
     public partial List<ChapterItemViewModel>? Chapters { get; set; }
