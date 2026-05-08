@@ -60,6 +60,7 @@ public class DiscoverPageViewModelTests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                    It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -194,6 +195,7 @@ public class DiscoverPageViewModelTests
                     "TestSource",
                     "test search",
                     It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                    It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -211,6 +213,7 @@ public class DiscoverPageViewModelTests
                     It.IsAny<string>(),
                     "test search",
                     It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                    It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 ),
             Times.Once()
@@ -246,6 +249,7 @@ public class DiscoverPageViewModelTests
                     "TestSource",
                     "",
                     It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                    It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -276,6 +280,7 @@ public class DiscoverPageViewModelTests
                     "TestSource",
                     "",
                     It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                    It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 ),
             Times.Once()
@@ -424,6 +429,7 @@ public class DiscoverPageViewModelTests
                     It.Is<Dictionary<string, IReadOnlyList<string>>>(f =>
                         f.ContainsKey("test") && f["test"].Contains("value")
                     ),
+                    It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -450,6 +456,7 @@ public class DiscoverPageViewModelTests
                     It.Is<Dictionary<string, IReadOnlyList<string>>>(f =>
                         f.ContainsKey("test") && f["test"].Contains("value")
                     ),
+                    It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 ),
             Times.Once()
@@ -473,6 +480,7 @@ public class DiscoverPageViewModelTests
                     "ErrorSource",
                     It.IsAny<string>(),
                     It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                    It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 )
             )
