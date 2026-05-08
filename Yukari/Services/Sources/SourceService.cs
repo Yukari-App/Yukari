@@ -75,13 +75,16 @@ internal class SourceService : ISourceService
     public async Task<IReadOnlyList<ComicModel>> SearchComicsAsync(
         string query,
         IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+        int page = 1,
         CancellationToken ct = default
     )
     {
-        if (_currentSource == null)
+        if (_currentSource == null || _currentSourceName == null)
             throw new InvalidOperationException("No source loaded.");
 
-        var comics = await _currentSource.SearchAsync(query, filters, ct);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page);
+
+        var comics = await _currentSource.SearchAsync(query, filters, page, ct);
         return comics.Select(MapToModel).ToList();
     }
 
@@ -90,7 +93,7 @@ internal class SourceService : ISourceService
         CancellationToken ct = default
     )
     {
-        if (_currentSource == null)
+        if (_currentSource == null || _currentSourceName == null)
             throw new InvalidOperationException("No source loaded.");
 
         var comics = await _currentSource.GetTrendingAsync(filters, ct);
@@ -102,7 +105,7 @@ internal class SourceService : ISourceService
         CancellationToken ct = default
     )
     {
-        if (_currentSource == null)
+        if (_currentSource == null || _currentSourceName == null)
             throw new InvalidOperationException("No source loaded.");
 
         var comic = await _currentSource.GetDetailsAsync(comicId, ct);
@@ -118,7 +121,7 @@ internal class SourceService : ISourceService
         CancellationToken ct = default
     )
     {
-        if (_currentSource == null)
+        if (_currentSource == null || _currentSourceName == null)
             throw new InvalidOperationException("No source loaded.");
 
         var chapters = await _currentSource.GetAllChaptersAsync(comicId, language, ct);
@@ -126,8 +129,7 @@ internal class SourceService : ISourceService
             .Select(c => new ChapterModel
             {
                 Id = c.Id,
-                ComicId = comicId,
-                Source = c.Source,
+                Source = _currentSourceName,
                 Title = c.Title,
                 Number = c.Number,
                 Volume = c.Volume,
@@ -145,19 +147,12 @@ internal class SourceService : ISourceService
         CancellationToken ct = default
     )
     {
-        if (_currentSource == null)
+        if (_currentSource == null || _currentSourceName == null)
             throw new InvalidOperationException("No source loaded.");
 
         var pages = await _currentSource.GetChapterPagesAsync(comicId, chapterId, ct);
         return pages
-            .Select(p => new ChapterPageModel
-            {
-                Id = p.Id,
-                ChapterId = chapterId,
-                Source = p.Source,
-                PageNumber = p.PageNumber,
-                ImageUrl = p.ImageUrl,
-            })
+            .Select(p => new ChapterPageModel { Number = p.Number, ImageUrl = p.ImageUrl })
             .ToList();
     }
 
@@ -194,7 +189,7 @@ internal class SourceService : ISourceService
         new()
         {
             Id = coreComic.Id,
-            Source = coreComic.Source,
+            Source = _currentSourceName!,
             ComicUrl = coreComic.ComicUrl,
             Title = coreComic.Title,
             Author = coreComic.Author,
