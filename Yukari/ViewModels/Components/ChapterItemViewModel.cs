@@ -131,5 +131,5 @@ public partial class ChapterItemViewModel : ObservableObject
     }
 
     private int LastPageReadValue(ChapterUserData chapterUserData) =>
-        chapterUserData.IsRead ? Chapter.Pages : chapterUserData.LastPageRead ?? 0;
+        chapterUserData.IsRead ? Chapter.Pages ?? 0 : chapterUserData.LastPageRead ?? 0;
 }
