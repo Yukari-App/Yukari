@@ -24,6 +24,7 @@ public interface IComicService
         string sourceName,
         string? queryText,
         IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+        int page = 1,
         CancellationToken ct = default
     );
     Task<Result<IReadOnlyList<ComicModel>>> GetFavoriteComicsAsync(

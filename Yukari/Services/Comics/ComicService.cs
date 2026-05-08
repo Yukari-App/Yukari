@@ -77,6 +77,7 @@ internal class ComicService : IComicService
         string sourceName,
         string? queryText,
         IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+        int page = 1,
         CancellationToken ct = default
     )
     {
@@ -93,7 +94,7 @@ internal class ComicService : IComicService
                 await LoadComicSourceAsync(sourceName, ct);
                 var comics = string.IsNullOrEmpty(queryText)
                     ? await _srcService.GetTrendingComicsAsync(filters, ct)
-                    : await _srcService.SearchComicsAsync(queryText, filters, ct);
+                    : await _srcService.SearchComicsAsync(queryText, filters, page, ct);
 
                 return Result<IReadOnlyList<ComicModel>>.Success(comics);
             },
@@ -199,10 +200,10 @@ internal class ComicService : IComicService
                     chapters = await _dbService.GetAllChaptersAsync(comicKey, language, ct);
                     if (chapters.Count == 0)
                     {
-                        _logger.LogWarning(
-                            "No chapters in cache for {ComicKey} from {Source}, fetching from web",
-                            comicKey,
-                            comicKey.Source
+                        _logger.LogDebug(
+                            "No chapters in cache from language '{Language}' for comic {ComicKey}, fetching from web",
+                            language,
+                            comicKey
                         );
                         chapters = await FetchAndCacheChaptersAsync(comicKey, language, ct: ct);
                     }
@@ -337,11 +338,7 @@ internal class ComicService : IComicService
 
                 await _dbService.UpsertFavoriteComicAsync(comicDetails);
 
-                _logger.LogInformation(
-                    "Comic '{Id}' from '{Source}' added to favorites",
-                    comicKey.Id,
-                    comicKey.Source
-                );
+                _logger.LogInformation("Comic {ComicKey} added to favorites", comicKey);
                 return Result.Success();
             },
             "Failed to add to favorites"
@@ -358,11 +355,7 @@ internal class ComicService : IComicService
             {
                 await _dbService.UpsertComicUserDataAsync(comicKey, comicUserData);
 
-                _logger.LogDebug(
-                    "User data updated for comic '{Id}' from '{Source}'",
-                    comicKey.Id,
-                    comicKey.Source
-                );
+                _logger.LogDebug("User data updated for comic {ComicKey}", comicKey);
                 return Result.Success();
             },
             "Error saving progress"
@@ -409,9 +402,8 @@ internal class ComicService : IComicService
                 await _dbService.AddComicToCollectionAsync(comicKey, collectionName);
 
                 _logger.LogInformation(
-                    "Comic '{Id}' from '{Source}' added to collection '{CollectionName}'",
-                    comicKey.Id,
-                    comicKey.Source,
+                    "Comic {ComicKey} added to collection '{CollectionName}'",
+                    comicKey,
                     collectionName
                 );
                 return Result.Success();
@@ -431,9 +423,8 @@ internal class ComicService : IComicService
                 await _dbService.UpsertComicReadingProgressAsync(comicKey, progress);
 
                 _logger.LogDebug(
-                    "Reading progress saved for comic '{Id}' from '{Source}' - Language: {Language}, LastChapterId: {LastChapterId}",
-                    comicKey.Id,
-                    comicKey.Source,
+                    "Reading progress saved for comic {ComicKey} - Language: {Language}, LastChapterId: {LastChapterId}",
+                    comicKey,
                     progress.LanguageCode,
                     progress.LastChapterId
                 );
@@ -451,9 +442,8 @@ internal class ComicService : IComicService
                 await FetchAndCacheChaptersAsync(comicKey, language);
 
                 _logger.LogInformation(
-                    "Chapters updated for comic '{Id}' from '{Source}' - Language: {Language}'",
-                    comicKey.Id,
-                    comicKey.Source,
+                    "Chapters updated for comic {ComicKey} - Language: {Language}",
+                    comicKey,
                     language
                 );
                 return Result.Success();
@@ -474,10 +464,9 @@ internal class ComicService : IComicService
                 await _dbService.UpsertChapterUserDataAsync(comicKey, chapterKey, chapterUserData);
 
                 _logger.LogDebug(
-                    "User data saved for chapter '{ChapterId}' of comic '{ComicId}' from '{Source}'",
-                    chapterKey.Id,
-                    comicKey.Id,
-                    comicKey.Source
+                    "User data saved for chapter {ChapterKey} of comic {ComicKey}",
+                    chapterKey,
+                    comicKey
                 );
                 return Result.Success();
             },
@@ -497,10 +486,10 @@ internal class ComicService : IComicService
                 await _dbService.UpsertChaptersIsReadAsync(comicKey, chapterIDs, isRead);
 
                 _logger.LogInformation(
-                    "{Count} chapters marked as {Status} for comic '{Id}'",
+                    "{Count} chapters marked as {Status} for comic {ComicKey}",
                     chapterIDs.Length,
                     isRead ? "read" : "unread",
-                    comicKey.Id
+                    comicKey
                 );
                 return Result.Success();
             },
@@ -569,11 +558,7 @@ internal class ComicService : IComicService
                 await _dbService.RemoveFavoriteComicAsync(comicKey);
                 // TO-DO: In the future, scan the downloads folder and delete folders containing IDs that are no longer in the database.
 
-                _logger.LogInformation(
-                    "Comic '{Id}' from '{Source}' removed from favorites",
-                    comicKey.Id,
-                    comicKey.Source
-                );
+                _logger.LogInformation("Comic {ComicKey} removed from favorites", comicKey);
                 return Result.Success();
             },
             "Error removing from favorites"
@@ -605,9 +590,8 @@ internal class ComicService : IComicService
                 await _dbService.RemoveComicFromCollectionAsync(comicKey, collectionName);
 
                 _logger.LogInformation(
-                    "Comic '{Id}' from '{Source}' removed from collection '{CollectionName}'",
-                    comicKey.Id,
-                    comicKey.Source,
+                    "Comic {ComicKey} removed from collection '{CollectionName}'",
+                    comicKey,
                     collectionName
                 );
                 return Result.Success();

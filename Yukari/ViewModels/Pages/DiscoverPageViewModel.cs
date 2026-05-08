@@ -190,6 +190,7 @@ public partial class DiscoverPageViewModel
             SelectedComicSource.Name,
             _searchText,
             _appliedFilters ?? new Dictionary<string, IReadOnlyList<string>>(),
+            1,
             _searchCts.Token
         );
 
