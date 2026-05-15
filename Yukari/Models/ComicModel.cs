@@ -10,7 +10,7 @@ public class ComicModel
     public required string Title { get; set; }
     public string? Author { get; set; }
     public string? Description { get; set; }
-    public string[] Tags { get; set; } = new[] { "N/A" };
+    public string[] Tags { get; set; } = Array.Empty<string>();
     public int? Year { get; set; }
     public string? CoverImageUrl { get; set; }
     public LanguageModel[] Langs { get; set; } = Array.Empty<LanguageModel>();
