@@ -24,11 +24,13 @@ public class Result
 
     public static Result Cancelled() => new(ResultKind.Cancelled, null, null);
 
-    public static Result Failure(string error, string? errorTitle = null) =>
+    public static Result Failure(string error, string? errorTitle = "Error") =>
         new(ResultKind.Failure, errorTitle, error);
 
-    public static Result ComicSourceDisabled(string error, string? errorTitle = null) =>
-        new(ResultKind.ComicSourceDisabled, errorTitle, error);
+    public static Result ComicSourceDisabled(
+        string error,
+        string? errorTitle = "Comic Source Disabled"
+    ) => new(ResultKind.ComicSourceDisabled, errorTitle, error);
 }
 
 public class Result<T> : Result
@@ -42,7 +44,7 @@ public class Result<T> : Result
 
     public static new Result<T> Cancelled() => new(ResultKind.Cancelled, null, null, default);
 
-    public static new Result<T> Failure(string error, string errorTitle = "An Error Occurred") =>
+    public static new Result<T> Failure(string error, string errorTitle = "Error") =>
         new(ResultKind.Failure, errorTitle, error, default);
 
     public static new Result<T> ComicSourceDisabled(
