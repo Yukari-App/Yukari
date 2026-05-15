@@ -26,31 +26,17 @@ public class ChapterItemViewModelTests
     // PROPERTIES
     // ────────────────────────────────────────────────────────────────
 
-    [Fact]
-    public void IsChapterAvailable_IsTrue_WhenAvailable_AndNotDownloaded()
-    {
-        var sut = CreateSut(isAvailable: true, isDownloaded: false);
-        sut.IsChapterAvailable.Should().BeTrue();
-    }
-
-    [Fact]
-    public void IsChapterAvailable_IsFalse_WhenNotAvailable_AndNotDownloaded()
+    [Theory]
+    [InlineData(true, false, true)]
+    [InlineData(false, false, false)]
+    [InlineData(false, true, true)]
+    public void IsChapterAvailable(bool isAvailable, bool isDownloaded, bool expected)
     {
         // Arrange
-        var sut = CreateSut(isAvailable: false, isDownloaded: false);
+        var sut = CreateSut(isAvailable: isAvailable, isDownloaded: isDownloaded);
 
         // Act & Assert
-        sut.IsChapterAvailable.Should().BeFalse();
-    }
-
-    [Fact]
-    public void IsChapterAvailable_IsTrue_WhenNotAvailable_ButDownloaded()
-    {
-        // Arrange
-        var sut = CreateSut(isAvailable: false, isDownloaded: true);
-
-        // Act & Assert
-        sut.IsChapterAvailable.Should().BeTrue();
+        sut.IsChapterAvailable.Should().Be(expected);
     }
 
     [Fact]

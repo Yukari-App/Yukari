@@ -221,114 +221,6 @@ public class DiscoverPageViewModelTests
     }
 
     // ────────────────────────────────────────────────────────────────
-    // PROPERTY CHANGE EVENTS
-    // ────────────────────────────────────────────────────────────────
-
-    [Fact]
-    public async Task Changing_SelectedComicSource_ShouldLoadFilters_AndComics_WhenChanged()
-    {
-        // Arrange
-        _comicServiceMock
-            .Setup(s => s.GetSourceFiltersAsync("TestSource"))
-            .ReturnsAsync(
-                Result<IReadOnlyList<Filter>>.Success(
-                    new List<Filter>
-                    {
-                        new Filter(
-                            Key: "test",
-                            DisplayName: "Test",
-                            Options: new List<FilterOption>(),
-                            AllowMultiple: true
-                        ),
-                    }
-                )
-            );
-        _comicServiceMock
-            .Setup(s =>
-                s.SearchComicsAsync(
-                    "TestSource",
-                    "",
-                    It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
-                    It.IsAny<int>(),
-                    It.IsAny<CancellationToken>()
-                )
-            )
-            .ReturnsAsync(
-                Result<IReadOnlyList<ComicModel>>.Success(
-                    new List<ComicModel>
-                    {
-                        new ComicModel()
-                        {
-                            Id = "123",
-                            Source = "TestSource",
-                            Title = "TestComic",
-                        },
-                    }
-                )
-            );
-
-        // Act
-        await SetSelectedSourceAndWait("TestSource");
-
-        await Task.Delay(50, TestContext.Current.CancellationToken);
-
-        // Assert
-        _comicServiceMock.Verify(s => s.GetSourceFiltersAsync("TestSource"), Times.Once());
-        _comicServiceMock.Verify(
-            s =>
-                s.SearchComicsAsync(
-                    "TestSource",
-                    "",
-                    It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
-                    It.IsAny<int>(),
-                    It.IsAny<CancellationToken>()
-                ),
-            Times.Once()
-        );
-        _sut.SearchedComics.Should().HaveCount(1);
-        _sut.SearchedComics[0].Comic.Title.Should().Be("TestComic");
-        _sut.SearchedComics[0].Comic.Id.Should().Be("123");
-        _sut.IsContentLoading.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task UpdateAvailableComicSources_ShouldFilterDisabledSources()
-    {
-        // Arrange
-        var Sources = new List<ComicSourceModel>
-        {
-            new()
-            {
-                Name = "EnabledSource",
-                Version = "1",
-                DllPath = "Yukari.Plugin.EnabledPlugin.dll",
-                IsEnabled = true,
-            },
-            new()
-            {
-                Name = "DisabledSource",
-                Version = "1",
-                DllPath = "Yukari.Plugin.DisabledPlugin.dll",
-                IsEnabled = false,
-            },
-        };
-
-        _comicServiceMock
-            .Setup(s => s.GetComicSourcesAsync())
-            .ReturnsAsync(Result<IReadOnlyList<ComicSourceModel>>.Success(Sources));
-
-        // Act
-        _sut.ComicSources = null;
-        _sut.OnNavigatedTo();
-
-        await Task.Delay(50, TestContext.Current.CancellationToken);
-
-        // Assert
-        _sut.ComicSources.Should().HaveCount(1);
-        _sut.ComicSources.Should().Contain(s => s.Name == "EnabledSource");
-    }
-
-    // ────────────────────────────────────────────────────────────────
     // COMMANDS CanExecute
     // ────────────────────────────────────────────────────────────────
 
@@ -486,14 +378,120 @@ public class DiscoverPageViewModelTests
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Failure("API error", "Error"));
+            .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Failure("API error"));
 
         // Act
         await SetSelectedSourceAndWait("ErrorSource");
 
         // Assert
-        _notificationServiceMock.Verify(n => n.ShowError("API error", "Error"), Times.Once);
+        _notificationServiceMock.Verify(n => n.ShowError("API error"), Times.Exactly(2));
         _sut.IsContentLoading.Should().BeFalse();
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // PROPERTY CHANGE EVENTS
+    // ────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task Changing_SelectedComicSource_ShouldLoadFilters_AndComics_WhenChanged()
+    {
+        // Arrange
+        _comicServiceMock
+            .Setup(s => s.GetSourceFiltersAsync("TestSource"))
+            .ReturnsAsync(
+                Result<IReadOnlyList<Filter>>.Success(
+                    new List<Filter>
+                    {
+                        new Filter(
+                            Key: "test",
+                            DisplayName: "Test",
+                            Options: new List<FilterOption>(),
+                            AllowMultiple: true
+                        ),
+                    }
+                )
+            );
+        _comicServiceMock
+            .Setup(s =>
+                s.SearchComicsAsync(
+                    "TestSource",
+                    "",
+                    It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                    It.IsAny<int>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
+            .ReturnsAsync(
+                Result<IReadOnlyList<ComicModel>>.Success(
+                    new List<ComicModel>
+                    {
+                        new ComicModel()
+                        {
+                            Id = "123",
+                            Source = "TestSource",
+                            Title = "TestComic",
+                        },
+                    }
+                )
+            );
+
+        // Act
+        await SetSelectedSourceAndWait("TestSource");
+
+        // Assert
+        _comicServiceMock.Verify(s => s.GetSourceFiltersAsync("TestSource"), Times.Once());
+        _comicServiceMock.Verify(
+            s =>
+                s.SearchComicsAsync(
+                    "TestSource",
+                    "",
+                    It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
+                    It.IsAny<int>(),
+                    It.IsAny<CancellationToken>()
+                ),
+            Times.Once()
+        );
+        _sut.SearchedComics.Should().HaveCount(1);
+        _sut.SearchedComics[0].Comic.Title.Should().Be("TestComic");
+        _sut.SearchedComics[0].Comic.Id.Should().Be("123");
+        _sut.IsContentLoading.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task UpdateAvailableComicSources_ShouldFilterDisabledSources()
+    {
+        // Arrange
+        var Sources = new List<ComicSourceModel>
+        {
+            new()
+            {
+                Name = "EnabledSource",
+                Version = "1",
+                DllPath = "Yukari.Plugin.EnabledPlugin.dll",
+                IsEnabled = true,
+            },
+            new()
+            {
+                Name = "DisabledSource",
+                Version = "1",
+                DllPath = "Yukari.Plugin.DisabledPlugin.dll",
+                IsEnabled = false,
+            },
+        };
+
+        _comicServiceMock
+            .Setup(s => s.GetComicSourcesAsync())
+            .ReturnsAsync(Result<IReadOnlyList<ComicSourceModel>>.Success(Sources));
+
+        // Act
+        _sut.ComicSources = null;
+        _sut.OnNavigatedTo();
+
+        await Task.Delay(50, TestContext.Current.CancellationToken);
+
+        // Assert
+        _sut.ComicSources.Should().HaveCount(1);
+        _sut.ComicSources.Should().Contain(s => s.Name == "EnabledSource");
     }
 
     // ────────────────────────────────────────────────────────────────
