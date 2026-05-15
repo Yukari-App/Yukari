@@ -231,7 +231,7 @@
 
                     <Grid Grid.Row="1" RowDefinitions="280, Auto, Auto" RowSpacing="16">
                         <Grid Grid.Row="0"
-                              HorizontalAlignment="Center"
+                              HorizontalAlignment="Stretch"
                               ColumnDefinitions="Auto, *"
                               ColumnSpacing="16">
                             <Border Grid.Column="0"
