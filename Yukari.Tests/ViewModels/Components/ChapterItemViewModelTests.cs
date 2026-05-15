@@ -30,7 +30,11 @@ public class ChapterItemViewModelTests
     [InlineData(true, false, true)]
     [InlineData(false, false, false)]
     [InlineData(false, true, true)]
-    public void IsChapterAvailable(bool isAvailable, bool isDownloaded, bool expected)
+    public void IsChapterAvailable_DependsOnAvailabilityAndDownloadStatus(
+        bool isAvailable,
+        bool isDownloaded,
+        bool expected
+    )
     {
         // Arrange
         var sut = CreateSut(isAvailable: isAvailable, isDownloaded: isDownloaded);
@@ -39,24 +43,25 @@ public class ChapterItemViewModelTests
         sut.IsChapterAvailable.Should().Be(expected);
     }
 
-    [Fact]
-    public void IsDownloadAvailable_IsTrue_WhenFavorite_AndChapterAvailable()
+    [Theory]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    public void IsDownloadAvailable_DependsOnFavoriteAndAvailability(
+        bool isFavorite,
+        bool isAvailable,
+        bool expected
+    )
     {
         // Arrange
-        var sut = CreateSut(isAvailable: true, isDownloaded: false, isComicFavorite: true);
+        var sut = CreateSut(
+            isAvailable: isAvailable,
+            isDownloaded: false,
+            isComicFavorite: isFavorite
+        );
 
         // Act & Assert
-        sut.IsDownloadAvailable.Should().BeTrue();
-    }
-
-    [Fact]
-    public void IsDownloadAvailable_IsFalse_WhenNotFavorite()
-    {
-        // Arrange
-        var sut = CreateSut(isAvailable: true, isDownloaded: false, isComicFavorite: false);
-
-        // Act & Assert
-        sut.IsDownloadAvailable.Should().BeFalse();
+        sut.IsDownloadAvailable.Should().Be(expected);
     }
 
     [Theory]

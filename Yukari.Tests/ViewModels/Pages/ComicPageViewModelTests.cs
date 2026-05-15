@@ -228,7 +228,7 @@ namespace Yukari.Tests.ViewModels.Pages
         // ────────────────────────────────────────────────────────────────
 
         [Fact]
-        public void Receive_ChapterUserDataUpdatedMessage_ShouldRefreshChapterUserData()
+        public async Task Receive_ChapterUserDataUpdatedMessage_ShouldRefreshChapterUserData()
         {
             // Arrange
             var chapterItem = CreateChapterItemViewModel(
@@ -244,7 +244,7 @@ namespace Yukari.Tests.ViewModels.Pages
             _mockComicService
                 .Setup(s =>
                     s.GetChapterUserDataAsync(
-                        new ContentKey("", ""),
+                        new ContentKey("c-001", "TestSource"),
                         chapterItem.Key,
                         It.IsAny<CancellationToken>()
                     )
@@ -255,10 +255,92 @@ namespace Yukari.Tests.ViewModels.Pages
 
             // Act
             _sut.Receive(new ChapterUserDataUpdatedMessage(chapterItem.Key));
+            await Task.Delay(100, TestContext.Current.CancellationToken);
 
             // Assert
             chapterItem.LastPageRead.Should().Be(5);
             chapterItem.IsRead.Should().BeTrue();
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // PUBLIC METHODS
+        // ────────────────────────────────────────────────────────────────
+
+        [Fact]
+        public async Task InitializeAsync_SetsLoadedState_WhenSuccess()
+        {
+            // Arrange & Act
+            await ChangeSutComic();
+
+            // Assert
+            _sut.IsComicLoaded.Should().BeTrue();
+            _sut.Comic.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task InitializeAsync_SetsErrorState_WhenComicNotFound()
+        {
+            // Arrange
+            _mockComicService
+                .Setup(s =>
+                    s.GetComicDetailsAsync(
+                        It.IsAny<ContentKey>(),
+                        false,
+                        It.IsAny<CancellationToken>()
+                    )
+                )
+                .ReturnsAsync(Result<ComicAggregate?>.Success(null));
+            _mockComicService
+                .Setup(s =>
+                    s.GetAllChaptersAsync(
+                        It.IsAny<ContentKey>(),
+                        It.IsAny<string>(),
+                        false,
+                        It.IsAny<CancellationToken>()
+                    )
+                )
+                .ReturnsAsync(
+                    Result<IReadOnlyList<ChapterAggregate>>.Success(Array.Empty<ChapterAggregate>())
+                );
+
+            // Act
+            await _sut.InitializeAsync(new ContentKey("c-001", "TestSource"));
+
+            // Assert
+            _sut.IsComicError.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task InitializeAsync_SetsErrorState_WhenServiceFails()
+        {
+            // Arrange
+            _mockComicService
+                .Setup(s =>
+                    s.GetComicDetailsAsync(
+                        It.IsAny<ContentKey>(),
+                        false,
+                        It.IsAny<CancellationToken>()
+                    )
+                )
+                .ReturnsAsync(Result<ComicAggregate?>.Failure("Network error", "Error"));
+            _mockComicService
+                .Setup(s =>
+                    s.GetAllChaptersAsync(
+                        It.IsAny<ContentKey>(),
+                        It.IsAny<string>(),
+                        false,
+                        It.IsAny<CancellationToken>()
+                    )
+                )
+                .ReturnsAsync(
+                    Result<IReadOnlyList<ChapterAggregate>>.Success(Array.Empty<ChapterAggregate>())
+                );
+
+            // Act
+            await _sut.InitializeAsync(new ContentKey("comic-001", "TestSource"));
+
+            // Assert
+            _sut.IsComicError.Should().BeTrue();
         }
 
         // ────────────────────────────────────────────────────────────────
@@ -557,7 +639,7 @@ namespace Yukari.Tests.ViewModels.Pages
         }
 
         [Fact]
-        public async Task Update_UpdateComicAndChapters_AndRefreshComicAndChapters_AndShowSuccessNotification_WhenSuccess()
+        public async Task UpdateCommand_RefreshesComicChaptersAndShowsNotification_WhenSuccess()
         {
             // Arrange
             await ChangeSutComic(null, new() { IsFavorite = true });
@@ -626,7 +708,7 @@ namespace Yukari.Tests.ViewModels.Pages
         }
 
         [Fact]
-        public async Task Update_ShowErrorNotification_WhenFailure()
+        public async Task UpdateCommand_ShowErrorNotification_WhenFailure()
         {
             // Arrange
             await ChangeSutComic(null, new ComicUserData { IsFavorite = true });
@@ -909,6 +991,7 @@ namespace Yukari.Tests.ViewModels.Pages
 
             // Act
             _sut.SelectedLang = "pt-BR";
+            await Task.Delay(100, TestContext.Current.CancellationToken);
 
             // Assert
             _sut.Chapters.Should().HaveCount(1);
@@ -953,6 +1036,7 @@ namespace Yukari.Tests.ViewModels.Pages
 
             // Act
             _sut.SelectedLang = "pt-BR";
+            await Task.Delay(100, TestContext.Current.CancellationToken);
 
             // Assert
             _mockNotificationService.Verify(s => s.ShowError("Db Error", "Error"), Times.Once);
@@ -1015,7 +1099,7 @@ namespace Yukari.Tests.ViewModels.Pages
                     chapter ?? new() { Id = Guid.NewGuid().ToString(), Source = "TestSource" },
                     userData ?? new()
                 ),
-                new ContentKey("", ""),
+                new ContentKey("c-001", "TestSource"),
                 false,
                 new RelayCommand<ContentKey>(_ => { }),
                 new RelayCommand<ChapterItemViewModel>(_ => { })

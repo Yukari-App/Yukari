@@ -154,7 +154,7 @@ public class DiscoverPageViewModelTests
         // Act
         _sut.OnNavigatedTo();
 
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
 
         // Assert
         _comicServiceMock.Verify(s => s.GetComicSourcesAsync(), Times.Once());
@@ -204,7 +204,7 @@ public class DiscoverPageViewModelTests
         // Act
         _sut.Receive(message);
 
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
 
         // Assert
         _comicServiceMock.Verify(
@@ -272,7 +272,7 @@ public class DiscoverPageViewModelTests
                 }
                 : null;
 
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
         _sut.IsContentLoading = false;
 
         // Assert
@@ -487,7 +487,7 @@ public class DiscoverPageViewModelTests
         _sut.ComicSources = null;
         _sut.OnNavigatedTo();
 
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
 
         // Assert
         _sut.ComicSources.Should().HaveCount(1);
@@ -506,6 +506,6 @@ public class DiscoverPageViewModelTests
             Version = "1",
             DllPath = $"Yukari.Plugin.{name}.dll",
         };
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
     }
 }
