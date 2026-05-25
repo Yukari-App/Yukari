@@ -35,7 +35,9 @@ internal class Migration_002 : IMigration
         // Migration_001 had a redundant UNIQUE (Id, Source) constraint on Chapters alongside
         // PRIMARY KEY (Id, ComicId, Source), and ChapterPages had a FK pointing to a partial
         // key of Chapters. This migration recreates both tables with the correct constraints.
-        // 2. Recreate the Chapters table without the redundant UNIQUE constraint and with an explicit FK for Comics
+
+        // 2. Recreate the Chapters table without the redundant UNIQUE constraint and with an explicit FK for Comics.
+        // Set as Pages as nullable, since not every source provides a page count
         await connection.ExecuteAsync(
             """
             CREATE TABLE Chapters_new (
@@ -48,7 +50,7 @@ internal class Migration_002 : IMigration
                 Language TEXT NOT NULL,
                 Groups TEXT,
                 LastUpdate TEXT,
-                Pages INTEGER NOT NULL,
+                Pages INTEGER,
                 SortOrder INTEGER NOT NULL DEFAULT 0,
                 IsAvailable INTEGER NOT NULL DEFAULT 1,
                 PRIMARY KEY (Id, ComicId, Source),
