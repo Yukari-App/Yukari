@@ -35,11 +35,14 @@ public partial class ComicPageViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(
         nameof(IsComicAvailable),
+        nameof(IsTagsVisible),
         nameof(DisplayTags),
         nameof(HasHiddenTags),
         nameof(HiddenTagsText)
     )]
     public partial ComicModel? Comic { get; set; }
+
+    public bool IsTagsVisible => Comic?.Tags.Length > 0;
 
     public IEnumerable<string> DisplayTags =>
         Comic?.Tags.Take(MaxTagsToShow) ?? Enumerable.Empty<string>();
