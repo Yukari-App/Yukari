@@ -18,4 +18,9 @@ public class ComicModel
     public LanguageModel[] Langs { get; set; } = Array.Empty<LanguageModel>();
 
     public bool IsAvailable { get; set; } = true;
+
+    // Dapper does not invoke type handlers for enum properties.
+    // This property provides the string representation used for database persistence.
+    // See: https://github.com/DapperLib/Dapper/issues/259
+    public string StatusValue => Status.ToString().ToLowerInvariant();
 }
