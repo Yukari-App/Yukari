@@ -1,4 +1,5 @@
 using System;
+using Yukari.Core.Models;
 
 namespace Yukari.Models;
 
@@ -10,6 +11,7 @@ public class ComicModel
     public required string Title { get; set; }
     public string? Author { get; set; }
     public string? Description { get; set; }
+    public ComicStatus Status { get; set; } = ComicStatus.Unknown;
     public string[] Tags { get; set; } = Array.Empty<string>();
     public int? Year { get; set; }
     public string? CoverImageUrl { get; set; }
