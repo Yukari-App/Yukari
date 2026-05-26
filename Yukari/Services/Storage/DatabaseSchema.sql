@@ -1,5 +1,5 @@
--- Current schema: Version 2
--- Last updated: Migration_002
+-- Current schema: Version 3
+-- Last updated: Migration_003
 -- To understand how we got here, read Migrations/ in order.
 
 -- Comics definition
@@ -11,6 +11,7 @@ CREATE TABLE Comics (
     Title TEXT NOT NULL,
     Author TEXT,
     Description TEXT,
+    Status TEXT NOT NULL DEFAULT 'unknown',
     Tags TEXT,
     Year INTEGER,
     CoverImageUrl TEXT,
