@@ -194,6 +194,7 @@ internal class SourceService : ISourceService
             Title = coreComic.Title,
             Author = coreComic.Author,
             Description = coreComic.Description,
+            Status = coreComic.Status,
             Tags = coreComic.Tags,
             Year = coreComic.Year,
             CoverImageUrl = coreComic.CoverImageUrl,
