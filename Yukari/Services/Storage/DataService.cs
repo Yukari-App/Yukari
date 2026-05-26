@@ -25,7 +25,6 @@ internal class DataService : IDataService
         SqlMapper.AddTypeHandler(new JsonStringListHandler());
         SqlMapper.AddTypeHandler(new LanguageArrayHandler());
         SqlMapper.AddTypeHandler(new DateOnlyHandler());
-        SqlMapper.AddTypeHandler(new ComicStatusHandler());
     }
 
     private async Task<SqliteConnection> GetOpenConnectionAsync()
@@ -380,7 +379,7 @@ internal class DataService : IDataService
         const string sqlComic = """
             INSERT INTO Comics 
             (Id, Source, ComicUrl, Title, Author, Description, Status, Tags, Year, CoverImageUrl, Langs, IsAvailable)
-            VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Status, @Tags, @Year, @CoverImageUrl, @Langs, @IsAvailable)
+            VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @StatusValue, @Tags, @Year, @CoverImageUrl, @Langs, @IsAvailable)
             ON CONFLICT(Id, Source) DO UPDATE SET
                 ComicUrl = excluded.ComicUrl,
                 Title = excluded.Title,
