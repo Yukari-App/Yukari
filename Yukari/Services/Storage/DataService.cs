@@ -25,6 +25,7 @@ internal class DataService : IDataService
         SqlMapper.AddTypeHandler(new JsonStringListHandler());
         SqlMapper.AddTypeHandler(new LanguageArrayHandler());
         SqlMapper.AddTypeHandler(new DateOnlyHandler());
+        SqlMapper.AddTypeHandler(new ComicStatusHandler());
     }
 
     private async Task<SqliteConnection> GetOpenConnectionAsync()
@@ -88,7 +89,7 @@ internal class DataService : IDataService
         const string sql = """
             SELECT 
                 c.Id, c.Source, c.ComicUrl, c.Title, c.Author, c.Description, 
-                c.Tags, c.Year, c.CoverImageUrl, c.Langs, c.IsAvailable,
+                c.Status, c.Tags, c.Year, c.CoverImageUrl, c.Langs, c.IsAvailable,
                 u.IsFavorite, u.LastSelectedLang
             FROM Comics c
             INNER JOIN ComicUserData u 
@@ -378,13 +379,14 @@ internal class DataService : IDataService
 
         const string sqlComic = """
             INSERT INTO Comics 
-            (Id, Source, ComicUrl, Title, Author, Description, Tags, Year, CoverImageUrl, Langs, IsAvailable)
-            VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Tags, @Year, @CoverImageUrl, @Langs, @IsAvailable)
+            (Id, Source, ComicUrl, Title, Author, Description, Status, Tags, Year, CoverImageUrl, Langs, IsAvailable)
+            VALUES (@Id, @Source, @ComicUrl, @Title, @Author, @Description, @Status, @Tags, @Year, @CoverImageUrl, @Langs, @IsAvailable)
             ON CONFLICT(Id, Source) DO UPDATE SET
                 ComicUrl = excluded.ComicUrl,
                 Title = excluded.Title,
                 Author = excluded.Author,
                 Description = excluded.Description,
+                Status = excluded.Status,
                 Tags = excluded.Tags,
                 Year = excluded.Year,
                 CoverImageUrl = excluded.CoverImageUrl,
