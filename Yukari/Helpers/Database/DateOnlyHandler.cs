@@ -2,6 +2,8 @@ using System;
 using System.Data;
 using Dapper;
 
+namespace Yukari.Helpers.Database;
+
 public class DateOnlyHandler : SqlMapper.TypeHandler<DateOnly>
 {
     public override void SetValue(IDbDataParameter parameter, DateOnly value) =>
