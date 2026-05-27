@@ -6,11 +6,13 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Yukari.Views.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:system="using:System"
       xmlns:ui="using:CommunityToolkit.WinUI"
       xmlns:vmc="using:Yukari.ViewModels.Components"
       mc:Ignorable="d">
 
     <Page.Resources>
+        <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <DataTemplate x:Key="ComicTemplate" x:DataType="vmc:ComicItemViewModel">
@@ -79,7 +81,7 @@
 
                 <DropDownButton Background="Transparent" BorderBrush="Transparent">
                     <DropDownButton.Content>
-                        <FontIcon Glyph="&#xE8CB;" />
+                        <FontIcon FontSize="22" Glyph="&#xE8CB;" />
                     </DropDownButton.Content>
                     <DropDownButton.Flyout>
                         <MenuFlyout Placement="Bottom">
@@ -106,23 +108,70 @@
                     </DropDownButton.Flyout>
                 </DropDownButton>
 
-                <DropDownButton Background="Transparent" BorderBrush="Transparent" Content="{ui:FontIcon Glyph=&#xE71C;}">
+                <DropDownButton Background="Transparent" BorderBrush="Transparent">
+                    <DropDownButton.Content>
+                        <PathIcon Data="M4 6.74814C4 5.50535 5.00742 4.49786 6.25013 4.49786H15.2506C16.4933 4.49786 17.5008 5.50535 17.5008 6.74814V21.2499C17.5008 21.5185 17.3572 21.7666 17.1243 21.9003C16.8914 22.0341 16.6048 22.0332 16.3728 21.8978L10.7504 18.6179L5.12797 21.8978C4.89599 22.0332 4.60936 22.0341 4.37648 21.9003C4.14359 21.7666 4 21.5185 4 21.2499V6.74814ZM6.25013 5.99805C5.83589 5.99805 5.50008 6.33387 5.50008 6.74814V19.944L10.3725 17.1016C10.606 16.9653 10.8948 16.9653 11.1283 17.1016L16.0007 19.944V6.74814C16.0007 6.33387 15.6649 5.99805 15.2506 5.99805H6.25013ZM15.2497 2C17.8732 2 20 4.12691 20 6.75058V18.6232C20 19.0374 19.6642 19.3733 19.25 19.3733C18.8357 19.3733 18.4999 19.0374 18.4999 18.6232V6.75058C18.4999 4.95543 17.0448 3.50018 15.2497 3.50018H6.63687C6.63687 3.50018 6.75016 2.94339 7.43379 2.41948C8.00023 2 8.60182 2 8.60182 2H15.2497Z" />
+                    </DropDownButton.Content>
                     <DropDownButton.Flyout>
-                        <MenuFlyout Placement="Bottom">
+                        <Flyout Placement="Bottom">
+                            <Flyout.FlyoutPresenterStyle>
+                                <Style TargetType="FlyoutPresenter">
+                                    <Setter Property="CornerRadius" Value="8" />
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                                    <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultSolidBrush}" />
+                                </Style>
+                            </Flyout.FlyoutPresenterStyle>
+                            <StackPanel MaxWidth="120" Spacing="2">
+                                <ToggleButton Height="32"
+                                              Margin="4,4,4,0"
+                                              HorizontalAlignment="Stretch"
+                                              Background="Transparent"
+                                              BorderBrush="Transparent"
+                                              Command="{x:Bind ViewModel.ToggleShowAllCollectionsCommand}"
+                                              IsChecked="{x:Bind ViewModel.ShowAllCollections, Mode=TwoWay}"
+                                              IsEnabled="{x:Bind ViewModel.NoCollections, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE9D5;" />
+                                        <TextBlock Text="Show All" />
+                                    </StackPanel>
+                                </ToggleButton>
 
-                            <RadioMenuFlyoutItem GroupName="Filter"
-                                                 Icon="AllApps"
-                                                 IsChecked="True"
-                                                 Text="All" />
+                                <MenuFlyoutSeparator />
 
-                            <RadioMenuFlyoutItem GroupName="Filter" Text="Action" />
-                            <RadioMenuFlyoutItem GroupName="Filter" Text="Horror" />
+                                <StackPanel Margin="0,4" Spacing="4" Visibility="{x:Bind ViewModel.NoCollections, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                                    <FontIcon FontSize="24" Foreground="{ThemeResource SystemFillColorAttentionBrush}" Glyph="&#xF167;" />
+                                    <TextBlock Width="110"
+                                               Text="You don't have any collections yet. Go to “Manager” to create one."
+                                               TextAlignment="Center"
+                                               TextWrapping="WrapWholeWords" />
+                                </StackPanel>
 
-                            <MenuFlyoutSeparator />
+                                <ScrollViewer MaxHeight="260" Visibility="{x:Bind ViewModel.NoCollections, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}">
+                                    <ListView ItemsSource="{x:Bind ViewModel.Collections, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedCollection, Mode=TwoWay}">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="system:String">
+                                                <TextBlock Text="{x:Bind}" TextWrapping="NoWrap" ToolTipService.ToolTip="{x:Bind}" />
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </ScrollViewer>
 
-                            <MenuFlyoutItem Icon="Tag" Text="Manage Tags" />
+                                <MenuFlyoutSeparator />
 
-                        </MenuFlyout>
+                                <Button Height="32"
+                                        Margin="4,0,4,4"
+                                        HorizontalAlignment="Stretch"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Command="{x:Bind ViewModel.OpenCollectionManagerCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <PathIcon VerticalAlignment="Center" Data="M4.6543 2C4.94884 1.40731 5.56045 1 6.26719 1H10.9004C12.6125 1 14.0004 2.38792 14.0004 4.1V11.4667C14.0004 12.1734 13.5931 12.785 13.0004 13.0796V4.1C13.0004 2.9402 12.0602 2 10.9004 2H4.6543ZM4.8 3C3.80589 3 3 3.80589 3 4.8V14.4991C3 14.6724 3.08971 14.8333 3.2371 14.9244C3.38448 15.0155 3.56853 15.0238 3.72353 14.9463L7.5 13.059L11.2765 14.9463C11.4315 15.0238 11.6155 15.0155 11.7629 14.9244C11.9103 14.8333 12 14.6724 12 14.4991V4.8C12 3.80589 11.1941 3 10.2 3H4.8ZM4 4.8C4 4.35817 4.35817 4 4.8 4H10.2C10.6418 4 11 4.35817 11 4.8V13.6902L7.72353 12.0527C7.58281 11.9824 7.41719 11.9824 7.27647 12.0527L4 13.6902V4.8Z" />
+                                        <TextBlock Text="Manager" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Flyout>
                     </DropDownButton.Flyout>
                 </DropDownButton>
 

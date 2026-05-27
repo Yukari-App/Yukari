@@ -10,13 +10,16 @@ public partial class ComicItemViewModel : ObservableObject
     public ComicModel Comic { get; }
     public ContentKey Key => new(Comic.Id, Comic.Source);
     public IRelayCommand<ContentKey>? RemoveFavoriteComicCommand { get; }
+    public IRelayCommand<ContentKey>? OpenComicCollectionsManagerCommand { get; }
 
     public ComicItemViewModel(
         ComicModel comic,
-        IRelayCommand<ContentKey>? removeFavoriteComicCommand = null
+        IRelayCommand<ContentKey>? removeFavoriteComicCommand = null,
+        IRelayCommand<ContentKey>? openComicCollectionsManagerCommand = null
     )
     {
         Comic = comic;
         RemoveFavoriteComicCommand = removeFavoriteComicCommand;
+        OpenComicCollectionsManagerCommand = openComicCollectionsManagerCommand;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,6 +17,7 @@ namespace Yukari.ViewModels.Pages;
 public partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchChangedMessage>
 {
     private readonly IComicService _comicService;
+    private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
     private readonly IMessenger _messenger;
 
@@ -26,18 +28,31 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
     public partial List<ComicItemViewModel> FavoriteComics { get; set; } = new();
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NoCollections))]
+    public partial string[] Collections { get; set; } = Array.Empty<string>();
+
+    [ObservableProperty]
+    public partial string? SelectedCollection { get; set; }
+
+    [ObservableProperty]
+    public partial bool ShowAllCollections { get; set; } = true;
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(NoFavorites))]
     public partial bool IsContentLoading { get; set; } = true;
 
     public bool NoFavorites => !IsContentLoading && FavoriteComics.Count == 0;
+    public bool NoCollections => Collections.Length == 0;
 
     public FavoritesPageViewModel(
         IComicService comicService,
+        IDialogService dialogService,
         INotificationService notificationService,
         IMessenger messenger
     )
     {
         _comicService = comicService;
+        _dialogService = dialogService;
         _notificationService = notificationService;
         _messenger = messenger;
 
@@ -47,13 +62,42 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
     public void Receive(SearchChangedMessage message) =>
         _ = UpdateDisplayedComicsAsync(message.SearchText);
 
-    public async Task InitializeAsync() => await UpdateDisplayedComicsAsync();
+    public async Task InitializeAsync()
+    {
+        await UpdateCollectionsAsync();
+        await UpdateDisplayedComicsAsync();
+    }
 
     public void OnNavigatedFrom()
     {
         _navigationCts.Cancel();
         _navigationCts.Dispose();
     }
+
+    [RelayCommand]
+    private void ToggleShowAllCollections()
+    {
+        if (ShowAllCollections)
+        {
+            SelectedCollection = null;
+            return;
+        }
+
+        SelectedCollection = Collections.FirstOrDefault();
+    }
+
+    [RelayCommand]
+    private async Task OpenCollectionManagerAsync()
+    {
+        await _dialogService.ShowCollectionsManagerAsync();
+
+        await UpdateCollectionsAsync();
+        await UpdateDisplayedComicsAsync();
+    }
+
+    [RelayCommand]
+    private void NavigateToComic(ContentKey comicKey) =>
+        _messenger.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicKey));
 
     [RelayCommand]
     private async Task RemoveFavoriteComicAsync(ContentKey comicKey)
@@ -67,6 +111,10 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
 
         await UpdateDisplayedComicsAsync();
     }
+
+    [RelayCommand]
+    private async Task OpenComicCollectionsManagerAsync(ContentKey comicKey) =>
+        throw new NotImplementedException();
 
     private async Task UpdateDisplayedComicsAsync(string? searchText = null)
     {
@@ -82,14 +130,22 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
         IsContentLoading = true;
 
         FavoriteComics = new List<ComicItemViewModel>();
-        var result = await _comicService.GetFavoriteComicsAsync(searchText, null, linkedCts.Token);
+        var result = await _comicService.GetFavoriteComicsAsync(
+            searchText,
+            SelectedCollection,
+            linkedCts.Token
+        );
 
         if (result.IsCancelled)
             return;
 
         if (result.IsSuccess)
             FavoriteComics = result
-                .Value!.Select(comic => new ComicItemViewModel(comic, RemoveFavoriteComicCommand))
+                .Value!.Select(comic => new ComicItemViewModel(
+                    comic,
+                    RemoveFavoriteComicCommand,
+                    OpenComicCollectionsManagerCommand
+                ))
                 .ToList();
         else
             _notificationService.ShowError(result.Error!, result.ErrorTitle!);
@@ -97,7 +153,16 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
         IsContentLoading = false;
     }
 
-    [RelayCommand]
-    private void NavigateToComic(ContentKey ComicKey) =>
-        _messenger.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), ComicKey));
+    private async Task UpdateCollectionsAsync()
+    {
+        var result = await _comicService.GetCollectionsAsync(_navigationCts.Token);
+        if (result.IsSuccess)
+            Collections = result.Value!.ToArray();
+    }
+
+    async partial void OnSelectedCollectionChanged(string? value)
+    {
+        ShowAllCollections = value == null;
+        await UpdateDisplayedComicsAsync();
+    }
 }
