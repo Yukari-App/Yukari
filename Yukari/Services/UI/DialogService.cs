@@ -17,17 +17,29 @@ internal class DialogService : IDialogService
 
     public void Initialize(XamlRoot root) => _xamlRoot = root;
 
+    public async Task ShowCollectionsManagerAsync()
+    {
+        ThrowIfXamlRootNotInitialized();
+
+        var dialog = new CollectionsManagerDialog()
+        {
+            XamlRoot = _xamlRoot,
+            RequestedTheme = AppTheme,
+        };
+        await dialog.ShowAsync();
+    }
+
     public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>?> ShowFiltersDialogAsync(
         IReadOnlyList<Filter> filters,
         IReadOnlyDictionary<string, IReadOnlyList<string>> appliedFilters
     )
     {
-        FiltersDialogViewModel viewModel = new(filters, appliedFilters);
+        ThrowIfXamlRootNotInitialized();
 
+        var viewModel = new FiltersDialogViewModel(filters, appliedFilters);
         var dialog = new FiltersDialog(viewModel)
         {
-            XamlRoot =
-                _xamlRoot ?? throw new InvalidOperationException("XamlRoot must be initialized."),
+            XamlRoot = _xamlRoot,
             RequestedTheme = AppTheme,
         };
 
@@ -37,10 +49,9 @@ internal class DialogService : IDialogService
 
     public async Task<string?> OpenFilePickerAsync(string fileTypeFilter = "*")
     {
-        if (_xamlRoot == null)
-            throw new InvalidOperationException("XamlRoot must be initialized.");
+        ThrowIfXamlRootNotInitialized();
 
-        var picker = new FileOpenPicker(_xamlRoot.ContentIslandEnvironment.AppWindowId)
+        var picker = new FileOpenPicker(_xamlRoot!.ContentIslandEnvironment.AppWindowId)
         {
             FileTypeFilter = { fileTypeFilter },
             SuggestedStartLocation = PickerLocationId.Downloads,
@@ -49,5 +60,11 @@ internal class DialogService : IDialogService
 
         var file = await picker.PickSingleFileAsync();
         return file?.Path;
+    }
+
+    private void ThrowIfXamlRootNotInitialized()
+    {
+        if (_xamlRoot == null)
+            throw new InvalidOperationException("XamlRoot must be initialized.");
     }
 }
