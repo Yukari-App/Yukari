@@ -34,7 +34,7 @@
                           ItemsSource="{x:Bind Options}"
                           SelectedItem="{x:Bind SelectedOptionIfNotAllowMultiple, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="vmc:FilterOptionViewModel">
+                        <DataTemplate x:DataType="vmc:ToggleOptionViewModel">
                             <TextBlock VerticalAlignment="Center" Text="{x:Bind DisplayName}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
@@ -51,7 +51,7 @@
                 <Expander.Content>
                     <ItemsRepeater ItemsSource="{x:Bind Options}">
                         <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="vmc:FilterOptionViewModel">
+                            <DataTemplate x:DataType="vmc:ToggleOptionViewModel">
                                 <Grid Padding="16,0,16,0"
                                       HorizontalAlignment="Stretch"
                                       BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"

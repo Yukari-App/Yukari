@@ -1,9 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Yukari.Core.Models;
 
 namespace Yukari.ViewModels.Components;
 
-public partial class FilterOptionViewModel : ObservableObject
+public partial class ToggleOptionViewModel : ObservableObject
 {
     public string Key { get; }
     public string DisplayName { get; }
@@ -11,9 +10,9 @@ public partial class FilterOptionViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsSelected { get; set; }
 
-    public FilterOptionViewModel(FilterOption option)
+    public ToggleOptionViewModel(string key, string? displayName = null)
     {
-        Key = option.Key;
-        DisplayName = option.DisplayName;
+        Key = key;
+        DisplayName = displayName ?? key;
     }
 }

@@ -11,9 +11,9 @@ public partial class FilterViewModel : ObservableObject
     public string DisplayName { get; }
     public bool AllowMultiple { get; }
 
-    public ObservableCollection<FilterOptionViewModel> Options { get; }
+    public ObservableCollection<ToggleOptionViewModel> Options { get; }
 
-    public FilterOptionViewModel? SelectedOptionIfNotAllowMultiple
+    public ToggleOptionViewModel? SelectedOptionIfNotAllowMultiple
     {
         get => Options.FirstOrDefault(o => o.IsSelected);
         set
@@ -36,9 +36,9 @@ public partial class FilterViewModel : ObservableObject
         DisplayName = filter.DisplayName;
         AllowMultiple = filter.AllowMultiple;
 
-        Options = new ObservableCollection<FilterOptionViewModel>(
+        Options = new ObservableCollection<ToggleOptionViewModel>(
             (filter.Options ?? Enumerable.Empty<FilterOption>()).Select(
-                o => new FilterOptionViewModel(o)
+                o => new ToggleOptionViewModel(o.Key, o.DisplayName)
             )
         );
     }
