@@ -9,6 +9,14 @@ public partial class ComicItemViewModel : ObservableObject
 {
     public ComicModel Comic { get; }
     public ContentKey Key => new(Comic.Id, Comic.Source);
+    public IRelayCommand<ContentKey>? RemoveFavoriteComicCommand { get; }
 
-    public ComicItemViewModel(ComicModel comic) => Comic = comic;
+    public ComicItemViewModel(
+        ComicModel comic,
+        IRelayCommand<ContentKey>? removeFavoriteComicCommand = null
+    )
+    {
+        Comic = comic;
+        RemoveFavoriteComicCommand = removeFavoriteComicCommand;
+    }
 }

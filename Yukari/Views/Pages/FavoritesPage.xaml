@@ -45,8 +45,10 @@
                             Content="{ui:FontIcon Glyph=&#xE712;}">
                         <Button.Flyout>
                             <MenuFlyout>
-                                <MenuFlyoutItem Icon="Delete" Text="Remove" />
-                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE73A;}" Text="Select" />
+                                <MenuFlyoutItem Command="{x:Bind RemoveFavoriteComicCommand}"
+                                                CommandParameter="{x:Bind Key}"
+                                                Icon="Delete"
+                                                Text="Remove" />
                             </MenuFlyout>
                         </Button.Flyout>
                     </Button>

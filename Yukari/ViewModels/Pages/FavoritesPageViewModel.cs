@@ -55,6 +55,19 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
         _navigationCts.Dispose();
     }
 
+    [RelayCommand]
+    private async Task RemoveFavoriteComicAsync(ContentKey comicKey)
+    {
+        var result = await _comicService.RemoveFavoriteComicAsync(comicKey);
+        if (!result.IsSuccess)
+        {
+            _notificationService.ShowError(result.Error!, result.ErrorTitle!);
+            return;
+        }
+
+        await UpdateDisplayedComicsAsync();
+    }
+
     private async Task UpdateDisplayedComicsAsync(string? searchText = null)
     {
         _searchCts.Cancel();
@@ -75,7 +88,9 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
             return;
 
         if (result.IsSuccess)
-            FavoriteComics = result.Value!.Select(comic => new ComicItemViewModel(comic)).ToList();
+            FavoriteComics = result
+                .Value!.Select(comic => new ComicItemViewModel(comic, RemoveFavoriteComicCommand))
+                .ToList();
         else
             _notificationService.ShowError(result.Error!, result.ErrorTitle!);
 
