@@ -13,6 +13,7 @@ using Yukari.Services.Settings;
 using Yukari.Services.Sources;
 using Yukari.Services.Storage;
 using Yukari.Services.UI;
+using Yukari.ViewModels.Dialogs;
 using Yukari.ViewModels.Pages;
 
 namespace Yukari;
@@ -51,6 +52,7 @@ public partial class App : Application
         services.AddTransient<DownloadsPageViewModel>();
         services.AddTransient<SettingsPageViewModel>();
         services.AddTransient<ComicPageViewModel>();
+        services.AddTransient<CollectionsManagerDialogViewModel>();
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<INotificationService, NotificationService>();

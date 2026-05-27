@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentDialog x:Class="Yukari.Views.Dialogs.CollectionsManagerDialog"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:converters="using:Yukari.Helpers.UI.Converters"
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:local="using:Yukari.Views.Dialogs"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               xmlns:ui="using:CommunityToolkit.WinUI"
+               xmlns:vmc="using:Yukari.ViewModels.Components"
+               CloseButtonText="Close"
+               Style="{StaticResource DefaultContentDialogStyle}"
+               mc:Ignorable="d">
+    <ContentDialog.Title>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <PathIcon Data="M8.40137 3.5C8.92008 2.6033 9.8896 2 11 2H17.25C20.4257 2 23 4.57436 23 7.75V20C23 21.1104 22.3967 22.0799 21.5 22.5987V7.75C21.5 5.40279 19.5972 3.5 17.25 3.5H8.40137ZM8 5C6.34315 5 5 6.34315 5 8V25.25C5 25.5266 5.15224 25.7807 5.39611 25.9113C5.63997 26.0418 5.93588 26.0275 6.16603 25.874L12.5 21.6514L18.834 25.874C19.0641 26.0275 19.36 26.0418 19.6039 25.9113C19.8478 25.7807 20 25.5266 20 25.25V8C20 6.34315 18.6569 5 17 5H8ZM6.5 8C6.5 7.17157 7.17157 6.5 8 6.5H17C17.8284 6.5 18.5 7.17157 18.5 8V23.8486L12.916 20.126C12.6641 19.958 12.3359 19.958 12.084 20.126L6.5 23.8486V8Z" />
+            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Collections Manager" />
+        </StackPanel>
+    </ContentDialog.Title>
+
+    <ContentDialog.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <DataTemplate x:Key="CollectionTemplate" x:DataType="vmc:CollectionItemViewModel">
+            <Grid Margin="0,0,0,4"
+                  Padding="8"
+                  HorizontalAlignment="Stretch"
+                  Background="{StaticResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  ColumnDefinitions="*, Auto, Auto"
+                  ColumnSpacing="2"
+                  CornerRadius="4">
+                <TextBox Grid.Column="0" Height="35" Text="{x:Bind TextBoxName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Grid.Column="1"
+                        Width="35"
+                        Height="35"
+                        Padding="0"
+                        Command="{x:Bind RenameCollectionCommand}"
+                        Content="{ui:FontIcon Glyph=&#xE8AC;}"
+                        Style="{StaticResource AccentButtonStyle}" />
+                <Button Grid.Column="2"
+                        Width="35"
+                        Height="35"
+                        Padding="0"
+                        Command="{x:Bind DeleteCollectionCommand}"
+                        CommandParameter="{x:Bind PersistedName}"
+                        Content="{ui:FontIcon Glyph=&#xE74D;}" />
+            </Grid>
+        </DataTemplate>
+    </ContentDialog.Resources>
+
+    <Grid Width="320" RowDefinitions="*, Auto, Auto">
+        <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.NoCollections, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <FontIcon FontSize="24" Foreground="{ThemeResource SystemFillColorAttentionBrush}" Glyph="&#xF167;" />
+            <TextBlock Text="You don't have any collections yet. To create one, enter a name below and click the button on the right." TextAlignment="Center" TextWrapping="WrapWholeWords" />
+        </StackPanel>
+
+        <ScrollViewer MaxHeight="300" Visibility="{x:Bind ViewModel.NoCollections, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}">
+            <ItemsControl ItemTemplate="{StaticResource CollectionTemplate}" ItemsSource="{x:Bind ViewModel.Collections, Mode=OneWay}" />
+        </ScrollViewer>
+
+        <MenuFlyoutSeparator Grid.Row="1" Margin="0,0,0,4" />
+
+        <Grid Grid.Row="2" ColumnDefinitions="*, Auto" ColumnSpacing="2">
+            <TextBox Height="35" PlaceholderText="New Collection Name" Text="{x:Bind ViewModel.NewCollectionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Grid.Column="1"
+                    Width="35"
+                    Height="35"
+                    Padding="0,0,2,2"
+                    Command="{x:Bind ViewModel.AddCollectionCommand}"
+                    Style="{StaticResource AccentButtonStyle}">
+                <PathIcon Data="M22.9995 6.5C22.9995 3.46243 20.5371 1 17.4995 1C14.4619 1 11.9995 3.46243 11.9995 6.5C11.9995 9.53757 14.4619 12 17.4995 12C20.5371 12 22.9995 9.53757 22.9995 6.5ZM18.0002 7.00001L18.0006 9.50352C18.0006 9.77966 17.7768 10.0035 17.5006 10.0035C17.2245 10.0035 17.0006 9.77966 17.0006 9.50352L17.0002 7.00001H14.4951C14.2192 7.00001 13.9956 6.77615 13.9956 6.50001C13.9956 6.22387 14.2192 6.00001 14.4951 6.00001H17L16.9995 3.49927C16.9995 3.22313 17.2234 2.99927 17.4995 2.99927C17.7757 2.99927 17.9995 3.22313 17.9995 3.49927L18 6.00001H20.4961C20.772 6.00001 20.9956 6.22387 20.9956 6.50001C20.9956 6.77615 20.772 7.00001 20.4961 7.00001H18.0002ZM17.4995 13C18.0161 13 18.5186 12.9397 19.0003 12.8259V21.2451C19.0003 21.8563 18.3085 22.2108 17.8123 21.8539L12.0011 17.6729L6.18997 21.8539C5.69383 22.2108 5.00195 21.8563 5.00195 21.2451V6.24915C5.00195 4.45422 6.45703 2.99915 8.25195 2.99915H12.0219C11.3747 4.00962 10.9995 5.21099 10.9995 6.5C10.9995 10.0899 13.9097 13 17.4995 13Z" />
+            </Button>
+        </Grid>
+    </Grid>
+</ContentDialog>
