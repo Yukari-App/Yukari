@@ -51,10 +51,12 @@
     </ContentDialog.Resources>
 
     <Grid Width="320" RowDefinitions="*, Auto, Auto">
-        <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.NoCollections, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-            <FontIcon FontSize="24" Foreground="{ThemeResource SystemFillColorAttentionBrush}" Glyph="&#xF167;" />
-            <TextBlock Text="You don't have any collections yet. To create one, enter a name below and click the button on the right." TextAlignment="Center" TextWrapping="WrapWholeWords" />
-        </StackPanel>
+        <InfoBar Title="You don't have any collections yet"
+                 Margin="0,0,0,4"
+                 IsClosable="False"
+                 IsOpen="True"
+                 Message="To create one, enter a name below and click the button on the right."
+                 Visibility="{x:Bind ViewModel.NoCollections, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
         <ScrollViewer MaxHeight="300" Visibility="{x:Bind ViewModel.NoCollections, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}">
             <ItemsControl ItemTemplate="{StaticResource CollectionTemplate}" ItemsSource="{x:Bind ViewModel.Collections, Mode=OneWay}" />
