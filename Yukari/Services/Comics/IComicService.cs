@@ -37,6 +37,10 @@ public interface IComicService
         bool forceWeb = false,
         CancellationToken ct = default
     );
+    Task<Result<ComicUserData>> GetComicUserDataAsync(
+        ContentKey comicKey,
+        CancellationToken ct = default
+    );
     Task<Result<IReadOnlyList<string>>> GetCollectionsAsync(CancellationToken ct = default);
     Task<Result<ComicReadingProgress>> GetComicReadingProgressAsync(
         ContentKey comicKey,

@@ -153,6 +153,19 @@ internal class ComicService : IComicService
         );
     }
 
+    public async Task<Result<ComicUserData>> GetComicUserDataAsync(
+        ContentKey comicKey,
+        CancellationToken ct = default
+    )
+    {
+        return await ExecuteAsync(
+            async (ct) =>
+                Result<ComicUserData>.Success(await _dbService.GetComicUserDataAsync(comicKey, ct)),
+            "Error fetching comic user data",
+            ct
+        );
+    }
+
     public async Task<Result<IReadOnlyList<string>>> GetCollectionsAsync(
         CancellationToken ct = default
     )
