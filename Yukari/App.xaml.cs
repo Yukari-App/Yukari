@@ -53,6 +53,7 @@ public partial class App : Application
         services.AddTransient<SettingsPageViewModel>();
         services.AddTransient<ComicPageViewModel>();
         services.AddTransient<CollectionsManagerDialogViewModel>();
+        services.AddTransient<ComicCollectionsDialogViewModel>();
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<INotificationService, NotificationService>();
