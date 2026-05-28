@@ -113,8 +113,12 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
     }
 
     [RelayCommand]
-    private async Task OpenComicCollectionsManagerAsync(ContentKey comicKey) =>
-        throw new NotImplementedException();
+    private async Task OpenComicCollectionsManagerAsync((ContentKey, string) parameters)
+    {
+        var (comicKey, comicTitle) = parameters;
+        await _dialogService.ShowComicCollectionsDialogAsync(comicKey, comicTitle);
+        await UpdateDisplayedComicsAsync();
+    }
 
     private async Task UpdateDisplayedComicsAsync(string? searchText = null)
     {

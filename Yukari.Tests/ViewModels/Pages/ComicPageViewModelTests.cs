@@ -18,6 +18,7 @@ namespace Yukari.Tests.ViewModels.Pages
     public class ComicPageViewModelTests
     {
         private readonly Mock<IComicService> _mockComicService;
+        private readonly Mock<IDialogService> _mockDialogService;
         private readonly Mock<INotificationService> _mockNotificationService;
         private readonly FakeMessenger _messenger;
 
@@ -26,11 +27,13 @@ namespace Yukari.Tests.ViewModels.Pages
         public ComicPageViewModelTests()
         {
             _mockComicService = new Mock<IComicService>();
+            _mockDialogService = new Mock<IDialogService>();
             _mockNotificationService = new Mock<INotificationService>();
             _messenger = new FakeMessenger();
 
             _sut = new ComicPageViewModel(
                 _mockComicService.Object,
+                _mockDialogService.Object,
                 _mockNotificationService.Object,
                 _messenger
             );

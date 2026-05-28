@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Yukari.Models;
@@ -9,13 +10,15 @@ public partial class ComicItemViewModel : ObservableObject
 {
     public ComicModel Comic { get; }
     public ContentKey Key => new(Comic.Id, Comic.Source);
+
     public IRelayCommand<ContentKey>? RemoveFavoriteComicCommand { get; }
-    public IRelayCommand<ContentKey>? OpenComicCollectionsManagerCommand { get; }
+    public IRelayCommand<(ContentKey, string)>? OpenComicCollectionsManagerCommand { get; }
+    public (ContentKey, string) ComicCollectionsManagerParameter => new(Key, Comic.Title);
 
     public ComicItemViewModel(
         ComicModel comic,
         IRelayCommand<ContentKey>? removeFavoriteComicCommand = null,
-        IRelayCommand<ContentKey>? openComicCollectionsManagerCommand = null
+        IRelayCommand<(ContentKey, string)>? openComicCollectionsManagerCommand = null
     )
     {
         Comic = comic;

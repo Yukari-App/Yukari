@@ -24,6 +24,7 @@ public partial class ComicPageViewModel
     private const int MaxTagsToShow = 16;
 
     private readonly IComicService _comicService;
+    private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
     private readonly IMessenger _messenger;
 
@@ -121,11 +122,13 @@ public partial class ComicPageViewModel
 
     public ComicPageViewModel(
         IComicService comicService,
+        IDialogService dialogService,
         INotificationService notificationService,
         IMessenger messenger
     )
     {
         _comicService = comicService;
+        _dialogService = dialogService;
         _notificationService = notificationService;
         _messenger = messenger;
 
@@ -232,6 +235,15 @@ public partial class ComicPageViewModel
         await RefreshChaptersAsync();
 
         _notificationService.ShowSuccess("Comic data updated successfully.");
+    }
+
+    [RelayCommand]
+    private async Task OpenComicCollectionsManager()
+    {
+        if (_comicKey == null || Comic == null)
+            return;
+
+        await _dialogService.ShowComicCollectionsDialogAsync(_comicKey, Comic.Title);
     }
 
     private bool CanOpenInBrowser() => !string.IsNullOrEmpty(Comic?.ComicUrl);
