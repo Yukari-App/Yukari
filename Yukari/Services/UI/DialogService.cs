@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.Storage.Pickers;
 using Yukari.Core.Models;
+using Yukari.Models.DTO;
 using Yukari.ViewModels.Dialogs;
 using Yukari.Views.Dialogs;
 
@@ -22,6 +23,18 @@ internal class DialogService : IDialogService
         ThrowIfXamlRootNotInitialized();
 
         var dialog = new CollectionsManagerDialog()
+        {
+            XamlRoot = _xamlRoot,
+            RequestedTheme = AppTheme,
+        };
+        await dialog.ShowAsync();
+    }
+
+    public async Task ShowComicCollectionsDialogAsync(ContentKey comicKey, string comicTitle)
+    {
+        ThrowIfXamlRootNotInitialized();
+
+        var dialog = new ComicCollectionsDialog(comicKey, comicTitle)
         {
             XamlRoot = _xamlRoot,
             RequestedTheme = AppTheme,
