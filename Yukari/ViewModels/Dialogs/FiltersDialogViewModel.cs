@@ -17,16 +17,7 @@ public partial class FiltersDialogViewModel : ObservableObject
     )
     {
         Filters = filters
-            .Select(f =>
-            {
-                var fvm = new FilterViewModel(f);
-                if (appliedFilters.TryGetValue(f.Key, out var selectedValues))
-                    foreach (var option in fvm.Options)
-                        if (selectedValues.Contains(option.Key))
-                            option.IsSelected = true;
-
-                return fvm;
-            })
+            .Select(f => new FilterViewModel(f, appliedFilters.GetValueOrDefault(f.Key)))
             .ToList();
     }
 
