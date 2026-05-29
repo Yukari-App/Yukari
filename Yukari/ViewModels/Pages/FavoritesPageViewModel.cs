@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Yukari.Enums;
 using Yukari.Messages;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
@@ -43,6 +44,12 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
 
     public bool NoFavorites => !IsContentLoading && FavoriteComics.Count == 0;
     public bool NoCollections => Collections.Length == 0;
+
+    [ObservableProperty]
+    public partial FavoritesSortBy SortBy { get; set; } = FavoritesSortBy.Alphabetical;
+
+    [ObservableProperty]
+    public partial SortDirection SortDirection { get; set; } = SortDirection.Ascending;
 
     public FavoritesPageViewModel(
         IComicService comicService,
@@ -96,6 +103,12 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
     }
 
     [RelayCommand]
+    private void SetSortBy(string value) => SortBy = Enum.Parse<FavoritesSortBy>(value);
+
+    [RelayCommand]
+    private void SetSortDirection(string value) => SortDirection = Enum.Parse<SortDirection>(value);
+
+    [RelayCommand]
     private void NavigateToComic(ContentKey comicKey) =>
         _messenger.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), comicKey));
 
@@ -144,13 +157,13 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
             return;
 
         if (result.IsSuccess)
-            FavoriteComics = result
-                .Value!.Select(comic => new ComicItemViewModel(
+            FavoriteComics = ApplySort(
+                result.Value!.Select(comic => new ComicItemViewModel(
                     comic,
                     RemoveFavoriteComicCommand,
                     OpenComicCollectionsManagerCommand
                 ))
-                .ToList();
+            );
         else
             _notificationService.ShowError(result.Error!, result.ErrorTitle!);
 
@@ -163,6 +176,23 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
         if (result.IsSuccess)
             Collections = result.Value!.ToArray();
     }
+
+    private List<ComicItemViewModel> ApplySort(IEnumerable<ComicItemViewModel> comics)
+    {
+        IEnumerable<ComicItemViewModel> sorted = SortBy switch
+        {
+            FavoritesSortBy.Alphabetical => comics.OrderBy(c => c.Comic.Title),
+            // TO-DO: Implement LastRead and RecentlyUpdated sorting
+            _ => comics.OrderBy(c => c.Comic.Title),
+        };
+
+        return (SortDirection == SortDirection.Ascending ? sorted : sorted.Reverse()).ToList();
+    }
+
+    async partial void OnSortByChanged(FavoritesSortBy value) => await UpdateDisplayedComicsAsync();
+
+    async partial void OnSortDirectionChanged(SortDirection value) =>
+        await UpdateDisplayedComicsAsync();
 
     async partial void OnSelectedCollectionChanged(string? value)
     {

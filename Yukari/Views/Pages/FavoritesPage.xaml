@@ -14,6 +14,7 @@
     <Page.Resources>
         <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
 
         <DataTemplate x:Key="ComicTemplate" x:DataType="vmc:ComicItemViewModel">
             <Grid Width="200" Height="280" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
@@ -91,25 +92,41 @@
                     </DropDownButton.Content>
                     <DropDownButton.Flyout>
                         <MenuFlyout Placement="Bottom">
-
-                            <RadioMenuFlyoutItem GroupName="Classification"
+                            <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetSortByCommand}"
+                                                 CommandParameter="Alphabetical"
+                                                 GroupName="Classification"
                                                  Icon="{ui:FontIcon Glyph=&#xE97E;}"
-                                                 IsChecked="True"
+                                                 IsChecked="{x:Bind ViewModel.SortBy, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Alphabetical, Mode=OneWay}"
                                                  Text="Alphabetical" />
-
-                            <RadioMenuFlyoutItem GroupName="Classification" Icon="{ui:FontIcon Glyph=&#xE823;}" Text="Last read" />
-
-                            <RadioMenuFlyoutItem GroupName="Classification" Icon="{ui:FontIcon Glyph=&#xE895;}" Text="Recently updated" />
+                            <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetSortByCommand}"
+                                                 CommandParameter="LastRead"
+                                                 GroupName="Classification"
+                                                 Icon="{ui:FontIcon Glyph=&#xE823;}"
+                                                 IsChecked="{x:Bind ViewModel.SortBy, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=LastRead, Mode=OneWay}"
+                                                 IsEnabled="False"
+                                                 Text="Last read" />
+                            <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetSortByCommand}"
+                                                 CommandParameter="RecentlyUpdated"
+                                                 GroupName="Classification"
+                                                 Icon="{ui:FontIcon Glyph=&#xE895;}"
+                                                 IsChecked="{x:Bind ViewModel.SortBy, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=RecentlyUpdated, Mode=OneWay}"
+                                                 IsEnabled="False"
+                                                 Text="Recently updated" />
 
                             <MenuFlyoutSeparator />
 
-                            <RadioMenuFlyoutItem GroupName="Orientation" Icon="Up" Text="Ascendant" />
-
-                            <RadioMenuFlyoutItem GroupName="Orientation"
+                            <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetSortDirectionCommand}"
+                                                 CommandParameter="Ascending"
+                                                 GroupName="Orientation"
+                                                 Icon="Up"
+                                                 IsChecked="{x:Bind ViewModel.SortDirection, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Ascending, Mode=OneWay}"
+                                                 Text="Ascending" />
+                            <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetSortDirectionCommand}"
+                                                 CommandParameter="Descending"
+                                                 GroupName="Orientation"
                                                  Icon="{ui:FontIcon Glyph=&#xE74B;}"
-                                                 IsChecked="True"
+                                                 IsChecked="{x:Bind ViewModel.SortDirection, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Descending, Mode=OneWay}"
                                                  Text="Descending" />
-
                         </MenuFlyout>
                     </DropDownButton.Flyout>
                 </DropDownButton>
@@ -124,7 +141,6 @@
                                 <Style TargetType="FlyoutPresenter">
                                     <Setter Property="CornerRadius" Value="8" />
                                     <Setter Property="Padding" Value="0" />
-                                    <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
                                     <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultSolidBrush}" />
                                 </Style>
                             </Flyout.FlyoutPresenterStyle>
