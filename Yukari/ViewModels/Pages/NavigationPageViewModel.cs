@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Enums;
 using Yukari.Messages;
+using Yukari.Services.Settings;
 using Yukari.Services.UI;
 
 namespace Yukari.ViewModels.Pages;
@@ -16,9 +17,15 @@ public partial class NavigationPageViewModel
         IRecipient<SetSearchTextMessage>
 {
     private readonly INavigationService _navigationService;
+    private readonly ISettingsService _settingsService;
     private readonly IMessenger _messenger;
 
+    private bool _isInitialized;
+
     private CancellationTokenSource? _cts;
+
+    [ObservableProperty]
+    public partial bool IsNavigationPaneOpen { get; set; }
 
     [ObservableProperty]
     public partial string SearchText { get; set; } = String.Empty;
@@ -27,12 +34,20 @@ public partial class NavigationPageViewModel
     public bool IsSearchEnabled =>
         _navigationService.CurrentPage is AppPage.DiscoverPage or AppPage.FavoritesPage;
 
-    public NavigationPageViewModel(INavigationService navigationService, IMessenger messenger)
+    public NavigationPageViewModel(
+        INavigationService navigationService,
+        ISettingsService settingsService,
+        IMessenger messenger
+    )
     {
         _navigationService = navigationService;
+        _settingsService = settingsService;
         _messenger = messenger;
 
         _messenger.RegisterAll(this);
+        IsNavigationPaneOpen = _settingsService.Current.NavigationPaneIsOpen;
+
+        _isInitialized = true;
     }
 
     public void Receive(NavigateMessage message) => OnNavigate(message);
@@ -81,5 +96,11 @@ public partial class NavigationPageViewModel
         if (_navigationService.CurrentPage != AppPage.DiscoverPage)
             SearchText = string.Empty;
         OnPropertyChanged(nameof(IsSearchEnabled));
+    }
+
+    async partial void OnIsNavigationPaneOpenChanged(bool value)
+    {
+        if (_isInitialized)
+            _settingsService.Set(s => s.NavigationPaneIsOpen, value);
     }
 }

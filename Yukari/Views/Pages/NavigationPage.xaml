@@ -41,6 +41,7 @@
                         BackRequested="NavigationViewControl_BackRequested"
                         DisplayModeChanged="NavigationViewControl_DisplayModeChanged"
                         IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
+                        IsPaneOpen="{x:Bind ViewModel.IsNavigationPaneOpen, Mode=TwoWay}"
                         ItemInvoked="NavigationViewControl_ItemInvoked"
                         OpenPaneLength="200"
                         PaneDisplayMode="Auto">
