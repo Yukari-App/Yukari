@@ -4,6 +4,8 @@ namespace Yukari.Models.Settings;
 
 public class AppSettings
 {
+    public WindowState MainWindowState { get; set; } = new();
+    public bool NavigationPaneIsOpen { get; set; } = true;
     public ThemeMode Theme { get; set; } = ThemeMode.System;
 
     public bool AutoFullscreen { get; set; } = false;
@@ -11,5 +13,4 @@ public class AppSettings
     public ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
 
     public string? DefaultComicSourceName { get; set; }
-    public WindowState MainWindowState { get; set; } = new();
 }
