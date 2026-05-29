@@ -5,7 +5,9 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
+using Microsoft.Windows.AppLifecycle;
 using Serilog;
+using Windows.ApplicationModel.Activation;
 using Yukari.Helpers;
 using Yukari.Services;
 using Yukari.Services.Comics;
@@ -20,9 +22,10 @@ namespace Yukari;
 
 public partial class App : Application
 {
-    private static MainWindow? MainWindow;
+    private const string AppInstanceKey = "Yukari.MainApp";
+    private static MainWindow? _mainWindow;
 
-    private readonly IServiceProvider _services;
+    private readonly ServiceProvider _services;
 
     public App()
     {
@@ -41,6 +44,56 @@ public partial class App : Application
 
         Log.Information("Yukari starting — version {Version}", AppInfoHelper.Version);
 
+        _services = ConfigureServices();
+    }
+
+    protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+    {
+        var currentInstance = AppInstance.FindOrRegisterForKey(AppInstanceKey);
+        if (!currentInstance.IsCurrent)
+        {
+            await currentInstance.RedirectActivationToAsync(
+                AppInstance.GetCurrent().GetActivatedEventArgs()
+            );
+
+            Environment.Exit(0);
+            return;
+        }
+        currentInstance.Activated += OnAppInstanceActivated;
+
+        var settings = GetService<ISettingsService>();
+        await settings.LoadAsync();
+
+        _mainWindow = new MainWindow();
+        _mainWindow.Activate();
+
+        try
+        {
+            await InitializeDatabaseAsync();
+            await ProcessPendingComicSourcesAsync();
+
+            await Task.Delay(400); // Small delay to ensure the main window is fully ready before navigating
+
+            _mainWindow.NavigateToShell();
+        }
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "Failed to initialize Yukari — navigating to InitializationErrorPage");
+            _mainWindow.NavigateToError(ex);
+        }
+        finally
+        {
+            _mainWindow.SetMicaBackdrop();
+        }
+    }
+
+    public static T GetService<T>()
+        where T : class => ((App)Current)._services.GetRequiredService<T>();
+
+    // --- Configuration ---
+
+    private static ServiceProvider ConfigureServices()
+    {
         var services = new ServiceCollection();
         services.AddLogging(builder => builder.AddSerilog(dispose: true));
 
@@ -64,64 +117,41 @@ public partial class App : Application
         services.AddSingleton<IDownloadService, DownloadService>();
         services.AddSingleton<ISourceService, SourceService>();
         services.AddSingleton<IComicService, ComicService>();
-        _services = services.BuildServiceProvider();
+
+        return services.BuildServiceProvider();
     }
 
-    protected override async void OnLaunched(LaunchActivatedEventArgs args)
+    // --- Initialization Tasks ---
+
+    private static async Task InitializeDatabaseAsync()
     {
-        var settings = GetService<ISettingsService>();
-        await settings.LoadAsync();
+        var migrator = new DatabaseMigrator(
+            GetService<ILogger<DatabaseMigrator>>(),
+            $"Data Source={Path.Combine(AppDataHelper.GetDataPath(), "yukari.db")}"
+        );
 
-        MainWindow = new MainWindow();
-        MainWindow.Activate();
-
-        try
-        {
-            var migrator = new DatabaseMigrator(
-                GetService<ILogger<DatabaseMigrator>>(),
-                $"Data Source={Path.Combine(AppDataHelper.GetDataPath(), "yukari.db")}"
-            );
-            await migrator.MigrateAsync();
-            Log.Information("Database ready");
-
-            var dbService = GetService<IDataService>();
-            var comicService = GetService<IComicService>();
-
-            // Removals must be processed before updates: a source could be removed and
-            // re-added with the same name in the same startup cycle.
-            await ProcessPendingComicSourcesRemovalsAsync(dbService, comicService);
-            await ProcessPendingComicSourcesUpdatesAsync(dbService, comicService);
-
-            await InitializeAppAsync();
-
-            MainWindow.NavigateToShell();
-        }
-        catch (Exception ex)
-        {
-            Log.Fatal(ex, "Failed to initialize Yukari — navigating to InitializationErrorPage");
-            MainWindow.NavigateToError(ex);
-        }
-        finally
-        {
-            MainWindow.SetMicaBackdrop();
-        }
+        await migrator.MigrateAsync();
+        Log.Information("Database ready");
     }
 
-    public static T GetService<T>()
-        where T : class => ((App)Current)._services.GetRequiredService<T>();
-
-    private async Task InitializeAppAsync()
+    private static async Task ProcessPendingComicSourcesAsync()
     {
-        await Task.Delay(400);
+        var dbService = GetService<IDataService>();
+        var comicService = GetService<IComicService>();
+
+        // Removals must be processed before updates: a source could be removed and
+        // re-added with the same name in the same startup cycle.
+        await ProcessPendingComicSourcesRemovalsAsync(dbService, comicService);
+        await ProcessPendingComicSourcesUpdatesAsync(dbService, comicService);
     }
 
-    private async Task ProcessPendingComicSourcesRemovalsAsync(
+    private static async Task ProcessPendingComicSourcesRemovalsAsync(
         IDataService dbService,
         IComicService comicService
     )
     {
         var pending = await dbService.GetComicSourcesPendingRemovalAsync();
-        Log.Information("Processed {Count} pending source removals", pending.Count);
+        Log.Information("Processing {Count} pending source removals", pending.Count);
 
         foreach (var source in pending)
         {
@@ -138,13 +168,13 @@ public partial class App : Application
         }
     }
 
-    private async Task ProcessPendingComicSourcesUpdatesAsync(
+    private static async Task ProcessPendingComicSourcesUpdatesAsync(
         IDataService dbService,
         IComicService comicService
     )
     {
         var pending = await dbService.GetComicSourcesPendingUpdateAsync();
-        Log.Information("Processed {Count} pending source updates", pending.Count);
+        Log.Information("Processing {Count} pending source updates", pending.Count);
 
         foreach (var source in pending)
         {
@@ -160,5 +190,21 @@ public partial class App : Application
             }
             await dbService.UpdateComicSourcePendingUpdateAsync(source.Name, null);
         }
+    }
+
+    // --- Activation Handling ---
+
+    private void OnAppInstanceActivated(object? sender, AppActivationArguments e)
+    {
+        _mainWindow?.DispatcherQueue.TryEnqueue(() =>
+        {
+            WindowHelper.BringToFront(_mainWindow);
+
+            if (e.Kind == ExtendedActivationKind.Protocol)
+            {
+                var uri = (e.Data as ProtocolActivatedEventArgs)?.Uri;
+                // Handle deep links in the future if necessary
+            }
+        });
     }
 }
