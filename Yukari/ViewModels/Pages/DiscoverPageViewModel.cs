@@ -59,8 +59,7 @@ public partial class DiscoverPageViewModel
     [NotifyCanExecuteChangedFor(nameof(FilterCommand), nameof(LoadMoreCommand))]
     public partial bool IsLoadingMore { get; set; }
 
-    public bool IsLoadMoreVisible =>
-        !IsContentLoading && !string.IsNullOrWhiteSpace(_searchText) && !NoResults && !NoSources;
+    public bool IsLoadMoreVisible => !IsContentLoading && !NoResults && !NoSources;
 
     public bool NoSources => !IsContentLoading && (ComicSources == null || ComicSources.Count == 0);
     public bool NoResults =>
