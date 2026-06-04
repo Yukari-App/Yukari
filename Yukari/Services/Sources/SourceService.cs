@@ -90,13 +90,16 @@ internal class SourceService : ISourceService
 
     public async Task<IReadOnlyList<ComicModel>> GetTrendingComicsAsync(
         IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+        int page = 1,
         CancellationToken ct = default
     )
     {
         if (_currentSource == null || _currentSourceName == null)
             throw new InvalidOperationException("No source loaded.");
 
-        var comics = await _currentSource.GetTrendingAsync(filters, ct);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page);
+
+        var comics = await _currentSource.GetTrendingAsync(filters, page, ct);
         return comics.Select(MapToModel).ToList();
     }
 

@@ -93,7 +93,7 @@ internal class ComicService : IComicService
 
                 await LoadComicSourceAsync(sourceName, ct);
                 var comics = string.IsNullOrEmpty(queryText)
-                    ? await _srcService.GetTrendingComicsAsync(filters, ct)
+                    ? await _srcService.GetTrendingComicsAsync(filters, page, ct)
                     : await _srcService.SearchComicsAsync(queryText, filters, page, ct);
 
                 return Result<IReadOnlyList<ComicModel>>.Success(comics);

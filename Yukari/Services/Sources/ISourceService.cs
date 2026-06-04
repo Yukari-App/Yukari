@@ -21,6 +21,7 @@ public interface ISourceService
     );
     Task<IReadOnlyList<ComicModel>> GetTrendingComicsAsync(
         IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+        int page = 1,
         CancellationToken ct = default
     );
     Task<ComicModel?> GetComicDetailsAsync(string comicId, CancellationToken ct = default);
