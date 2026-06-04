@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,21 +37,30 @@ public partial class DiscoverPageViewModel
     private string _searchText = string.Empty;
     private CancellationTokenSource _searchCts = new();
 
+    private int _currentPage = 1;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(NoSources), nameof(NoResults))]
     public partial List<ComicSourceModel>? ComicSources { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(NoSources), nameof(NoResults))]
-    public partial List<ComicItemViewModel>? SearchedComics { get; set; }
+    public partial ObservableCollection<ComicItemViewModel> SearchedComics { get; set; } = new();
 
     [ObservableProperty]
     public partial ComicSourceModel? SelectedComicSource { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(NoSources), nameof(NoResults))]
-    [NotifyCanExecuteChangedFor(nameof(FilterCommand))]
+    [NotifyPropertyChangedFor(nameof(IsLoadMoreVisible), nameof(NoSources), nameof(NoResults))]
+    [NotifyCanExecuteChangedFor(nameof(FilterCommand), nameof(LoadMoreCommand))]
     public partial bool IsContentLoading { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsLoadMoreVisible))]
+    [NotifyCanExecuteChangedFor(nameof(FilterCommand), nameof(LoadMoreCommand))]
+    public partial bool IsLoadingMore { get; set; }
+
+    public bool IsLoadMoreVisible =>
+        !IsContentLoading && !string.IsNullOrWhiteSpace(_searchText) && !NoResults && !NoSources;
 
     public bool NoSources => !IsContentLoading && (ComicSources == null || ComicSources.Count == 0);
     public bool NoResults =>
@@ -128,6 +138,11 @@ public partial class DiscoverPageViewModel
         await UpdateDisplayedComicsAsync();
     }
 
+    private bool CanLoadMore() => !IsContentLoading && !IsLoadingMore && !NoResults;
+
+    [RelayCommand(CanExecute = nameof(CanLoadMore))]
+    private async Task LoadMore() => await UpdateDisplayedComicsAsync(append: true);
+
     [RelayCommand]
     private void NavigateToComic(ContentKey ComicKey) =>
         _messenger.Send(new NavigateMessage(typeof(Views.Pages.ComicPage), ComicKey));
@@ -174,7 +189,7 @@ public partial class DiscoverPageViewModel
         FilterCommand.NotifyCanExecuteChanged();
     }
 
-    private async Task UpdateDisplayedComicsAsync()
+    private async Task UpdateDisplayedComicsAsync(bool append = false)
     {
         if (SelectedComicSource == null)
             return;
@@ -183,14 +198,23 @@ public partial class DiscoverPageViewModel
         _searchCts.Dispose();
         _searchCts = new CancellationTokenSource();
 
-        IsContentLoading = true;
+        if (!append)
+        {
+            IsContentLoading = true;
+            _currentPage = 1;
+            SearchedComics.Clear();
+        }
+        else
+        {
+            IsLoadingMore = true;
+            _currentPage++;
+        }
 
-        SearchedComics = new List<ComicItemViewModel>();
         var result = await _comicService.SearchComicsAsync(
             SelectedComicSource.Name,
             _searchText,
             _appliedFilters ?? new Dictionary<string, IReadOnlyList<string>>(),
-            1,
+            _currentPage,
             _searchCts.Token
         );
 
@@ -198,18 +222,48 @@ public partial class DiscoverPageViewModel
             return;
 
         if (result.IsSuccess)
-            SearchedComics = result.Value!.Select(comic => new ComicItemViewModel(comic)).ToList();
+        {
+            if (!append)
+            {
+                // Replacing the entire collection triggers the GridView entrance animation,
+                // which is desirable for the initial page load but not for incremental loading.
+                SearchedComics = new(result.Value!.Select(c => new ComicItemViewModel(c)));
+            }
+            else
+            {
+                foreach (var comic in result.Value!)
+                {
+                    // Adding items individually preserves the current scroll position.
+                    // Unlike a full collection replacement, this does not trigger the
+                    // GridView entrance animation, which is exactly what we want here.
+                    SearchedComics.Add(new ComicItemViewModel(comic));
+                }
+                if (result.Value!.Count == 0)
+                {
+                    _currentPage--;
+                    _notificationService.ShowWarning(
+                        "You've reached the end of the results.",
+                        "No more results"
+                    );
+                }
+            }
+        }
         else
+        {
+            if (append)
+                _currentPage--;
             _notificationService.ShowError(result.Error!, result.ErrorTitle!);
+        }
 
         IsContentLoading = false;
+        IsLoadingMore = false;
     }
 
     async partial void OnSelectedComicSourceChanged(ComicSourceModel? value)
     {
         if (value == null)
         {
-            SearchedComics = null;
+            SearchedComics.Clear();
             _availableFilters = null;
             _appliedFilters = null;
             return;

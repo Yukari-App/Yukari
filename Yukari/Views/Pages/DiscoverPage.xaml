@@ -115,6 +115,23 @@
                   ItemClick="GridView_ItemClick"
                   ItemTemplate="{StaticResource ComicTemplate}"
                   ItemsSource="{x:Bind ViewModel.SearchedComics, Mode=OneWay}"
-                  SelectionMode="None" />
+                  SelectionMode="None">
+            <GridView.Footer>
+                <Button Grid.Row="2"
+                        Margin="0,6,0,0"
+                        HorizontalAlignment="Center"
+                        Command="{x:Bind ViewModel.LoadMoreCommand}"
+                        Visibility="{x:Bind ViewModel.IsLoadMoreVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <FontIcon FontSize="16" Glyph="&#xE70D;" Visibility="{x:Bind ViewModel.IsLoadingMore, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
+                        <ProgressRing Width="16"
+                                      Height="16"
+                                      IsIndeterminate="True"
+                                      Visibility="{x:Bind ViewModel.IsLoadingMore, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                        <TextBlock VerticalAlignment="Center" Text="Load More" />
+                    </StackPanel>
+                </Button>
+            </GridView.Footer>
+        </GridView>
     </Grid>
 </Page>

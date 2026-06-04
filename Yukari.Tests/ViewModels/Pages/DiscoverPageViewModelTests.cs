@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using FluentAssertions;
 using Moq;
 using Yukari.Core.Models;
@@ -105,7 +106,7 @@ public class DiscoverPageViewModelTests
                 DllPath = "Yukari.Plugin.TestSource.dll",
             },
         };
-        _sut.SearchedComics = new List<ComicItemViewModel>();
+        _sut.SearchedComics = new ObservableCollection<ComicItemViewModel>();
         _sut.IsContentLoading = false;
 
         // Act & Assert
