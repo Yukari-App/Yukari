@@ -28,17 +28,19 @@
         </DataTemplate>
 
         <DataTemplate x:Key="GroupsTemplate" x:DataType="system:String">
-            <ItemContainer Height="16"
-                           Margin="0"
-                           Background="{StaticResource SubtleFillColorSecondaryBrush}"
-                           CornerRadius="8"
-                           ToolTipService.ToolTip="{x:Bind}">
-                <TextBlock MaxWidth="140"
-                           Margin="4,0,4,0"
-                           FontSize="11"
-                           Foreground="{StaticResource TextFillColorPrimaryBrush}"
-                           Style="{StaticResource CaptionTextBlockStyle}"
-                           Text="{x:Bind}" />
+            <ItemContainer Margin="0" CornerRadius="8" ToolTipService.ToolTip="{x:Bind}">
+                <Grid Height="16"
+                      Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                      BorderThickness="1"
+                      CornerRadius="8">
+                    <TextBlock MaxWidth="140"
+                               Margin="4,0,4,0"
+                               FontSize="11"
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Text="{x:Bind}" />
+                </Grid>
             </ItemContainer>
         </DataTemplate>
 
