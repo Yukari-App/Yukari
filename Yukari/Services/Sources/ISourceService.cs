@@ -36,5 +36,8 @@ public interface ISourceService
         CancellationToken ct = default
     );
 
-    ComicSourceModel GetComicSourceModelFromAssembly(string dllPath);
+    ComicSourceModel GetComicSourceModelFromAssembly(
+        string dllPath,
+        bool disposableContext = false
+    );
 }

@@ -159,16 +159,19 @@ internal class SourceService : ISourceService
             .ToList();
     }
 
-    public ComicSourceModel GetComicSourceModelFromAssembly(string dllPath)
+    public ComicSourceModel GetComicSourceModelFromAssembly(
+        string dllPath,
+        bool metadataOnly = false
+    )
     {
-        var type = GetSourceTypeFromAssembly(dllPath);
+        var type = GetSourceTypeFromAssembly(dllPath, metadataOnly);
         var comicSourceMetadata =
             type.GetCustomAttribute<ComicSourceMetadataAttribute>()
             ?? throw new InvalidOperationException(
                 $"{type.Name} is missing [ComicSourceMetadata] attribute."
             );
 
-        if (!_sourceTypeCache.ContainsKey(comicSourceMetadata.Name))
+        if (!_sourceTypeCache.ContainsKey(comicSourceMetadata.Name) && !metadataOnly)
             _sourceTypeCache[comicSourceMetadata.Name] = type;
 
         _logger.LogInformation(
@@ -217,12 +220,16 @@ internal class SourceService : ISourceService
             ?? [];
     }
 
-    private Type GetSourceTypeFromAssembly(string pluginPath)
+    private Type GetSourceTypeFromAssembly(string pluginPath, bool collectibleContext = false)
     {
         if (!File.Exists(pluginPath))
             throw new FileNotFoundException();
 
-        Assembly pluginAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(pluginPath);
+        var context = collectibleContext
+            ? new AssemblyLoadContext("CollectibleContext", isCollectible: true)
+            : AssemblyLoadContext.Default;
+
+        Assembly pluginAssembly = context.LoadFromAssemblyPath(pluginPath);
 
         return pluginAssembly
                 .GetTypes()

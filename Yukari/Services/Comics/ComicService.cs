@@ -530,7 +530,7 @@ internal class ComicService : IComicService
                 }
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 {
-                    var metadata = _srcService.GetComicSourceModelFromAssembly(pluginPath);
+                    var metadata = _srcService.GetComicSourceModelFromAssembly(pluginPath, true);
 
                     _logger.LogWarning(
                         ex,
