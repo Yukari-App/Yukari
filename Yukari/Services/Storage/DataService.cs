@@ -292,13 +292,34 @@ internal class DataService : IDataService
         return result ?? new ChapterUserData();
     }
 
-    public Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(
+    public async Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(
         ContentKey comicKey,
         ContentKey chapterKey,
         CancellationToken ct = default
     )
     {
-        throw new NotImplementedException("Chapter downloads are not supported yet.");
+        using var connection = await GetOpenConnectionAsync();
+
+        const string sql = """
+            SELECT Number, ImageUrl
+            FROM ChapterPages
+            WHERE ChapterId = @chapterId AND ComicId = @comicId AND Source = @source
+            ORDER BY Number ASC;
+            """;
+
+        var result = await connection.QueryAsync<ChapterPageModel>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    chapterId = chapterKey.Id,
+                    comicId = comicKey.Id,
+                    source = comicKey.Source,
+                },
+                cancellationToken: ct
+            )
+        );
+        return result.ToList();
     }
 
     public async Task<IReadOnlyList<ComicSourceModel>> GetComicSourcesAsync(
@@ -667,9 +688,57 @@ internal class DataService : IDataService
         await transaction.CommitAsync();
     }
 
-    public Task UpsertChapterPagesAsync(IReadOnlyList<ChapterPageModel> chapterPages)
+    public async Task UpsertChapterPagesAsync(
+        ContentKey comicKey,
+        ContentKey chapterKey,
+        IReadOnlyList<ChapterPageModel> chapterPages
+    )
     {
-        throw new NotImplementedException();
+        if (chapterPages.Count == 0)
+            return;
+
+        using var connection = await GetOpenConnectionAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        const string pagesSql = """
+            INSERT INTO ChapterPages (Number, ChapterId, ComicId, Source, ImageUrl)
+            VALUES (@Number, @ChapterId, @ComicId, @Source, @ImageUrl)
+            ON CONFLICT(ChapterId, ComicId, Source, Number) DO UPDATE SET
+                ImageUrl = excluded.ImageUrl;
+            """;
+
+        await connection.ExecuteAsync(
+            pagesSql,
+            chapterPages.Select(p => new
+            {
+                p.Number,
+                ChapterId = chapterKey.Id,
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+                p.ImageUrl,
+            }),
+            transaction
+        );
+
+        const string statusSql = """
+            INSERT INTO ChapterUserData (Id, ComicId, Source, IsDownloaded, IsRead, LastPageRead)
+            VALUES (@Id, @ComicId, @Source, 1, 0, 0)
+            ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
+                IsDownloaded = 1;
+            """;
+
+        await connection.ExecuteAsync(
+            statusSql,
+            new
+            {
+                Id = chapterKey.Id,
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+            },
+            transaction: transaction
+        );
+
+        await transaction.CommitAsync();
     }
 
     public async Task UpsertComicSourceAsync(ComicSourceModel comicSource)
@@ -786,6 +855,50 @@ internal class DataService : IDataService
                 Source = chapterKey.Source,
             },
             transaction
+        );
+
+        await transaction.CommitAsync();
+    }
+
+    public async Task RemoveChapterPagesAsync(ContentKey comicKey, ContentKey chapterKey)
+    {
+        using var connection = await GetOpenConnectionAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        const string pagesSql = """
+            DELETE FROM ChapterPages
+            WHERE ChapterId = @ChapterId
+              AND ComicId = @ComicId
+              AND Source = @Source;
+            """;
+
+        await connection.ExecuteAsync(
+            pagesSql,
+            new
+            {
+                ChapterId = chapterKey.Id,
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+            },
+            transaction: transaction
+        );
+
+        const string updateStatusSql = """
+            INSERT INTO ChapterUserData (Id, ComicId, Source, IsDownloaded, IsRead, LastPageRead)
+            VALUES (@Id, @ComicId, @Source, 0, 0, 0)
+            ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
+                IsDownloaded = 0;
+            """;
+
+        await connection.ExecuteAsync(
+            updateStatusSql,
+            new
+            {
+                Id = chapterKey.Id,
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+            },
+            transaction: transaction
         );
 
         await transaction.CommitAsync();

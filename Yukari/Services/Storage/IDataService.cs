@@ -70,7 +70,11 @@ public interface IDataService
         ContentKey chapterKey,
         ChapterUserData chapterUserData
     );
-    Task UpsertChapterPagesAsync(IReadOnlyList<ChapterPageModel> chapterPages);
+    Task UpsertChapterPagesAsync(
+        ContentKey comicKey,
+        ContentKey chapterKey,
+        IReadOnlyList<ChapterPageModel> chapterPages
+    );
     Task UpsertChaptersIsReadAsync(ContentKey comicKey, string[] chapterIDs, bool IsRead);
     Task UpsertComicSourceAsync(ComicSourceModel comicSource);
     Task UpdateComicSourceIsEnabledAsync(string sourceName, bool isEnabled);
@@ -81,6 +85,7 @@ public interface IDataService
     Task RemoveCollectionAsync(string collectionName);
     Task RemoveComicFromCollectionAsync(ContentKey comicKey, string collectionName);
     Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey);
+    Task RemoveChapterPagesAsync(ContentKey comicKey, ContentKey chapterKey);
     Task RemoveComicSourceAsync(string sourceName);
 
     Task<IReadOnlyList<ContentKey>> CleanupUnfavoriteComicsDataAsync();
