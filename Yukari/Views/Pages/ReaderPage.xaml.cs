@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
+using Yukari.Enums;
 using Yukari.Models.DTO;
 using Yukari.ViewModels.Components;
 using Yukari.ViewModels.Pages;
@@ -56,6 +57,8 @@ public sealed partial class ReaderPage : Page
                 or nameof(ReaderPageViewModel.ChapterState)
         )
         {
+            if (ViewModel.ChapterState != LoadState.Loaded)
+                return;
             await ForceFlipViewUpdateAsync();
         }
     }
