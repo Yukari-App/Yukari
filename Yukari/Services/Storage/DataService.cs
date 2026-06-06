@@ -637,7 +637,6 @@ internal class DataService : IDataService
             VALUES (@Id, @ComicId, @Source, @LastPageRead, @IsDownloaded, @IsRead)
             ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
                 LastPageRead = COALESCE(excluded.LastPageRead, ChapterUserData.LastPageRead),
-                IsDownloaded = excluded.IsDownloaded,
                 IsRead = excluded.IsRead;
             """;
 
