@@ -64,10 +64,7 @@
             </NavigationView.MenuItems>
 
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Content="Downloads"
-                                    Icon="Download"
-                                    IsEnabled="False"
-                                    Tag="Yukari.Views.Pages.DownloadsPage" />
+                <NavigationViewItem Content="Downloads" Icon="Download" Tag="Yukari.Views.Pages.DownloadsPage" />
                 <NavigationViewItem Content="Help"
                                     Icon="Help"
                                     IsEnabled="False"
