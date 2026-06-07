@@ -8,6 +8,7 @@ using Yukari.Models.Common;
 using Yukari.Models.Data;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.Storage;
 using Yukari.Services.UI;
 using Yukari.Tests.TestUtils;
 using Yukari.ViewModels.Components;
@@ -18,6 +19,7 @@ namespace Yukari.Tests.ViewModels.Pages
     public class ComicPageViewModelTests
     {
         private readonly Mock<IComicService> _mockComicService;
+        private readonly Mock<IDownloadService> _mockDownloadService;
         private readonly Mock<IDialogService> _mockDialogService;
         private readonly Mock<INotificationService> _mockNotificationService;
         private readonly FakeMessenger _messenger;
@@ -27,12 +29,14 @@ namespace Yukari.Tests.ViewModels.Pages
         public ComicPageViewModelTests()
         {
             _mockComicService = new Mock<IComicService>();
+            _mockDownloadService = new Mock<IDownloadService>();
             _mockDialogService = new Mock<IDialogService>();
             _mockNotificationService = new Mock<INotificationService>();
             _messenger = new FakeMessenger();
 
             _sut = new ComicPageViewModel(
                 _mockComicService.Object,
+                _mockDownloadService.Object,
                 _mockDialogService.Object,
                 _mockNotificationService.Object,
                 _messenger
@@ -1097,6 +1101,7 @@ namespace Yukari.Tests.ViewModels.Pages
         ) =>
             new ChapterItemViewModel(
                 _mockComicService.Object,
+                _mockDownloadService.Object,
                 _mockNotificationService.Object,
                 new ChapterAggregate(
                     chapter ?? new() { Id = Guid.NewGuid().ToString(), Source = "TestSource" },
@@ -1104,6 +1109,7 @@ namespace Yukari.Tests.ViewModels.Pages
                 ),
                 new ContentKey("c-001", "TestSource"),
                 false,
+                "Test Comic",
                 new RelayCommand<ContentKey>(_ => { }),
                 new RelayCommand<ChapterItemViewModel>(_ => { })
             );

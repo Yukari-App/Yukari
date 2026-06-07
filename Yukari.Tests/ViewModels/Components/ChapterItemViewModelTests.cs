@@ -6,6 +6,7 @@ using Yukari.Models.Common;
 using Yukari.Models.Data;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.Storage;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
@@ -14,11 +15,13 @@ namespace Yukari.Tests.ViewModels.Components;
 public class ChapterItemViewModelTests
 {
     private readonly Mock<IComicService> _comicServiceMock;
+    private readonly Mock<IDownloadService> _downloadServiceMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
 
     public ChapterItemViewModelTests()
     {
         _comicServiceMock = new Mock<IComicService>();
+        _downloadServiceMock = new Mock<IDownloadService>();
         _notificationServiceMock = new Mock<INotificationService>();
     }
 
@@ -247,10 +250,12 @@ public class ChapterItemViewModelTests
 
         return new ChapterItemViewModel(
             _comicServiceMock.Object,
+            _downloadServiceMock.Object,
             _notificationServiceMock.Object,
             aggregate,
             new ContentKey("comic-001", "TestSource"),
             isComicFavorite,
+            "Test Comic",
             new Mock<IRelayCommand<ContentKey>>().Object,
             new Mock<IRelayCommand<ChapterItemViewModel>>().Object
         );
@@ -264,10 +269,12 @@ public class ChapterItemViewModelTests
         var aggregate = new ChapterAggregate(chapter, new ChapterUserData());
         return new ChapterItemViewModel(
             _comicServiceMock.Object,
+            _downloadServiceMock.Object,
             _notificationServiceMock.Object,
             aggregate,
             new ContentKey(chapter.Id, chapter.Source),
             isComicFavorite,
+            "Test Comic",
             new Mock<IRelayCommand<ContentKey>>().Object,
             new Mock<IRelayCommand<ChapterItemViewModel>>().Object
         );
@@ -287,10 +294,12 @@ public class ChapterItemViewModelTests
         var aggregate = new ChapterAggregate(chapter, userData);
         return new ChapterItemViewModel(
             _comicServiceMock.Object,
+            _downloadServiceMock.Object,
             _notificationServiceMock.Object,
             aggregate,
             new ContentKey("comic-001", "TestSource"),
-            isComicFavorite: false,
+            false,
+            "Test Comic",
             new Mock<IRelayCommand<ContentKey>>().Object,
             new Mock<IRelayCommand<ChapterItemViewModel>>().Object
         );

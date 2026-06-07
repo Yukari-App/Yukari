@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.Storage;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
@@ -24,6 +26,7 @@ public partial class ComicPageViewModel
     private const int MaxTagsToShow = 16;
 
     private readonly IComicService _comicService;
+    private readonly IDownloadService _downloadService;
     private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
     private readonly IMessenger _messenger;
@@ -122,12 +125,14 @@ public partial class ComicPageViewModel
 
     public ComicPageViewModel(
         IComicService comicService,
+        IDownloadService downloadService,
         IDialogService dialogService,
         INotificationService notificationService,
         IMessenger messenger
     )
     {
         _comicService = comicService;
+        _downloadService = downloadService;
         _dialogService = dialogService;
         _notificationService = notificationService;
         _messenger = messenger;
@@ -150,6 +155,9 @@ public partial class ComicPageViewModel
     {
         _navigationCts.Cancel();
         _navigationCts.Dispose();
+
+        foreach (var chapter in Chapters ?? Enumerable.Empty<ChapterItemViewModel>())
+            chapter.PropertyChanged -= OnChapterDownloadStatusChanged;
     }
 
     private bool CanContinueReading() => Comic != null && IsInterfaceReady;
@@ -255,10 +263,41 @@ public partial class ComicPageViewModel
     private bool CanToggleDownloadAllChapters() => IsFavorite && IsInterfaceReady;
 
     [RelayCommand(CanExecute = nameof(CanToggleDownloadAllChapters))]
-    private void ToggleDownloadAllChapters()
+    private async Task ToggleDownloadAllChaptersAsync()
     {
-        _notificationService.ShowWarning("Download chapters feature is not implemented yet.");
-        IsAllChaptersDownloaded = !IsAllChaptersDownloaded;
+        if (_comicKey == null || Chapters == null || Chapters.Count == 0)
+            return;
+
+        if (IsAllChaptersDownloaded)
+        {
+            var chaptersToDelete = Chapters!.Where(c =>
+                c.IsDownloaded || c.IsDownloading || c.IsDownloadQueued
+            );
+            foreach (var chapterVm in chaptersToDelete)
+                await _downloadService.DeleteChapterDownloadAsync(_comicKey, chapterVm.Key);
+        }
+        else
+        {
+            var chaptersToDownload = Chapters!.Where(c =>
+                !c.IsDownloaded && !c.IsDownloading && !c.IsDownloadQueued
+            );
+            foreach (var chapterVm in chaptersToDownload)
+                _downloadService.EnqueueChapterDownload(
+                    _comicKey,
+                    chapterVm.Key,
+                    Comic!.Title,
+                    chapterVm.DisplayTitle!,
+                    ct =>
+                        _comicService.GetChapterPagesAsync(
+                            _comicKey,
+                            chapterVm.Key,
+                            forceWeb: true,
+                            ct
+                        )
+                );
+        }
+
+        await RefreshChaptersAsync();
     }
 
     [RelayCommand]
@@ -343,6 +382,9 @@ public partial class ComicPageViewModel
 
         IsChaptersLoading = true;
 
+        foreach (var chapter in Chapters ?? Enumerable.Empty<ChapterItemViewModel>())
+            chapter.PropertyChanged -= OnChapterDownloadStatusChanged;
+
         if (string.IsNullOrEmpty(SelectedLang))
         {
             Chapters = null;
@@ -364,15 +406,22 @@ public partial class ComicPageViewModel
             var chapterAggregates = result.Value;
 
             Chapters = chapterAggregates
-                ?.Select(c => new ChapterItemViewModel(
-                    _comicService,
-                    _notificationService,
-                    c,
-                    _comicKey,
-                    IsFavorite,
-                    NavigateToReaderCommand,
-                    MarkPreviousChaptersAsReadCommand
-                ))
+                ?.Select(c =>
+                {
+                    var ivm = new ChapterItemViewModel(
+                        _comicService,
+                        _downloadService,
+                        _notificationService,
+                        c,
+                        _comicKey,
+                        IsFavorite,
+                        Comic!.Title,
+                        NavigateToReaderCommand,
+                        MarkPreviousChaptersAsReadCommand
+                    );
+                    ivm.PropertyChanged += OnChapterDownloadStatusChanged;
+                    return ivm;
+                })
                 .ToList();
         }
         else
@@ -381,6 +430,7 @@ public partial class ComicPageViewModel
             HandleNotSuccessResult(result);
         }
 
+        UpdateIsAllChaptersDownloaded();
         IsChaptersLoading = false;
     }
 
@@ -411,6 +461,24 @@ public partial class ComicPageViewModel
             _notificationService.ShowWarning(result.Error!, "Source Disabled");
         else if (!result.IsSuccess)
             _notificationService.ShowError(result.Error!, result.ErrorTitle!);
+    }
+
+    private void UpdateIsAllChaptersDownloaded()
+    {
+        IsAllChaptersDownloaded =
+            Chapters is { Count: > 0 }
+            && !Chapters.Any(c => !c.IsDownloaded && !c.IsDownloading && !c.IsDownloadQueued);
+    }
+
+    private void OnChapterDownloadStatusChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (
+            e.PropertyName is nameof(ChapterItemViewModel.IsDownloaded)
+            || e.PropertyName == nameof(ChapterItemViewModel.IsDownloading)
+        )
+        {
+            UpdateIsAllChaptersDownloaded();
+        }
     }
 
     async partial void OnSelectedLangChanged(string? value)
