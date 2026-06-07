@@ -2,13 +2,168 @@
 <Page x:Class="Yukari.Views.Pages.DownloadsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:converters="using:Yukari.Helpers.UI.Converters"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Yukari.Views.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:models="using:Yukari.Models"
+      xmlns:ui="using:CommunityToolkit.WinUI"
       mc:Ignorable="d">
 
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
+
+        <DataTemplate x:Key="DownloadItemTemplate" x:DataType="models:DownloadItem">
+            <Grid Margin="0,0,0,6"
+                  Padding="6,6,6,0"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  RowDefinitions="*, Auto">
+                <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto, Auto" ColumnSpacing="4">
+                    <Grid Grid.Column="0" RowDefinitions="Auto, Auto" RowSpacing="2">
+                        <TextBlock Grid.Row="0"
+                                   FontSize="16"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Text="{x:Bind ComicTitle}"
+                                   TextWrapping="NoWrap"
+                                   ToolTipService.ToolTip="{x:Bind ComicTitle}" />
+                        <TextBlock Grid.Row="1"
+                                   FontSize="12"
+                                   Text="{x:Bind ChapterTitle}"
+                                   TextWrapping="NoWrap"
+                                   ToolTipService.ToolTip="{x:Bind ChapterTitle}" />
+                    </Grid>
+
+                    <Border Grid.Column="1"
+                            Height="20"
+                            VerticalAlignment="Top"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Visibility="{x:Bind Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Queued, Mode=OneWay}">
+                        <TextBlock Margin="4,0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Text="Queued" />
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Height="20"
+                            VerticalAlignment="Top"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Visibility="{x:Bind Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Downloading, Mode=OneWay}">
+                        <TextBlock Margin="4,0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Text="Downloading" />
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Height="20"
+                            VerticalAlignment="Top"
+                            Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Visibility="{x:Bind Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Completed, Mode=OneWay}">
+                        <TextBlock Margin="4,0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Text="Completed" />
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Height="20"
+                            VerticalAlignment="Top"
+                            Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Visibility="{x:Bind Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Cancelled, Mode=OneWay}">
+                        <TextBlock Margin="4,0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Text="Cancelled" />
+                    </Border>
+                    <Border Grid.Column="1"
+                            Height="20"
+                            VerticalAlignment="Top"
+                            Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Visibility="{x:Bind Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Failed, Mode=OneWay}">
+                        <TextBlock Margin="4,0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Text="Failed" />
+                    </Border>
+
+                    <Button Grid.Column="2"
+                            Width="34"
+                            Height="34"
+                            Padding="0"
+                            VerticalAlignment="Top"
+                            Click="CancelOrRetryItemButton_Click"
+                            CommandParameter="{x:Bind}"
+                            Content="{ui:FontIcon Glyph=&#xE72C;}"
+                            ToolTipService.ToolTip="Retry this download"
+                            Visibility="{x:Bind CanRetry, Mode=OneWay}" />
+                    <Button Grid.Column="2"
+                            Width="34"
+                            Height="34"
+                            Padding="0"
+                            VerticalAlignment="Top"
+                            Click="CancelOrRetryItemButton_Click"
+                            CommandParameter="{x:Bind}"
+                            Content="{ui:FontIcon Glyph=&#xF78A;}"
+                            ToolTipService.ToolTip="Cancel this download"
+                            Visibility="{x:Bind CanCancel, Mode=OneWay}" />
+                    <Button Grid.Column="3"
+                            Width="34"
+                            Height="34"
+                            Padding="0"
+                            VerticalAlignment="Top"
+                            Click="DeleteItemButton_Click"
+                            CommandParameter="{x:Bind}"
+                            Content="{ui:FontIcon Glyph=&#xE74D;}"
+                            ToolTipService.ToolTip="Delete this download" />
+                </Grid>
+
+                <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="4">
+                    <ProgressBar Grid.Column="0"
+                                 Maximum="1"
+                                 ShowError="{x:Bind Status, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Failed, Mode=OneWay}"
+                                 ShowPaused="{x:Bind Status, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Cancelled, Mode=OneWay}"
+                                 Value="{x:Bind Progress, Mode=OneWay}" />
+                    <TextBlock Grid.Column="1"
+                               Margin="0"
+                               Padding="0"
+                               HorizontalAlignment="Right"
+                               Text="{x:Bind FormattedProgress, Mode=OneWay}" />
+                </Grid>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
     <Grid RowDefinitions="Auto, *">
-        <Grid Grid.Row="0" Padding="20,14,36,16" ColumnDefinitions="Auto, *, Auto">
+        <Grid Grid.Row="0"
+              MaxWidth="1000"
+              Padding="20,14,36,16"
+              ColumnDefinitions="Auto, *, Auto">
             <StackPanel Grid.Column="0"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center"
@@ -26,37 +181,44 @@
                         Orientation="Horizontal"
                         Spacing="2">
 
-                <ToggleButton Command="{x:Bind ViewModel.TogglePauseCommand}">
-                    <ToggleButton.Content>
-                        <FontIcon Glyph="{x:Bind ViewModel.PauseIcon, Mode=OneWay}" />
-                    </ToggleButton.Content>
-                </ToggleButton>
+                <Button Width="34"
+                        Height="34"
+                        Padding="0"
+                        Command="{x:Bind ViewModel.ClearFinishedDownloadsCommand}"
+                        Content="{ui:FontIcon Glyph=&#xEA99;}"
+                        ToolTipService.ToolTip="Clear completed downloads" />
                 <AppBarSeparator />
-                <Button>
-                    <Button.Content>
-                        <FontIcon Glyph="&#xE71A;" />
-                    </Button.Content>
-                </Button>
+                <Button Width="34"
+                        Height="34"
+                        Padding="0"
+                        Command="{x:Bind ViewModel.CancelAllUnfinishedDownloadsCommand}"
+                        Content="{ui:FontIcon Glyph=&#xF78A;}"
+                        ToolTipService.ToolTip="Cancel unfinished downloads" />
 
             </StackPanel>
         </Grid>
 
-        <StackPanel Grid.Row="1" Padding="0,0,16,0" Spacing="8">
-            <StackPanel.ChildrenTransitions>
-                <EntranceThemeTransition FromVerticalOffset="50" />
-                <RepositionThemeTransition IsStaggeringEnabled="False" />
-            </StackPanel.ChildrenTransitions>
+        <ScrollViewer Grid.Row="1">
+            <Grid Padding="0,0,16,16">
+                <Grid MaxWidth="1000">
+                    <Grid Grid.Row="0"
+                          Height="80"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Top"
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                          BorderThickness="1"
+                          CornerRadius="8"
+                          Visibility="{x:Bind ViewModel.NoDownloads, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="16"
+                                   Text="There are no downloads" />
+                    </Grid>
 
-            <Border Height="82"
-                    HorizontalAlignment="Stretch"
-                    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    CornerRadius="8">
-                <TextBlock HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           FontSize="16"
-                           Text="There are no downloads in progress" />
-            </Border>
-        </StackPanel>
+                    <ItemsRepeater ItemTemplate="{StaticResource DownloadItemTemplate}" ItemsSource="{x:Bind ViewModel.Downloads, Mode=OneWay}" />
+                </Grid>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>
