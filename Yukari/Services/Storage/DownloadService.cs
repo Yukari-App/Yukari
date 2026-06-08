@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -24,10 +23,9 @@ internal class DownloadService : IDownloadService
     private readonly HttpClient _httpClient = new();
 
     private readonly Channel<DownloadItem> _downloadQueue = Channel.CreateUnbounded<DownloadItem>();
-    private readonly ObservableCollection<DownloadItem> _downloads = new();
-    private readonly ReadOnlyObservableCollection<DownloadItem> _readonlyDownloads;
+    private readonly List<DownloadItem> _downloads = new();
 
-    public event EventHandler? DownloadsCollectionChanged;
+    public event Action<IReadOnlyList<DownloadItem>>? DownloadsChanged;
 
     public DownloadService(IDataService dataService, ILogger<DownloadService> logger)
     {
@@ -35,11 +33,6 @@ internal class DownloadService : IDownloadService
         _logger = logger;
 
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari");
-        _readonlyDownloads = new ReadOnlyObservableCollection<DownloadItem>(_downloads);
-
-        _downloads.CollectionChanged += (s, e) =>
-            DownloadsCollectionChanged?.Invoke(this, EventArgs.Empty);
-
         _ = ConsumeQueueAsync();
     }
 
@@ -61,10 +54,12 @@ internal class DownloadService : IDownloadService
         var item = new DownloadItem(comicKey, chapterKey, comicTitle, chapterTitle, pageProvider);
         _downloads.Add(item);
         _downloadQueue.Writer.TryWrite(item);
+
+        NotifyDownloadsChanged();
         return item;
     }
 
-    public ReadOnlyObservableCollection<DownloadItem> GetAllDownloads() => _readonlyDownloads;
+    public IReadOnlyList<DownloadItem> GetAllDownloads() => _downloads.ToList();
 
     public DownloadItem? GetDownload(ContentKey chapterKey) =>
         _downloads.FirstOrDefault(d => d.ChapterKey.Equals(chapterKey));
@@ -79,8 +74,13 @@ internal class DownloadService : IDownloadService
         };
         var toRemove = _downloads.Where(d => statuses.Contains(d.Status)).ToList();
 
+        if (toRemove.Count == 0)
+            return;
+
         foreach (var item in toRemove)
             _downloads.Remove(item);
+
+        NotifyDownloadsChanged();
     }
 
     public async Task DeleteChapterDownloadAsync(ContentKey comicKey, ContentKey chapterKey)
@@ -96,9 +96,10 @@ internal class DownloadService : IDownloadService
             await _dataService.RemoveChapterPagesAsync(comicKey, chapterKey);
         }
 
-        var item = _downloads.FirstOrDefault(d => d.ChapterKey.Equals(chapterKey));
-        if (item != null)
-            _downloads.Remove(item);
+        if (existing == null)
+            return;
+        _downloads.Remove(existing);
+        NotifyDownloadsChanged();
     }
 
     public async Task CleanupUnfavoriteComicsAsync(IReadOnlyList<ContentKey> unfavoriteComics)
@@ -249,4 +250,6 @@ internal class DownloadService : IDownloadService
             );
         }
     }
+
+    private void NotifyDownloadsChanged() => DownloadsChanged?.Invoke(_downloads.ToList());
 }

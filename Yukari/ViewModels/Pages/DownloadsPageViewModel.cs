@@ -1,5 +1,4 @@
-using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,8 +12,9 @@ public partial class DownloadsPageViewModel : ObservableObject
 {
     private readonly IDownloadService _downloadService;
 
-    public ReadOnlyObservableCollection<DownloadItem> Downloads { get; set; }
-
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NoDownloads))]
+    public partial IReadOnlyList<DownloadItem> Downloads { get; set; }
     public bool NoDownloads => Downloads.Count == 0;
 
     public DownloadsPageViewModel(IDownloadService downloadService)
@@ -22,11 +22,10 @@ public partial class DownloadsPageViewModel : ObservableObject
         _downloadService = downloadService;
 
         Downloads = _downloadService.GetAllDownloads();
-        _downloadService.DownloadsCollectionChanged += OnDownloadsCollectionChanged;
+        _downloadService.DownloadsChanged += OnDownloadItemsChanged;
     }
 
-    public void OnNavigatedFrom() =>
-        _downloadService.DownloadsCollectionChanged -= OnDownloadsCollectionChanged;
+    public void OnNavigatedFrom() => _downloadService.DownloadsChanged -= OnDownloadItemsChanged;
 
     [RelayCommand]
     private void ClearFinishedDownloads() => _downloadService.ClearFinishedDownloads();
@@ -79,6 +78,5 @@ public partial class DownloadsPageViewModel : ObservableObject
             );
     }
 
-    private void OnDownloadsCollectionChanged(object? sender, EventArgs e) =>
-        OnPropertyChanged(nameof(NoDownloads));
+    private void OnDownloadItemsChanged(IReadOnlyList<DownloadItem> items) => Downloads = items;
 }
