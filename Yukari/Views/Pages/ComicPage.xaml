@@ -182,8 +182,6 @@
                                 Content="{ui:FontIcon Glyph=&#xE712;}">
                             <Button.Flyout>
                                 <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem Icon="Refresh" Text="Reset" />
-                                    <MenuFlyoutSeparator />
                                     <MenuFlyoutItem Command="{x:Bind MarkPreviousChaptersAsReadCommand}"
                                                     CommandParameter="{x:Bind}"
                                                     Icon="{ui:FontIcon Glyph=&#xE890;}"
@@ -412,8 +410,6 @@
                                             <MenuFlyout Placement="Bottom">
                                                 <MenuFlyoutItem Command="{x:Bind ViewModel.MarkAllAsReadCommand}" Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark all as read" />
                                                 <MenuFlyoutItem Command="{x:Bind ViewModel.MarkAllAsUnreadCommand}" Icon="{ui:FontIcon Glyph=&#xED1A;}" Text="Mark all as unread" />
-                                                <MenuFlyoutSeparator />
-                                                <MenuFlyoutItem Icon="Refresh" Text="Reset all" />
                                             </MenuFlyout>
                                         </Button.Flyout>
                                     </Button>
