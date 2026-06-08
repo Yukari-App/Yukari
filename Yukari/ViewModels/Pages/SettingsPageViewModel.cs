@@ -127,7 +127,7 @@ public partial class SettingsPageViewModel : ObservableObject
                 s.Name == _settingsService.Current.DefaultComicSourceName
             ) ?? AvailableComicSources.First();
 
-        _notificationService.ShowSuccess("Comic source added successfully.");
+        _notificationService.ShowSuccess("Comic source added/updated successfully.");
         _messenger.Send(new ComicSourcesUpdatedMessage());
     }
 
