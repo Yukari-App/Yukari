@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Yukari.Core.Models;
 using Yukari.Core.Sources;
+using Yukari.Exceptions;
 using Yukari.Models;
 
 namespace Yukari.Services.Sources;
@@ -229,15 +230,22 @@ internal class SourceService : ISourceService
             ? new AssemblyLoadContext("CollectibleContext", isCollectible: true)
             : AssemblyLoadContext.Default;
 
-        Assembly pluginAssembly = context.LoadFromAssemblyPath(pluginPath);
+        try
+        {
+            Assembly pluginAssembly = context.LoadFromAssemblyPath(pluginPath);
 
-        return pluginAssembly
-                .GetTypes()
-                .FirstOrDefault(t =>
-                    typeof(IComicSource).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract
-                )
-            ?? throw new InvalidOperationException(
-                $"{pluginPath} does not implement IComicSource."
-            );
+            return pluginAssembly
+                    .GetTypes()
+                    .FirstOrDefault(t =>
+                        typeof(IComicSource).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract
+                    )
+                ?? throw new InvalidOperationException(
+                    $"{pluginPath} does not implement IComicSource."
+                );
+        }
+        catch (Exception ex) when (ex is ReflectionTypeLoadException or TypeLoadException)
+        {
+            throw new PluginVersionMismatchException(Path.GetFileName(pluginPath));
+        }
     }
 }
