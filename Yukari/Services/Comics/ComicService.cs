@@ -515,10 +515,11 @@ internal class ComicService : IComicService
         return await ExecuteAsync(
             async () =>
             {
+                var comicSource = _srcService.GetComicSourceModelFromAssembly(pluginPath, true);
+
                 try
                 {
-                    var newPath = AppDataHelper.CopyDllToPluginsDirectory(pluginPath);
-                    var comicSource = _srcService.GetComicSourceModelFromAssembly(newPath);
+                    comicSource.DllPath = AppDataHelper.CopyDllToPluginsDirectory(pluginPath);
                     await _dbService.UpsertComicSourceAsync(comicSource);
 
                     _logger.LogInformation(
@@ -530,18 +531,19 @@ internal class ComicService : IComicService
                 }
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 {
-                    var metadata = _srcService.GetComicSourceModelFromAssembly(pluginPath, true);
-
                     _logger.LogWarning(
                         ex,
                         "Could not replace DLL for source '{SourceName}' because it's in use. Marking for pending update on next restart.",
-                        metadata.Name
+                        comicSource.Name
                     );
-                    await _dbService.UpdateComicSourcePendingUpdateAsync(metadata.Name, pluginPath);
+                    await _dbService.UpdateComicSourcePendingUpdateAsync(
+                        comicSource.Name,
+                        pluginPath
+                    );
                     return Result.PendingRestart();
                 }
             },
-            "Error saving comic source"
+            "Error adding/updating comic source"
         );
     }
 
