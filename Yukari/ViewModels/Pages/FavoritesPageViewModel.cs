@@ -10,6 +10,7 @@ using Yukari.Enums;
 using Yukari.Messages;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.Settings;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
@@ -18,6 +19,7 @@ namespace Yukari.ViewModels.Pages;
 public partial class FavoritesPageViewModel : ObservableObject, IRecipient<SearchChangedMessage>
 {
     private readonly IComicService _comicService;
+    private readonly ISettingsService _settingsService;
     private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
     private readonly IMessenger _messenger;
@@ -25,6 +27,7 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
     private CancellationTokenSource _navigationCts = new();
     private CancellationTokenSource _searchCts = new();
 
+    private bool _isInitializing;
     private bool _suppressSortDirectionChange;
 
     [ObservableProperty]
@@ -55,12 +58,14 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
 
     public FavoritesPageViewModel(
         IComicService comicService,
+        ISettingsService settingsService,
         IDialogService dialogService,
         INotificationService notificationService,
         IMessenger messenger
     )
     {
         _comicService = comicService;
+        _settingsService = settingsService;
         _dialogService = dialogService;
         _notificationService = notificationService;
         _messenger = messenger;
@@ -73,8 +78,13 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
 
     public async Task InitializeAsync()
     {
+        _isInitializing = true;
+        SortBy = _settingsService.Current.FavoritesSortBy;
+        SortDirection = _settingsService.Current.FavoritesSortDirection;
+
         await UpdateCollectionsAsync();
         await UpdateDisplayedComicsAsync();
+        _isInitializing = false;
     }
 
     public void OnNavigatedFrom()
@@ -183,6 +193,9 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
 
     async partial void OnSortByChanged(FavoritesSortBy value)
     {
+        if (_isInitializing)
+            return;
+
         _suppressSortDirectionChange = true;
         SortDirection =
             value == FavoritesSortBy.Alphabetical
@@ -190,17 +203,24 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
                 : SortDirection.Descending;
         _suppressSortDirectionChange = false;
 
+        _settingsService.Set(s => s.FavoritesSortBy, value);
         await UpdateDisplayedComicsAsync();
     }
 
     async partial void OnSortDirectionChanged(SortDirection value)
     {
-        if (!_suppressSortDirectionChange)
-            await UpdateDisplayedComicsAsync();
+        if (_suppressSortDirectionChange || _isInitializing)
+            return;
+
+        _settingsService.Set(s => s.FavoritesSortDirection, value);
+        await UpdateDisplayedComicsAsync();
     }
 
     async partial void OnSelectedCollectionChanged(string? value)
     {
+        if (_isInitializing)
+            return;
+
         ShowAllCollections = value == null;
         await UpdateDisplayedComicsAsync();
     }

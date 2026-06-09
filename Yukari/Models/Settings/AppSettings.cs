@@ -8,6 +8,9 @@ public class AppSettings
     public bool NavigationPaneIsOpen { get; set; } = true;
     public ThemeMode Theme { get; set; } = ThemeMode.System;
 
+    public FavoritesSortBy FavoritesSortBy { get; set; } = FavoritesSortBy.Alphabetical;
+    public SortDirection FavoritesSortDirection { get; set; } = SortDirection.Ascending;
+
     public bool AutoFullscreen { get; set; } = false;
     public ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
     public ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
