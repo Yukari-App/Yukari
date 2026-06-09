@@ -1,5 +1,5 @@
--- Current schema: Version 3
--- Last updated: Migration_003
+-- Current schema: Version 4
+-- Last updated: Migration_004
 -- To understand how we got here, read Migrations/ in order.
 
 -- Comics definition
@@ -27,6 +27,7 @@ CREATE TABLE ComicUserData (
     Source TEXT NOT NULL,
     IsFavorite INTEGER NOT NULL DEFAULT 0,
     LastSelectedLang TEXT,
+    LastReadAt TEXT,
     PRIMARY KEY (ComicId, Source)
 );
 
