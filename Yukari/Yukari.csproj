@@ -20,8 +20,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionPrefix>0.6.0</VersionPrefix>
-    <VersionSuffix>Alpha</VersionSuffix>
+    <VersionPrefix>0.7.0</VersionPrefix>
+    <VersionSuffix>Beta</VersionSuffix>
     <Version>$(VersionPrefix)$([System.String]::Copy('-$(VersionSuffix)').TrimEnd('-'))</Version>
     <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
     <AssemblyFileVersion>$(VersionPrefix)</AssemblyFileVersion>
