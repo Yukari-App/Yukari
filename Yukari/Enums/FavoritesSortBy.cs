@@ -4,5 +4,4 @@ public enum FavoritesSortBy
 {
     Alphabetical,
     LastRead,
-    RecentlyUpdated,
 }
