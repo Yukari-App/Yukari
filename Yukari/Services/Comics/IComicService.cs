@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
+using Yukari.Enums;
 using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Models.Data;
@@ -30,6 +31,8 @@ public interface IComicService
     Task<Result<IReadOnlyList<ComicModel>>> GetFavoriteComicsAsync(
         string? queryText,
         string? collectionName,
+        FavoritesSortBy sortBy,
+        SortDirection sortDirection,
         CancellationToken ct = default
     );
     Task<Result<ComicAggregate?>> GetComicDetailsAsync(

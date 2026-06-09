@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Yukari.Core.Models;
+using Yukari.Enums;
 using Yukari.Exceptions;
 using Yukari.Helpers;
 using Yukari.Models;
@@ -106,13 +107,21 @@ internal class ComicService : IComicService
     public async Task<Result<IReadOnlyList<ComicModel>>> GetFavoriteComicsAsync(
         string? queryText,
         string? collectionName,
+        FavoritesSortBy sortBy,
+        SortDirection sortDirection,
         CancellationToken ct = default
     )
     {
         return await ExecuteAsync(
             async (ct) =>
                 Result<IReadOnlyList<ComicModel>>.Success(
-                    await _dbService.GetFavoriteComicsAsync(queryText, collectionName, ct)
+                    await _dbService.GetFavoriteComicsAsync(
+                        queryText,
+                        collectionName,
+                        sortBy == FavoritesSortBy.LastRead ? "lastread" : "title",
+                        sortDirection == SortDirection.Descending,
+                        ct
+                    )
                 ),
             "Error fetching favorite comics",
             ct

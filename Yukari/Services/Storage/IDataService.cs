@@ -12,6 +12,8 @@ public interface IDataService
     Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(
         string? queryText = null,
         string? collectionName = null,
+        string sortBy = "title",
+        bool descending = false,
         CancellationToken ct = default
     );
     Task<ComicModel?> GetComicDetailsAsync(ContentKey comicKey, CancellationToken ct = default);

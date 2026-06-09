@@ -42,11 +42,21 @@ internal class DataService : IDataService
     public async Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(
         string? queryText = null,
         string? collectionName = null,
+        string sortBy = "title",
+        bool descending = false,
         CancellationToken ct = default
     )
     {
         using var connection = await GetOpenConnectionAsync();
-        const string sql = """
+
+        var orderByColumn = sortBy switch
+        {
+            "lastread" => "u.LastReadAt",
+            _ => "c.Title COLLATE NOCASE",
+        };
+        var direction = descending ? "DESC" : "ASC";
+        var nulls = sortBy == "lastread" ? "NULLS LAST" : "";
+        string sql = $"""
             SELECT c.Id, c.Source, c.Title, c.CoverImageUrl
             FROM Comics c
             INNER JOIN ComicUserData u ON c.Id = u.ComicId AND c.Source = u.Source
@@ -66,6 +76,7 @@ internal class DataService : IDataService
                             AND col.Name = @CollectionName
                     )
                 )
+            ORDER BY {orderByColumn} {direction} {nulls}
             """;
 
         var result = await connection.QueryAsync<ComicModel>(
@@ -533,6 +544,11 @@ internal class DataService : IDataService
                 Language = progress.LanguageCode,
                 LastChapterId = progress.LastChapterId,
             }
+        );
+
+        await connection.ExecuteAsync(
+            "UPDATE ComicUserData SET LastReadAt = datetime('now') WHERE ComicId = @Id AND Source = @Source;",
+            new { Id = comicKey.Id, Source = comicKey.Source }
         );
     }
 
