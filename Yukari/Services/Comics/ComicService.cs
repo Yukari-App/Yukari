@@ -51,7 +51,7 @@ internal class ComicService : IComicService
                 await LoadComicSourceAsync(sourceName, ct);
                 return Result<IReadOnlyList<Filter>>.Success(_srcService.GetFilters());
             },
-            "Error getting source filters",
+            "Error Getting Source Filters",
             ct
         );
     }
@@ -69,7 +69,7 @@ internal class ComicService : IComicService
                     _srcService.GetLanguages()
                 );
             },
-            "Error getting source languages",
+            "Error Getting Source Languages",
             ct
         );
     }
@@ -99,7 +99,7 @@ internal class ComicService : IComicService
 
                 return Result<IReadOnlyList<ComicModel>>.Success(comics);
             },
-            "Error fetching comics",
+            "Error Fetching Comics",
             ct
         );
     }
@@ -123,7 +123,7 @@ internal class ComicService : IComicService
                         ct
                     )
                 ),
-            "Error fetching favorite comics",
+            "Error Fetching Favorite Comics",
             ct
         );
     }
@@ -157,7 +157,7 @@ internal class ComicService : IComicService
 
                 return Result<ComicAggregate?>.Success(new ComicAggregate(comic, userData));
             },
-            "Error fetching comic details",
+            "Error Fetching Comic Details",
             ct
         );
     }
@@ -170,7 +170,7 @@ internal class ComicService : IComicService
         return await ExecuteAsync(
             async (ct) =>
                 Result<ComicUserData>.Success(await _dbService.GetComicUserDataAsync(comicKey, ct)),
-            "Error fetching comic user data",
+            "Error Fetching Comic User Data",
             ct
         );
     }
@@ -182,7 +182,7 @@ internal class ComicService : IComicService
         return await ExecuteAsync(
             async (ct) =>
                 Result<IReadOnlyList<string>>.Success(await _dbService.GetCollectionsAsync(ct)),
-            "Error fetching collections",
+            "Error Fetching Collections",
             ct
         );
     }
@@ -198,7 +198,7 @@ internal class ComicService : IComicService
                 Result<ComicReadingProgress>.Success(
                     await _dbService.GetComicReadingProgressAsync(comicKey, language, ct)
                 ),
-            "Error fetching comic reading progress",
+            "Error Fetching Comic Reading Progress",
             ct
         );
     }
@@ -251,7 +251,7 @@ internal class ComicService : IComicService
                         .ToList()
                 );
             },
-            "Error fetching chapters",
+            "Error Fetching Chapters",
             ct
         );
     }
@@ -267,7 +267,7 @@ internal class ComicService : IComicService
                 Result<ChapterUserData>.Success(
                     await _dbService.GetChapterUserDataAsync(comicKey, chapterKey, ct)
                 ),
-            "Error fetching chapter user data",
+            "Error Fetching Chapter User Data",
             ct
         );
     }
@@ -305,7 +305,7 @@ internal class ComicService : IComicService
 
                 return Result<IReadOnlyList<ChapterPageModel>>.Success(pages);
             },
-            "Error fetching chapter pages",
+            "Error Fetching Chapter Pages",
             ct
         );
     }
@@ -319,7 +319,7 @@ internal class ComicService : IComicService
                 Result<IReadOnlyList<ComicSourceModel>>.Success(
                     await _dbService.GetComicSourcesAsync(ct)
                 ),
-            "Error fetching comic sources",
+            "Error Fetching Comic Sources",
             ct
         );
     }
@@ -363,7 +363,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Comic {ComicKey} added to favorites", comicKey);
                 return Result.Success();
             },
-            "Failed to add to favorites"
+            "Failed To Add To Favorites"
         );
     }
 
@@ -380,7 +380,7 @@ internal class ComicService : IComicService
                 _logger.LogDebug("User data updated for comic {ComicKey}", comicKey);
                 return Result.Success();
             },
-            "Error saving progress"
+            "Error Saving Progress"
         );
     }
 
@@ -394,7 +394,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Collection '{Name}' created", name);
                 return Result.Success();
             },
-            "Error creating collection"
+            "Error Creating Collection"
         );
     }
 
@@ -412,7 +412,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error renaming collection"
+            "Error Renaming Collection"
         );
     }
 
@@ -430,7 +430,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error adding comic to collection"
+            "Error Adding Comic To Collection"
         );
     }
 
@@ -452,7 +452,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error saving comic reading progress"
+            "Error Saving Comic Reading Progress"
         );
     }
 
@@ -470,7 +470,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error persisting chapters"
+            "Error Persisting Chapters"
         );
     }
 
@@ -492,7 +492,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error saving chapter progress"
+            "Error Saving Chapter Progress"
         );
     }
 
@@ -515,7 +515,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error setting read status"
+            "Error Setting Read Status"
         );
     }
 
@@ -552,7 +552,7 @@ internal class ComicService : IComicService
                     return Result.PendingRestart();
                 }
             },
-            "Error adding/updating comic source"
+            "Error Adding/Updating Comic Source"
         );
     }
 
@@ -570,7 +570,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error updating comic source status"
+            "Error Updating Comic Source Status"
         );
     }
 
@@ -585,7 +585,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Comic {ComicKey} removed from favorites", comicKey);
                 return Result.Success();
             },
-            "Error removing from favorites"
+            "Error Removing Comic from Favorites"
         );
     }
 
@@ -599,7 +599,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Collection '{Name}' removed", collectionName);
                 return Result.Success();
             },
-            "Error removing collection"
+            "Error Removing Collection"
         );
     }
 
@@ -620,7 +620,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error removing comic from collection"
+            "Error Removing Comic from Collection"
         );
     }
 
@@ -662,7 +662,7 @@ internal class ComicService : IComicService
                     return Result.PendingRestart();
                 }
             },
-            "Error removing comic source"
+            "Error Removing Comic Source"
         );
     }
 
@@ -677,7 +677,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Storage cleanup completed");
                 return Result.Success();
             },
-            "Error cleaning up data"
+            "Error Cleaning Up Data"
         );
     }
 
