@@ -103,15 +103,7 @@
                                                  GroupName="Classification"
                                                  Icon="{ui:FontIcon Glyph=&#xE823;}"
                                                  IsChecked="{x:Bind ViewModel.SortBy, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=LastRead, Mode=OneWay}"
-                                                 IsEnabled="False"
                                                  Text="Last read" />
-                            <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetSortByCommand}"
-                                                 CommandParameter="RecentlyUpdated"
-                                                 GroupName="Classification"
-                                                 Icon="{ui:FontIcon Glyph=&#xE895;}"
-                                                 IsChecked="{x:Bind ViewModel.SortBy, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=RecentlyUpdated, Mode=OneWay}"
-                                                 IsEnabled="False"
-                                                 Text="Recently updated" />
 
                             <MenuFlyoutSeparator />
 

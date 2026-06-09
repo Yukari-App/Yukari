@@ -25,6 +25,8 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
     private CancellationTokenSource _navigationCts = new();
     private CancellationTokenSource _searchCts = new();
 
+    private bool _suppressSortDirectionChange;
+
     [ObservableProperty]
     public partial List<ComicItemViewModel> FavoriteComics { get; set; } = new();
 
@@ -150,6 +152,8 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
         var result = await _comicService.GetFavoriteComicsAsync(
             searchText,
             SelectedCollection,
+            SortBy,
+            SortDirection,
             linkedCts.Token
         );
 
@@ -157,13 +161,13 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
             return;
 
         if (result.IsSuccess)
-            FavoriteComics = ApplySort(
-                result.Value!.Select(comic => new ComicItemViewModel(
+            FavoriteComics = result
+                .Value!.Select(comic => new ComicItemViewModel(
                     comic,
                     RemoveFavoriteComicCommand,
                     OpenComicCollectionsManagerCommand
                 ))
-            );
+                .ToList();
         else
             _notificationService.ShowError(result.Error!, result.ErrorTitle!);
 
@@ -177,22 +181,23 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
             Collections = result.Value!.ToArray();
     }
 
-    private List<ComicItemViewModel> ApplySort(IEnumerable<ComicItemViewModel> comics)
+    async partial void OnSortByChanged(FavoritesSortBy value)
     {
-        IEnumerable<ComicItemViewModel> sorted = SortBy switch
-        {
-            FavoritesSortBy.Alphabetical => comics.OrderBy(c => c.Comic.Title),
-            // TO-DO: Implement LastRead and RecentlyUpdated sorting
-            _ => comics.OrderBy(c => c.Comic.Title),
-        };
+        _suppressSortDirectionChange = true;
+        SortDirection =
+            value == FavoritesSortBy.Alphabetical
+                ? SortDirection.Ascending
+                : SortDirection.Descending;
+        _suppressSortDirectionChange = false;
 
-        return (SortDirection == SortDirection.Ascending ? sorted : sorted.Reverse()).ToList();
+        await UpdateDisplayedComicsAsync();
     }
 
-    async partial void OnSortByChanged(FavoritesSortBy value) => await UpdateDisplayedComicsAsync();
-
-    async partial void OnSortDirectionChanged(SortDirection value) =>
-        await UpdateDisplayedComicsAsync();
+    async partial void OnSortDirectionChanged(SortDirection value)
+    {
+        if (!_suppressSortDirectionChange)
+            await UpdateDisplayedComicsAsync();
+    }
 
     async partial void OnSelectedCollectionChanged(string? value)
     {
