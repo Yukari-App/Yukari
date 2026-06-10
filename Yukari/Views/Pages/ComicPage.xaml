@@ -326,7 +326,7 @@
                                                Style="{StaticResource TitleTextBlockStyle}"
                                                Text="Status" />
                                 </StackPanel>
-                                <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.Comic.Status, Mode=OneWay}" />
+                                <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.StatusDisplay, Mode=OneWay}" />
 
                                 <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{x:Bind ViewModel.IsTagsVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                                     <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE8EC;" />

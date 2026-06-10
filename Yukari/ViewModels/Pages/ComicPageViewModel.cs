@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Yukari.Core.Models;
 using Yukari.Enums;
 using Yukari.Messages;
 using Yukari.Models;
@@ -39,12 +40,23 @@ public partial class ComicPageViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(
         nameof(IsComicAvailable),
+        nameof(StatusDisplay),
         nameof(IsTagsVisible),
         nameof(DisplayTags),
         nameof(HasHiddenTags),
         nameof(HiddenTagsText)
     )]
     public partial ComicModel? Comic { get; set; }
+
+    public string StatusDisplay =>
+        Comic?.Status switch
+        {
+            ComicStatus.Ongoing => "Ongoing",
+            ComicStatus.Completed => "Completed",
+            ComicStatus.Hiatus => "Hiatus",
+            ComicStatus.Cancelled => "Cancelled",
+            _ => "Unknown",
+        };
 
     public bool IsTagsVisible => Comic?.Tags.Length > 0;
 
