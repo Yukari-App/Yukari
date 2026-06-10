@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using Yukari.Models.Common;
 using Yukari.Models.DTO;
 
 namespace Yukari.Helpers;
@@ -20,19 +19,16 @@ public static class AppDataHelper
         EnsureDirectory(Path.Combine(GetAppDataPath(), "Plugins"));
 
     public static string GetComicDataPath(ContentKey comicKey) =>
-        EnsureDirectory(Path.Combine(GetDataPath(), comicKey.Source, comicKey.Id));
+        EnsureDirectory(GetComicPath(comicKey));
 
     public static string GetComicChapterDataPath(ContentKey comicKey, string chapterId) =>
         EnsureDirectory(GetChapterPath(comicKey, chapterId));
 
-    public static void DeleteComicChapterDataPath(ContentKey comicKey, string chapterId)
-    {
-        string path = GetChapterPath(comicKey, chapterId);
-        if (Directory.Exists(path))
-        {
-            Directory.Delete(path, true);
-        }
-    }
+    public static void DeleteComicDataPath(ContentKey comicKey) =>
+        DeleteDirectory(GetComicPath(comicKey));
+
+    public static void DeleteComicChapterDataPath(ContentKey comicKey, string chapterId) =>
+        DeleteDirectory(GetChapterPath(comicKey, chapterId));
 
     public static string CopyDllToPluginsDirectory(string sourceDllPath)
     {
@@ -42,6 +38,9 @@ public static class AppDataHelper
         return destPath;
     }
 
+    private static string GetComicPath(ContentKey comicKey) =>
+        Path.Combine(GetDataPath(), comicKey.Source, comicKey.Id);
+
     private static string GetChapterPath(ContentKey comicKey, string chapterId) =>
         Path.Combine(GetComicDataPath(comicKey), chapterId);
 
@@ -49,5 +48,13 @@ public static class AppDataHelper
     {
         Directory.CreateDirectory(path);
         return path;
+    }
+
+    private static void DeleteDirectory(string path)
+    {
+        if (Directory.Exists(path))
+        {
+            Directory.Delete(path, true);
+        }
     }
 }
