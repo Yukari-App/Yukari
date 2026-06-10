@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Enums;
 using Yukari.Messages;
@@ -8,6 +9,8 @@ namespace Yukari.Services.UI;
 internal class NotificationService : INotificationService
 {
     private readonly IMessenger _messenger;
+    private readonly List<NotificationModel> _pendingNotifications = new();
+    private bool _isShellReady;
 
     public NotificationService(IMessenger messenger)
     {
@@ -24,7 +27,10 @@ internal class NotificationService : INotificationService
             IsActive = true,
         };
 
-        _messenger.Send(new ShowNotificationMessage(notification));
+        if (_isShellReady)
+            SendNotification(notification);
+        else
+            _pendingNotifications.Add(notification);
     }
 
     public void ShowError(string message, string title = "Error") =>
@@ -38,4 +44,17 @@ internal class NotificationService : INotificationService
 
     public void ShowWarning(string message, string title = "Warning") =>
         Show(message, title, NotificationSeverity.Warning);
+
+    public void OnShellReady()
+    {
+        _isShellReady = true;
+        foreach (var pending in _pendingNotifications)
+            SendNotification(pending);
+        _pendingNotifications.Clear();
+    }
+
+    private void SendNotification(NotificationModel notification)
+    {
+        _messenger.Send(new ShowNotificationMessage(notification));
+    }
 }

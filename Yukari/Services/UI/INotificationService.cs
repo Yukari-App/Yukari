@@ -10,4 +10,6 @@ public interface INotificationService
     void ShowInfo(string message, string title = "Info");
     void ShowError(string message, string title = "Error");
     void ShowWarning(string message, string title = "Warning");
+
+    void OnShellReady();
 }
