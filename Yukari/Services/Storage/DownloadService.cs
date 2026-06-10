@@ -83,6 +83,21 @@ internal class DownloadService : IDownloadService
         NotifyDownloadsChanged();
     }
 
+    public async Task DeleteComicDataAndDownloadsAsync(ContentKey comicKey)
+    {
+        var itemsToDelete = _downloads.Where(d => d.ComicKey.Equals(comicKey)).ToList();
+        foreach (var item in itemsToDelete)
+        {
+            if (item.Status is DownloadStatus.Queued or DownloadStatus.Downloading)
+                item.Cancel();
+            _downloads.Remove(item);
+        }
+
+        NotifyDownloadsChanged();
+        await _dataService.RemoveAllChapterPagesAsync(comicKey);
+        await Task.Run(() => DeleteComicFolder(comicKey));
+    }
+
     public async Task DeleteChapterDownloadAsync(ContentKey comicKey, ContentKey chapterKey)
     {
         var existing = GetDownload(chapterKey);
@@ -90,7 +105,7 @@ internal class DownloadService : IDownloadService
         {
             existing.Cancel();
         }
-        else
+        else if (existing?.Status is DownloadStatus.Completed)
         {
             await Task.Run(() => DeleteChapterFolder(comicKey, chapterKey));
             await _dataService.RemoveChapterPagesAsync(comicKey, chapterKey);
@@ -105,20 +120,7 @@ internal class DownloadService : IDownloadService
     public async Task CleanupUnfavoriteComicsAsync(IReadOnlyList<ContentKey> unfavoriteComics)
     {
         foreach (var comicKey in unfavoriteComics)
-        {
-            var comicDataPath = AppDataHelper.GetComicDataPath(comicKey);
-            try
-            {
-                await Task.Run(() => Directory.Delete(comicDataPath, true));
-            }
-            catch
-            {
-                _logger.LogError(
-                    "Failed to delete data for unfavorited comic {ComicKey}",
-                    comicKey
-                );
-            }
-        }
+            await Task.Run(() => DeleteComicFolder(comicKey));
     }
 
     public async Task<string?> DownloadComicCoverAsync(string? imageUrl, ContentKey comicKey)
@@ -233,6 +235,18 @@ internal class DownloadService : IDownloadService
         );
         await stream.CopyToAsync(fs, ct);
         return destFile;
+    }
+
+    private void DeleteComicFolder(ContentKey comicKey)
+    {
+        try
+        {
+            AppDataHelper.DeleteComicDataPath(comicKey);
+        }
+        catch
+        {
+            _logger.LogError("Failed to delete data for comic {ComicKey}", comicKey);
+        }
     }
 
     private void DeleteChapterFolder(ContentKey comicKey, ContentKey chapterKey)

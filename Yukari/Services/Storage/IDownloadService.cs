@@ -22,6 +22,7 @@ public interface IDownloadService
     IReadOnlyList<DownloadItem> GetAllDownloads();
     DownloadItem? GetDownload(ContentKey chapterKey);
     void ClearFinishedDownloads();
+    Task DeleteComicDataAndDownloadsAsync(ContentKey comicKey);
     Task DeleteChapterDownloadAsync(ContentKey comicKey, ContentKey chapterKey);
     Task CleanupUnfavoriteComicsAsync(IReadOnlyList<ContentKey> unfavoriteComics);
 
