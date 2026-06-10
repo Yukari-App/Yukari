@@ -580,7 +580,7 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.RemoveFavoriteComicAsync(comicKey);
-                // TO-DO: In the future, scan the downloads folder and delete folders containing IDs that are no longer in the database.
+                await _dloadService.DeleteComicDataAndDownloadsAsync(comicKey);
 
                 _logger.LogInformation("Comic {ComicKey} removed from favorites", comicKey);
                 return Result.Success();
