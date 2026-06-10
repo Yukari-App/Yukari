@@ -138,16 +138,18 @@ public partial class App : Application
     {
         var dbService = GetService<IDataService>();
         var comicService = GetService<IComicService>();
+        var notificationService = GetService<INotificationService>();
 
         // Removals must be processed before updates: a source could be removed and
         // re-added with the same name in the same startup cycle.
-        await ProcessPendingComicSourcesRemovalsAsync(dbService, comicService);
-        await ProcessPendingComicSourcesUpdatesAsync(dbService, comicService);
+        await ProcessPendingComicSourcesRemovalsAsync(dbService, comicService, notificationService);
+        await ProcessPendingComicSourcesUpdatesAsync(dbService, comicService, notificationService);
     }
 
     private static async Task ProcessPendingComicSourcesRemovalsAsync(
         IDataService dbService,
-        IComicService comicService
+        IComicService comicService,
+        INotificationService notificationService
     )
     {
         var pending = await dbService.GetComicSourcesPendingRemovalAsync();
@@ -163,14 +165,18 @@ public partial class App : Application
                     source.Name,
                     result.Error
                 );
-                // TO-DO: Notify the user that the source could not be removed
+                notificationService.ShowWarning(
+                    $"The source '{source.Name}' could not be removed. Retrying on next startup",
+                    "Failed to Remove Comic Source"
+                );
             }
         }
     }
 
     private static async Task ProcessPendingComicSourcesUpdatesAsync(
         IDataService dbService,
-        IComicService comicService
+        IComicService comicService,
+        INotificationService notificationService
     )
     {
         var pending = await dbService.GetComicSourcesPendingUpdateAsync();
@@ -186,7 +192,10 @@ public partial class App : Application
                     source.Name,
                     result.Error
                 );
-                // TO-DO: Invalid or corrupted plugin, notify the user and remove the pending update so it doesn't keep trying on every startup
+                notificationService.ShowError(
+                    $"The source '{source.Name}' could not be updated and will not be updated on next startup. Try updating manually.",
+                    "Failed to Update Comic Source"
+                );
             }
             await dbService.UpdateComicSourcePendingUpdateAsync(source.Name, null);
         }
