@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.Input;
 using FluentAssertions;
 using Moq;
 using Yukari.Enums;
+using Yukari.Helpers.UI;
 using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.Common;
@@ -18,6 +19,11 @@ namespace Yukari.Tests.ViewModels.Pages;
 
 public class ComicPageViewModelTests
 {
+    private const string ComicId = "c-001";
+    private const string SourceName = "TestSource";
+    private const string ComicTitle = "Test Comic";
+    private readonly ContentKey ComicKey = new(ComicId, SourceName);
+
     private readonly Mock<IComicService> _mockComicService;
     private readonly Mock<IDownloadService> _mockDownloadService;
     private readonly Mock<IDialogService> _mockDialogService;
@@ -61,9 +67,9 @@ public class ComicPageViewModelTests
         // Arrange
         var comic = new ComicModel
         {
-            Id = "comic-001",
-            Source = "TestSource",
-            Title = "Test Comic",
+            Id = ComicId,
+            Source = SourceName,
+            Title = ComicTitle,
             Tags = Enumerable.Range(1, tagsCount).Select(i => $"Tag {i}").ToArray(),
         };
         await ChangeSutComic(comic);
@@ -73,7 +79,59 @@ public class ComicPageViewModelTests
         _sut.HiddenTagsText.Should().Be(extraText);
     }
 
-    // TO-DO: Test IsAllChaptersDownload when implemented
+    [Fact]
+    public async Task IsAllChaptersDownload_IsTrue_WhenAllChaptersIsDownloaded()
+    {
+        // Arrange
+        await ChangeSutComic(
+            chapters: new List<ChapterAggregate>()
+            {
+                new ChapterAggregate(
+                    new ChapterModel() { Id = "ch-001", Source = SourceName },
+                    new ChapterUserData() { IsDownloaded = true }
+                ),
+                new ChapterAggregate(
+                    new ChapterModel() { Id = "ch-002", Source = SourceName },
+                    new ChapterUserData() { IsDownloaded = true }
+                ),
+            }
+        );
+
+        // Act & Assert
+        _sut.IsAllChaptersDownloaded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task IsAllChaptersDownload_IsFalse_WhenAnyChapterIsNotDownloaded()
+    {
+        // Arrange
+        await ChangeSutComic(
+            chapters: new List<ChapterAggregate>()
+            {
+                new ChapterAggregate(
+                    new ChapterModel() { Id = "ch-001", Source = SourceName },
+                    new ChapterUserData() { IsDownloaded = true }
+                ),
+                new ChapterAggregate(
+                    new ChapterModel() { Id = "ch-002", Source = SourceName },
+                    new ChapterUserData() { IsDownloaded = false }
+                ),
+            }
+        );
+
+        // Act & Assert
+        _sut.IsAllChaptersDownloaded.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task IsAllChaptersDownload_IsFalse_WhenChaptersIsEmpty()
+    {
+        // Arrange
+        await ChangeSutComic();
+
+        // Act & Assert
+        _sut.IsAllChaptersDownloaded.Should().BeFalse();
+    }
 
     [Fact]
     public async Task IsComicAvailable_IsFalse_WhenComicNotAvailable()
@@ -81,9 +139,9 @@ public class ComicPageViewModelTests
         await ChangeSutComic(
             new ComicModel
             {
-                Id = "comic-001",
-                Source = "TestSource",
-                Title = "Test Comic",
+                Id = ComicId,
+                Source = SourceName,
+                Title = ComicTitle,
                 IsAvailable = false,
             }
         );
@@ -172,15 +230,7 @@ public class ComicPageViewModelTests
     {
         // Arrange
         _sut.IsFavoriteStatusChanging = false;
-        await ChangeSutComic(
-            new ComicModel
-            {
-                Id = "comic-001",
-                Source = "TestSource",
-                Title = "Test Comic",
-                Langs = new[] { new LanguageModel("en", "English") },
-            }
-        );
+        await ChangeSutComic();
         _sut.IsChaptersLoading = false;
 
         // Act & Assert
@@ -219,9 +269,9 @@ public class ComicPageViewModelTests
         await ChangeSutComic(
             new()
             {
-                Id = "comic-001",
-                Source = "TestSource",
-                Title = "Test Comic",
+                Id = ComicId,
+                Source = SourceName,
+                Title = ComicTitle,
             }
         );
         _sut.IsChaptersLoading = false;
@@ -241,8 +291,8 @@ public class ComicPageViewModelTests
         var chapterItem = CreateChapterItemViewModel(
             new ChapterModel()
             {
-                Id = "ch-001",
-                Source = "TestSource",
+                Id = ComicId,
+                Source = SourceName,
                 Pages = 5,
             }
         );
@@ -250,11 +300,7 @@ public class ComicPageViewModelTests
 
         _mockComicService
             .Setup(s =>
-                s.GetChapterUserDataAsync(
-                    new ContentKey("c-001", "TestSource"),
-                    chapterItem.Key,
-                    It.IsAny<CancellationToken>()
-                )
+                s.GetChapterUserDataAsync(ComicKey, chapterItem.Key, It.IsAny<CancellationToken>())
             )
             .ReturnsAsync(
                 Result<ChapterUserData>.Success(new() { IsRead = true, LastPageRead = 5 })
@@ -307,7 +353,7 @@ public class ComicPageViewModelTests
             );
 
         // Act
-        await _sut.InitializeAsync(new ContentKey("c-001", "TestSource"));
+        await _sut.InitializeAsync(ComicKey);
 
         // Assert
         _sut.IsComicError.Should().BeTrue();
@@ -336,7 +382,7 @@ public class ComicPageViewModelTests
             );
 
         // Act
-        await _sut.InitializeAsync(new ContentKey("comic-001", "TestSource"));
+        await _sut.InitializeAsync(ComicKey);
 
         // Assert
         _sut.IsComicError.Should().BeTrue();
@@ -419,7 +465,7 @@ public class ComicPageViewModelTests
     }
 
     [Theory]
-    [InlineData("http://example.com/comic-001", true)]
+    [InlineData($"http://example.com/{ComicId}", true)]
     [InlineData(null, false)]
     [InlineData("", false)]
     public async Task OpenInBrowserCommand_CanExecute(string? comicUrl, bool expected)
@@ -428,9 +474,9 @@ public class ComicPageViewModelTests
         await ChangeSutComic(
             new ComicModel
             {
-                Id = "comic-001",
-                Source = "TestSource",
-                Title = "Test Comic",
+                Id = ComicId,
+                Source = SourceName,
+                Title = ComicTitle,
                 ComicUrl = comicUrl,
             }
         );
@@ -477,11 +523,7 @@ public class ComicPageViewModelTests
 
         _mockComicService
             .Setup(s =>
-                s.GetComicReadingProgressAsync(
-                    new ContentKey("c-001", "TestSource"),
-                    "en",
-                    It.IsAny<CancellationToken>()
-                )
+                s.GetComicReadingProgressAsync(ComicKey, "en", It.IsAny<CancellationToken>())
             )
             .ReturnsAsync(
                 Result<ComicReadingProgress>.Success(
@@ -499,10 +541,10 @@ public class ComicPageViewModelTests
         if (message.Parameter is not ReaderNavigationArgs parameters)
             throw new Exception("Expected Parameter to be of type ReaderNavigationArgs");
 
-        parameters.ComicKey.Should().Be(new ContentKey("c-001", "TestSource"));
+        parameters.ComicKey.Should().Be(ComicKey);
         parameters
             .ChapterKey.Should()
-            .Be(chapterId != null ? new ContentKey(chapterId, "TestSource") : null);
+            .Be(chapterId != null ? new ContentKey(chapterId, SourceName) : null);
     }
 
     [Fact]
@@ -540,18 +582,11 @@ public class ComicPageViewModelTests
             .Setup(s => s.UpsertChaptersAsync(It.IsAny<ContentKey>(), It.IsAny<string>()))
             .ReturnsAsync(Result.Success());
         _mockComicService
-            .Setup(s =>
-                s.GetAllChaptersAsync(
-                    new ContentKey("c-001", "TestSource"),
-                    "en",
-                    false,
-                    It.IsAny<CancellationToken>()
-                )
-            )
+            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
                     new ChapterAggregate(
-                        new ChapterModel { Id = "ch-001", Source = "TestSource" },
+                        new ChapterModel { Id = "ch-001", Source = SourceName },
                         new()
                     ),
                 ])
@@ -580,18 +615,11 @@ public class ComicPageViewModelTests
             .Setup(s => s.RemoveFavoriteComicAsync(It.IsAny<ContentKey>()))
             .ReturnsAsync(Result.Success());
         _mockComicService
-            .Setup(s =>
-                s.GetAllChaptersAsync(
-                    new ContentKey("c-001", "TestSource"),
-                    "en",
-                    false,
-                    It.IsAny<CancellationToken>()
-                )
-            )
+            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
                     new ChapterAggregate(
-                        new ChapterModel { Id = "ch-001", Source = "TestSource" },
+                        new ChapterModel { Id = "ch-001", Source = SourceName },
                         new()
                     ),
                 ])
@@ -657,9 +685,9 @@ public class ComicPageViewModelTests
                     new ComicAggregate(
                         new ComicModel
                         {
-                            Id = "c-001",
-                            Source = "TestSource",
-                            Title = "Test Comic Updated",
+                            Id = ComicId,
+                            Source = SourceName,
+                            Title = $"{ComicTitle} Updated",
                             Langs = new[] { new LanguageModel("en", "English") },
                         },
                         new ComicUserData { IsFavorite = true }
@@ -667,22 +695,15 @@ public class ComicPageViewModelTests
                 )
             );
         _mockComicService
-            .Setup(s =>
-                s.GetAllChaptersAsync(
-                    new ContentKey("c-001", "TestSource"),
-                    "en",
-                    false,
-                    It.IsAny<CancellationToken>()
-                )
-            )
+            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
                     new ChapterAggregate(
-                        new ChapterModel { Id = "ch-001", Source = "TestSource" },
+                        new ChapterModel { Id = "ch-001", Source = SourceName },
                         new()
                     ),
                     new ChapterAggregate(
-                        new ChapterModel { Id = "ch-002", Source = "TestSource" },
+                        new ChapterModel { Id = "ch-002", Source = SourceName },
                         new()
                     ),
                 ])
@@ -692,7 +713,7 @@ public class ComicPageViewModelTests
         await _sut.UpdateCommand.ExecuteAsync(null);
 
         // Assert
-        _sut.Comic?.Title.Should().Be("Test Comic Updated");
+        _sut.Comic?.Title.Should().Be($"{ComicTitle} Updated");
         _sut.Chapters.Should().HaveCount(2);
         _mockNotificationService.Verify(
             n => n.ShowSuccess(It.IsAny<string>(), It.IsAny<string>()),
@@ -716,60 +737,176 @@ public class ComicPageViewModelTests
         _mockNotificationService.Verify(n => n.ShowError("DB error", "Error"), Times.Once);
     }
 
-    // TO-DO: Test ToggleDownloadAllChapters when implemented
+    [Fact]
+    public async Task ToggleDownloadAllChapters_EnqueuesDownloads_WhenSomeNotDownloaded()
+    {
+        // Arrange
+        var chapter1 = new ChapterModel { Id = "ch-001", Source = SourceName };
+        var chapter2 = new ChapterModel { Id = "ch-002", Source = SourceName };
+        var chapter3 = new ChapterModel { Id = "ch-003", Source = SourceName };
+
+        await ChangeSutComic(
+            userData: new() { IsFavorite = true },
+            chapters: new List<ChapterAggregate>
+            {
+                new ChapterAggregate(chapter1, new ChapterUserData { IsDownloaded = false }),
+                new ChapterAggregate(chapter2, new ChapterUserData { IsDownloaded = false }),
+                new ChapterAggregate(chapter3, new ChapterUserData { IsDownloaded = true }),
+            }
+        );
+
+        // Act
+        await _sut.ToggleDownloadAllChaptersCommand.ExecuteAsync(null);
+
+        // Assert
+        _mockDownloadService.Verify(
+            d =>
+                d.EnqueueChapterDownload(
+                    ComicKey,
+                    new ContentKey(chapter1.Id, SourceName),
+                    ComicTitle,
+                    chapter1.ToDisplayTitle(),
+                    It.IsAny<
+                        Func<CancellationToken, Task<Result<IReadOnlyList<ChapterPageModel>>>>
+                    >()
+                ),
+            Times.Once
+        );
+        _mockDownloadService.Verify(
+            d =>
+                d.EnqueueChapterDownload(
+                    ComicKey,
+                    new ContentKey(chapter2.Id, SourceName),
+                    ComicTitle,
+                    chapter2.ToDisplayTitle(),
+                    It.IsAny<
+                        Func<CancellationToken, Task<Result<IReadOnlyList<ChapterPageModel>>>>
+                    >()
+                ),
+            Times.Once
+        );
+        _mockDownloadService.Verify(
+            d =>
+                d.EnqueueChapterDownload(
+                    ComicKey,
+                    new ContentKey(chapter3.Id, SourceName),
+                    ComicTitle,
+                    chapter3.ToDisplayTitle(),
+                    It.IsAny<
+                        Func<CancellationToken, Task<Result<IReadOnlyList<ChapterPageModel>>>>
+                    >()
+                ),
+            Times.Never
+        );
+        _mockDownloadService.Verify(
+            d => d.DeleteChapterDownloadAsync(It.IsAny<ContentKey>(), It.IsAny<ContentKey>()),
+            Times.Never
+        );
+        _mockComicService.Verify(
+            s =>
+                s.GetAllChaptersAsync(
+                    ComicKey,
+                    It.IsAny<string>(),
+                    false,
+                    It.IsAny<CancellationToken>()
+                ),
+            Times.Exactly(2)
+        );
+    }
+
+    [Fact]
+    public async Task ToggleDownloadAllChapters_DeleteDownloads_WhenAllDownloaded()
+    {
+        // Arrange
+        var chapter1 = new ChapterModel { Id = "ch-001", Source = SourceName };
+        var chapter2 = new ChapterModel { Id = "ch-002", Source = SourceName };
+
+        await ChangeSutComic(
+            userData: new() { IsFavorite = true },
+            chapters: new List<ChapterAggregate>
+            {
+                new ChapterAggregate(chapter1, new ChapterUserData { IsDownloaded = true }),
+                new ChapterAggregate(chapter2, new ChapterUserData { IsDownloaded = true }),
+            }
+        );
+
+        // Act
+        await _sut.ToggleDownloadAllChaptersCommand.ExecuteAsync(null);
+
+        // Assert
+        _mockDownloadService.Verify(
+            d => d.DeleteChapterDownloadAsync(ComicKey, new ContentKey(chapter1.Id, SourceName)),
+            Times.Once
+        );
+        _mockDownloadService.Verify(
+            d => d.DeleteChapterDownloadAsync(ComicKey, new ContentKey(chapter2.Id, SourceName)),
+            Times.Once
+        );
+        _mockDownloadService.Verify(
+            d =>
+                d.EnqueueChapterDownload(
+                    ComicKey,
+                    It.IsAny<ContentKey>(),
+                    ComicTitle,
+                    It.IsAny<string>(),
+                    It.IsAny<
+                        Func<CancellationToken, Task<Result<IReadOnlyList<ChapterPageModel>>>>
+                    >()
+                ),
+            Times.Never
+        );
+        _mockComicService.Verify(
+            s =>
+                s.GetAllChaptersAsync(
+                    ComicKey,
+                    It.IsAny<string>(),
+                    false,
+                    It.IsAny<CancellationToken>()
+                ),
+            Times.Exactly(2)
+        );
+    }
 
     [Fact]
     public async Task MarkPreviousChaptersAsRead_WhenSuccess()
     {
         // Arrange
-        await ChangeSutComic();
-        _sut.Chapters = new()
-        {
-            CreateChapterItemViewModel(
-                new ChapterModel
-                {
-                    Id = "ch-001",
-                    Source = "TestSource",
-                    Language = "en",
-                },
-                new ChapterUserData { IsRead = false }
-            ),
-            CreateChapterItemViewModel(
-                new ChapterModel
-                {
-                    Id = "ch-002",
-                    Source = "TestSource",
-                    Language = "en",
-                },
-                new ChapterUserData { IsRead = false }
-            ),
-        };
+        await ChangeSutComic(
+            chapters: new List<ChapterAggregate>
+            {
+                new ChapterAggregate(
+                    new ChapterModel
+                    {
+                        Id = "ch-001",
+                        Source = SourceName,
+                        Language = "en",
+                    },
+                    new ChapterUserData { IsRead = false }
+                ),
+                new ChapterAggregate(
+                    new ChapterModel
+                    {
+                        Id = "ch-002",
+                        Source = SourceName,
+                        Language = "en",
+                    },
+                    new ChapterUserData { IsRead = false }
+                ),
+            }
+        );
 
         _mockComicService
-            .Setup(s =>
-                s.UpsertChaptersIsReadAsync(
-                    new("c-001", "TestSource"),
-                    new string[] { "ch-001" },
-                    true
-                )
-            )
+            .Setup(s => s.UpsertChaptersIsReadAsync(ComicKey, new string[] { "ch-001" }, true))
             .ReturnsAsync(Result.Success());
         _mockComicService
-            .Setup(s =>
-                s.GetAllChaptersAsync(
-                    new("c-001", "TestSource"),
-                    "en",
-                    false,
-                    It.IsAny<CancellationToken>()
-                )
-            )
+            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
                     new ChapterAggregate(
                         new ChapterModel
                         {
                             Id = "ch-001",
-                            Source = "TestSource",
+                            Source = SourceName,
                             Language = "en",
                         },
                         new ChapterUserData { IsRead = true }
@@ -778,7 +915,7 @@ public class ComicPageViewModelTests
                         new ChapterModel
                         {
                             Id = "ch-002",
-                            Source = "TestSource",
+                            Source = SourceName,
                             Language = "en",
                         },
                         new ChapterUserData { IsRead = false }
@@ -791,12 +928,7 @@ public class ComicPageViewModelTests
 
         // Assert
         _mockComicService.Verify(
-            c =>
-                c.UpsertChaptersIsReadAsync(
-                    new("c-001", "TestSource"),
-                    new string[] { "ch-001" },
-                    true
-                ),
+            c => c.UpsertChaptersIsReadAsync(ComicKey, new string[] { "ch-001" }, true),
             Times.Once
         );
         _sut.Chapters[0].IsRead.Should().BeTrue();
@@ -808,54 +940,44 @@ public class ComicPageViewModelTests
     public async Task MarkAllChaptersReadStatus_WhenSuccess(bool isRead)
     {
         // Arrange
-        await ChangeSutComic();
-        _sut.Chapters = new()
-        {
-            CreateChapterItemViewModel(
-                new ChapterModel
-                {
-                    Id = "ch-001",
-                    Source = "TestSource",
-                    Language = "en",
-                },
-                new ChapterUserData { IsRead = !isRead }
-            ),
-            CreateChapterItemViewModel(
-                new ChapterModel
-                {
-                    Id = "ch-002",
-                    Source = "TestSource",
-                    Language = "en",
-                },
-                new ChapterUserData { IsRead = !isRead }
-            ),
-        };
+        await ChangeSutComic(
+            chapters: new List<ChapterAggregate>
+            {
+                new ChapterAggregate(
+                    new ChapterModel
+                    {
+                        Id = "ch-001",
+                        Source = SourceName,
+                        Language = "en",
+                    },
+                    new ChapterUserData { IsRead = !isRead }
+                ),
+                new ChapterAggregate(
+                    new ChapterModel
+                    {
+                        Id = "ch-002",
+                        Source = SourceName,
+                        Language = "en",
+                    },
+                    new ChapterUserData { IsRead = !isRead }
+                ),
+            }
+        );
 
         _mockComicService
             .Setup(s =>
-                s.UpsertChaptersIsReadAsync(
-                    new("c-001", "TestSource"),
-                    new string[] { "ch-001", "ch-002" },
-                    isRead
-                )
+                s.UpsertChaptersIsReadAsync(ComicKey, new string[] { "ch-001", "ch-002" }, isRead)
             )
             .ReturnsAsync(Result.Success());
         _mockComicService
-            .Setup(s =>
-                s.GetAllChaptersAsync(
-                    new("c-001", "TestSource"),
-                    "en",
-                    false,
-                    It.IsAny<CancellationToken>()
-                )
-            )
+            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
                     new ChapterAggregate(
                         new ChapterModel
                         {
                             Id = "ch-001",
-                            Source = "TestSource",
+                            Source = SourceName,
                             Language = "en",
                         },
                         new ChapterUserData { IsRead = isRead }
@@ -864,7 +986,7 @@ public class ComicPageViewModelTests
                         new ChapterModel
                         {
                             Id = "ch-002",
-                            Source = "TestSource",
+                            Source = SourceName,
                             Language = "en",
                         },
                         new ChapterUserData { IsRead = isRead }
@@ -880,12 +1002,7 @@ public class ComicPageViewModelTests
 
         // Assert
         _mockComicService.Verify(
-            c =>
-                c.UpsertChaptersIsReadAsync(
-                    new("c-001", "TestSource"),
-                    new string[] { "ch-001", "ch-002" },
-                    isRead
-                ),
+            c => c.UpsertChaptersIsReadAsync(ComicKey, new string[] { "ch-001", "ch-002" }, isRead),
             Times.Once
         );
         _sut.Chapters.Should().OnlyContain(c => c.IsRead == isRead);
@@ -948,12 +1065,7 @@ public class ComicPageViewModelTests
 
         _mockComicService
             .Setup(s =>
-                s.GetAllChaptersAsync(
-                    new ContentKey("c-001", "TestSource"),
-                    "pt-BR",
-                    false,
-                    It.IsAny<CancellationToken>()
-                )
+                s.GetAllChaptersAsync(ComicKey, "pt-BR", false, It.IsAny<CancellationToken>())
             )
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
@@ -961,7 +1073,7 @@ public class ComicPageViewModelTests
                         new ChapterModel
                         {
                             Id = "ch-001",
-                            Source = "TestSource",
+                            Source = SourceName,
                             Language = "pt-BR",
                         },
                         new()
@@ -970,12 +1082,7 @@ public class ComicPageViewModelTests
             );
 
         _mockComicService
-            .Setup(s =>
-                s.UpsertComicUserDataAsync(
-                    new ContentKey("c-001", "TestSource"),
-                    It.IsAny<ComicUserData>()
-                )
-            )
+            .Setup(s => s.UpsertComicUserDataAsync(ComicKey, It.IsAny<ComicUserData>()))
             .ReturnsAsync(Result.Success());
 
         // Act
@@ -988,7 +1095,7 @@ public class ComicPageViewModelTests
         _mockComicService.Verify(
             s =>
                 s.UpsertComicUserDataAsync(
-                    new ContentKey("c-001", "TestSource"),
+                    ComicKey,
                     It.Is<ComicUserData>(ud => ud.LastSelectedLang == "pt-BR")
                 ),
             Times.Once
@@ -1003,24 +1110,14 @@ public class ComicPageViewModelTests
 
         _mockComicService
             .Setup(s =>
-                s.GetAllChaptersAsync(
-                    new ContentKey("c-001", "TestSource"),
-                    "pt-BR",
-                    false,
-                    It.IsAny<CancellationToken>()
-                )
+                s.GetAllChaptersAsync(ComicKey, "pt-BR", false, It.IsAny<CancellationToken>())
             )
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success(Array.Empty<ChapterAggregate>())
             );
 
         _mockComicService
-            .Setup(s =>
-                s.UpsertComicUserDataAsync(
-                    new ContentKey("c-001", "TestSource"),
-                    It.IsAny<ComicUserData>()
-                )
-            )
+            .Setup(s => s.UpsertComicUserDataAsync(ComicKey, It.IsAny<ComicUserData>()))
             .ReturnsAsync(Result.Failure("Db Error", "Error"));
 
         // Act
@@ -1035,15 +1132,19 @@ public class ComicPageViewModelTests
     // UTILITIES
     // ────────────────────────────────────────────────────────────────
 
-    private async Task ChangeSutComic(ComicModel? comic = null, ComicUserData? userData = null)
+    private async Task ChangeSutComic(
+        ComicModel? comic = null,
+        ComicUserData? userData = null,
+        List<ChapterAggregate>? chapters = null
+    )
     {
         var comicModel =
             comic
             ?? new ComicModel
             {
-                Id = "c-001",
-                Source = "TestSource",
-                Title = "Test Comic",
+                Id = ComicId,
+                Source = SourceName,
+                Title = ComicTitle,
                 Langs = new[] { new LanguageModel("en", "English") },
             };
 
@@ -1064,9 +1165,7 @@ public class ComicPageViewModelTests
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(
-                Result<IReadOnlyList<ChapterAggregate>>.Success(Array.Empty<ChapterAggregate>())
-            );
+            .ReturnsAsync(Result<IReadOnlyList<ChapterAggregate>>.Success(chapters ?? []));
 
         await _sut.InitializeAsync(new ContentKey(comicModel.Id, comicModel.Source));
     }
@@ -1080,12 +1179,12 @@ public class ComicPageViewModelTests
             _mockDownloadService.Object,
             _mockNotificationService.Object,
             new ChapterAggregate(
-                chapter ?? new() { Id = Guid.NewGuid().ToString(), Source = "TestSource" },
+                chapter ?? new() { Id = Guid.NewGuid().ToString(), Source = SourceName },
                 userData ?? new()
             ),
-            new ContentKey("c-001", "TestSource"),
+            ComicKey,
             false,
-            "Test Comic",
+            ComicTitle,
             new RelayCommand<ContentKey>(_ => { }),
             new RelayCommand<ChapterItemViewModel>(_ => { })
         );
