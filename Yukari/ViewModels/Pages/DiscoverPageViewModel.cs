@@ -62,8 +62,7 @@ public partial class DiscoverPageViewModel
     public bool IsLoadMoreVisible => !IsContentLoading && !NoResults && !NoSources;
 
     public bool NoSources => !IsContentLoading && (ComicSources == null || ComicSources.Count == 0);
-    public bool NoResults =>
-        !IsContentLoading && !NoSources && (SearchedComics == null || SearchedComics.Count == 0);
+    public bool NoResults => !IsContentLoading && !NoSources && SearchedComics.Count == 0;
 
     public DiscoverPageViewModel(
         IComicService comicService,
