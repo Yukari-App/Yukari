@@ -16,6 +16,14 @@ namespace Yukari.Tests.ViewModels.Pages;
 
 public class DiscoverPageViewModelTests
 {
+    // Default Source Mock
+    private readonly ComicSourceModel DefaultMockSource = new()
+    {
+        Name = "TestSource",
+        Version = "1",
+        DllPath = "Yukari.Plugin.TestSource.dll",
+    };
+
     private readonly Mock<IComicService> _comicServiceMock;
     private readonly Mock<ISettingsService> _settingsServiceMock;
     private readonly Mock<IDialogService> _dialogServiceMock;
@@ -73,6 +81,62 @@ public class DiscoverPageViewModelTests
     // ────────────────────────────────────────────────────────────────
 
     [Fact]
+    public void IsLoadMoreVisibile_IsTrue_WhenHasResults_AndHasSources_AndNotLoading()
+    {
+        // Arrange
+        _sut.IsContentLoading = false;
+        _sut.ComicSources = new List<ComicSourceModel>() { DefaultMockSource };
+        _sut.SearchedComics = new ObservableCollection<ComicItemViewModel>()
+        {
+            new ComicItemViewModel(
+                new ComicModel()
+                {
+                    Id = "c-001",
+                    Source = DefaultMockSource.Name,
+                    Title = "Test Comic",
+                }
+            ),
+        };
+
+        // Act & Assert
+        _sut.IsLoadMoreVisible.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsLoadMoreVisibile_IsFalse_WhenNoResults()
+    {
+        // Arrange
+        _sut.IsContentLoading = false;
+        _sut.ComicSources = new List<ComicSourceModel>() { DefaultMockSource };
+        _sut.SearchedComics = [];
+
+        // Act & Assert
+        _sut.IsLoadMoreVisible.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsLoadMoreVisibile_IsFalse_WhenNoSources()
+    {
+        // Arrange
+        _sut.IsContentLoading = false;
+        _sut.ComicSources = [];
+        _sut.SearchedComics = [];
+
+        // Act & Assert
+        _sut.IsLoadMoreVisible.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsLoadMoreVisibile_IsFalse_WhenLoading()
+    {
+        // Arrange
+        _sut.IsContentLoading = true;
+
+        // Act & Assert
+        _sut.IsLoadMoreVisible.Should().BeFalse();
+    }
+
+    [Fact]
     public void NoSources_IsTrue_WhenComicSourcesIsNull_AndNotLoading()
     {
         // Arrange
@@ -97,15 +161,7 @@ public class DiscoverPageViewModelTests
     public void NoResults_IsTrue_WhenHasSources_ButNoResults_AndNotLoading()
     {
         // Arrange
-        _sut.ComicSources = new List<ComicSourceModel>
-        {
-            new ComicSourceModel()
-            {
-                Name = "TestSource",
-                Version = "1",
-                DllPath = "Yukari.Plugin.TestSource.dll",
-            },
-        };
+        _sut.ComicSources = new List<ComicSourceModel> { DefaultMockSource };
         _sut.SearchedComics = new ObservableCollection<ComicItemViewModel>();
         _sut.IsContentLoading = false;
 
@@ -140,15 +196,7 @@ public class DiscoverPageViewModelTests
             .Setup(s => s.GetComicSourcesAsync())
             .ReturnsAsync(
                 Result<IReadOnlyList<ComicSourceModel>>.Success(
-                    new List<ComicSourceModel>
-                    {
-                        new ComicSourceModel()
-                        {
-                            Name = "TestSource",
-                            Version = "1",
-                            DllPath = "Yukari.Plugin.TestSource.dll",
-                        },
-                    }
+                    new List<ComicSourceModel> { DefaultMockSource }
                 )
             );
 
@@ -188,12 +236,12 @@ public class DiscoverPageViewModelTests
         // Arrange
         var message = new SearchChangedMessage("test search");
 
-        await SetSelectedSourceAndWait("TestSource");
+        await SetSelectedSourceAndWait(DefaultMockSource.Name);
 
         _comicServiceMock
             .Setup(s =>
                 s.SearchComicsAsync(
-                    "TestSource",
+                    DefaultMockSource.Name,
                     "test search",
                     It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
                     It.IsAny<int>(),
@@ -204,7 +252,6 @@ public class DiscoverPageViewModelTests
 
         // Act
         _sut.Receive(message);
-
         await Task.Delay(100, TestContext.Current.CancellationToken);
 
         // Assert
@@ -236,11 +283,11 @@ public class DiscoverPageViewModelTests
     }
 
     [Theory]
-    [InlineData(null, 0, false)] // No Source
-    [InlineData("TestSource", 0, false)] // No filters
-    [InlineData("TestSource1", 1, true)] // 1 filter
+    [InlineData(false, 0, false)] // No Source
+    [InlineData(true, 0, false)] // No filters
+    [InlineData(true, 1, true)] // 1 filter
     public async Task FilterCommand_CanExecute_AvailabilityDependOnAvailableFilters(
-        string? source,
+        bool sourceHasValue,
         int filterCount,
         bool expected
     )
@@ -263,21 +310,48 @@ public class DiscoverPageViewModelTests
             );
 
         // Act
-        _sut.SelectedComicSource =
-            source != null
-                ? new ComicSourceModel
-                {
-                    Name = source,
-                    Version = "1",
-                    DllPath = ".dll",
-                }
-                : null;
+        _sut.SelectedComicSource = sourceHasValue ? DefaultMockSource : null;
 
         await Task.Delay(100, TestContext.Current.CancellationToken);
         _sut.IsContentLoading = false;
 
         // Assert
         _sut.FilterCommand.CanExecute(null).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(false, false, true, true)]
+    [InlineData(true, false, true, false)]
+    [InlineData(false, true, true, false)]
+    [InlineData(false, false, false, false)]
+    public async Task LoadMoreCommand_CanExecute_AvailabilityDependOnPageState(
+        bool contentLoading,
+        bool loadingMore,
+        bool hasResults,
+        bool expected
+    )
+    {
+        // Arrange
+        _sut.ComicSources = new List<ComicSourceModel>() { DefaultMockSource };
+
+        _sut.IsContentLoading = contentLoading;
+        _sut.IsLoadingMore = loadingMore;
+        _sut.SearchedComics = hasResults
+            ? new ObservableCollection<ComicItemViewModel>()
+            {
+                new ComicItemViewModel(
+                    new ComicModel()
+                    {
+                        Id = "c-001",
+                        Source = DefaultMockSource.Name,
+                        Title = "Test Comic",
+                    }
+                ),
+            }
+            : new ObservableCollection<ComicItemViewModel>();
+
+        // Act & Assert
+        _sut.LoadMoreCommand.CanExecute(null).Should().Be(expected);
     }
 
     // ────────────────────────────────────────────────────────────────
@@ -289,7 +363,7 @@ public class DiscoverPageViewModelTests
     {
         // Arrange
         _comicServiceMock
-            .Setup(s => s.GetSourceFiltersAsync("TestSource"))
+            .Setup(s => s.GetSourceFiltersAsync(DefaultMockSource.Name))
             .ReturnsAsync(
                 Result<IReadOnlyList<Filter>>.Success(
                     new List<Filter>
@@ -319,7 +393,7 @@ public class DiscoverPageViewModelTests
         _comicServiceMock
             .Setup(s =>
                 s.SearchComicsAsync(
-                    "TestSource",
+                    DefaultMockSource.Name,
                     It.IsAny<string>(),
                     It.Is<Dictionary<string, IReadOnlyList<string>>>(f =>
                         f.ContainsKey("test") && f["test"].Contains("value")
@@ -331,7 +405,7 @@ public class DiscoverPageViewModelTests
             .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Success(new List<ComicModel>()));
 
         // Act
-        await SetSelectedSourceAndWait("TestSource");
+        await SetSelectedSourceAndWait(DefaultMockSource.Name);
         await _sut.FilterCommand.ExecuteAsync(null);
 
         // Assert
@@ -346,7 +420,7 @@ public class DiscoverPageViewModelTests
         _comicServiceMock.Verify(
             s =>
                 s.SearchComicsAsync(
-                    "TestSource",
+                    DefaultMockSource.Name,
                     It.IsAny<string>(),
                     It.Is<Dictionary<string, IReadOnlyList<string>>>(f =>
                         f.ContainsKey("test") && f["test"].Contains("value")
@@ -356,6 +430,99 @@ public class DiscoverPageViewModelTests
                 ),
             Times.Once()
         );
+    }
+
+    [Fact]
+    public async Task LoadMore_ShouldIncreaseComics_WhenSearchComicReturnNewComics()
+    {
+        // Arrange
+        _sut.ComicSources = new List<ComicSourceModel>() { DefaultMockSource };
+        _sut.SelectedComicSource = DefaultMockSource;
+
+        _sut.SearchedComics = new ObservableCollection<ComicItemViewModel>()
+        {
+            new ComicItemViewModel(
+                new ComicModel()
+                {
+                    Id = "c-001",
+                    Source = DefaultMockSource.Name,
+                    Title = "Test Comic",
+                }
+            ),
+        };
+
+        _comicServiceMock
+            .Setup(c =>
+                c.SearchComicsAsync(
+                    DefaultMockSource.Name,
+                    It.IsAny<string?>(),
+                    It.IsAny<IReadOnlyDictionary<string, IReadOnlyList<string>>>(),
+                    2,
+                    It.IsAny<CancellationToken>()
+                )
+            )
+            .ReturnsAsync(
+                Result<IReadOnlyList<ComicModel>>.Success(
+                    new List<ComicModel>()
+                    {
+                        new ComicModel()
+                        {
+                            Id = "c-002",
+                            Source = DefaultMockSource.Name,
+                            Title = "Test Comic 2",
+                        },
+                    }
+                )
+            );
+
+        // Act
+        await _sut.LoadMoreCommand.ExecuteAsync(null);
+
+        // Assert
+        _sut.SearchedComics.Count.Should().Be(2);
+        _sut.SearchedComics[1].Comic.Id.Should().Be("c-002");
+    }
+
+    [Fact]
+    public async Task LoadMore_ShowWarning_WhenNoMoreResults()
+    {
+        // Arrange
+        _sut.ComicSources = new List<ComicSourceModel>() { DefaultMockSource };
+        _sut.SelectedComicSource = DefaultMockSource;
+
+        _sut.SearchedComics = new ObservableCollection<ComicItemViewModel>
+        {
+            new ComicItemViewModel(
+                new ComicModel
+                {
+                    Id = "c-001",
+                    Source = DefaultMockSource.Name,
+                    Title = "Test Comic",
+                }
+            ),
+        };
+
+        _comicServiceMock
+            .Setup(c =>
+                c.SearchComicsAsync(
+                    DefaultMockSource.Name,
+                    It.IsAny<string?>(),
+                    It.IsAny<IReadOnlyDictionary<string, IReadOnlyList<string>>>(),
+                    2,
+                    It.IsAny<CancellationToken>()
+                )
+            )
+            .ReturnsAsync(Result<IReadOnlyList<ComicModel>>.Success(new List<ComicModel>()));
+
+        // Act
+        await _sut.LoadMoreCommand.ExecuteAsync(null);
+
+        // Assert
+        _notificationServiceMock.Verify(
+            n => n.ShowWarning(It.IsAny<string>(), It.IsAny<string>()),
+            Times.Once
+        );
+        _sut.IsLoadingMore.Should().BeFalse();
     }
 
     // ────────────────────────────────────────────────────────────────
@@ -398,7 +565,7 @@ public class DiscoverPageViewModelTests
     {
         // Arrange
         _comicServiceMock
-            .Setup(s => s.GetSourceFiltersAsync("TestSource"))
+            .Setup(s => s.GetSourceFiltersAsync(DefaultMockSource.Name))
             .ReturnsAsync(
                 Result<IReadOnlyList<Filter>>.Success(
                     new List<Filter>
@@ -415,7 +582,7 @@ public class DiscoverPageViewModelTests
         _comicServiceMock
             .Setup(s =>
                 s.SearchComicsAsync(
-                    "TestSource",
+                    DefaultMockSource.Name,
                     "",
                     It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
                     It.IsAny<int>(),
@@ -428,23 +595,26 @@ public class DiscoverPageViewModelTests
                     {
                         new ComicModel()
                         {
-                            Id = "123",
-                            Source = "TestSource",
-                            Title = "TestComic",
+                            Id = "c-001",
+                            Source = DefaultMockSource.Name,
+                            Title = "Test Comic",
                         },
                     }
                 )
             );
 
         // Act
-        await SetSelectedSourceAndWait("TestSource");
+        await SetSelectedSourceAndWait(DefaultMockSource.Name);
 
         // Assert
-        _comicServiceMock.Verify(s => s.GetSourceFiltersAsync("TestSource"), Times.Once());
+        _comicServiceMock.Verify(
+            s => s.GetSourceFiltersAsync(DefaultMockSource.Name),
+            Times.Once()
+        );
         _comicServiceMock.Verify(
             s =>
                 s.SearchComicsAsync(
-                    "TestSource",
+                    DefaultMockSource.Name,
                     "",
                     It.IsAny<Dictionary<string, IReadOnlyList<string>>>(),
                     It.IsAny<int>(),
@@ -453,8 +623,8 @@ public class DiscoverPageViewModelTests
             Times.Once()
         );
         _sut.SearchedComics.Should().HaveCount(1);
-        _sut.SearchedComics[0].Comic.Title.Should().Be("TestComic");
-        _sut.SearchedComics[0].Comic.Id.Should().Be("123");
+        _sut.SearchedComics[0].Comic.Title.Should().Be("Test Comic");
+        _sut.SearchedComics[0].Comic.Id.Should().Be("c-001");
         _sut.IsContentLoading.Should().BeFalse();
     }
 
