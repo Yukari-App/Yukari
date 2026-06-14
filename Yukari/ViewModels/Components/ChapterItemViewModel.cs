@@ -122,7 +122,7 @@ public partial class ChapterItemViewModel : ObservableObject
 
         if (_isComicFavorite && !IsDownloaded)
         {
-            DownloadItem = _downloadService.GetDownload(Key);
+            DownloadItem = _downloadService.GetDownload(_comicKey, Key);
             DownloadItem?.PropertyChanged += OnDownloadItemPropertyChanged;
         }
 

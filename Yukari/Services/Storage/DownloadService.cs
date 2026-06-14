@@ -44,7 +44,7 @@ internal class DownloadService : IDownloadService
         Func<CancellationToken, Task<Result<IReadOnlyList<ChapterPageModel>>>> pageProvider
     )
     {
-        var existing = GetDownload(chapterKey);
+        var existing = GetDownload(comicKey, chapterKey);
         if (existing != null)
             if (existing.Status is DownloadStatus.Failed or DownloadStatus.Cancelled)
                 _downloads.Remove(existing);
@@ -61,8 +61,10 @@ internal class DownloadService : IDownloadService
 
     public IReadOnlyList<DownloadItem> GetAllDownloads() => _downloads.ToList();
 
-    public DownloadItem? GetDownload(ContentKey chapterKey) =>
-        _downloads.FirstOrDefault(d => d.ChapterKey.Equals(chapterKey));
+    public DownloadItem? GetDownload(ContentKey comicKey, ContentKey chapterKey) =>
+        _downloads.FirstOrDefault(d =>
+            d.ComicKey.Equals(comicKey) && d.ChapterKey.Equals(chapterKey)
+        );
 
     public void ClearFinishedDownloads()
     {
@@ -100,7 +102,7 @@ internal class DownloadService : IDownloadService
 
     public async Task DeleteChapterDownloadAsync(ContentKey comicKey, ContentKey chapterKey)
     {
-        var existing = GetDownload(chapterKey);
+        var existing = GetDownload(comicKey, chapterKey);
         if (existing?.Status is DownloadStatus.Downloading or DownloadStatus.Queued)
         {
             existing.Cancel();

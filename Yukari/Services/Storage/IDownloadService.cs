@@ -20,7 +20,7 @@ public interface IDownloadService
         Func<CancellationToken, Task<Result<IReadOnlyList<ChapterPageModel>>>> pageProvider
     );
     IReadOnlyList<DownloadItem> GetAllDownloads();
-    DownloadItem? GetDownload(ContentKey chapterKey);
+    DownloadItem? GetDownload(ContentKey comicKey, ContentKey chapterKey);
     void ClearFinishedDownloads();
     Task DeleteComicDataAndDownloadsAsync(ContentKey comicKey);
     Task DeleteChapterDownloadAsync(ContentKey comicKey, ContentKey chapterKey);

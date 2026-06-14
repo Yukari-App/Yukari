@@ -242,7 +242,7 @@ public class ChapterItemViewModelTests
                 )
         );
 
-        _downloadServiceMock.Setup(d => d.GetDownload(chapterKey)).Returns(downloadItem);
+        _downloadServiceMock.Setup(d => d.GetDownload(comicKey, chapterKey)).Returns(downloadItem);
 
         var sut = CreateSut(isComicFavorite: true, isAvailable: true);
 
@@ -352,7 +352,7 @@ public class ChapterItemViewModelTests
                 )
         );
 
-        _downloadServiceMock.Setup(d => d.GetDownload(chapterKey)).Returns(downloadItem);
+        _downloadServiceMock.Setup(d => d.GetDownload(comicKey, chapterKey)).Returns(downloadItem);
 
         _comicServiceMock
             .Setup(c => c.GetChapterUserDataAsync(comicKey, chapterKey))
