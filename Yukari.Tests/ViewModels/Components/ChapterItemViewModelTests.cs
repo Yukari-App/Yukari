@@ -256,7 +256,7 @@ public class ChapterItemViewModelTests
     }
 
     [Fact]
-    public async Task ToggleDownload_DelteDownload_WhenDownloaded()
+    public async Task ToggleDownload_DeleteDownload_WhenDownloaded()
     {
         // Arrange
         var comicKey = new ContentKey("c-001", SourceName);
