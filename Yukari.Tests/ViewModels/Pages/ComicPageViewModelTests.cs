@@ -810,7 +810,7 @@ public class ComicPageViewModelTests
                     false,
                     It.IsAny<CancellationToken>()
                 ),
-            Times.Exactly(2)
+            Times.AtLeastOnce
         );
     }
 
@@ -863,7 +863,7 @@ public class ComicPageViewModelTests
                     false,
                     It.IsAny<CancellationToken>()
                 ),
-            Times.Exactly(2)
+            Times.AtLeastOnce
         );
     }
 

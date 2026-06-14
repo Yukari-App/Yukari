@@ -206,7 +206,7 @@ public class DiscoverPageViewModelTests
         await Task.Delay(100, TestContext.Current.CancellationToken);
 
         // Assert
-        _comicServiceMock.Verify(s => s.GetComicSourcesAsync(), Times.Once());
+        _comicServiceMock.Verify(s => s.GetComicSourcesAsync(), Times.Once);
         _sut.ComicSources.Should().NotBeNullOrEmpty();
     }
 
@@ -264,7 +264,7 @@ public class DiscoverPageViewModelTests
                     It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 ),
-            Times.Once()
+            Times.Once
         );
     }
 
@@ -415,7 +415,7 @@ public class DiscoverPageViewModelTests
                     It.IsAny<IReadOnlyList<Filter>>(),
                     It.IsAny<Dictionary<string, IReadOnlyList<string>>>()
                 ),
-            Times.Once()
+            Times.Once
         );
         _comicServiceMock.Verify(
             s =>
@@ -428,7 +428,7 @@ public class DiscoverPageViewModelTests
                     It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 ),
-            Times.Once()
+            Times.Once
         );
     }
 
@@ -607,10 +607,7 @@ public class DiscoverPageViewModelTests
         await SetSelectedSourceAndWait(DefaultMockSource.Name);
 
         // Assert
-        _comicServiceMock.Verify(
-            s => s.GetSourceFiltersAsync(DefaultMockSource.Name),
-            Times.Once()
-        );
+        _comicServiceMock.Verify(s => s.GetSourceFiltersAsync(DefaultMockSource.Name), Times.Once);
         _comicServiceMock.Verify(
             s =>
                 s.SearchComicsAsync(
@@ -620,7 +617,7 @@ public class DiscoverPageViewModelTests
                     It.IsAny<int>(),
                     It.IsAny<CancellationToken>()
                 ),
-            Times.Once()
+            Times.Once
         );
         _sut.SearchedComics.Should().HaveCount(1);
         _sut.SearchedComics[0].Comic.Title.Should().Be("Test Comic");
