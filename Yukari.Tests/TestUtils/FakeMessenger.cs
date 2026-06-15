@@ -27,7 +27,7 @@ internal class FakeMessenger : IMessenger
         where TMessage : class
         where TToken : IEquatable<TToken> { }
 
-    public void Reset() { }
+    public void Reset() => SentMessages.Clear();
 
     public TMessage Send<TMessage, TToken>(TMessage message, TToken token)
         where TMessage : class
