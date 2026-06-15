@@ -20,7 +20,7 @@ Built with **WinUI 3** and **.NET 10**, it delivers a clean Fluent Design interf
 
 Enjoy **offline reading** of your downloaded/local collection, with optional online discovery and scraping via community plugins (e.g., MangaDex, etc.).
 
-Currently in **experimental stage**
+**Now in Beta** — stable enough for daily use, with active development ongoing.
 
 <img height="480" alt="image" src="./Yukari/Assets/Screenshots/Discover.png" />
 
@@ -33,6 +33,8 @@ Currently in **experimental stage**
 </div>
 
 - 📚 **Local Library** — Save your favorites, with automatic progress tracking per chapter and language
+- 📥 **Offline Downloads** — Download chapters for offline reading, with full download management
+- 📋 **Collections** — Organize favorites into custom collections
 - 🔍 **Advanced Search** — Full filtering support (tags, status, etc.) in the Discover section
 - 📖 **Powerful Reader** — RTL / LTR / Vertical modes, Fit Width / Fit Height / Fit Screen scaling, smooth scrolling, zoom
 - ⚙️ **Dynamic Plugins** — Add as many comic/manga sources as you want (maintained by the community)
@@ -71,8 +73,9 @@ Currently in **experimental stage**
     <h2>🗒️ Notes</h2>
 </div>
 
-- A **Wiki/Documentation** will be created soon;
-- The project is currently in the **experimental** phase; many **features** are not yet available and there may be some **bugs**.
+- This is a **beta release**: you may encounter rough edges, but the core experience is stable.
+- A **Wiki/Documentation** will be created soon.
+- For the latest updates and known issues, check the [Releases](https://github.com/Yukari-App/Yukari/releases) page.
 
 
 <div align="center">
