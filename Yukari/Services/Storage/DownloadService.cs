@@ -107,16 +107,15 @@ internal class DownloadService : IDownloadService
         {
             existing.Cancel();
         }
-        else if (existing?.Status is DownloadStatus.Completed)
-        {
-            await Task.Run(() => DeleteChapterFolder(comicKey, chapterKey));
-            await _dataService.RemoveChapterPagesAsync(comicKey, chapterKey);
-        }
 
-        if (existing == null)
-            return;
-        _downloads.Remove(existing);
-        NotifyDownloadsChanged();
+        await Task.Run(() => DeleteChapterFolder(comicKey, chapterKey));
+        await _dataService.RemoveChapterPagesAsync(comicKey, chapterKey);
+
+        if (existing != null)
+        {
+            _downloads.Remove(existing);
+            NotifyDownloadsChanged();
+        }
     }
 
     public async Task CleanupUnfavoriteComicsAsync(IReadOnlyList<ContentKey> unfavoriteComics)
