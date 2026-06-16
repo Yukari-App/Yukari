@@ -18,6 +18,9 @@ public static class AppDataHelper
     public static string GetPluginsPath() =>
         EnsureDirectory(Path.Combine(GetAppDataPath(), "Plugins"));
 
+    public static string GetPluginImagesPath() =>
+        EnsureDirectory(Path.Combine(GetPluginsPath(), "Images"));
+
     public static string GetComicDataPath(ContentKey comicKey) =>
         EnsureDirectory(GetComicPath(comicKey));
 
