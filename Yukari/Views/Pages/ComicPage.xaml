@@ -13,6 +13,7 @@
 
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:UrlToImageConverter x:Key="UrlToImageConverter" />
 
         <DataTemplate x:Key="TagsTemplate" x:DataType="system:String">
             <ItemContainer Height="18"
@@ -298,7 +299,7 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
                                     CornerRadius="8">
-                                <Image Source="{Binding Comic.CoverImageUrl, Mode=OneWay}" Stretch="Fill" />
+                                <Image Source="{Binding Comic.CoverImageUrl, Converter={StaticResource UrlToImageConverter}, Mode=OneWay}" Stretch="Fill" />
                             </Border>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
                                 <StackPanel Orientation="Horizontal" Spacing="8">

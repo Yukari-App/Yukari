@@ -16,6 +16,7 @@
         <converters:FullScreenToColumnWidthConverter x:Key="FullScreenToColumnWidthConverter" />
         <converters:ReadingModeToFlowDirectionConverter x:Key="ReadingModeToFlowDirectionConverter" />
         <converters:ReadingModeToOrientationConverter x:Key="ReadingModeToOrientationConverter" />
+        <converters:UrlToImageConverter x:Key="UrlToImageConverter" />
 
         <Style x:Key="TitleBarButtonStyle" BasedOn="{StaticResource DefaultButtonStyle}" TargetType="Button">
             <Setter Property="Width" Value="40" />
@@ -260,7 +261,7 @@
                                        VerticalAlignment="Center"
                                        ImageFailed="Page_ImageFailed"
                                        ImageOpened="Page_ImageOpened"
-                                       Source="{Binding ImageUrl}"
+                                       Source="{Binding ImageUrl, Converter={StaticResource UrlToImageConverter}}"
                                        Stretch="Uniform"
                                        Visibility="{x:Bind HasError, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
                             </Grid>

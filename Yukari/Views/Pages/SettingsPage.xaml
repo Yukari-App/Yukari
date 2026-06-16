@@ -17,6 +17,7 @@
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+        <converters:UrlToImageConverter x:Key="UrlToImageConverter" />
 
         <x:Double x:Key="SettingsCardSpacing">4</x:Double>
 
@@ -146,7 +147,7 @@
                             <DataTemplate x:DataType="vmc:ComicSourceItemViewModel">
                                 <toolkit:SettingsCard Description="{x:Bind ComicSource.Description}" Header="{x:Bind ComicSource.Name}">
                                     <toolkit:SettingsCard.HeaderIcon>
-                                        <ImageIcon Source="{x:Bind ComicSource.LogoUrl}" />
+                                        <ImageIcon Source="{x:Bind ComicSource.LogoUrl, Converter={StaticResource UrlToImageConverter}}" />
                                     </toolkit:SettingsCard.HeaderIcon>
                                     <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Spacing="8">
                                         <TextBlock VerticalAlignment="Center"
@@ -188,7 +189,7 @@
                                         <ImageIcon Width="22"
                                                    Height="22"
                                                    VerticalAlignment="Center"
-                                                   Source="{x:Bind LogoUrl}" />
+                                                   Source="{x:Bind LogoUrl, Converter={StaticResource UrlToImageConverter}}" />
                                         <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
                                     </StackPanel>
                                 </DataTemplate>

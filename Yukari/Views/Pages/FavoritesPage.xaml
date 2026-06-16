@@ -15,14 +15,11 @@
         <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <converters:UrlToImageConverter x:Key="UrlToImageConverter" />
 
         <DataTemplate x:Key="ComicTemplate" x:DataType="vmc:ComicItemViewModel">
             <Grid Width="200" Height="280" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
-                <Image Stretch="UniformToFill">
-                    <Image.Source>
-                        <BitmapImage DecodePixelType="Logical" DecodePixelWidth="200" UriSource="{x:Bind Comic.CoverImageUrl, Mode=OneTime}" />
-                    </Image.Source>
-                </Image>
+                <Image Source="{x:Bind Comic.CoverImageUrl, Converter={StaticResource UrlToImageConverter}, Mode=OneTime}" Stretch="UniformToFill" />
 
                 <Grid Height="30"
                       Margin="2"
