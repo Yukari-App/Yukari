@@ -27,4 +27,6 @@ public interface IDownloadService
     Task CleanupUnfavoriteComicsAsync(IReadOnlyList<ContentKey> unfavoriteComics);
 
     Task<string?> DownloadComicCoverAsync(string? imageUrl, ContentKey comicKey);
+    Task<string?> DownloadPluginLogoAsync(string? logoUrl, string sourceName);
+    Task<byte[]?> GetImageBytesAsync(string imageUrl);
 }

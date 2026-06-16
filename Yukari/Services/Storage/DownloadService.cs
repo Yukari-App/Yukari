@@ -146,6 +146,40 @@ internal class DownloadService : IDownloadService
         }
     }
 
+    public async Task<string?> DownloadPluginLogoAsync(string? logoUrl, string sourceName)
+    {
+        if (string.IsNullOrWhiteSpace(logoUrl))
+            return null;
+
+        var destFolder = AppDataHelper.GetPluginImagesPath();
+        var ext = Path.GetExtension(logoUrl);
+        if (string.IsNullOrWhiteSpace(ext))
+            ext = ".png";
+        var destFile = Path.Combine(destFolder, sourceName + ext);
+
+        try
+        {
+            return await DownloadImageAsync(logoUrl, destFile);
+        }
+        catch
+        {
+            return logoUrl;
+        }
+    }
+
+    public async Task<byte[]?> GetImageBytesAsync(string imageUrl)
+    {
+        try
+        {
+            return await _httpClient.GetByteArrayAsync(imageUrl);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed getting bytes for {imageUrl}", imageUrl);
+            return null;
+        }
+    }
+
     private async Task ConsumeQueueAsync()
     {
         try
