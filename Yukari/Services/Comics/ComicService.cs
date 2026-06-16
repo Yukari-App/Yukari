@@ -529,6 +529,11 @@ internal class ComicService : IComicService
                 try
                 {
                     comicSource.DllPath = AppDataHelper.CopyDllToPluginsDirectory(pluginPath);
+                    comicSource.LogoUrl = await _dloadService.DownloadPluginLogoAsync(
+                        comicSource.LogoUrl,
+                        comicSource.Name
+                    );
+
                     await _dbService.UpsertComicSourceAsync(comicSource);
 
                     _logger.LogInformation(
