@@ -262,6 +262,15 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
                 ? chapterUserData.LastPageRead.Value - 1
                 : 0;
 
+        if (ChapterPages.Count == 0)
+        {
+            ChapterState = LoadState.Error;
+            IsWarning = true;
+            ChapterErrorTitle = "This Chapter Has No Pages";
+            ChapterErrorMessage = "No Pages Found For This Chapter.";
+            return;
+        }
+
         ChapterState = LoadState.Loaded;
     }
 
@@ -354,8 +363,11 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
 
         if (!chapterUserData.IsRead)
         {
-            chapterUserData.LastPageRead = CurrentPageIndex + 1;
-            chapterUserData.IsRead = CurrentChapter.Pages == chapterUserData.LastPageRead;
+            var hasPages = ChapterPages?.Count > 0;
+            chapterUserData.LastPageRead = hasPages ? CurrentPageIndex + 1 : 0;
+            chapterUserData.IsRead = hasPages
+                ? CurrentChapter.Pages == chapterUserData.LastPageRead
+                : false;
 
             var chapterProgressResult = await _comicService.UpsertChapterUserDataAsync(
                 _comicKey,
