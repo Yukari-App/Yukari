@@ -22,18 +22,21 @@ internal class ComicService : IComicService
 {
     private readonly IDataService _dbService;
     private readonly ISourceService _srcService;
+    private readonly ILocalSourceService _localService;
     private readonly IDownloadService _dloadService;
     private readonly ILogger<ComicService> _logger;
 
     public ComicService(
         IDataService dbService,
         ISourceService srcService,
+        ILocalSourceService localService,
         IDownloadService dloadService,
         ILogger<ComicService> logger
     )
     {
         _dbService = dbService;
         _srcService = srcService;
+        _localService = localService;
         _dloadService = dloadService;
         _logger = logger;
     }
@@ -220,7 +223,7 @@ internal class ComicService : IComicService
                 if (comicUserData.IsFavorite && !forceWeb)
                 {
                     chapters = await _dbService.GetAllChaptersAsync(comicKey, language, ct);
-                    if (chapters.Count == 0)
+                    if (chapters.Count == 0 && !comicKey.IsLocal())
                     {
                         _logger.LogDebug(
                             "No chapters in cache from language '{Language}' for comic {ComicKey}, fetching from web",
@@ -292,7 +295,7 @@ internal class ComicService : IComicService
                 if (chapterUserData.IsDownloaded && !forceWeb)
                 {
                     pages = await _dbService.GetChapterPagesAsync(comicKey, chapterKey, ct);
-                    if (pages.Count == 0)
+                    if (pages.Count == 0 && !comicKey.IsLocal())
                         throw new InvalidOperationException(
                             "Chapter marked as downloaded, but no pages found locally. Try downloading again."
                         );
@@ -364,6 +367,46 @@ internal class ComicService : IComicService
                 return Result.Success();
             },
             "Failed To Add To Favorites"
+        );
+    }
+
+    public async Task<Result<ContentKey>> UpsertLocalComicAsync(
+        LocalComicInfo localComicInfo,
+        string? comicId = null
+    )
+    {
+        return await ExecuteAsync(
+            async (ct) =>
+            {
+                var comic = new ComicModel()
+                {
+                    Id = comicId ?? Guid.NewGuid().ToString(),
+                    Source = LocalComicConstants.SourceName,
+                    // ComicUrl is reused for local comics, storing the chapter path encoded
+                    // along with the format—this avoids the need for migration.
+                    // See LocalComicConstants.
+                    ComicUrl = LocalComicConstants.EncodeChaptersPath(
+                        localComicInfo.ChaptersPath,
+                        localComicInfo.ChaptersFormat
+                    ),
+                    Title = localComicInfo.Title,
+                    Author = localComicInfo.Author,
+                    Description = localComicInfo.Description,
+                    Tags = localComicInfo.Tags,
+                    Year = localComicInfo.Year,
+                    CoverImageUrl = localComicInfo.CoverImageUrl,
+                    Langs = new[] { new LanguageModel(LocalComicConstants.SourceName, "Local") },
+                };
+
+                await _dbService.UpsertFavoriteComicAsync(comic);
+
+                _logger.LogInformation(
+                    "Comic {ComicKey} added to favorites",
+                    new ContentKey(comic.Id, comic.Source)
+                );
+                return Result<ContentKey>.Success(new(comic.Id, comic.Source));
+            },
+            "Failed To Add Local Comic"
         );
     }
 
@@ -474,6 +517,68 @@ internal class ComicService : IComicService
         );
     }
 
+    public async Task<Result> UpsertLocalChaptersAsync(
+        ContentKey comicKey,
+        string chaptersPath,
+        LocalChaptersFormat chaptersFormat
+    )
+    {
+        return await ExecuteAsync(
+            async () =>
+            {
+                if (!comicKey.IsLocal())
+                    throw new InvalidOperationException($"Comic {comicKey} isn't a Local Comic");
+
+                var chapters = await _localService.ScanChaptersAsync(chaptersPath, chaptersFormat);
+
+                await _dbService.UpsertChaptersAsync(
+                    comicKey,
+                    LocalComicConstants.SourceName,
+                    chapters,
+                    false
+                );
+
+                foreach (var chapter in chapters)
+                {
+                    if (chapter.LocalPath == null)
+                        continue;
+
+                    var pages = await _localService.GetPagesAsync(
+                        chapter.LocalPath,
+                        chaptersFormat
+                    );
+                    if (pages.Count > 0)
+                    {
+                        await _dbService.UpsertChapterPagesAsync(
+                            comicKey,
+                            new ContentKey(chapter.Id, chapter.Source),
+                            pages
+                        );
+                    }
+                }
+
+                _logger.LogInformation("Chapters updated for comic {ComicKey}", comicKey);
+                return Result.Success();
+            },
+            "Error Persisting Local Chapters"
+        );
+    }
+
+    public async Task<Result> RescanLocalChaptersAsync(
+        ContentKey comicKey,
+        string encodedChaptersPath
+    )
+    {
+        return await ExecuteAsync(
+            async () =>
+            {
+                var (path, format) = LocalComicConstants.DecodeChaptersPath(encodedChaptersPath);
+                return await UpsertLocalChaptersAsync(comicKey, path, format);
+            },
+            "Error Rescanning Local Chapters"
+        );
+    }
+
     public async Task<Result> UpsertChapterUserDataAsync(
         ContentKey comicKey,
         ContentKey chapterKey,
@@ -525,6 +630,13 @@ internal class ComicService : IComicService
             async () =>
             {
                 var comicSource = _srcService.GetComicSourceModelFromAssembly(pluginPath, true);
+                if (
+                    comicSource.Name.Equals(
+                        LocalComicConstants.SourceName,
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                )
+                    return Result.Failure("You can't add a ComicSource named 'Local'");
 
                 try
                 {

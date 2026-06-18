@@ -72,6 +72,10 @@ public interface IComicService
     );
 
     Task<Result> UpsertFavoriteComicAsync(ContentKey comic);
+    Task<Result<ContentKey>> UpsertLocalComicAsync(
+        LocalComicInfo localComicInfo,
+        string? comicId = null
+    );
     Task<Result> UpsertComicUserDataAsync(ContentKey comicKey, ComicUserData comicUserData);
     Task<Result> CreateCollectionAsync(string name);
     Task<Result> RenameCollectionAsync(string oldName, string newName);
@@ -81,6 +85,12 @@ public interface IComicService
         ComicReadingProgress progress
     );
     Task<Result> UpsertChaptersAsync(ContentKey comicKey, string language);
+    Task<Result> UpsertLocalChaptersAsync(
+        ContentKey comicKey,
+        string chaptersPath,
+        LocalChaptersFormat chaptersFormat
+    );
+    Task<Result> RescanLocalChaptersAsync(ContentKey comicKey, string encodedChaptersPath);
     Task<Result> UpsertChapterUserDataAsync(
         ContentKey comicKey,
         ContentKey chapterKey,
