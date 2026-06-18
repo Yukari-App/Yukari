@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Core.Models;
 using Yukari.Enums;
+using Yukari.Helpers;
 using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.Common;
@@ -17,6 +18,7 @@ using Yukari.Services.Comics;
 using Yukari.Services.Storage;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
+using Yukari.Views.Pages;
 
 namespace Yukari.ViewModels.Pages;
 
@@ -39,7 +41,10 @@ public partial class ComicPageViewModel
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(
+        nameof(IsLocalComic),
         nameof(IsComicAvailable),
+        nameof(IsOnlineFeaturesVisible),
+        nameof(AuthorDisplay),
         nameof(StatusDisplay),
         nameof(IsTagsVisible),
         nameof(DisplayTags),
@@ -47,6 +52,8 @@ public partial class ComicPageViewModel
         nameof(HiddenTagsText)
     )]
     public partial ComicModel? Comic { get; set; }
+
+    public string AuthorDisplay => Comic?.Author ?? "Unknown";
 
     public string StatusDisplay =>
         Comic?.Status switch
@@ -124,12 +131,14 @@ public partial class ComicPageViewModel
     public bool IsComicError => ComicLoadState == LoadState.Error;
     public bool IsComicLoaded => ComicLoadState == LoadState.Loaded;
 
+    public bool IsLocalComic => Comic?.IsLocal() ?? false;
     public bool IsComicAvailable => Comic?.IsAvailable ?? true;
     public bool NoChapters => !IsChaptersLoading && (Chapters == null || Chapters.Count == 0);
     public bool IsInterfaceReady => !IsFavoriteStatusChanging && !IsChaptersLoading && !NoChapters;
 
+    public bool IsOnlineFeaturesVisible => IsFavorite && !IsLocalComic;
     public bool IsLanguageSelectionAvailable =>
-        !IsFavoriteStatusChanging && !IsChaptersLoading && Comic?.Langs.Length > 0;
+        !IsLocalComic && !IsFavoriteStatusChanging && !IsChaptersLoading && Comic?.Langs.Length > 0;
 
     public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
     public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : "\uE896";
@@ -221,7 +230,14 @@ public partial class ComicPageViewModel
                 await _comicService.UpsertChaptersAsync(_comicKey, SelectedLang ?? "");
         }
         else
+        {
             result = await _comicService.RemoveFavoriteComicAsync(_comicKey);
+            if (result.IsSuccess && IsLocalComic)
+            {
+                _messenger.Send(new NavigateMessage(typeof(FavoritesPage), null));
+                return;
+            }
+        }
 
         if (result.IsSuccess)
             await RefreshChaptersAsync();
@@ -258,6 +274,18 @@ public partial class ComicPageViewModel
     }
 
     [RelayCommand]
+    private async Task OpenLocalComicManagerAsync()
+    {
+        if (_comicKey == null || Comic == null || !Comic.IsLocal())
+            return;
+
+        await _dialogService.ShowLocalComicDialogAsync(_comicKey);
+
+        await RefreshComicAsync();
+        await RefreshChaptersAsync();
+    }
+
+    [RelayCommand]
     private async Task OpenComicCollectionsManager()
     {
         if (_comicKey == null || Comic == null)
@@ -272,7 +300,7 @@ public partial class ComicPageViewModel
     private async Task OpenInBrowserAsync() =>
         await Windows.System.Launcher.LaunchUriAsync(new Uri(Comic!.ComicUrl!));
 
-    private bool CanToggleDownloadAllChapters() => IsFavorite && IsInterfaceReady;
+    private bool CanToggleDownloadAllChapters() => IsFavorite && IsInterfaceReady && !IsLocalComic;
 
     [RelayCommand(CanExecute = nameof(CanToggleDownloadAllChapters))]
     private async Task ToggleDownloadAllChaptersAsync()
@@ -310,6 +338,23 @@ public partial class ComicPageViewModel
         }
 
         await RefreshChaptersAsync();
+    }
+
+    [RelayCommand]
+    private async Task RescanChaptersAsync()
+    {
+        if (_comicKey == null || Comic?.ComicUrl == null)
+            return;
+
+        var result = await _comicService.RescanLocalChaptersAsync(_comicKey, Comic.ComicUrl);
+
+        if (!result.IsSuccess)
+        {
+            HandleNotSuccessResult(result);
+            return;
+        }
+        await RefreshChaptersAsync();
+        _notificationService.ShowSuccess("Chapters rescanned.");
     }
 
     [RelayCommand]
