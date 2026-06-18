@@ -146,25 +146,29 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
     {
         args.Handled = true;
 
-        var isMaximized = _presenter.State == OverlappedPresenterState.Maximized;
-        var lastWindowState = new WindowState
+        var isMinimized = _presenter.State == OverlappedPresenterState.Minimized;
+        if (!isMinimized)
         {
-            IsMaximized = isMaximized,
-            Width = isMaximized
-                ? _settingsService.Current.MainWindowState.Width
-                : AppWindow.Size.Width / _scaleFactor,
-            Height = isMaximized
-                ? _settingsService.Current.MainWindowState.Height
-                : AppWindow.Size.Height / _scaleFactor,
-            Left = isMaximized
-                ? _settingsService.Current.MainWindowState.Left
-                : AppWindow.Position.X / _scaleFactor,
-            Top = isMaximized
-                ? _settingsService.Current.MainWindowState.Top
-                : AppWindow.Position.Y / _scaleFactor,
-        };
+            var isMaximized = _presenter.State == OverlappedPresenterState.Maximized;
+            var lastWindowState = new WindowState
+            {
+                IsMaximized = isMaximized,
+                Width = isMaximized
+                    ? _settingsService.Current.MainWindowState.Width
+                    : AppWindow.Size.Width / _scaleFactor,
+                Height = isMaximized
+                    ? _settingsService.Current.MainWindowState.Height
+                    : AppWindow.Size.Height / _scaleFactor,
+                Left = isMaximized
+                    ? _settingsService.Current.MainWindowState.Left
+                    : AppWindow.Position.X / _scaleFactor,
+                Top = isMaximized
+                    ? _settingsService.Current.MainWindowState.Top
+                    : AppWindow.Position.Y / _scaleFactor,
+            };
+            _settingsService.Set(s => s.MainWindowState, lastWindowState);
+        }
 
-        _settingsService.Set(s => s.MainWindowState, lastWindowState);
         await _settingsService.SaveAsync();
 
         _settingsService.SettingChanged -= Settings_Changed;
