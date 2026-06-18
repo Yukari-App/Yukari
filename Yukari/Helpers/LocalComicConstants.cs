@@ -7,6 +7,18 @@ internal static class LocalComicConstants
 {
     public const string SourceName = "Local";
 
+    public static readonly string[] CoverExtensions = new[]
+    {
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif",
+        ".bmp",
+        ".webp",
+        ".svg",
+        ".svgz",
+    };
+
     public static string EncodeChaptersPath(string path, LocalChaptersFormat format) =>
         $"{format.ToString().ToLowerInvariant()}|{path}";
 
