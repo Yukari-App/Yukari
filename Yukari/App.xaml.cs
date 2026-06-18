@@ -116,6 +116,7 @@ public partial class App : Application
         services.AddSingleton<IDataService, DataService>();
         services.AddSingleton<IDownloadService, DownloadService>();
         services.AddSingleton<ISourceService, SourceService>();
+        services.AddSingleton<ILocalSourceService, LocalSourceService>();
         services.AddSingleton<IComicService, ComicService>();
 
         return services.BuildServiceProvider();
