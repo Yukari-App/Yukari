@@ -65,7 +65,8 @@ public interface IDataService
     Task UpsertChaptersAsync(
         ContentKey comicKey,
         string language,
-        IEnumerable<ChapterModel> chapters
+        IEnumerable<ChapterModel> chapters,
+        bool keepOldChapters = true
     );
     Task UpsertChapterUserDataAsync(
         ContentKey comicKey,

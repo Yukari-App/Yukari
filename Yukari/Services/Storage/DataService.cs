@@ -576,17 +576,20 @@ internal class DataService : IDataService
     public async Task UpsertChaptersAsync(
         ContentKey comicKey,
         string language,
-        IEnumerable<ChapterModel> chapters
+        IEnumerable<ChapterModel> chapters,
+        bool keepOldChapters = true
     )
     {
         using var connection = await GetOpenConnectionAsync();
         using var transaction = await connection.BeginTransactionAsync();
 
-        const string sqlReset = """
-            UPDATE Chapters
-            SET IsAvailable = 0
-            WHERE ComicId = @ComicId AND Source = @Source AND Language = @Language;
-            """;
+        string sqlReset = keepOldChapters
+            ? """
+                UPDATE Chapters
+                SET IsAvailable = 0
+                WHERE ComicId = @ComicId AND Source = @Source AND Language = @Language;
+                """
+            : @"DELETE FROM Chapters WHERE ComicId = @ComicId AND Source = @Source;";
 
         await connection.ExecuteAsync(
             sqlReset,
