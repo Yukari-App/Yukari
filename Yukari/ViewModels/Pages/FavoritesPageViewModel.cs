@@ -145,6 +145,13 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
         await UpdateDisplayedComicsAsync();
     }
 
+    [RelayCommand]
+    private async Task OpenLocalComicManagerAsync()
+    {
+        await _dialogService.ShowLocalComicDialogAsync();
+        await UpdateDisplayedComicsAsync();
+    }
+
     private async Task UpdateDisplayedComicsAsync(string? searchText = null)
     {
         _searchCts.Cancel();
