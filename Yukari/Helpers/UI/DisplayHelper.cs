@@ -9,12 +9,15 @@ public static class DisplayHelper
         if (chapter == null)
             return string.Empty;
 
-        var volume = !string.IsNullOrWhiteSpace(chapter.Volume)
-            ? $"[{chapter.Volume}] "
-            : string.Empty;
-        var number = !string.IsNullOrWhiteSpace(chapter.Number) ? $"#{chapter.Number} " : "#N/A ";
-        var title = chapter.Title ?? string.Empty;
+        var volume = !string.IsNullOrWhiteSpace(chapter.Volume) ? $"[{chapter.Volume}] " : "";
+        var number = !string.IsNullOrWhiteSpace(chapter.Number) ? $"#{chapter.Number} " : "";
+        var title = chapter.Title ?? "";
 
-        return $"{volume}{number}{title}".Trim();
+        var display = $"{volume}{number}{title}".Trim();
+
+        if (string.IsNullOrEmpty(display))
+            display = $"Chapter {chapter.Id}";
+
+        return display;
     }
 }
