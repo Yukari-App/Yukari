@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Yukari.Enums;
+using Yukari.Helpers;
 using Yukari.Helpers.UI;
 using Yukari.Models;
 using Yukari.Models.Data;
@@ -81,8 +82,9 @@ public partial class ChapterItemViewModel : ObservableObject
     public double DownloadProgress => DownloadItem?.Progress ?? 0.0;
     public string FormattedDownloadProgress => DownloadItem?.FormattedProgress ?? "00%";
 
+    public bool IsLocalChapter => Chapter?.IsLocal() ?? false;
     public bool IsChapterAvailable => Chapter.IsAvailable || IsDownloaded;
-    public bool IsDownloadAvailable => _isComicFavorite && IsChapterAvailable;
+    public bool IsDownloadAvailable => !IsLocalChapter && _isComicFavorite && IsChapterAvailable;
 
     public bool DownloadButtonValue => IsDownloaded || IsDownloadQueued || IsDownloading; // The download ToggleButton is checked when the chapter is either downloaded or currently downloading
     public string DownloadIcon =>
