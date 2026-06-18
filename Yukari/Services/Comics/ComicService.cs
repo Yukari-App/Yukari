@@ -292,7 +292,7 @@ internal class ComicService : IComicService
                 );
                 IReadOnlyList<ChapterPageModel> pages;
 
-                if (chapterUserData.IsDownloaded && !forceWeb)
+                if ((chapterUserData.IsDownloaded && !forceWeb) || comicKey.IsLocal())
                 {
                     pages = await _dbService.GetChapterPagesAsync(comicKey, chapterKey, ct);
                     if (pages.Count == 0 && !comicKey.IsLocal())
