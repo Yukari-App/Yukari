@@ -102,7 +102,7 @@ public partial class SettingsPageViewModel : ObservableObject
     [RelayCommand]
     private async Task AddComicSourceAsync()
     {
-        var pluginPath = await _dialogService.OpenFilePickerAsync(".dll");
+        var pluginPath = await _dialogService.OpenFilePickerAsync([".dll"]);
         if (pluginPath == null)
             return;
 

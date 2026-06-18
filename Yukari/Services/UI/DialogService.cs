@@ -61,15 +61,25 @@ internal class DialogService : IDialogService
     }
 
     public async Task<string?> OpenFilePickerAsync(string fileTypeFilter = "*")
+    public async Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null)
     {
         ThrowIfXamlRootNotInitialized();
 
         var picker = new FileOpenPicker(_xamlRoot!.ContentIslandEnvironment.AppWindowId)
         {
-            FileTypeFilter = { fileTypeFilter },
             SuggestedStartLocation = PickerLocationId.Downloads,
             ViewMode = PickerViewMode.List,
         };
+
+        if (fileTypeFilters is { Length: > 0 })
+        {
+            foreach (var ext in fileTypeFilters)
+                picker.FileTypeFilter.Add(ext.StartsWith('.') ? ext : "." + ext);
+        }
+        else
+        {
+            picker.FileTypeFilter.Add("*");
+        }
 
         var file = await picker.PickSingleFileAsync();
         return file?.Path;

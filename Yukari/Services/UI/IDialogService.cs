@@ -16,5 +16,5 @@ public interface IDialogService
         IReadOnlyList<Filter> filters,
         IReadOnlyDictionary<string, IReadOnlyList<string>> appliedFilters
     );
-    Task<string?> OpenFilePickerAsync(string fileTypeFilter = "*");
+    Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null);
 }
