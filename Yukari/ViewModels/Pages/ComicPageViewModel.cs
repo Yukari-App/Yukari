@@ -250,7 +250,7 @@ public partial class ComicPageViewModel
         IsFavoriteStatusChanging = false;
     }
 
-    private bool CanUpdate() => Comic != null && !IsChaptersLoading;
+    private bool CanUpdate() => Comic != null && !IsChaptersLoading && !IsLocalComic;
 
     [RelayCommand(CanExecute = nameof(CanUpdate))]
     private async Task UpdateAsync()
@@ -294,7 +294,7 @@ public partial class ComicPageViewModel
         await _dialogService.ShowComicCollectionsDialogAsync(_comicKey, Comic.Title);
     }
 
-    private bool CanOpenInBrowser() => !string.IsNullOrEmpty(Comic?.ComicUrl);
+    private bool CanOpenInBrowser() => !string.IsNullOrEmpty(Comic?.ComicUrl) && !IsLocalComic;
 
     [RelayCommand(CanExecute = nameof(CanOpenInBrowser))]
     private async Task OpenInBrowserAsync() =>
