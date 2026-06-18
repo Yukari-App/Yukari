@@ -107,6 +107,7 @@ public partial class App : Application
         services.AddTransient<ComicPageViewModel>();
         services.AddTransient<CollectionsManagerDialogViewModel>();
         services.AddTransient<ComicCollectionsDialogViewModel>();
+        services.AddTransient<LocalComicDialogViewModel>();
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<INotificationService, NotificationService>();
