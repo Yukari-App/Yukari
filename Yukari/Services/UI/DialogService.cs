@@ -60,7 +60,19 @@ internal class DialogService : IDialogService
         return viewModel.GetAppliedFilters();
     }
 
-    public async Task<string?> OpenFilePickerAsync(string fileTypeFilter = "*")
+    public async Task ShowLocalComicDialogAsync(ContentKey? comicKey = null)
+    {
+        ThrowIfXamlRootNotInitialized();
+
+        var dialog = new LocalComicDialog(comicKey)
+        {
+            XamlRoot = _xamlRoot,
+            RequestedTheme = AppTheme,
+        };
+
+        await dialog.ShowAsync();
+    }
+
     public async Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null)
     {
         ThrowIfXamlRootNotInitialized();
@@ -82,6 +94,20 @@ internal class DialogService : IDialogService
         }
 
         var file = await picker.PickSingleFileAsync();
+        return file?.Path;
+    }
+
+    public async Task<string?> OpenFolderPickerAsync()
+    {
+        ThrowIfXamlRootNotInitialized();
+
+        var picker = new FolderPicker(_xamlRoot!.ContentIslandEnvironment.AppWindowId)
+        {
+            SuggestedStartLocation = PickerLocationId.Unspecified,
+            ViewMode = PickerViewMode.List,
+        };
+
+        var file = await picker.PickSingleFolderAsync();
         return file?.Path;
     }
 

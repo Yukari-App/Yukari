@@ -16,5 +16,7 @@ public interface IDialogService
         IReadOnlyList<Filter> filters,
         IReadOnlyDictionary<string, IReadOnlyList<string>> appliedFilters
     );
+    Task ShowLocalComicDialogAsync(ContentKey? comicKey = null);
     Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null);
+    Task<string?> OpenFolderPickerAsync();
 }
