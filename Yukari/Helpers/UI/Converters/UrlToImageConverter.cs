@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.IO.Compression;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
@@ -26,7 +27,12 @@ public class UrlToImageConverter : IValueConverter
 
         ImageSource imageSource = IsSvg(imageUrl) ? new SvgImageSource() : new BitmapImage();
 
-        if (IsLocalPath(imageUrl))
+        if (IsZipEntry(imageUrl))
+        {
+            AddToCache(imageUrl, imageSource);
+            _ = LoadZipEntryAsync(imageUrl, imageSource);
+        }
+        else if (IsLocalPath(imageUrl))
         {
             if (imageSource is BitmapImage bitmap)
                 bitmap.UriSource = new Uri(imageUrl);
@@ -58,7 +64,42 @@ public class UrlToImageConverter : IValueConverter
     {
         var downloadService = App.GetService<IDownloadService>();
         byte[]? bytes = await downloadService.GetImageBytesAsync(url);
+        await ApplyBytesToImageSourceAsync(url, imageSource, bytes);
+    }
 
+    private static async Task LoadZipEntryAsync(string url, ImageSource imageSource)
+    {
+        byte[]? bytes = TryReadZipEntryBytes(url);
+        await ApplyBytesToImageSourceAsync(url, imageSource, bytes);
+    }
+
+    private static byte[]? TryReadZipEntryBytes(string url)
+    {
+        try
+        {
+            var (cbzPath, entryName) = ParseZipUri(url);
+            using var archive = ZipFile.OpenRead(cbzPath);
+            var entry = archive.GetEntry(entryName);
+            if (entry == null)
+                return null;
+
+            using var entryStream = entry.Open();
+            using var memStream = new MemoryStream();
+            entryStream.CopyTo(memStream);
+            return memStream.ToArray();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static async Task ApplyBytesToImageSourceAsync(
+        string url,
+        ImageSource imageSource,
+        byte[]? bytes
+    )
+    {
         if (bytes == null)
         {
             // The purpose of assigning a value that refers to a file that does not exist is to trigger the ImageSource error event.
@@ -89,11 +130,22 @@ public class UrlToImageConverter : IValueConverter
         }
     }
 
+    private static (string CbzPath, string EntryName) ParseZipUri(string url)
+    {
+        var withoutScheme = url["zip:///".Length..];
+        var separatorIndex = withoutScheme.IndexOf('#');
+        var cbzPath = withoutScheme[..separatorIndex];
+        var entryName = withoutScheme[(separatorIndex + 1)..];
+        return (cbzPath, entryName);
+    }
+
     private static bool IsSvg(string url)
     {
         return url.EndsWith(".svg", StringComparison.OrdinalIgnoreCase)
             || url.EndsWith(".svgz", StringComparison.OrdinalIgnoreCase);
     }
+
+    private static bool IsZipEntry(string url) => url.StartsWith("zip:///");
 
     private static bool IsLocalPath(string path)
     {
