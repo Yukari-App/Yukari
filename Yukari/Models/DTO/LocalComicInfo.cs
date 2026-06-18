@@ -1,3 +1,5 @@
+using Yukari.Enums;
+
 namespace Yukari.Models.DTO;
 
 public record LocalComicInfo(
@@ -6,5 +8,7 @@ public record LocalComicInfo(
     string? Description,
     string[] Tags,
     int? Year,
-    string? CoverImageUrl
+    string? CoverImageUrl,
+    string ChaptersPath,
+    LocalChaptersFormat ChaptersFormat
 );
