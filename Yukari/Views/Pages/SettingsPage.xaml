@@ -31,7 +31,7 @@
 
     <Grid RowDefinitions="Auto, *">
         <StackPanel Grid.Column="0"
-                    MaxWidth="1016"
+                    MaxWidth="1000"
                     Padding="20,14,36,16"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
