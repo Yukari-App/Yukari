@@ -276,7 +276,7 @@
                                 <MenuFlyoutItem Command="{x:Bind ViewModel.OpenInBrowserCommand}"
                                                 Icon="Globe"
                                                 Text="Open in browser"
-                                                Visibility="{x:Bind ViewModel.IsOnlineFeaturesVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                                                Visibility="{x:Bind ViewModel.IsLocalComic, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
                             </MenuFlyout>
                         </Button.Flyout>
                     </Button>
