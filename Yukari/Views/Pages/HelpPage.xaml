@@ -5,19 +5,335 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Yukari.Views.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+      xmlns:ui="using:CommunityToolkit.WinUI"
       mc:Ignorable="d">
+
+    <Page.Resources>
+        <x:Double x:Key="SettingsCardSpacing">4</x:Double>
+
+        <Style x:Key="SettingsSectionHeaderTextBlockStyle" BasedOn="{StaticResource BodyStrongTextBlockStyle}" TargetType="TextBlock">
+            <Style.Setters>
+                <Setter Property="Margin" Value="1,30,0,6" />
+            </Style.Setters>
+        </Style>
+    </Page.Resources>
 
     <Grid RowDefinitions="Auto, *">
         <StackPanel Grid.Column="0"
+                    MaxWidth="1000"
                     Padding="20,14,36,16"
-                    HorizontalAlignment="Left"
+                    HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
-                    Orientation="Horizontal">
+                    Orientation="Horizontal"
+                    Spacing="8">
             <FontIcon FontSize="24" Glyph="&#xE897;" />
-            <TextBlock Margin="8,0,0,0"
-                       VerticalAlignment="Center"
-                       Style="{StaticResource TitleTextBlockStyle}"
-                       Text="Help" />
+            <TextBlock VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}" Text="Help" />
         </StackPanel>
+
+        <ScrollViewer Grid.Row="1">
+            <Grid Padding="0,0,16,16">
+                <StackPanel MaxWidth="1000" HorizontalAlignment="Stretch" Spacing="{StaticResource SettingsCardSpacing}">
+                    <StackPanel.ChildrenTransitions>
+                        <EntranceThemeTransition FromVerticalOffset="50" />
+                        <RepositionThemeTransition IsStaggeringEnabled="False" />
+                    </StackPanel.ChildrenTransitions>
+
+                    <!--  First Steps  -->
+                    <TextBlock Margin="1,0,0,6" Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
+                        <Span><Bold>First Steps</Bold></Span>
+                    </TextBlock>
+                    <toolkit:SettingsExpander HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              Description="Understanding Yukari plugins"
+                                              Header="Comic Sources"
+                                              HeaderIcon="{ui:FontIcon Glyph=&#xE753;}">
+                        <toolkit:SettingsExpander.Items>
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run FontWeight="Bold">Yukari</Run>
+                                            <Run>doesn't come with pre-installed</Run>
+                                            <Run FontWeight="Bold">Comic Sources</Run>
+                                            <Run>for legal reasons. You add the sources you want through</Run>
+                                            <Run FontWeight="Bold">community plugins.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>Installing a</Run>
+                                            <Run FontWeight="Bold">Comic Source</Run>
+                                            <Run>is simple: download the</Run>
+                                            <Run FontWeight="Bold">.dll</Run>
+                                            <Run>plugin, go to:</Run>
+                                            <Run FontWeight="Bold">
+                                                Settings -> Comic Sources -> Add New Source
+                                            </Run>
+                                            <Run>and select the downloaded plugin.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>You can find the plugins</Run>
+                                            <Hyperlink NavigateUri="https://github.com/orgs/Yukari-App/repositories?q=Plugin%20sort%3Aname-asc">HERE.</Hyperlink>
+                                            <Run>Select a</Run>
+                                            <Run FontWeight="Bold">repository</Run>
+                                            <Run>with “Plugin” in the name, go to the</Run>
+                                            <Run FontWeight="Bold">releases</Run>
+                                            <Run>section, and download a compatible version.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run FontWeight="Bold">Make sure you are using the latest version of Yukari</Run>
+                                            <Run>to guarantee compatibility with the newest plugins. Check the</Run>
+                                            <Hyperlink NavigateUri="https://github.com/Yukari-App/Yukari/releases">releases page.</Hyperlink>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+                        </toolkit:SettingsExpander.Items>
+                    </toolkit:SettingsExpander>
+
+                    <!--  Comics  -->
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
+                        <Span><Bold>Comics</Bold></Span>
+                    </TextBlock>
+                    <toolkit:SettingsExpander HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              Description="Discovering and reading comics from plugins"
+                                              Header="Online"
+                                              HeaderIcon="{ui:FontIcon Glyph=&#xE774;}">
+                        <toolkit:SettingsExpander.Items>
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>Use the</Run>
+                                            <Run FontWeight="Bold">Discover</Run>
+                                            <Run>page to browse trending comics or search by title across your installed sources.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>Favoriting a comic saves it to your library and enables</Run>
+                                            <Run FontWeight="Bold">Downloads</Run>
+                                            <Run>feature per chapter and language.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>Chapters are</Run>
+                                            <Run FontWeight="Bold">not updated automatically.</Run>
+                                            <Run>Use the</Run>
+                                            <Run FontWeight="Bold">Update</Run>
+                                            <Run>option in the Comic page menu to fetch new chapters.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+                        </toolkit:SettingsExpander.Items>
+                    </toolkit:SettingsExpander>
+
+                    <toolkit:SettingsExpander HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              Description="Reading your personal comic collection"
+                                              Header="Local"
+                                              HeaderIcon="{ui:FontIcon Glyph=&#xEDA2;}">
+                        <toolkit:SettingsExpander.Items>
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>Yukari supports two local formats:</Run>
+                                            <Run FontWeight="Bold">folders containing images</Run>
+                                            <Run>(one folder per chapter) and</Run>
+                                            <Run FontWeight="Bold">.cbz</Run>
+                                            <Run>archives. Pages are read directly without extraction.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>To add a local comic: open</Run>
+                                            <Run FontWeight="Bold">Favorites</Run>
+                                            <Run>→ ⋯ menu →</Run>
+                                            <Run FontWeight="Bold">Add Local Comic.</Run>
+                                            <Run>Fill in the details and point to the folder containing your chapters.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>If you add new chapters to the folder, use</Run>
+                                            <Run FontWeight="Bold">Rescan Chapters</Run>
+                                            <Run>on the Comic page to detect them. Removing a local comic from favorites</Run>
+                                            <Run FontWeight="Bold">never deletes your original files.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+                        </toolkit:SettingsExpander.Items>
+                    </toolkit:SettingsExpander>
+
+                    <toolkit:SettingsExpander HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              Description="Reading modes, scaling and shortcuts"
+                                              Header="Reader"
+                                              HeaderIcon="{ui:FontIcon Glyph=&#xE736;}">
+                        <toolkit:SettingsExpander.Items>
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>Three reading modes are available:</Run>
+                                            <Run FontWeight="Bold">Right to Left</Run>
+                                            <Run>(manga),</Run>
+                                            <Run FontWeight="Bold">Left to Right</Run>
+                                            <Run>(western) and</Run>
+                                            <Run FontWeight="Bold">Vertical</Run>
+                                            <Run>(webtoons). Change via the reader menu.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>Four scaling modes:</Run>
+                                            <Run FontWeight="Bold">Fit Screen, Fit Width, Fit Height</Run>
+                                            <Run>and</Run>
+                                            <Run FontWeight="Bold">Original Size.</Run>
+                                            <Run>Press</Run>
+                                            <Run FontWeight="Bold">F11</Run>
+                                            <Run>or use the fullscreen button to toggle fullscreen.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>The</Run>
+                                            <Run FontWeight="Bold">Continue</Run>
+                                            <Run>button on the Comic page resumes from your last read chapter and page automatically.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+                        </toolkit:SettingsExpander.Items>
+                    </toolkit:SettingsExpander>
+
+                    <!--  Persistence  -->
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
+                        <Span><Bold>Persistence</Bold></Span>
+                    </TextBlock>
+                    <toolkit:SettingsExpander HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              Description="Offline reading and storage management"
+                                              Header="Downloads"
+                                              HeaderIcon="{ui:FontIcon Glyph=&#xE896;}">
+                        <toolkit:SettingsExpander.Items>
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>Download chapters from the Comic page to read them</Run>
+                                            <Run FontWeight="Bold">offline.</Run>
+                                            <Run>Downloads run in the background and progress is shown per chapter.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>Downloaded chapters are stored in</Run>
+                                            <Run FontWeight="Bold">Yukari's app data folder.</Run>
+                                            <Run>You can delete individual chapters or all at once from the Comic page.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>Removing a comic from favorites</Run>
+                                            <Run FontWeight="Bold">automatically deletes all its downloaded data.</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+                        </toolkit:SettingsExpander.Items>
+                    </toolkit:SettingsExpander>
+
+                    <!--  Support  -->
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
+                        <Span><Bold>Support</Bold></Span>
+                    </TextBlock>
+                    <toolkit:SettingsExpander HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              Description="Getting help and reporting problems"
+                                              Header="Need Help?"
+                                              HeaderIcon="{ui:FontIcon Glyph=&#xE897;}">
+                        <toolkit:SettingsExpander.Items>
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock HorizontalAlignment="Left">
+                                        <Paragraph>
+                                            <Run>If something isn't working, check the</Run>
+                                            <Hyperlink NavigateUri="https://github.com/Yukari-App/Yukari/issues">known issues</Hyperlink>
+                                            <Run>or report a new one. Your feedback is what makes Yukari better!</Run>
+                                        </Paragraph>
+                                    </RichTextBlock>
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+                        </toolkit:SettingsExpander.Items>
+                    </toolkit:SettingsExpander>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>
