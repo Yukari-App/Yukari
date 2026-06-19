@@ -23,6 +23,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Check for vulnerable packages
+        run: dotnet list package --vulnerable --include-transitive
+
       - name: Build main project (x64)
         run: dotnet build Yukari/Yukari.csproj --no-restore --configuration Debug --arch x64
 
