@@ -211,7 +211,7 @@
                     </TextBlock>
                     <toolkit:SettingsExpander HorizontalAlignment="Stretch"
                                               HorizontalContentAlignment="Stretch"
-                                              Description="© 2026 TXG0Fk3. All rights reserved."
+                                              Description="© 2026 TXG0Fk3. Licensed under GPL-3.0."
                                               Header="Yukari"
                                               HeaderIcon="{ui:BitmapIcon Source=ms-appx:///Assets/Square44x44Logo.altform-lightunplated_targetsize-32.png}">
                         <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" IsTextSelectionEnabled="True">
@@ -219,11 +219,26 @@
                             <Run Text="{x:Bind ViewModel.YukariVersion, Mode=OneTime}" />
                         </TextBlock>
                         <toolkit:SettingsExpander.Items>
+                            <!--  Project links  -->
+                            <toolkit:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
+                                <StackPanel Margin="-12,0,0,0" Orientation="Vertical">
+                                    <HyperlinkButton Content="Project Repository" NavigateUri="https://github.com/Yukari-App/Yukari" />
+                                    <HyperlinkButton Content="License (GPL-3.0)" NavigateUri="https://github.com/Yukari-App/Yukari/blob/master/LICENSE.txt" />
+                                    <HyperlinkButton Content="Check for Updates" NavigateUri="https://github.com/Yukari-App/Yukari/releases" />
+                                </StackPanel>
+                            </toolkit:SettingsCard>
+
+                            <!--  Feedback links  -->
+                            <toolkit:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
+                                <StackPanel Margin="-12,0,0,0" Orientation="Vertical">
+                                    <HyperlinkButton Content="Send Feedback" NavigateUri="https://github.com/Yukari-App/Yukari/issues" />
+                                </StackPanel>
+                            </toolkit:SettingsCard>
+
+                            <!--  Developer links  -->
                             <toolkit:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
                                 <StackPanel Margin="-12,0,0,0" Orientation="Vertical">
                                     <HyperlinkButton Content="TXG0Fk3 GitHub" NavigateUri="https://github.com/TXG0Fk3" />
-                                    <HyperlinkButton Content="Project Repository" NavigateUri="https://github.com/Yukari-App/Yukari" />
-                                    <HyperlinkButton Content="Send FeedBack" NavigateUri="https://github.com/Yukari-App/Yukari/issues" />
                                 </StackPanel>
                             </toolkit:SettingsCard>
                         </toolkit:SettingsExpander.Items>
