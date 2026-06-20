@@ -81,7 +81,7 @@ public partial class ComicPageViewModel
     public partial string? SelectedLang { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(FavoriteIcon))]
+    [NotifyPropertyChangedFor(nameof(IsOnlineFeaturesVisible), nameof(FavoriteIcon))]
     [NotifyCanExecuteChangedFor(nameof(ToggleDownloadAllChaptersCommand))]
     public partial bool IsFavorite { get; set; }
 
