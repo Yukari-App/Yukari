@@ -120,6 +120,7 @@ CREATE TABLE ComicCollections (
 CREATE TABLE ComicSources (
     Name TEXT PRIMARY KEY,
     Version TEXT NOT NULL,
+    ReleasesPage TEXT,
     LogoUrl TEXT,
     Description TEXT,
     DllPath TEXT NOT NULL,
