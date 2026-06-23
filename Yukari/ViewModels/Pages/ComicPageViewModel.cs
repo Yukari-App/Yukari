@@ -162,7 +162,9 @@ public partial class ComicPageViewModel
     }
 
     public void Receive(ChapterUserDataUpdatedMessage message) =>
-        Chapters?.FirstOrDefault(c => c.Key.Equals(message.ChapterKey))?.RefreshUserDataAsync();
+        Chapters
+            ?.FirstOrDefault(c => c.Key.Equals(message.ChapterKey))
+            ?.RefreshUserDataAsync(message.totalPages);
 
     public async Task InitializeAsync(ContentKey comicKey)
     {

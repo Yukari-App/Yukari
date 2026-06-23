@@ -56,7 +56,25 @@ public partial class ChapterItemViewModel : ObservableObject
         HasMoreGroups ? $"+{Chapter.Groups.Length - MaxGroupsToShow}" : string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PageProgressText))]
     public partial int? LastPageRead { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PageProgressText))]
+    public partial int? TotalPages { get; set; }
+
+    public string PageProgressText
+    {
+        get
+        {
+            int? last = LastPageRead;
+            int? total = TotalPages;
+
+            string left = last.HasValue ? last.Value.ToString() : "?";
+            string right = total.HasValue ? total.Value.ToString() : "?";
+            return $"{left} / {right}";
+        }
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(
@@ -116,6 +134,7 @@ public partial class ChapterItemViewModel : ObservableObject
         _comicTitle = comicTitle;
 
         DisplayTitle = Chapter.ToDisplayTitle();
+        TotalPages = Chapter.Pages;
 
         var chapterUserData = chapterAggregate.UserData;
         IsDownloaded = chapterUserData.IsDownloaded;
@@ -132,7 +151,7 @@ public partial class ChapterItemViewModel : ObservableObject
         MarkPreviousChaptersAsReadCommand = markPreviousChaptersAsReadCommand;
     }
 
-    public async Task RefreshUserDataAsync()
+    public async Task RefreshUserDataAsync(int? totalPages)
     {
         var result = await _comicService.GetChapterUserDataAsync(_comicKey, Key);
 
@@ -141,6 +160,8 @@ public partial class ChapterItemViewModel : ObservableObject
             _notificationService.ShowError(result.Error!);
             return;
         }
+
+        TotalPages = totalPages ?? TotalPages;
 
         var chapterUserData = result.Value!;
         IsDownloaded = chapterUserData.IsDownloaded;
@@ -185,7 +206,7 @@ public partial class ChapterItemViewModel : ObservableObject
         var chapterUserData = new ChapterUserData
         {
             IsRead = IsRead,
-            LastPageRead = IsRead ? Chapter.Pages : 0,
+            LastPageRead = IsRead ? TotalPages : 0,
         };
 
         var result = await _comicService.UpsertChapterUserDataAsync(
@@ -204,7 +225,7 @@ public partial class ChapterItemViewModel : ObservableObject
     }
 
     private int LastPageReadValue(ChapterUserData chapterUserData) =>
-        chapterUserData.IsRead ? Chapter.Pages ?? 0 : chapterUserData.LastPageRead ?? 0;
+        chapterUserData.IsRead ? TotalPages ?? 0 : chapterUserData.LastPageRead ?? 0;
 
     private void OnDownloadItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -220,7 +241,7 @@ public partial class ChapterItemViewModel : ObservableObject
                     or DownloadStatus.Cancelled
             )
             {
-                _ = RefreshUserDataAsync();
+                _ = RefreshUserDataAsync(TotalPages);
                 DownloadItem.PropertyChanged -= OnDownloadItemPropertyChanged;
             }
 

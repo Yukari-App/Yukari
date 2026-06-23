@@ -193,9 +193,10 @@
                         </Button>
                     </StackPanel>
 
-                    <TextBlock Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                        <Run Text="{x:Bind LastPageRead, Mode=OneWay}" /><Run CharacterSpacing="0" Text="/" /><Run Text="{x:Bind Chapter.Pages}" />
-                    </TextBlock>
+                    <TextBlock Grid.Column="1"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Bottom"
+                               Text="{x:Bind PageProgressText, Mode=OneWay}" />
                 </Grid>
             </Button>
         </DataTemplate>
