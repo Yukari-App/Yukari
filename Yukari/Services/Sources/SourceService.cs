@@ -185,6 +185,7 @@ internal class SourceService : ISourceService
         {
             Name = comicSourceMetadata.Name,
             Version = comicSourceMetadata.Version,
+            ReleasesPage = comicSourceMetadata.ReleasesPage,
             LogoUrl = comicSourceMetadata.LogoUrl,
             Description = comicSourceMetadata.Description,
             DllPath = dllPath,

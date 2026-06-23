@@ -340,7 +340,7 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
 
         const string sql =
-            @"SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled FROM ComicSources;";
+            @"SELECT Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled FROM ComicSources;";
 
         var result = await connection.QueryAsync<ComicSourceModel>(
             new CommandDefinition(sql, cancellationToken: ct)
@@ -356,7 +356,7 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
 
         const string sql = """
-            SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled
+            SELECT Name, ReleasesPage, Version, LogoUrl, Description, DllPath, IsEnabled
             FROM ComicSources 
             WHERE Name = @name;
             """;
@@ -391,7 +391,7 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
 
         const string sql = """
-            SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled, PendingUpdatePath
+            SELECT Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled, PendingUpdatePath
             FROM ComicSources 
             WHERE PendingUpdatePath IS NOT NULL;
             """;
@@ -764,10 +764,11 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
 
         const string sql = """
-            INSERT INTO ComicSources (Name, Version, LogoUrl, Description, DllPath, IsEnabled)
-            VALUES (@Name, @Version, @LogoUrl, @Description, @DllPath, @IsEnabled)
+            INSERT INTO ComicSources (Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled)
+            VALUES (@Name, @Version, @ReleasesPage, @LogoUrl, @Description, @DllPath, @IsEnabled)
             ON CONFLICT(Name) DO UPDATE SET
                 Version = excluded.Version,
+                ReleasesPage = excluded.ReleasesPage,
                 LogoUrl = excluded.LogoUrl,
                 Description = excluded.Description,
                 DllPath = excluded.DllPath,

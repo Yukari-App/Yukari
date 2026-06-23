@@ -4,6 +4,7 @@ public class ComicSourceModel
 {
     public required string Name { get; set; }
     public required string Version { get; set; }
+    public string? ReleasesPage { get; set; }
     public string? LogoUrl { get; set; }
     public string? Description { get; set; }
     public required string DllPath { get; set; }
