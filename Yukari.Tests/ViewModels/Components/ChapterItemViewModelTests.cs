@@ -134,7 +134,7 @@ public class ChapterItemViewModelTests
             );
 
         // Act
-        await sut.RefreshUserDataAsync();
+        await sut.RefreshUserDataAsync(null);
 
         // Assert
         sut.IsDownloaded.Should().BeTrue();
@@ -158,7 +158,7 @@ public class ChapterItemViewModelTests
             .ReturnsAsync(Result<ChapterUserData>.Failure("Network error"));
 
         // Act
-        await sut.RefreshUserDataAsync();
+        await sut.RefreshUserDataAsync(null);
 
         // Assert
         _notificationServiceMock.Verify(n => n.ShowError("Network error"), Times.Once);
