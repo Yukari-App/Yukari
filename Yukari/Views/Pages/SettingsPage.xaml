@@ -163,6 +163,8 @@
                                                 Content="{ui:FontIcon Glyph=&#xE712;}">
                                             <Button.Flyout>
                                                 <MenuFlyout>
+                                                    <MenuFlyoutItem Command="{x:Bind OpenReleasesPageCommand}" Icon="Sync" Text="Check for Updates" />
+                                                    <MenuFlyoutSeparator />
                                                     <MenuFlyoutItem Command="{x:Bind DeleteCommand}"
                                                                     CommandParameter="{x:Bind}"
                                                                     Icon="Delete"

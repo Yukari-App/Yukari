@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Yukari.Models;
@@ -29,6 +31,12 @@ public partial class ComicSourceItemViewModel : ObservableObject
         IsEnabledChangedCommand = isEnabledChangedCommand;
         _isInitializing = false;
     }
+
+    private bool CanOpenReleasesPage() => !string.IsNullOrEmpty(ComicSource.ReleasesPage);
+
+    [RelayCommand(CanExecute = nameof(CanOpenReleasesPage))]
+    private async Task OpenReleasesPageAsync() =>
+        await Windows.System.Launcher.LaunchUriAsync(new Uri(ComicSource.ReleasesPage!));
 
     partial void OnIsEnabledChanged(bool value)
     {
