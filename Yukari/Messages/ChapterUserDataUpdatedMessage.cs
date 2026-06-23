@@ -3,4 +3,4 @@ using Yukari.Models.DTO;
 
 namespace Yukari.Messages;
 
-public record ChapterUserDataUpdatedMessage(ContentKey ChapterKey);
+public record ChapterUserDataUpdatedMessage(ContentKey ChapterKey, int? totalPages = null);
