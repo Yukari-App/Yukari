@@ -183,7 +183,26 @@ public partial class DiscoverPageViewModel
             return;
         }
 
-        _availableFilters = result.Value;
+        _availableFilters = result.Value!;
+
+        var defaultFilters = new Dictionary<string, IReadOnlyList<string>>();
+        foreach (var filter in _availableFilters)
+        {
+            if (filter.AllowMultiple)
+            {
+                var defaultOpts = filter.Options.Where(o => o.Default).Select(o => o.Key).ToList();
+                if (defaultOpts.Count > 0)
+                    defaultFilters[filter.Key] = defaultOpts;
+            }
+            else
+            {
+                var defaultOpt = filter.Options.FirstOrDefault(o => o.Default);
+                if (defaultOpt != null)
+                    defaultFilters[filter.Key] = [defaultOpt.Key];
+            }
+        }
+
+        _appliedFilters = defaultFilters;
         FilterCommand.NotifyCanExecuteChanged();
     }
 
