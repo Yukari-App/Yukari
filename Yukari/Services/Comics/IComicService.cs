@@ -97,6 +97,11 @@ public interface IComicService
         ChapterUserData chapterUserData
     );
     Task<Result> UpsertChaptersIsReadAsync(ContentKey comicKey, string[] chapterIDs, bool IsRead);
+    Task<Result> UpdateChapterPageCountAsync(
+        ContentKey comicKey,
+        ContentKey chapterKey,
+        int? count
+    );
     Task<Result> UpsertComicSourceAsync(string pluginPath);
     Task<Result> UpdateComicSourceIsEnabledAsync(string sourceName, bool isEnabled);
 

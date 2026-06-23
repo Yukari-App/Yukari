@@ -624,6 +624,22 @@ internal class ComicService : IComicService
         );
     }
 
+    public async Task<Result> UpdateChapterPageCountAsync(
+        ContentKey comicKey,
+        ContentKey chapterKey,
+        int? count
+    )
+    {
+        return await ExecuteAsync(
+            async () =>
+            {
+                await _dbService.UpdateChapterPageCountAsync(comicKey, chapterKey, count);
+                return Result.Success();
+            },
+            "Error updating chapter page count"
+        );
+    }
+
     public async Task<Result> UpsertComicSourceAsync(string pluginPath)
     {
         return await ExecuteAsync(

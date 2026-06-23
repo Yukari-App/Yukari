@@ -61,7 +61,6 @@ public interface IDataService
     Task RenameCollectionAsync(string oldName, string newName);
     Task AddComicToCollectionAsync(ContentKey comicKey, string collectionName);
     Task UpsertComicReadingProgressAsync(ContentKey comicKey, ComicReadingProgress progress);
-    Task UpsertChapterAsync(ChapterModel chapter);
     Task UpsertChaptersAsync(
         ContentKey comicKey,
         string language,
@@ -73,6 +72,7 @@ public interface IDataService
         ContentKey chapterKey,
         ChapterUserData chapterUserData
     );
+    Task UpdateChapterPageCountAsync(ContentKey comicKey, ContentKey chapterKey, int? count);
     Task UpsertChapterPagesAsync(
         ContentKey comicKey,
         ContentKey chapterKey,

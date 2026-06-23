@@ -552,27 +552,6 @@ internal class DataService : IDataService
         );
     }
 
-    public async Task UpsertChapterAsync(ChapterModel chapter)
-    {
-        using var connection = await GetOpenConnectionAsync();
-
-        const string sql = """
-            INSERT INTO Chapters 
-            (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages)
-            VALUES (@Id, @ComicId, @Source, @Title, @Number, @Volume, @Language, @Groups, @LastUpdate, @Pages)
-            ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
-                Title = excluded.Title,
-                Number = excluded.Number,
-                Volume = excluded.Volume,
-                Language = excluded.Language,
-                Groups = excluded.Groups,
-                LastUpdate = excluded.LastUpdate,
-                Pages = excluded.Pages;
-            """;
-
-        await connection.ExecuteAsync(sql, chapter);
-    }
-
     public async Task UpsertChaptersAsync(
         ContentKey comicKey,
         string language,
@@ -704,6 +683,32 @@ internal class DataService : IDataService
 
         await connection.ExecuteAsync(sql, parameters, transaction);
         await transaction.CommitAsync();
+    }
+
+    public async Task UpdateChapterPageCountAsync(
+        ContentKey comicKey,
+        ContentKey chapterKey,
+        int? count
+    )
+    {
+        using var connection = await GetOpenConnectionAsync();
+
+        const string sql = """
+            UPDATE Chapters
+            SET Pages = @Count
+            WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;
+            """;
+
+        await connection.ExecuteAsync(
+            sql,
+            new
+            {
+                Count = count,
+                Id = chapterKey.Id,
+                ComicId = comicKey.Id,
+                Source = comicKey.Source,
+            }
+        );
     }
 
     public async Task UpsertChapterPagesAsync(
