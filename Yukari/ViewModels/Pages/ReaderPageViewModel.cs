@@ -262,6 +262,17 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
                 ? chapterUserData.LastPageRead.Value - 1
                 : 0;
 
+        // Ensure a page count for chapters, even when the Source does not provide it.
+        if (CurrentChapter.Pages != ChapterPages.Count)
+        {
+            CurrentChapter.Pages = ChapterPages.Count;
+            _ = _comicService.UpdateChapterPageCountAsync(
+                _comicKey,
+                new ContentKey(CurrentChapter.Id, CurrentChapter.Source),
+                ChapterPages.Count
+            );
+        }
+
         if (ChapterPages.Count == 0)
         {
             ChapterState = LoadState.Error;
@@ -376,18 +387,15 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
             );
 
             if (!chapterProgressResult.IsSuccess)
-            {
                 _notificationService.ShowError(chapterProgressResult.Error!);
-            }
-            else
-            {
-                _messenger.Send(
-                    new ChapterUserDataUpdatedMessage(
-                        new ContentKey(CurrentChapter.Id, CurrentChapter.Source)
-                    )
-                );
-            }
         }
+
+        _messenger.Send(
+            new ChapterUserDataUpdatedMessage(
+                new ContentKey(CurrentChapter.Id, CurrentChapter.Source),
+                ChapterPages?.Count
+            )
+        );
 
         var comicProgressResult = await _comicService.UpsertComicReadingProgressAsync(
             _comicKey,
