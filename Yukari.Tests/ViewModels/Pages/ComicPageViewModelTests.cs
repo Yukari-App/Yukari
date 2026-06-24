@@ -285,16 +285,17 @@ public class ComicPageViewModelTests
     // ────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task Receive_ChapterUserDataUpdatedMessage_ShouldRefreshChapterUserData()
+    public async Task Receive_ChapterUserDataUpdatedMessage_ShouldRefreshChapterUserData_AndUpdateTotalPages()
     {
         // Arrange
         var chapterItem = CreateChapterItemViewModel(
             new ChapterModel()
             {
-                Id = ComicId,
+                Id = "ch-001",
                 Source = SourceName,
                 Pages = 5,
-            }
+            },
+            new ChapterUserData() { IsRead = true, LastPageRead = 5 }
         );
         _sut.Chapters = new() { chapterItem };
 
@@ -303,16 +304,17 @@ public class ComicPageViewModelTests
                 s.GetChapterUserDataAsync(ComicKey, chapterItem.Key, It.IsAny<CancellationToken>())
             )
             .ReturnsAsync(
-                Result<ChapterUserData>.Success(new() { IsRead = true, LastPageRead = 5 })
+                Result<ChapterUserData>.Success(new() { IsRead = false, LastPageRead = 3 })
             );
 
         // Act
-        _sut.Receive(new ChapterUserDataUpdatedMessage(chapterItem.Key));
+        _sut.Receive(new ChapterUserDataUpdatedMessage(chapterItem.Key, 10));
         await Task.Delay(100, TestContext.Current.CancellationToken);
 
         // Assert
-        chapterItem.LastPageRead.Should().Be(5);
-        chapterItem.IsRead.Should().BeTrue();
+        chapterItem.LastPageRead.Should().Be(3);
+        chapterItem.IsRead.Should().BeFalse();
+        chapterItem.TotalPages.Should().Be(10);
     }
 
     // ────────────────────────────────────────────────────────────────

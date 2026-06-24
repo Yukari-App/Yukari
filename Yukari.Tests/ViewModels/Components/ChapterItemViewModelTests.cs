@@ -142,6 +142,62 @@ public class ChapterItemViewModelTests
     }
 
     [Fact]
+    public async Task RefreshUserDataAsync_UpdatesTotalPages_WhenProvided()
+    {
+        // Arrange
+        var sut = CreateSut(pages: 10);
+        sut.TotalPages.Should().Be(10);
+
+        _comicServiceMock
+            .Setup(s =>
+                s.GetChapterUserDataAsync(
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
+            .ReturnsAsync(
+                Result<ChapterUserData>.Success(
+                    new ChapterUserData { IsDownloaded = true, IsRead = true }
+                )
+            );
+
+        // Act
+        await sut.RefreshUserDataAsync(15);
+
+        // Assert
+        sut.TotalPages.Should().Be(15);
+    }
+
+    [Fact]
+    public async Task RefreshUserDataAsync_KeepsTotalPages_WhenNull()
+    {
+        // Arrange
+        var sut = CreateSut(pages: 10);
+        sut.TotalPages = 12;
+
+        _comicServiceMock
+            .Setup(s =>
+                s.GetChapterUserDataAsync(
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
+            .ReturnsAsync(
+                Result<ChapterUserData>.Success(
+                    new ChapterUserData { IsDownloaded = true, IsRead = true }
+                )
+            );
+
+        // Act
+        await sut.RefreshUserDataAsync(null);
+
+        // Assert
+        sut.TotalPages.Should().Be(12);
+    }
+
+    [Fact]
     public async Task RefreshUserDataAsync_ShowsError_WhenFailure()
     {
         // Arrange
