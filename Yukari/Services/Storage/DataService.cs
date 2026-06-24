@@ -592,7 +592,7 @@ internal class DataService : IDataService
                 Language = excluded.Language,
                 Groups = excluded.Groups,
                 LastUpdate = excluded.LastUpdate,
-                Pages = excluded.Pages,
+                Pages = COALESCE(excluded.Pages, Chapters.Pages),
                 SortOrder = excluded.SortOrder,
                 IsAvailable = 1;
             """;
