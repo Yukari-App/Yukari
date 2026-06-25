@@ -52,7 +52,7 @@ internal class ComicService : IComicService
             async (ct) =>
             {
                 await LoadComicSourceAsync(sourceName, ct);
-                return Result<IReadOnlyList<Filter>>.Success(_srcService.GetFilters());
+                return Result<IReadOnlyList<Filter>>.Success(_srcService.GetFilters(sourceName));
             },
             "Error Getting Source Filters",
             ct
@@ -69,7 +69,7 @@ internal class ComicService : IComicService
             {
                 await LoadComicSourceAsync(sourceName, ct);
                 return Result<IReadOnlyDictionary<string, string>>.Success(
-                    _srcService.GetLanguages()
+                    _srcService.GetLanguages(sourceName)
                 );
             },
             "Error Getting Source Languages",
@@ -97,8 +97,8 @@ internal class ComicService : IComicService
 
                 await LoadComicSourceAsync(sourceName, ct);
                 var comics = string.IsNullOrEmpty(queryText)
-                    ? await _srcService.GetTrendingComicsAsync(filters, page, ct)
-                    : await _srcService.SearchComicsAsync(queryText, filters, page, ct);
+                    ? await _srcService.GetTrendingComicsAsync(sourceName, filters, page, ct)
+                    : await _srcService.SearchComicsAsync(sourceName, queryText, filters, page, ct);
 
                 return Result<IReadOnlyList<ComicModel>>.Success(comics);
             },
@@ -152,7 +152,11 @@ internal class ComicService : IComicService
                 else
                 {
                     await LoadComicSourceAsync(comicKey.Source, ct);
-                    comic = await _srcService.GetComicDetailsAsync(comicKey.Id, ct);
+                    comic = await _srcService.GetComicDetailsAsync(
+                        comicKey.Source,
+                        comicKey.Id,
+                        ct
+                    );
                 }
 
                 if (comic == null)
@@ -303,7 +307,12 @@ internal class ComicService : IComicService
                 else
                 {
                     await LoadComicSourceAsync(comicKey.Source, ct);
-                    pages = await _srcService.GetChapterPagesAsync(comicKey.Id, chapterKey.Id, ct);
+                    pages = await _srcService.GetChapterPagesAsync(
+                        comicKey.Source,
+                        comicKey.Id,
+                        chapterKey.Id,
+                        ct
+                    );
                 }
 
                 return Result<IReadOnlyList<ChapterPageModel>>.Success(pages);
@@ -335,7 +344,10 @@ internal class ComicService : IComicService
             async () =>
             {
                 await LoadComicSourceAsync(comicKey.Source);
-                var comicDetails = await _srcService.GetComicDetailsAsync(comicKey.Id);
+                var comicDetails = await _srcService.GetComicDetailsAsync(
+                    comicKey.Source,
+                    comicKey.Id
+                );
 
                 if (comicDetails == null)
                 {
@@ -824,7 +836,12 @@ internal class ComicService : IComicService
     )
     {
         await LoadComicSourceAsync(comicKey.Source, ct);
-        var chapters = await _srcService.GetAllChaptersAsync(comicKey.Id, language, ct);
+        var chapters = await _srcService.GetAllChaptersAsync(
+            comicKey.Source,
+            comicKey.Id,
+            language,
+            ct
+        );
 
         if (shouldSave)
             await _dbService.UpsertChaptersAsync(comicKey, language, chapters);

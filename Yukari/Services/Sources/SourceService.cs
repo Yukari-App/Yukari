@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,12 +19,8 @@ internal class SourceService : ISourceService
 {
     private readonly ILogger<SourceService> _logger;
 
-    // Caches the Type per source name to avoid reloading the assembly on every source switch.
-    // The assembly itself stays in memory for the lifetime of the process (Default context).
-    private readonly Dictionary<string, Type> _sourceTypeCache = new();
-
-    private IComicSource? _currentSource;
-    private string? _currentSourceName;
+    private readonly ConcurrentDictionary<string, Type> _sourceTypeCache = new();
+    private readonly ConcurrentDictionary<string, IComicSource> _sourceInstances = new();
 
     public SourceService(ILogger<SourceService> logger)
     {
@@ -32,15 +29,8 @@ internal class SourceService : ISourceService
 
     public async Task LoadSourceAsync(ComicSourceModel comicSource)
     {
-        if (_currentSourceName == comicSource.Name)
+        if (_sourceInstances.ContainsKey(comicSource.Name))
             return;
-
-        if (_currentSource != null)
-        {
-            await _currentSource.DisposeAsync();
-            _currentSource = null;
-            _currentSourceName = null;
-        }
 
         try
         {
@@ -59,8 +49,9 @@ internal class SourceService : ISourceService
                 _sourceTypeCache[comicSource.Name] = type;
             }
 
-            _currentSource = (IComicSource)Activator.CreateInstance(type)!;
-            _currentSourceName = comicSource.Name;
+            var instance = (IComicSource)Activator.CreateInstance(type)!;
+            if (!_sourceInstances.TryAdd(comicSource.Name, instance))
+                await instance.DisposeAsync();
         }
         catch (Exception ex)
         {
@@ -68,72 +59,73 @@ internal class SourceService : ISourceService
         }
     }
 
-    public IReadOnlyList<Filter> GetFilters() => _currentSource?.Filters ?? Array.Empty<Filter>();
+    public async Task UnloadSourceAsync(string sourceName)
+    {
+        if (_sourceInstances.TryRemove(sourceName, out var source))
+            await source.DisposeAsync();
 
-    public IReadOnlyDictionary<string, string> GetLanguages() =>
-        _currentSource?.Languages ?? new Dictionary<string, string>();
+        _sourceTypeCache.TryRemove(sourceName, out _);
+    }
+
+    public IReadOnlyList<Filter> GetFilters(string sourceName) =>
+        GetLoadedSource(sourceName).Filters;
+
+    public IReadOnlyDictionary<string, string> GetLanguages(string sourceName) =>
+        GetLoadedSource(sourceName).Languages;
 
     public async Task<IReadOnlyList<ComicModel>> SearchComicsAsync(
+        string sourceName,
         string query,
         IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
         int page = 1,
         CancellationToken ct = default
     )
     {
-        if (_currentSource == null || _currentSourceName == null)
-            throw new InvalidOperationException("No source loaded.");
-
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page);
 
-        var comics = await _currentSource.SearchAsync(query, filters, page, ct);
-        return comics.Select(MapToModel).ToList();
+        var comics = await GetLoadedSource(sourceName).SearchAsync(query, filters, page, ct);
+        return comics.Select(c => MapToModel(c, sourceName)).ToList();
     }
 
     public async Task<IReadOnlyList<ComicModel>> GetTrendingComicsAsync(
+        string sourceName,
         IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
         int page = 1,
         CancellationToken ct = default
     )
     {
-        if (_currentSource == null || _currentSourceName == null)
-            throw new InvalidOperationException("No source loaded.");
-
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page);
 
-        var comics = await _currentSource.GetTrendingAsync(filters, page, ct);
-        return comics.Select(MapToModel).ToList();
+        var comics = await GetLoadedSource(sourceName).GetTrendingAsync(filters, page, ct);
+        return comics.Select(c => MapToModel(c, sourceName)).ToList();
     }
 
     public async Task<ComicModel?> GetComicDetailsAsync(
+        string sourceName,
         string comicId,
         CancellationToken ct = default
     )
     {
-        if (_currentSource == null || _currentSourceName == null)
-            throw new InvalidOperationException("No source loaded.");
-
-        var comic = await _currentSource.GetDetailsAsync(comicId, ct);
+        var comic = await GetLoadedSource(sourceName).GetDetailsAsync(comicId, ct);
         if (comic == null)
             return null;
 
-        return MapToModel(comic);
+        return MapToModel(comic, sourceName);
     }
 
     public async Task<IReadOnlyList<ChapterModel>> GetAllChaptersAsync(
+        string sourceName,
         string comicId,
         string language,
         CancellationToken ct = default
     )
     {
-        if (_currentSource == null || _currentSourceName == null)
-            throw new InvalidOperationException("No source loaded.");
-
-        var chapters = await _currentSource.GetAllChaptersAsync(comicId, language, ct);
+        var chapters = await GetLoadedSource(sourceName).GetAllChaptersAsync(comicId, language, ct);
         return chapters
             .Select(c => new ChapterModel
             {
                 Id = c.Id,
-                Source = _currentSourceName,
+                Source = sourceName,
                 Title = c.Title,
                 Number = c.Number,
                 Volume = c.Volume,
@@ -146,15 +138,13 @@ internal class SourceService : ISourceService
     }
 
     public async Task<IReadOnlyList<ChapterPageModel>> GetChapterPagesAsync(
+        string sourceName,
         string comicId,
         string chapterId,
         CancellationToken ct = default
     )
     {
-        if (_currentSource == null || _currentSourceName == null)
-            throw new InvalidOperationException("No source loaded.");
-
-        var pages = await _currentSource.GetChapterPagesAsync(comicId, chapterId, ct);
+        var pages = await GetLoadedSource(sourceName).GetChapterPagesAsync(comicId, chapterId, ct);
         return pages
             .Select(p => new ChapterPageModel { Number = p.Number, ImageUrl = p.ImageUrl })
             .ToList();
@@ -193,11 +183,11 @@ internal class SourceService : ISourceService
         };
     }
 
-    private ComicModel MapToModel(Comic coreComic) =>
+    private ComicModel MapToModel(Comic coreComic, string sourceName) =>
         new()
         {
             Id = coreComic.Id,
-            Source = _currentSourceName!,
+            Source = sourceName,
             ComicUrl = coreComic.ComicUrl,
             Title = coreComic.Title,
             Author = coreComic.Author,
@@ -206,13 +196,14 @@ internal class SourceService : ISourceService
             Tags = coreComic.Tags,
             Year = coreComic.Year,
             CoverImageUrl = coreComic.CoverImageUrl,
-            Langs = CreateLanguageModelArray(coreComic.Langs),
+            Langs = CreateLanguageModelArray(GetLanguages(sourceName), coreComic.Langs),
         };
 
-    private LanguageModel[] CreateLanguageModelArray(string[] languageKeys)
+    private LanguageModel[] CreateLanguageModelArray(
+        IReadOnlyDictionary<string, string> sourceLangs,
+        string[] languageKeys
+    )
     {
-        var sourceLangs = GetLanguages();
-
         return languageKeys
                 ?.Select(key => new LanguageModel(
                     key,
@@ -220,6 +211,13 @@ internal class SourceService : ISourceService
                 ))
                 .ToArray()
             ?? [];
+    }
+
+    private IComicSource GetLoadedSource(string sourceName)
+    {
+        if (!_sourceInstances.TryGetValue(sourceName, out var source))
+            throw new InvalidOperationException($"Source '{sourceName}' is not loaded.");
+        return source;
     }
 
     private Type GetSourceTypeFromAssembly(string pluginPath, bool collectibleContext = false)
