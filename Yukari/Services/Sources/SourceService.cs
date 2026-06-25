@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Yukari.Core.Models;
 using Yukari.Core.Sources;
 using Yukari.Exceptions;
+using Yukari.Helpers;
 using Yukari.Models;
 
 namespace Yukari.Services.Sources;
@@ -233,7 +234,8 @@ internal class SourceService : ISourceService
         {
             Assembly pluginAssembly = context.LoadFromAssemblyPath(pluginPath);
 
-            return pluginAssembly
+            var type =
+                pluginAssembly
                     .GetTypes()
                     .FirstOrDefault(t =>
                         typeof(IComicSource).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract
@@ -241,10 +243,38 @@ internal class SourceService : ISourceService
                 ?? throw new InvalidOperationException(
                     $"{pluginPath} does not implement IComicSource."
                 );
+
+            if (!collectibleContext)
+                ValidateCoreCompatibility(Path.GetFileName(pluginPath), pluginAssembly);
+
+            return type;
         }
         catch (Exception ex) when (ex is ReflectionTypeLoadException or TypeLoadException)
         {
             throw new PluginVersionMismatchException(Path.GetFileName(pluginPath));
+        }
+    }
+
+    private void ValidateCoreCompatibility(string pluginPath, Assembly pluginAssembly)
+    {
+        var coreReference = pluginAssembly
+            .GetReferencedAssemblies()
+            .FirstOrDefault(a => a.Name == "Yukari.Core");
+
+        if (coreReference == null)
+            return;
+
+        var requiredVersion = coreReference.Version;
+        if (requiredVersion > AppInfoHelper.CoreVersion)
+            throw new PluginVersionMismatchException(pluginPath);
+
+        if (requiredVersion < AppInfoHelper.CoreVersion)
+        {
+            _logger.LogWarning(
+                "Plugin '{pluginPath}' targets an older Core version ({RequiredCore}) and may lack features.",
+                pluginPath,
+                requiredVersion?.ToString(3)
+            );
         }
     }
 }
