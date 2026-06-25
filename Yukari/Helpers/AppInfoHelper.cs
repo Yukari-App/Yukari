@@ -1,9 +1,13 @@
+using System;
 using System.Reflection;
+using Yukari.Core.Sources;
 
 namespace Yukari.Helpers;
 
 public static class AppInfoHelper
 {
+    private static readonly Version _coreVersion = typeof(IComicSource).Assembly.GetName().Version!;
+
     public static string Version { get; } =
         Assembly
             .GetExecutingAssembly()
@@ -11,9 +15,6 @@ public static class AppInfoHelper
             ?.InformationalVersion
         ?? "Unknown";
 
-    public static string CoreVersion { get; } =
-        typeof(Yukari.Core.Sources.IComicSource)
-            .Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            ?.InformationalVersion.Split('+')[0]
-        ?? "Unknown";
+    public static string CoreVersionString { get; } = _coreVersion.ToString(3);
+    public static Version CoreVersion => _coreVersion;
 }
