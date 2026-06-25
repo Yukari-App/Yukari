@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Yukari.Helpers;
 using Yukari.Models;
 
 namespace Yukari.ViewModels.Components;
@@ -17,6 +18,8 @@ public partial class ComicSourceItemViewModel : ObservableObject
 
     [ObservableProperty]
     public partial bool IsEnabled { get; set; }
+
+    public bool IsOutdated => ComicSource.Version.IsCoreOutdated();
 
     public ComicSourceItemViewModel(
         ComicSourceModel comicSource,

@@ -154,6 +154,19 @@
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                    Text="{x:Bind ComicSource.Version}" />
+                                        <Border Height="20"
+                                                VerticalAlignment="Center"
+                                                Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                Visibility="{x:Bind IsOutdated, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                                            <TextBlock Margin="4,0"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="12"
+                                                       Text="Outdated" />
+                                        </Border>
                                         <ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
                                         <Button Width="35"
                                                 Height="35"

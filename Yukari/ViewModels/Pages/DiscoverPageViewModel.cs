@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Core.Models;
+using Yukari.Helpers;
 using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.DTO;
@@ -47,6 +48,7 @@ public partial class DiscoverPageViewModel
     public partial ObservableCollection<ComicItemViewModel> SearchedComics { get; set; } = new();
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSourceOutdated))]
     public partial ComicSourceModel? SelectedComicSource { get; set; }
 
     [ObservableProperty]
@@ -58,6 +60,8 @@ public partial class DiscoverPageViewModel
     [NotifyPropertyChangedFor(nameof(IsLoadMoreVisible))]
     [NotifyCanExecuteChangedFor(nameof(FilterCommand), nameof(LoadMoreCommand))]
     public partial bool IsLoadingMore { get; set; }
+
+    public bool IsSourceOutdated => SelectedComicSource?.Version.IsCoreOutdated() ?? false;
 
     public bool IsLoadMoreVisible => !IsContentLoading && !NoResults && !NoSources;
 
