@@ -91,7 +91,7 @@
                   RowDefinitions="Auto, Auto, Auto"
                   RowSpacing="8"
                   Visibility="{x:Bind ViewModel.IsError, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-                <FontIcon FontSize="48" Foreground="{StaticResource SystemFillColorCriticalBrush}" Glyph="&#xEB90;" />
+                <FontIcon FontSize="48" Foreground="{ThemeResource SystemFillColorCriticalBrush}" Glyph="&#xEB90;" />
                 <TextBlock Grid.Row="1"
                            HorizontalAlignment="Center"
                            Style="{StaticResource BodyLargeStrongTextBlockStyle}"

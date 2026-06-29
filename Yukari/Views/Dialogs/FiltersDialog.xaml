@@ -23,8 +23,8 @@
                   Margin="0,0,0,3"
                   Padding="16,0,6,0"
                   HorizontalAlignment="Stretch"
-                  Background="{StaticResource CardBackgroundFillColorDefaultBrush}"
-                  BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                   BorderThickness="1"
                   ColumnDefinitions="*, Auto"
                   CornerRadius="4">
@@ -54,7 +54,7 @@
                             <DataTemplate x:DataType="vmc:ToggleOptionViewModel">
                                 <Grid Padding="16,0,16,0"
                                       HorizontalAlignment="Stretch"
-                                      BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
+                                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                       BorderThickness="0,0,0,1"
                                       ColumnDefinitions="*, 40">
                                     <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="{x:Bind DisplayName}" />

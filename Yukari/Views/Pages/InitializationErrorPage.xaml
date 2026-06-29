@@ -32,7 +32,7 @@
               VerticalAlignment="Center"
               RowDefinitions="Auto, Auto, *, Auto"
               RowSpacing="8">
-            <FontIcon FontSize="96" Foreground="{StaticResource SystemFillColorCriticalBrush}" Glyph="&#xEB90;" />
+            <FontIcon FontSize="96" Foreground="{ThemeResource SystemFillColorCriticalBrush}" Glyph="&#xEB90;" />
             <TextBlock Grid.Row="1"
                        HorizontalAlignment="Center"
                        Style="{StaticResource TitleTextBlockStyle}"

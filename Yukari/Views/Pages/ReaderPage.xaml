@@ -81,7 +81,7 @@
                            HorizontalAlignment="Right"
                            VerticalAlignment="Center"
                            FontSize="10"
-                           Foreground="{StaticResource TextFillColorSecondaryBrush}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            Text="{x:Bind ViewModel.ChapterTitle, Mode=OneWay}"
                            TextWrapping="NoWrap"
                            ToolTipService.ToolTip="{x:Bind ViewModel.ChapterTitle, Mode=OneWay}" />
@@ -244,7 +244,7 @@
                                             Visibility="{x:Bind HasError, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                                     <FontIcon HorizontalAlignment="Center"
                                               FontSize="40"
-                                              Foreground="{StaticResource SystemFillColorCriticalBrush}"
+                                              Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                               Glyph="&#xEB90;" />
                                     <TextBlock HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" Text="Failed to load page" />
                                     <Button HorizontalAlignment="Center" Command="{x:Bind RetryCommand}">
@@ -312,7 +312,7 @@
                        HorizontalAlignment="Center"
                        VerticalAlignment="Bottom"
                        FontSize="12"
-                       Foreground="{StaticResource TextFillColorSecondaryBrush}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Text="{x:Bind ViewModel.PageIndicatorText, Mode=OneWay}"
                        Visibility="{x:Bind ViewModel.IsHorizontalPageNavigationButtonsVisible, Mode=OneWay}" />
             <TextBlock Grid.Row="1"
@@ -320,7 +320,7 @@
                        HorizontalAlignment="Right"
                        VerticalAlignment="Center"
                        FontSize="12"
-                       Foreground="{StaticResource TextFillColorSecondaryBrush}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Text="{x:Bind ViewModel.PageIndicatorText, Mode=OneWay}"
                        Visibility="{x:Bind ViewModel.IsVerticalPageNavigationButtonsVisible, Mode=OneWay}" />
         </Grid>
@@ -350,11 +350,11 @@
               RowSpacing="8"
               Visibility="{x:Bind ViewModel.IsError, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
             <FontIcon FontSize="64"
-                      Foreground="{StaticResource SystemFillColorCriticalBrush}"
+                      Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                       Glyph="&#xEB90;"
                       Visibility="{x:Bind ViewModel.IsWarning, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
             <FontIcon FontSize="64"
-                      Foreground="{StaticResource SystemFillColorCautionBrush}"
+                      Foreground="{ThemeResource SystemFillColorCautionBrush}"
                       Glyph="&#xF167;"
                       Visibility="{x:Bind ViewModel.IsWarning, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
             <TextBlock Grid.Row="1"
