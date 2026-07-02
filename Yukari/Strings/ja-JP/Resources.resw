@@ -1,0 +1,836 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FavoritesNVItem.Content" xml:space="preserve">
+    <value>お気に入り</value>
+  </data>
+  <data name="DiscoverNVItem.Content" xml:space="preserve">
+    <value>発見</value>
+  </data>
+  <data name="DownloadsNVItem.Content" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="HelpNVItem.Content" xml:space="preserve">
+    <value>ヘルプ</value>
+  </data>
+  <data name="SettingsNVItem.Content" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="FavoritesHeader.Text" xml:space="preserve">
+    <value>お気に入り</value>
+  </data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve">
+    <value>漫画を検索</value>
+  </data>
+  <data name="AlphabeticalRMItem.Text" xml:space="preserve">
+    <value>アルファベット順</value>
+  </data>
+  <data name="LastReadRMItem.Text" xml:space="preserve">
+    <value>最近読んだ順</value>
+  </data>
+  <data name="AscendingRMItem.Text" xml:space="preserve">
+    <value>昇順</value>
+  </data>
+  <data name="DescendingRMItem.Text" xml:space="preserve">
+    <value>降順</value>
+  </data>
+  <data name="ShowAllCollectionsOption.Text" xml:space="preserve">
+    <value>すべて表示</value>
+  </data>
+  <data name="EmptyCollectionsTXB.Text" xml:space="preserve">
+    <value>まだコレクションがありません。「管理」から作成してください。</value>
+  </data>
+  <data name="CollectionsManagerBT.Text" xml:space="preserve">
+    <value>管理</value>
+    <comment>Try using less than 10 characters.</comment>
+  </data>
+  <data name="AddLocalComicMNItem.Text" xml:space="preserve">
+    <value>ローカル漫画を追加</value>
+  </data>
+  <data name="EmptyFavoritesTXB.Text" xml:space="preserve">
+    <value>お気に入りが見つかりません。</value>
+  </data>
+  <data name="ComicItemCollectionsMNItem.Text" xml:space="preserve">
+    <value>コレクション</value>
+  </data>
+  <data name="ComicItemRemoveMNItem.Text" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="DiscoverHeader.Text" xml:space="preserve">
+    <value>発見</value>
+  </data>
+  <data name="OutdatedBadge.Text" xml:space="preserve">
+    <value>更新あり</value>
+  </data>
+  <data name="EmptyComicSourcesMessageRun.Text" xml:space="preserve">
+    <value>コミックソースが追加されていません。追加先：</value>
+  </data>
+  <data name="AddComicSourcesPathRun.Text" xml:space="preserve">
+    <value>設定 → ソース → コミックソース → 新しいソースを追加</value>
+  </data>
+  <data name="LoadMoreBT.Text" xml:space="preserve">
+    <value>もっと読み込む</value>
+  </data>
+  <data name="DownloadsHeader.Text" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="ClearFinishedBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>完了したダウンロードを削除</value>
+  </data>
+  <data name="CancelUnfinishedBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>未完了のダウンロードをキャンセル</value>
+  </data>
+  <data name="EmptyDownloadsTXB.Text" xml:space="preserve">
+    <value>ダウンロードはありません</value>
+  </data>
+  <data name="QueuedBadge.Text" xml:space="preserve">
+    <value>待機中</value>
+  </data>
+  <data name="DownloadingBadge.Text" xml:space="preserve">
+    <value>ダウンロード中</value>
+  </data>
+  <data name="CompletedBadge.Text" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="CancelledBadge.Text" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="FailedBadge.Text" xml:space="preserve">
+    <value>失敗</value>
+  </data>
+  <data name="RetryDownloadBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>このダウンロードを再試行</value>
+  </data>
+  <data name="CancelDownloadBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>このダウンロードをキャンセル</value>
+  </data>
+  <data name="DeleteDownloadBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>このダウンロードを削除</value>
+  </data>
+  <data name="SettingsHeader.Text" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="AppearanceSection.Text" xml:space="preserve">
+    <value>外観</value>
+  </data>
+  <data name="AppThemeCard.Header" xml:space="preserve">
+    <value>アプリのテーマ</value>
+  </data>
+  <data name="AppThemeCard.Description" xml:space="preserve">
+    <value>アプリのテーマを選択</value>
+  </data>
+  <data name="PreferencesSection.Text" xml:space="preserve">
+    <value>環境設定</value>
+  </data>
+  <data name="AutoComicUpdateCard.Header" xml:space="preserve">
+    <value>起動時に漫画を更新</value>
+  </data>
+  <data name="AutoComicUpdateCard.Description" xml:space="preserve">
+    <value>起動時にお気に入りの漫画データとチャプターを同期</value>
+  </data>
+  <data name="ReaderSection.Text" xml:space="preserve">
+    <value>リーダー</value>
+  </data>
+  <data name="AutoFullscreenCard.Header" xml:space="preserve">
+    <value>フルスクリーン</value>
+  </data>
+  <data name="AutoFullscreenCard.Description" xml:space="preserve">
+    <value>自動でフルスクリーンモードにする</value>
+  </data>
+  <data name="ReadingModeCard.Header" xml:space="preserve">
+    <value>読み方</value>
+  </data>
+  <data name="ReadingModeCard.Description" xml:space="preserve">
+    <value>読み進める方向と流れを変更</value>
+  </data>
+  <data name="ScalingModeCard.Header" xml:space="preserve">
+    <value>拡大縮小</value>
+  </data>
+  <data name="ScalingModeCard.Description" xml:space="preserve">
+    <value>ページの画面サイズへの合わせ方を調整</value>
+  </data>
+  <data name="SourcesSection.Text" xml:space="preserve">
+    <value>ソース</value>
+  </data>
+  <data name="ComicSourcesExpander.Header" xml:space="preserve">
+    <value>コミックソース</value>
+  </data>
+  <data name="ComicSourcesExpander.Description" xml:space="preserve">
+    <value>漫画を取得するソース</value>
+  </data>
+  <data name="NewComicSourceBT.Content" xml:space="preserve">
+    <value>新しいソースを追加</value>
+  </data>
+  <data name="EmptyComicSourcesInfoBar.Title" xml:space="preserve">
+    <value>ソースがまだ追加されていません</value>
+  </data>
+  <data name="CheckForUpdatesMNItem.Text" xml:space="preserve">
+    <value>更新を確認</value>
+  </data>
+  <data name="DeleteComicSourceMNItem.Text" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="DefaultComicSourceCard.Header" xml:space="preserve">
+    <value>デフォルトソース</value>
+  </data>
+  <data name="DefaultComicSourceCard.Description" xml:space="preserve">
+    <value>デフォルトのコミックソースを設定</value>
+  </data>
+  <data name="StorageSection.Text" xml:space="preserve">
+    <value>ストレージ</value>
+  </data>
+  <data name="CleanUpCard.Header" xml:space="preserve">
+    <value>ストレージをクリーンアップ</value>
+  </data>
+  <data name="CleanUpCard.Description" xml:space="preserve">
+    <value>お気に入りから外れた漫画のチャプターとデータを削除</value>
+  </data>
+  <data name="CleanUpBT.Content" xml:space="preserve">
+    <value>クリーンアップ</value>
+  </data>
+  <data name="AboutSection.Text" xml:space="preserve">
+    <value>このアプリについて</value>
+  </data>
+  <data name="About/Copyright" xml:space="preserve">
+    <value>© {0} {1}. {2} の下でライセンス</value>
+  </data>
+  <data name="VersionRun.Text" xml:space="preserve">
+    <value>バージョン</value>
+  </data>
+  <data name="ProjectRepoHLBT.Content" xml:space="preserve">
+    <value>プロジェクトリポジトリ</value>
+  </data>
+  <data name="License" xml:space="preserve">
+    <value>ライセンス ({0})</value>
+  </data>
+  <data name="CheckUpdatesHLBT.Content" xml:space="preserve">
+    <value>更新を確認</value>
+  </data>
+  <data name="FeedbackHLBT.Content" xml:space="preserve">
+    <value>フィードバックを送信</value>
+  </data>
+  <data name="ContinueTXB.Text" xml:space="preserve">
+    <value>続ける</value>
+  </data>
+  <data name="UpdateMNItem.Text" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="EditLocalComicMNItem.Text" xml:space="preserve">
+    <value>ローカル漫画を編集</value>
+  </data>
+  <data name="CollectionsMNItem.Text" xml:space="preserve">
+    <value>コレクション</value>
+  </data>
+  <data name="OpenInBrowserMNItem.Text" xml:space="preserve">
+    <value>ブラウザで開く</value>
+  </data>
+  <data name="UnvailableComicInfoBar.Title" xml:space="preserve">
+    <value>このソースではこの漫画は利用できなくなりました</value>
+  </data>
+  <data name="UnvailableComicInfoBar.Message" xml:space="preserve">
+    <value>ダウンロード済みのチャプターは引き続き読めます。</value>
+  </data>
+  <data name="AuthorTXB.Text" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="PublishedTXB.Text" xml:space="preserve">
+    <value>公開日</value>
+  </data>
+  <data name="StatusTXB.Text" xml:space="preserve">
+    <value>ステータス</value>
+  </data>
+  <data name="SynopsisTXB.Text" xml:space="preserve">
+    <value>あらすじ</value>
+  </data>
+  <data name="ChaptersTXB.Text" xml:space="preserve">
+    <value>チャプター</value>
+  </data>
+  <data name="RescanChaptersTXB.Text" xml:space="preserve">
+    <value>チャプターを再スキャン</value>
+  </data>
+  <data name="MarkAllChaptersAsReadMNItem.Text" xml:space="preserve">
+    <value>すべて既読にする</value>
+  </data>
+  <data name="MarkAllChaptersAsUnreadMNItem.Text" xml:space="preserve">
+    <value>すべて未読にする</value>
+  </data>
+  <data name="EmptyChaptersTXB.Text" xml:space="preserve">
+    <value>この言語のチャプターは見つかりませんでした。</value>
+  </data>
+  <data name="LoadingComicTXB.Text" xml:space="preserve">
+    <value>漫画を読み込み中...</value>
+  </data>
+  <data name="ComicErrorSuggestionTXB.Text" xml:space="preserve">
+    <value>戻って漫画をもう一度選択してみてください。</value>
+  </data>
+  <data name="MarkPreviousChaptersAsReadMNItem.Text" xml:space="preserve">
+    <value>前のチャプターをすべて既読にする</value>
+  </data>
+  <data name="BackToNavigationBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>ナビゲーションに戻る</value>
+  </data>
+    <data name="ReadingModeSBItem.Text" xml:space="preserve">
+    <value>読み方</value>
+  </data>
+  <data name="RightToLeftModeMNItem.Text" xml:space="preserve">
+    <value>右から左</value>
+  </data>
+  <data name="LeftToRightModeMNItem.Text" xml:space="preserve">
+    <value>左から右</value>
+  </data>
+  <data name="VerticalModeMNItem.Text" xml:space="preserve">
+    <value>縦スクロール</value>
+  </data>
+  <data name="ScalingModeSBItem.Text" xml:space="preserve">
+    <value>拡大縮小</value>
+  </data>
+  <data name="FitScreenModeMNItem.Text" xml:space="preserve">
+    <value>画面に合わせる</value>
+  </data>
+  <data name="FitWidthModeMNItem.Text" xml:space="preserve">
+    <value>幅に合わせる</value>
+  </data>
+  <data name="FitHeightModeMNItem.Text" xml:space="preserve">
+    <value>高さに合わせる</value>
+  </data>
+  <data name="OriginalSizeModeMNItem.Text" xml:space="preserve">
+    <value>オリジナルサイズ</value>
+  </data>
+  <data name="FailedLoadingPageTXB.Text" xml:space="preserve">
+    <value>ページの読み込みに失敗しました</value>
+  </data>
+  <data name="TryLoadPageTXB.Text" xml:space="preserve">
+    <value>再試行</value>
+  </data>
+  <data name="LoadingChapterTXB.Text" xml:space="preserve">
+    <value>チャプターを読み込み中...</value>
+  </data>
+  <data name="ChapterErrorSuggestionTXB.Text" xml:space="preserve">
+    <value>戻ってチャプターをもう一度選択してみてください。</value>
+  </data>
+  <data name="HelpHeader.Text" xml:space="preserve">
+    <value>ヘルプ</value>
+  </data>
+  <data name="FirstStepsSection.Text" xml:space="preserve">
+    <value>はじめに</value>
+  </data>
+  <data name="ComicSourcesHelpExpander.Header" xml:space="preserve">
+    <value>コミックソース</value>
+  </data>
+  <data name="ComicSourcesHelpExpander.Description" xml:space="preserve">
+    <value>Yukariプラグインを理解する</value>
+  </data>
+  <data name="ComicSourcesHelp1" xml:space="preserve">
+    <value>**Yukari** には法的な理由により **コミックソース** がプリインストールされていません。**コミュニティプラグイン** を通じて必要なソースを追加します。</value>
+  </data>
+  <data name="ComicSourcesHelp2" xml:space="preserve">
+    <value>**コミックソース** のインストールは簡単です：** .dll** プラグインをダウンロードし、**設定 → コミックソース → 新しいソースを追加** でダウンロードしたプラグインを選択します。</value>
+  </data>
+  <data name="ComicSourcesHelp3" xml:space="preserve">
+    <value>プラグインは [こちら](https://github.com/orgs/Yukari-App/repositories?q=Plugin%20sort%3Aname-asc) で見つかります。名前に "Plugin" を含む **リポジトリ** を選び、**リリース** セクションから互換バージョンをダウンロードしてください。</value>
+  </data>
+  <data name="ComicSourcesHelp4" xml:space="preserve">
+    <value>**最新バージョンのYukariを使用していることを確認**して、最新プラグインとの互換性を保ってください。[リリースページ](https://github.com/Yukari-App/Yukari/releases) をチェックしてください。</value>
+  </data>
+  <data name="ComicsSection.Text" xml:space="preserve">
+    <value>漫画</value>
+  </data>
+  <data name="OnlineComicsHelpExpander.Header" xml:space="preserve">
+    <value>オンライン</value>
+  </data>
+  <data name="OnlineComicsHelpExpander.Description" xml:space="preserve">
+    <value>プラグインから漫画を探して読む</value>
+  </data>
+  <data name="OnlineComicsHelp1" xml:space="preserve">
+    <value>**発見** ページを使って、トレンドの漫画を閲覧したり、インストール済みのソース全体でタイトル検索ができます。</value>
+  </data>
+  <data name="OnlineComicsHelp2" xml:space="preserve">
+    <value>お気に入り登録するとライブラリに保存され、チャプターと言語ごとに **ダウンロード** 機能が有効になります。</value>
+  </data>
+  <data name="OnlineComicsHelp3" xml:space="preserve">
+    <value>チャプターは **自動更新されません**。漫画ページメニューの **更新** オプションを使って新しいチャプターを取得してください。</value>
+  </data>
+  <data name="LocalComicsHelpExpander.Header" xml:space="preserve">
+    <value>ローカル</value>
+  </data>
+  <data name="LocalComicsHelpExpander.Description" xml:space="preserve">
+    <value>個人の漫画コレクションを読む</value>
+  </data>
+  <data name="LocalComicsHelp1" xml:space="preserve">
+    <value>Yukariは2つのローカル形式に対応しています：**画像を含むフォルダ**（1チャプター1フォルダ）と **.cbz** アーカイブ。ページは展開せずに直接読み取られます。</value>
+  </data>
+  <data name="LocalComicsHelp2" xml:space="preserve">
+    <value>ローカル漫画を追加するには：**お気に入り** → ⋯ メニュー → **ローカル漫画を追加**。詳細を入力し、チャプターが含まれるフォルダを指定します。</value>
+  </data>
+  <data name="LocalComicsHelp3" xml:space="preserve">
+    <value>フォルダに新しいチャプターを追加したら、漫画ページで **チャプターを再スキャン** を使用して検出します。お気に入りからローカル漫画を削除しても **元のファイルは決して削除されません**。</value>
+  </data>
+  <data name="ReaderHelpExpander.Header" xml:space="preserve">
+    <value>リーダー</value>
+  </data>
+  <data name="ReaderHelpExpander.Description" xml:space="preserve">
+    <value>読み方、拡大縮小、ショートカット</value>
+  </data>
+  <data name="ReaderHelp1" xml:space="preserve">
+    <value>3つの読み方が利用可能です：**右から左**（マンガ）、**左から右**（西洋）、**縦スクロール**（ウェブトゥーン）。リーダーメニューから変更します。</value>
+  </data>
+  <data name="ReaderHelp2" xml:space="preserve">
+    <value>4つの拡大縮小モード：**画面に合わせる**、**幅に合わせる**、**高さに合わせる**、**オリジナルサイズ**。**F11** または **フルスクリーン** ボタンでフルスクリーンを切り替えます。</value>
+  </data>
+  <data name="ReaderHelp3" xml:space="preserve">
+    <value>漫画ページの **続ける** ボタンで、最後に読んだチャプターとページから自動的に再開します。</value>
+  </data>
+  <data name="PersistenceSection.Text" xml:space="preserve">
+    <value>永続化</value>
+  </data>
+  <data name="DownloadsHelpExpander.Header" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="DownloadsHelpExpander.Description" xml:space="preserve">
+    <value>オフライン読書とストレージ管理</value>
+  </data>
+  <data name="DownloadsHelp1" xml:space="preserve">
+    <value>**オフライン** で読むために、漫画ページからチャプターをダウンロードします。ダウンロードはバックグラウンドで実行され、進行状況がチャプターごとに表示されます。</value>
+  </data>
+  <data name="DownloadsHelp2" xml:space="preserve">
+    <value>ダウンロードしたチャプターは **Yukariのアプリデータフォルダ** に保存されます。漫画ページから個別のチャプターまたは全チャプターを一度に削除できます。</value>
+  </data>
+  <data name="DownloadsHelp3" xml:space="preserve">
+    <value>お気に入りから漫画を削除すると、**ダウンロードされたデータはすべて自動的に削除されます**。</value>
+  </data>
+  <data name="SupportSection.Text" xml:space="preserve">
+    <value>サポート</value>
+  </data>
+  <data name="SupportHelpExpander.Header" xml:space="preserve">
+    <value>ヘルプが必要ですか？</value>
+  </data>
+  <data name="SupportHelpExpander.Description" xml:space="preserve">
+    <value>ヘルプの利用と問題の報告</value>
+  </data>
+  <data name="SupportHelp1" xml:space="preserve">
+    <value>何かが動作しない場合は、[既知の問題](https://github.com/Yukari-App/Yukari/issues) を確認するか、新しい問題を報告してください。あなたのフィードバックがYukariをより良くします！</value>
+  </data>
+  <data name="InitializationErrorTXB.Text" xml:space="preserve">
+    <value>Yukariの初期化中にエラーが発生しました</value>
+  </data>
+  <data name="InitializationErrorSuggestionTXB.Text" xml:space="preserve">
+    <value>アプリをもう一度開いてみてください。問題が解決しない場合は、下のボタンからフィードバックを送信してください。</value>
+  </data>
+  <data name="CollectionsManagerHeader.Text" xml:space="preserve">
+    <value>コレクション管理</value>
+  </data>
+  <data name="CollectionsManagerDialog.CloseButtonText" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="EmptyCollectionsInfoBar.Title" xml:space="preserve">
+    <value>まだコレクションがありません</value>
+  </data>
+  <data name="EmptyCollectionsInfoBar.Message" xml:space="preserve">
+    <value>作成するには、下に名前を入力して右のボタンをクリックしてください。</value>
+  </data>
+  <data name="NewCollectionTXBox.PlaceholderText" xml:space="preserve">
+    <value>新しいコレクション名</value>
+  </data>
+  <data name="ComicCollectionsHeader.Text" xml:space="preserve">
+    <value>コレクション</value>
+  </data>
+  <data name="ComicCollectionsDialog.CloseButtonText" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="EmptyComicCollectionsInfoBar.Title" xml:space="preserve">
+    <value>まだコレクションがありません</value>
+  </data>
+  <data name="EmptyComicCollectionsInfoBar.Message" xml:space="preserve">
+    <value>作成するには、お気に入り → コレクション → 管理 へ進んでください。</value>
+  </data>
+  <data name="FiltersHeader.Text" xml:space="preserve">
+    <value>フィルター</value>
+  </data>
+  <data name="FiltersDialog.CloseButtonText" xml:space="preserve">
+    <value>閉じて適用</value>
+  </data>
+  <data name="LocalComicManagerHeader.Text" xml:space="preserve">
+    <value>ローカル漫画管理</value>
+  </data>
+  <data name="LocalComicManagerDialog.CloseButtonText" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="TitleTXBox.Header" xml:space="preserve">
+    <value>タイトル</value>
+  </data>
+  <data name="AuthorTXBox.Header" xml:space="preserve">
+    <value>作者</value>
+  </data>
+   <data name="YearNBox.Header" xml:space="preserve">
+    <value>年</value>
+  </data>
+  <data name="TagsTXBox.Header" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="TagsTXBox.PlaceholderText" xml:space="preserve">
+    <value>タグはカンマで区切ってください。例: 'tag1,tag2,tag3'</value>
+  </data>
+  <data name="DescriptionTXBox.Header" xml:space="preserve">
+    <value>説明</value>
+  </data>
+  <data name="CoverTXBox.Header" xml:space="preserve">
+    <value>カバーパス</value>
+  </data>
+  <data name="ComicFolderTXBox.Header" xml:space="preserve">
+    <value>漫画フォルダパス</value>
+  </data>
+  <data name="ChapterFormatCBBox.Header" xml:space="preserve">
+    <value>チャプター形式</value>
+    <comment>Try using less than 10 characters.</comment>
+  </data>
+  <data name="LocalChaptersFormat/FolderWithImages" xml:space="preserve">
+    <value>フォルダ</value>
+  </data>
+  <data name="ThemeMode/Light" xml:space="preserve">
+    <value>ライト</value>
+  </data>
+  <data name="ThemeMode/Dark" xml:space="preserve">
+    <value>ダーク</value>
+  </data>
+  <data name="ThemeMode/System" xml:space="preserve">
+    <value>システム</value>
+  </data>
+  <data name="ReadingMode/RightToLeft" xml:space="preserve">
+    <value>右から左</value>
+  </data>
+  <data name="ReadingMode/LeftToRight" xml:space="preserve">
+    <value>左から右</value>
+  </data>
+  <data name="ReadingMode/Vertical" xml:space="preserve">
+    <value>縦スクロール</value>
+  </data>
+  <data name="ScalingMode/FitScreen" xml:space="preserve">
+    <value>画面に合わせる</value>
+  </data>
+  <data name="ScalingMode/FitWidth" xml:space="preserve">
+    <value>幅に合わせる</value>
+  </data>
+  <data name="ScalingMode/FitHeight" xml:space="preserve">
+    <value>高さに合わせる</value>
+  </data>
+  <data name="ScalingMode/OriginalSize" xml:space="preserve">
+    <value>オリジナルサイズ</value>
+  </data>
+  <data name="ComicStatus/Ongoing" xml:space="preserve">
+    <value>連載中</value>
+  </data>
+  <data name="ComicStatus/Completed" xml:space="preserve">
+    <value>完結</value>
+  </data>
+  <data name="ComicStatus/Hiatus" xml:space="preserve">
+    <value>休載中</value>
+  </data>
+  <data name="ComicStatus/Cancelled" xml:space="preserve">
+    <value>打ち切り</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="ErrorGettingSourceFilters" xml:space="preserve">
+    <value>ソースフィルター取得エラー</value>
+  </data>
+  <data name="ErrorGettingSourceLanguages" xml:space="preserve">
+    <value>ソース言語取得エラー</value>
+  </data>
+  <data name="ErrorFetchingComics" xml:space="preserve">
+    <value>漫画取得エラー</value>
+  </data>
+  <data name="ErrorFetchingFavoriteComics" xml:space="preserve">
+    <value>お気に入り漫画取得エラー</value>
+  </data>
+  <data name="ErrorFetchingComicDetails" xml:space="preserve">
+    <value>漫画詳細取得エラー</value>
+  </data>
+  <data name="ErrorFetchingComicUserData" xml:space="preserve">
+    <value>漫画ユーザーデータ取得エラー</value>
+  </data>
+  <data name="ErrorFetchingCollections" xml:space="preserve">
+    <value>コレクション取得エラー</value>
+  </data>
+  <data name="ErrorFetchingComicReadingProgress" xml:space="preserve">
+    <value>漫画読書進行状況取得エラー</value>
+  </data>
+  <data name="ErrorFetchingChapters" xml:space="preserve">
+    <value>チャプター取得エラー</value>
+  </data>
+  <data name="ErrorFetchingChapterUserData" xml:space="preserve">
+    <value>チャプターユーザーデータ取得エラー</value>
+  </data>
+  <data name="ErrorFetchingChapterPages" xml:space="preserve">
+    <value>ページ取得エラー</value>
+  </data>
+  <data name="ErrorFetchingComicSources" xml:space="preserve">
+    <value>コミックソース取得エラー</value>
+  </data>
+  <data name="FailedAddingToFavorites" xml:space="preserve">
+    <value>お気に入り追加失敗</value>
+  </data>
+  <data name="FailedToAddLocalComic" xml:space="preserve">
+    <value>ローカル漫画追加失敗</value>
+  </data>
+  <data name="ErrorSavingProgress" xml:space="preserve">
+    <value>進行状況保存エラー</value>
+  </data>
+  <data name="ErrorCreatingCollection" xml:space="preserve">
+    <value>コレクション作成エラー</value>
+  </data>
+  <data name="ErrorRenamingCollection" xml:space="preserve">
+    <value>コレクション名変更エラー</value>
+  </data>
+  <data name="ErrorAddingComicToCollection" xml:space="preserve">
+    <value>コレクションへの漫画追加エラー</value>
+  </data>
+  <data name="ErrorSavingComicReadingProgress" xml:space="preserve">
+    <value>漫画読書進行状況保存エラー</value>
+  </data>
+  <data name="ErrorPersistingChapters" xml:space="preserve">
+    <value>チャプター保存エラー</value>
+  </data>
+  <data name="ErrorPersistingLocalChapters" xml:space="preserve">
+    <value>ローカルチャプター保存エラー</value>
+  </data>
+  <data name="ErrorRescanningLocalChapters" xml:space="preserve">
+    <value>ローカルチャプター再スキャンエラー</value>
+  </data>
+  <data name="ErrorSavingChapterProgress" xml:space="preserve">
+    <value>チャプター進行状況保存エラー</value>
+  </data>
+  <data name="ErrorSettingReadStatus" xml:space="preserve">
+    <value>既読状態設定エラー</value>
+  </data>
+  <data name="ErrorUpdatingChapterPageCount" xml:space="preserve">
+    <value>チャプターページ数更新エラー</value>
+  </data>
+  <data name="ErrorAddingUpdatingComicSource" xml:space="preserve">
+    <value>コミックソース追加/更新エラー</value>
+  </data>
+  <data name="ErrorUpdatingComicSourceStatus" xml:space="preserve">
+    <value>コミックソース状態更新エラー</value>
+  </data>
+  <data name="ErrorRemovingComicFromFavorites" xml:space="preserve">
+    <value>お気に入りから漫画削除エラー</value>
+  </data>
+  <data name="ErrorRemovingCollection" xml:space="preserve">
+    <value>コレクション削除エラー</value>
+  </data>
+  <data name="ErrorRemovingComicFromCollection" xml:space="preserve">
+    <value>コレクションから漫画削除エラー</value>
+  </data>
+  <data name="ErrorRemovingComicSource" xml:space="preserve">
+    <value>コミックソース削除エラー</value>
+  </data>
+  <data name="ErrorCleaningUpData" xml:space="preserve">
+    <value>データクリーンアップエラー</value>
+  </data>
+  <data name="NoInternetConnectionOrSourceIsOffline" xml:space="preserve">
+    <value>インターネット接続がないか、ソースがオフラインです。</value>
+  </data>
+  <data name="DefaultErrorNotificationTitle" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="DefaultInfoNotificationTitle" xml:space="preserve">
+    <value>情報</value>
+  </data>
+  <data name="DefaultSuccessNotificationTitle" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <data name="DefaultWarningNotificationTitle" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="AddLocalComic" xml:space="preserve">
+    <value>ローカル漫画を追加</value>
+  </data>
+  <data name="EditLocalComic" xml:space="preserve">
+    <value>ローカル漫画を編集</value>
+  </data>
+  <data name="ErrorInvalidComicUrl" xml:space="preserve">
+    <value>無効な漫画URL</value>
+  </data>
+  <data name="SuccessAddingUpdatingLocalComic" xml:space="preserve">
+    <value>ローカル漫画が追加/更新されました</value>
+  </data>
+  <data name="HiddenTags" xml:space="preserve">
+    <value>{0} 件が非表示です</value>
+  </data>
+  <data name="DeleteAllChapters" xml:space="preserve">
+    <value>すべて削除</value>
+  </data>
+  <data name="DownloadAllChapters" xml:space="preserve">
+    <value>すべてダウンロード</value>
+  </data>
+  <data name="SuccessUpdatingComic" xml:space="preserve">
+    <value>漫画データが正常に更新されました。</value>
+  </data>
+  <data name="SuccessChaptersRescanned" xml:space="preserve">
+    <value>チャプターが再スキャンされました。</value>
+  </data>
+  <data name="ErrorComicNotFoundTitle" xml:space="preserve">
+    <value>漫画が見つかりません</value>
+  </data>
+  <data name="ErrorComicNotFoundMessage" xml:space="preserve">
+    <value>存在しない漫画にアクセスしようとしています</value>
+  </data>
+  <data name="WarningSourceDisabled" xml:space="preserve">
+    <value>コミックソースが無効です</value>
+  </data>
+  <data name="WarningReachedResultsLimitTitle" xml:space="preserve">
+    <value>これ以上結果はありません</value>
+  </data>
+  <data name="WarningReachedResultsLimitMessage" xml:space="preserve">
+    <value>結果の最後に到達しました。</value>
+  </data>
+  <data name="NextChapter" xml:space="preserve">
+    <value>次のチャプター</value>
+  </data>
+  <data name="PreviousChapter" xml:space="preserve">
+    <value>前のチャプター</value>
+  </data>
+  <data name="ErrorNoChaptersFoundTitle" xml:space="preserve">
+    <value>チャプターが見つかりません</value>
+  </data>
+  <data name="ErrorNoChaptersFoundMessage" xml:space="preserve">
+    <value>この言語のチャプターは見つかりませんでした。</value>
+  </data>
+  <data name="WarningSelectedChapterNotFound" xml:space="preserve">
+    <value>選択したチャプターが見つかりません。代わりに最初のチャプターを読み込みます。</value>
+  </data>
+  <data name="ErrorEmptyChapterPagesTitle" xml:space="preserve">
+    <value>このチャプターにはページがありません</value>
+  </data>
+  <data name="ErrorEmptyChapterPagesMessage" xml:space="preserve">
+    <value>このチャプターにはページが見つかりませんでした。</value>
+  </data>
+  <data name="SuccessComicSourceAddedUpdated" xml:space="preserve">
+    <value>コミックソースが正常に追加/更新されました。</value>
+  </data>
+  <data name="WarningUpdatingSourceInUseRestartRequest" xml:space="preserve">
+    <value>ソースは現在使用中で更新できません。Yukariを再起動して更新を完了してください。</value>
+  </data>
+  <data name="WarningRemovingSourceInUseRestartRequest" xml:space="preserve">
+    <value>ソースは現在使用中で削除できません。Yukariを再起動して削除を完了してください。</value>
+  </data>
+  <data name="SuccessStorageCleanedUp" xml:space="preserve">
+    <value>ストレージが正常にクリーンアップされました。</value>
+  </data>
+</root>
