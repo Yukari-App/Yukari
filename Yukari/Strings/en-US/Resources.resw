@@ -436,7 +436,7 @@
     <value>Installing a **Comic Source** is simple: download the **.dll** plugin, go to: **Settings → Comic Sources → Add New Source** and select the downloaded plugin.</value>
   </data>
   <data name="ComicSourcesHelp3" xml:space="preserve">
-    <value>You can find the plugins [HERE](https://github.com/orgs/Yukari-App/repositories?q=Plugin%20sort%3Aname-asc). Select a **repository** with "Plugin" in ter name, go to the **releases** section, and download a compatible version.</value>
+    <value>You can find the plugins [HERE](https://github.com/orgs/Yukari-App/repositories?q=Plugin%20sort%3Aname-asc). Select a **repository** with "Plugin" in the name, go to the **releases** section, and download a compatible version.</value>
   </data>
   <data name="ComicSourcesHelp4" xml:space="preserve">
     <value>**Make sure you are using the latest version of Yukari** to guarantee compatibility with the newest plugins. Check the [releases page](https://github.com/Yukari-App/Yukari/releases).</value>
