@@ -11,7 +11,7 @@ public sealed partial class InitializationErrorPage : Page
     {
         InitializeComponent();
 
-        VersionTextBlock.Text = $"Version {AppInfoHelper.Version}";
+        VersionRun.Text = AppInfoHelper.Version;
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)

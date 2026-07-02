@@ -9,7 +9,7 @@
                xmlns:local="using:Yukari.Views.Dialogs"
                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                xmlns:ui="using:CommunityToolkit.WinUI"
-               CloseButtonText="Close"
+               x:Uid="LocalComicManagerDialog"
                DefaultButton="Primary"
                IsPrimaryButtonEnabled="{x:Bind ViewModel.IsPrimaryButtonEnabled, Mode=OneWay}"
                PrimaryButtonCommand="{x:Bind ViewModel.SaveLocalComicCommand}"
@@ -19,7 +19,7 @@
     <ContentDialog.Title>
         <StackPanel Orientation="Horizontal" Spacing="12">
             <FontIcon FontSize="24" Glyph="&#xE8B7;" />
-            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Local Comic Manager" />
+            <TextBlock x:Uid="LocalComicManagerHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
         </StackPanel>
     </ContentDialog.Title>
 
@@ -30,10 +30,10 @@
     <ScrollViewer MaxHeight="480">
         <Grid Width="320">
             <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.IsError, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}">
-                <TextBox Header="Title" Text="{x:Bind ViewModel.Title, Mode=TwoWay}" />
+                <TextBox x:Uid="TitleTXBox" Text="{x:Bind ViewModel.Title, Mode=TwoWay}" />
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="4">
-                    <TextBox Grid.Column="0" Header="Author" Text="{x:Bind ViewModel.Author, Mode=TwoWay}" />
+                    <TextBox x:Uid="AuthorTXBox" Grid.Column="0" Text="{x:Bind ViewModel.Author, Mode=TwoWay}" />
                     <NumberBox Grid.Column="1"
                                Header="Year"
                                Maximum="9999"
@@ -42,14 +42,14 @@
                                Value="{x:Bind ViewModel.Year, Mode=TwoWay}" />
                 </Grid>
 
-                <TextBox Header="Tags" PlaceholderText="Separate tags with commas. Ex: 'tag1,tag2,tag3'" Text="{x:Bind ViewModel.Tags, Mode=TwoWay}" />
-                <TextBox MaxHeight="100"
-                         Header="Description"
+                <TextBox x:Uid="TagsTXBox" Text="{x:Bind ViewModel.Tags, Mode=TwoWay}" />
+                <TextBox x:Uid="DescriptionTXBox"
+                         MaxHeight="100"
                          Text="{x:Bind ViewModel.Description, Mode=TwoWay}"
                          TextWrapping="Wrap" />
 
                 <Grid ColumnDefinitions="*, Auto" ColumnSpacing="2">
-                    <TextBox Grid.Column="0" Header="Cover Path" Text="{x:Bind ViewModel.CoverPath, Mode=TwoWay}" />
+                    <TextBox x:Uid="CoverTXBox" Grid.Column="0" Text="{x:Bind ViewModel.CoverPath, Mode=TwoWay}" />
                     <Button Grid.Column="1"
                             Width="32"
                             Height="32"
@@ -60,7 +60,7 @@
                 </Grid>
 
                 <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="2">
-                    <TextBox Grid.Column="0" Header="Comic Folder Path" Text="{x:Bind ViewModel.ComicFolderPath, Mode=TwoWay}" />
+                    <TextBox x:Uid="ComicFolderTXBox" Grid.Column="0" Text="{x:Bind ViewModel.ComicFolderPath, Mode=TwoWay}" />
                     <Button Grid.Column="1"
                             Width="32"
                             Height="32"
@@ -68,10 +68,10 @@
                             VerticalAlignment="Bottom"
                             Command="{x:Bind ViewModel.OpenComicPathPickerCommand}"
                             Content="{ui:FontIcon Glyph=&#xF89A;}" />
-                    <ComboBox Grid.Column="2"
+                    <ComboBox x:Uid="ChapterFormatCBBox"
+                              Grid.Column="2"
                               Width="108"
                               Margin="2,0,0,0"
-                              Header="Ch. Format"
                               ItemsSource="{x:Bind ViewModel.AvailableChaptersFormat}"
                               SelectedItem="{x:Bind ViewModel.SelectedChaptersFormat, Mode=TwoWay}">
                         <ComboBox.ItemTemplate>
@@ -92,10 +92,10 @@
                   RowSpacing="8"
                   Visibility="{x:Bind ViewModel.IsError, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                 <FontIcon FontSize="48" Foreground="{ThemeResource SystemFillColorCriticalBrush}" Glyph="&#xEB90;" />
-                <TextBlock Grid.Row="1"
+                <TextBlock x:Uid="LocalComicManagerErrorTXB"
+                           Grid.Row="1"
                            HorizontalAlignment="Center"
-                           Style="{StaticResource BodyLargeStrongTextBlockStyle}"
-                           Text="Can't Get Local Comic Details" />
+                           Style="{StaticResource BodyLargeStrongTextBlockStyle}" />
                 <ScrollViewer Grid.Row="2"
                               MaxWidth="320"
                               MaxHeight="200"

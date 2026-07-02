@@ -107,11 +107,11 @@
                                     BorderThickness="1"
                                     CornerRadius="8"
                                     Visibility="{x:Bind IsDownloadQueued, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-                                <TextBlock Margin="4,0"
+                                <TextBlock x:Uid="QueuedBadge"
+                                           Margin="4,0"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
-                                           FontSize="12"
-                                           Text="Queued" />
+                                           FontSize="12" />
                             </Border>
                             <Border Height="20"
                                     VerticalAlignment="Top"
@@ -120,11 +120,11 @@
                                     BorderThickness="1"
                                     CornerRadius="8"
                                     Visibility="{x:Bind IsDownloadCancelled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-                                <TextBlock Margin="4,0"
+                                <TextBlock x:Uid="CancelledBadge"
+                                           Margin="4,0"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
-                                           FontSize="12"
-                                           Text="Cancelled" />
+                                           FontSize="12" />
                             </Border>
                             <Border Height="20"
                                     VerticalAlignment="Top"
@@ -133,11 +133,11 @@
                                     BorderThickness="1"
                                     CornerRadius="8"
                                     Visibility="{x:Bind IsDownloadFailed, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-                                <TextBlock Margin="4,0"
+                                <TextBlock x:Uid="FailedBadge"
+                                           Margin="4,0"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
-                                           FontSize="12"
-                                           Text="Failed" />
+                                           FontSize="12" />
                             </Border>
 
                             <ProgressRing Grid.Column="1"
@@ -184,10 +184,10 @@
                                 Content="{ui:FontIcon Glyph=&#xE712;}">
                             <Button.Flyout>
                                 <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem Command="{x:Bind MarkPreviousChaptersAsReadCommand}"
+                                    <MenuFlyoutItem x:Uid="MarkPreviousChaptersAsReadMNItem"
+                                                    Command="{x:Bind MarkPreviousChaptersAsReadCommand}"
                                                     CommandParameter="{x:Bind}"
-                                                    Icon="{ui:FontIcon Glyph=&#xE890;}"
-                                                    Text="Mark previous chapters as read" />
+                                                    Icon="{ui:FontIcon Glyph=&#xE890;}" />
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>
@@ -238,7 +238,7 @@
                     <Button Command="{x:Bind ViewModel.ContinueReadingCommand}" Style="{StaticResource AccentButtonStyle}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="16" Glyph="&#xF5B0;" />
-                            <TextBlock Text="Continue" />
+                            <TextBlock x:Uid="ContinueTXB" />
                         </StackPanel>
                     </Button>
 
@@ -260,29 +260,29 @@
                             Content="{ui:FontIcon Glyph=&#xE712;}">
                         <Button.Flyout>
                             <MenuFlyout Placement="Bottom">
-                                <MenuFlyoutItem Command="{x:Bind ViewModel.UpdateCommand}"
+                                <MenuFlyoutItem x:Uid="UpdateMNItem"
+                                                Command="{x:Bind ViewModel.UpdateCommand}"
                                                 Icon="Refresh"
                                                 IsEnabled="{x:Bind ViewModel.IsFavoriteStatusChanging, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
-                                                Text="Update"
                                                 Visibility="{x:Bind ViewModel.IsOnlineFeaturesVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
                                 <MenuFlyoutSeparator Visibility="{x:Bind ViewModel.IsOnlineFeaturesVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
-                                <MenuFlyoutItem Command="{x:Bind ViewModel.OpenLocalComicManagerCommand}"
+                                <MenuFlyoutItem x:Uid="EditLocalComicMNItem"
+                                                Command="{x:Bind ViewModel.OpenLocalComicManagerCommand}"
                                                 Icon="Edit"
                                                 IsEnabled="{x:Bind ViewModel.IsFavoriteStatusChanging, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
-                                                Text="Edit Local Comic"
                                                 Visibility="{x:Bind ViewModel.IsLocalComic, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
-                                <MenuFlyoutItem Command="{x:Bind ViewModel.OpenComicCollectionsManagerCommand}"
+                                <MenuFlyoutItem x:Uid="CollectionsMNItem"
+                                                Command="{x:Bind ViewModel.OpenComicCollectionsManagerCommand}"
                                                 IsEnabled="{x:Bind ViewModel.IsFavoriteStatusChanging, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
-                                                Text="Collections"
                                                 Visibility="{x:Bind ViewModel.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                                     <MenuFlyoutItem.Icon>
                                         <PathIcon VerticalAlignment="Center" Data="M4.6543 2C4.94884 1.40731 5.56045 1 6.26719 1H10.9004C12.6125 1 14.0004 2.38792 14.0004 4.1V11.4667C14.0004 12.1734 13.5931 12.785 13.0004 13.0796V4.1C13.0004 2.9402 12.0602 2 10.9004 2H4.6543ZM4.8 3C3.80589 3 3 3.80589 3 4.8V14.4991C3 14.6724 3.08971 14.8333 3.2371 14.9244C3.38448 15.0155 3.56853 15.0238 3.72353 14.9463L7.5 13.059L11.2765 14.9463C11.4315 15.0238 11.6155 15.0155 11.7629 14.9244C11.9103 14.8333 12 14.6724 12 14.4991V4.8C12 3.80589 11.1941 3 10.2 3H4.8ZM4 4.8C4 4.35817 4.35817 4 4.8 4H10.2C10.6418 4 11 4.35817 11 4.8V13.6902L7.72353 12.0527C7.58281 11.9824 7.41719 11.9824 7.27647 12.0527L4 13.6902V4.8Z" />
                                     </MenuFlyoutItem.Icon>
                                 </MenuFlyoutItem>
                                 <MenuFlyoutSeparator Visibility="{x:Bind ViewModel.IsOnlineFeaturesVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
-                                <MenuFlyoutItem Command="{x:Bind ViewModel.OpenInBrowserCommand}"
+                                <MenuFlyoutItem x:Uid="OpenInBrowserMNItem"
+                                                Command="{x:Bind ViewModel.OpenInBrowserCommand}"
                                                 Icon="Globe"
-                                                Text="Open in browser"
                                                 Visibility="{x:Bind ViewModel.IsLocalComic, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
                             </MenuFlyout>
                         </Button.Flyout>
@@ -294,12 +294,11 @@
             <ScrollViewer Grid.Row="1">
                 <Grid Padding="0,0,16,16">
                     <Grid MaxWidth="1000" RowDefinitions="Auto, Auto">
-                        <InfoBar Title="This comic is no longer available in its source."
+                        <InfoBar x:Uid="UnvailableComicInfoBar"
                                  Grid.Row="0"
                                  Margin="0,0,0,16"
                                  IsClosable="False"
                                  IsOpen="True"
-                                 Message="You can still read downloaded chapters."
                                  Severity="Warning"
                                  Visibility="{x:Bind ViewModel.IsComicAvailable, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
 
@@ -319,28 +318,28 @@
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE716;" />
-                                        <TextBlock VerticalAlignment="Center"
+                                        <TextBlock x:Uid="AuthorTXB"
+                                                   VerticalAlignment="Center"
                                                    FontSize="20"
-                                                   Style="{StaticResource TitleTextBlockStyle}"
-                                                   Text="Author(s)" />
+                                                   Style="{StaticResource TitleTextBlockStyle}" />
                                     </StackPanel>
                                     <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.AuthorDisplay, Mode=OneWay}" />
 
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE787;" />
-                                        <TextBlock VerticalAlignment="Center"
+                                        <TextBlock x:Uid="PublishedTXB"
+                                                   VerticalAlignment="Center"
                                                    FontSize="20"
-                                                   Style="{StaticResource TitleTextBlockStyle}"
-                                                   Text="Published" />
+                                                   Style="{StaticResource TitleTextBlockStyle}" />
                                     </StackPanel>
                                     <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.Comic.Year, Mode=OneWay}" />
 
                                     <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{x:Bind ViewModel.IsLocalComic, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}">
                                         <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE9D9;" />
-                                        <TextBlock VerticalAlignment="Center"
+                                        <TextBlock x:Uid="StatusTXB"
+                                                   VerticalAlignment="Center"
                                                    FontSize="20"
-                                                   Style="{StaticResource TitleTextBlockStyle}"
-                                                   Text="Status" />
+                                                   Style="{StaticResource TitleTextBlockStyle}" />
                                     </StackPanel>
                                     <TextBlock Margin="0,0,0,12"
                                                FontSize="16"
@@ -374,10 +373,10 @@
                             <StackPanel Grid.Row="1" Spacing="8">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE946;" />
-                                    <TextBlock VerticalAlignment="Center"
+                                    <TextBlock x:Uid="SynopsisTXB"
+                                               VerticalAlignment="Center"
                                                FontSize="20"
-                                               Style="{StaticResource TitleTextBlockStyle}"
-                                               Text="Synopsis" />
+                                               Style="{StaticResource TitleTextBlockStyle}" />
                                 </StackPanel>
                                 <ScrollViewer MaxHeight="120"
                                               Padding="6,0,16,0"
@@ -398,17 +397,17 @@
                                 <Grid Grid.Row="0" ColumnDefinitions="*, Auto" ColumnSpacing="8">
                                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
                                         <FontIcon VerticalAlignment="Center" FontSize="24" Glyph="&#xE736;" />
-                                        <TextBlock VerticalAlignment="Center"
+                                        <TextBlock x:Uid="ChaptersTXB"
+                                                   VerticalAlignment="Center"
                                                    FontSize="24"
-                                                   Style="{StaticResource TitleTextBlockStyle}"
-                                                   Text="Chapters" />
+                                                   Style="{StaticResource TitleTextBlockStyle}" />
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
                                         <Button Command="{x:Bind ViewModel.RescanChaptersCommand}" Visibility="{x:Bind ViewModel.IsLocalComic, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                                             <StackPanel Orientation="Horizontal" Spacing="8">
                                                 <FontIcon FontSize="16" Glyph="&#xE72C;" />
-                                                <TextBlock Text="Rescan Chapters" />
+                                                <TextBlock x:Uid="RescanChaptersTXB" />
                                             </StackPanel>
                                         </Button>
 
@@ -434,8 +433,8 @@
                                                 IsEnabled="{x:Bind ViewModel.IsInterfaceReady, Mode=OneWay}">
                                             <Button.Flyout>
                                                 <MenuFlyout Placement="Bottom">
-                                                    <MenuFlyoutItem Command="{x:Bind ViewModel.MarkAllAsReadCommand}" Icon="{ui:FontIcon Glyph=&#xE890;}" Text="Mark all as read" />
-                                                    <MenuFlyoutItem Command="{x:Bind ViewModel.MarkAllAsUnreadCommand}" Icon="{ui:FontIcon Glyph=&#xED1A;}" Text="Mark all as unread" />
+                                                    <MenuFlyoutItem x:Uid="MarkAllChaptersAsReadMNItem" Command="{x:Bind ViewModel.MarkAllAsReadCommand}" Icon="{ui:FontIcon Glyph=&#xE890;}" />
+                                                    <MenuFlyoutItem x:Uid="MarkAllChaptersAsUnreadMNItem" Command="{x:Bind ViewModel.MarkAllAsUnreadCommand}" Icon="{ui:FontIcon Glyph=&#xED1A;}" />
                                                 </MenuFlyout>
                                             </Button.Flyout>
                                         </Button>
@@ -451,11 +450,11 @@
                                               IsActive="{x:Bind ViewModel.IsChaptersLoading, Mode=OneWay}"
                                               Visibility="{x:Bind ViewModel.IsChaptersLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
-                                <TextBlock Grid.Row="1"
+                                <TextBlock x:Uid="EmptyChaptersTXB"
+                                           Grid.Row="1"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            Style="{StaticResource BodyLargeStrongTextBlockStyle}"
-                                           Text="No chapters found in this language."
                                            Visibility="{x:Bind ViewModel.NoChapters, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
                                 <ItemsRepeater Grid.Row="1"
@@ -480,10 +479,10 @@
                           HorizontalAlignment="Center"
                           IsActive="{x:Bind ViewModel.IsComicLoading, Mode=OneWay}"
                           IsIndeterminate="True" />
-            <TextBlock Grid.Row="1"
+            <TextBlock x:Uid="LoadingComicTXB"
+                       Grid.Row="1"
                        HorizontalAlignment="Center"
-                       Style="{StaticResource TitleTextBlockStyle}"
-                       Text="Loading Comic..." />
+                       Style="{StaticResource TitleTextBlockStyle}" />
         </Grid>
 
         <Grid MaxWidth="1000"
@@ -514,10 +513,10 @@
                            Text="{x:Bind ViewModel.ComicErrorMessage, Mode=OneWay}"
                            TextWrapping="Wrap" />
             </ScrollViewer>
-            <TextBlock Grid.Row="3"
+            <TextBlock x:Uid="ComicErrorSuggestionTXB"
+                       Grid.Row="3"
                        HorizontalAlignment="Center"
                        Style="{StaticResource BodyStrongTextBlockStyle}"
-                       Text="Try going back and selecting the comic again."
                        TextAlignment="Center" />
 
         </Grid>

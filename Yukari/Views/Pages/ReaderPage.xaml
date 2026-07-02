@@ -58,12 +58,12 @@
                 <ColumnDefinition Width="{x:Bind ViewModel.IsFullscreen, Converter={StaticResource FullScreenToColumnWidthConverter}, Mode=OneWay}" />
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0"
+            <Button x:Uid="BackToNavigationBT"
+                    Grid.Column="0"
                     Command="{x:Bind ViewModel.GoBackCommand}"
                     Content="{ui:FontIcon Glyph=&#xE72B;,
                                           FontSize=11}"
-                    Style="{StaticResource TitleBarButtonStyle}"
-                    ToolTipService.ToolTip="Back to Navigation" />
+                    Style="{StaticResource TitleBarButtonStyle}" />
             <FontIcon Grid.Column="1"
                       Margin="4,0,0,0"
                       VerticalAlignment="Center"
@@ -116,46 +116,46 @@
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE736;}" Text="Reading Mode">
-                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetReadingModeCommand}"
+                                <RadioMenuFlyoutItem x:Uid="RightToLeftModeMNItem"
+                                                     Command="{x:Bind ViewModel.SetReadingModeCommand}"
                                                      CommandParameter="RightToLeft"
                                                      GroupName="ReadingMode"
                                                      Icon="{ui:FontIcon Glyph=&#xF0B0;}"
-                                                     IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=RightToLeft, Mode=OneWay}"
-                                                     Text="right-to-left" />
-                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetReadingModeCommand}"
+                                                     IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=RightToLeft, Mode=OneWay}" />
+                                <RadioMenuFlyoutItem x:Uid="LeftToRightModeMNItem"
+                                                     Command="{x:Bind ViewModel.SetReadingModeCommand}"
                                                      CommandParameter="LeftToRight"
                                                      GroupName="ReadingMode"
                                                      Icon="{ui:FontIcon Glyph=&#xF0AF;}"
-                                                     IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=LeftToRight, Mode=OneWay}"
-                                                     Text="left-to-right" />
-                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetReadingModeCommand}"
+                                                     IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=LeftToRight, Mode=OneWay}" />
+                                <RadioMenuFlyoutItem x:Uid="VerticalModeMNItem"
+                                                     Command="{x:Bind ViewModel.SetReadingModeCommand}"
                                                      CommandParameter="Vertical"
                                                      GroupName="ReadingMode"
                                                      Icon="{ui:FontIcon Glyph=&#xF0AE;}"
-                                                     IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Vertical, Mode=OneWay}"
-                                                     Text="vertical" />
+                                                     IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Vertical, Mode=OneWay}" />
                             </MenuFlyoutSubItem>
                             <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE9A6;}" Text="Scaling Mode">
-                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetScalingModeCommand}"
+                                <RadioMenuFlyoutItem x:Uid="FitScreenModeMNItem"
+                                                     Command="{x:Bind ViewModel.SetScalingModeCommand}"
                                                      CommandParameter="FitScreen"
                                                      GroupName="ScalingMode"
-                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitScreen, Mode=OneWay}"
-                                                     Text="Fit screen" />
-                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetScalingModeCommand}"
+                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitScreen, Mode=OneWay}" />
+                                <RadioMenuFlyoutItem x:Uid="FitWidthModeMNItem"
+                                                     Command="{x:Bind ViewModel.SetScalingModeCommand}"
                                                      CommandParameter="FitWidth"
                                                      GroupName="ScalingMode"
-                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitWidth, Mode=OneWay}"
-                                                     Text="Fit width" />
-                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetScalingModeCommand}"
+                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitWidth, Mode=OneWay}" />
+                                <RadioMenuFlyoutItem x:Uid="FitHeightModeMNItem"
+                                                     Command="{x:Bind ViewModel.SetScalingModeCommand}"
                                                      CommandParameter="FitHeight"
                                                      GroupName="ScalingMode"
-                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitHeight, Mode=OneWay}"
-                                                     Text="Fit height" />
-                                <RadioMenuFlyoutItem Command="{x:Bind ViewModel.SetScalingModeCommand}"
+                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=FitHeight, Mode=OneWay}" />
+                                <RadioMenuFlyoutItem x:Uid="OriginalSizeModeMNItem"
+                                                     Command="{x:Bind ViewModel.SetScalingModeCommand}"
                                                      CommandParameter="OriginalSize"
                                                      GroupName="ScalingMode"
-                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OriginalSize, Mode=OneWay}"
-                                                     Text="Original size" />
+                                                     IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OriginalSize, Mode=OneWay}" />
                             </MenuFlyoutSubItem>
                         </MenuFlyout>
                     </Button.Flyout>
@@ -246,11 +246,11 @@
                                               FontSize="40"
                                               Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                               Glyph="&#xEB90;" />
-                                    <TextBlock HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" Text="Failed to load page" />
+                                    <TextBlock x:Uid="FailedLoadingPageTXB" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" />
                                     <Button HorizontalAlignment="Center" Command="{x:Bind RetryCommand}">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
                                             <FontIcon FontSize="16" Glyph="&#xE72C;" />
-                                            <TextBlock Text="Try Again" />
+                                            <TextBlock x:Uid="TryLoadPageTXB" />
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -335,10 +335,10 @@
                           HorizontalAlignment="Center"
                           IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                           IsIndeterminate="True" />
-            <TextBlock Grid.Row="1"
+            <TextBlock x:Uid="LoadingChapterTXB"
+                       Grid.Row="1"
                        HorizontalAlignment="Center"
-                       Style="{StaticResource TitleTextBlockStyle}"
-                       Text="Loading Chapter..." />
+                       Style="{StaticResource TitleTextBlockStyle}" />
         </Grid>
 
 
@@ -377,11 +377,10 @@
                            Text="{x:Bind ViewModel.ChapterErrorMessage, Mode=OneWay}"
                            TextWrapping="Wrap" />
             </ScrollViewer>
-            <TextBlock Grid.Row="3"
+            <TextBlock x:Uid="ChapterErrorSuggestionTXB"
+                       Grid.Row="3"
                        HorizontalAlignment="Center"
-                       Style="{StaticResource BodyStrongTextBlockStyle}"
-                       Text="Try going back and selecting the chapter again."
-                       TextAlignment="Center" />
+                       Style="{StaticResource BodyStrongTextBlockStyle}" />
         </Grid>
     </Grid>
 </Page>

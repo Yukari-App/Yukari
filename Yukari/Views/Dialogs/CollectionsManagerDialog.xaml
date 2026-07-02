@@ -8,13 +8,13 @@
                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                xmlns:ui="using:CommunityToolkit.WinUI"
                xmlns:vmc="using:Yukari.ViewModels.Components"
-               CloseButtonText="Close"
+               x:Uid="CollectionsManagerDialog"
                Style="{StaticResource DefaultContentDialogStyle}"
                mc:Ignorable="d">
     <ContentDialog.Title>
         <StackPanel Orientation="Horizontal" Spacing="12">
             <PathIcon Data="M8.40137 3.5C8.92008 2.6033 9.8896 2 11 2H17.25C20.4257 2 23 4.57436 23 7.75V20C23 21.1104 22.3967 22.0799 21.5 22.5987V7.75C21.5 5.40279 19.5972 3.5 17.25 3.5H8.40137ZM8 5C6.34315 5 5 6.34315 5 8V25.25C5 25.5266 5.15224 25.7807 5.39611 25.9113C5.63997 26.0418 5.93588 26.0275 6.16603 25.874L12.5 21.6514L18.834 25.874C19.0641 26.0275 19.36 26.0418 19.6039 25.9113C19.8478 25.7807 20 25.5266 20 25.25V8C20 6.34315 18.6569 5 17 5H8ZM6.5 8C6.5 7.17157 7.17157 6.5 8 6.5H17C17.8284 6.5 18.5 7.17157 18.5 8V23.8486L12.916 20.126C12.6641 19.958 12.3359 19.958 12.084 20.126L6.5 23.8486V8Z" />
-            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Collections Manager" />
+            <TextBlock x:Uid="CollectionsManagerHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
         </StackPanel>
     </ContentDialog.Title>
 
@@ -51,11 +51,10 @@
     </ContentDialog.Resources>
 
     <Grid Width="320" RowDefinitions="*, Auto, Auto">
-        <InfoBar Title="You don't have any collections yet"
+        <InfoBar x:Uid="EmptyCollectionsInfoBar"
                  Margin="0,0,0,4"
                  IsClosable="False"
                  IsOpen="True"
-                 Message="To create one, enter a name below and click the button on the right."
                  Visibility="{x:Bind ViewModel.NoCollections, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
         <ScrollViewer MaxHeight="300" Visibility="{x:Bind ViewModel.NoCollections, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}">
@@ -65,7 +64,7 @@
         <MenuFlyoutSeparator Grid.Row="1" Margin="0,0,0,4" />
 
         <Grid Grid.Row="2" ColumnDefinitions="*, Auto" ColumnSpacing="2">
-            <TextBox Height="35" PlaceholderText="New Collection Name" Text="{x:Bind ViewModel.NewCollectionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox x:Uid="NewCollectionTXBox" Height="35" Text="{x:Bind ViewModel.NewCollectionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <Button Grid.Column="1"
                     Width="35"
                     Height="35"

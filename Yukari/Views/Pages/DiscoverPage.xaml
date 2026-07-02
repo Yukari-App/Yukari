@@ -45,10 +45,10 @@
                         VerticalAlignment="Center"
                         Orientation="Horizontal">
                 <FontIcon FontSize="24" Glyph="&#xE8F1;" />
-                <TextBlock Margin="8,0,0,0"
+                <TextBlock x:Uid="DiscoverHeader"
+                           Margin="8,0,0,0"
                            VerticalAlignment="Center"
-                           Style="{StaticResource TitleTextBlockStyle}"
-                           Text="Discover" />
+                           Style="{StaticResource TitleTextBlockStyle}" />
             </StackPanel>
 
             <StackPanel Grid.Column="2"
@@ -64,11 +64,11 @@
                         BorderThickness="1"
                         CornerRadius="8"
                         Visibility="{x:Bind ViewModel.IsSourceOutdated, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-                    <TextBlock Margin="4,0"
+                    <TextBlock x:Uid="OutdatedBadge"
+                               Margin="4,0"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               FontSize="12"
-                               Text="Outdated" />
+                               FontSize="12" />
                 </Border>
 
                 <ComboBox Height="34"
@@ -95,7 +95,6 @@
                         BorderBrush="Transparent"
                         Command="{x:Bind ViewModel.FilterCommand}"
                         Content="{ui:FontIcon Glyph=&#xE71C;}" />
-
             </StackPanel>
         </Grid>
 
@@ -118,8 +117,10 @@
                    Style="{StaticResource BodyLargeStrongTextBlockStyle}"
                    TextAlignment="Center"
                    Visibility="{x:Bind ViewModel.NoSources, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-            It looks like you don't have any Comic Sources. Add one at<LineBreak />
-            Settings > Sources > Comic Sources > Add New Source</TextBlock>
+            <Run x:Uid="EmptyComicSourcesMessageRun" />
+            <LineBreak />
+            <Run x:Uid="AddComicSourcesPathRun" />
+        </TextBlock>
 
         <GridView Grid.Row="1"
                   IsItemClickEnabled="True"
@@ -139,7 +140,7 @@
                                       Height="16"
                                       IsIndeterminate="True"
                                       Visibility="{x:Bind ViewModel.IsLoadingMore, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
-                        <TextBlock VerticalAlignment="Center" Text="Load More" />
+                        <TextBlock x:Uid="LoadMoreBT" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </GridView.Footer>

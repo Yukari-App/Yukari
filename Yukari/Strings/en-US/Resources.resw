@@ -1,0 +1,597 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FavoritesNVItem.Content" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="DiscoverNVItem.Content" xml:space="preserve">
+    <value>Discover</value>
+  </data>
+  <data name="DownloadsNVItem.Content" xml:space="preserve">
+    <value>Downloads</value>
+  </data>
+  <data name="HelpNVItem.Content" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="SettingsNVItem.Content" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="FavoritesHeader.Text" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Search for Comics</value>
+  </data>
+  <data name="AlphabeticalRMItem.Text" xml:space="preserve">
+    <value>Alphabetical</value>
+  </data>
+  <data name="LastReadRMItem.Text" xml:space="preserve">
+    <value>Last read</value>
+  </data>
+  <data name="AscendingRMItem.Text" xml:space="preserve">
+    <value>Ascending</value>
+  </data>
+  <data name="DescendingRMItem.Text" xml:space="preserve">
+    <value>Descending</value>
+  </data>
+  <data name="ShowAllCollectionsOption.Text" xml:space="preserve">
+    <value>Show All</value>
+  </data>
+  <data name="EmptyCollectionsTXB.Text" xml:space="preserve">
+    <value>You don't have any collections yet. Go to “Manager” to create one.</value>
+  </data>
+  <data name="CollectionsManagerBT.Text" xml:space="preserve">
+    <value>Manager</value>
+  </data>
+  <data name="AddLocalComicMNItem.Text" xml:space="preserve">
+    <value>Add Local Comic</value>
+  </data>
+  <data name="EmptyFavoritesTXB.Text" xml:space="preserve">
+    <value>No favorites found.</value>
+  </data>
+  <data name="ComicItemCollectionsMNItem.Text" xml:space="preserve">
+    <value>Collections</value>
+  </data>
+  <data name="ComicItemRemoveMNItem.Text" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="DiscoverHeader.Text" xml:space="preserve">
+    <value>Discover</value>
+  </data>
+  <data name="OutdatedBadge.Text" xml:space="preserve">
+    <value>Outdated</value>
+  </data>
+  <data name="EmptyComicSourcesMessageRun.Text" xml:space="preserve">
+    <value>It looks like you don't have any Comic Sources. Add one at</value>
+  </data>
+  <data name="AddComicSourcesPathRun.Text" xml:space="preserve">
+    <value>Settings → Sources → Comic Sources → Add New Source</value>
+  </data>
+  <data name="LoadMoreBT.Text" xml:space="preserve">
+    <value>Load More</value>
+  </data>
+  <data name="DownloadsHeader.Text" xml:space="preserve">
+    <value>Downloads</value>
+  </data>
+  <data name="ClearFinishedBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Clear completed downloads</value>
+  </data>
+  <data name="CancelUnfinishedBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Cancel unfinished downloads</value>
+  </data>
+  <data name="EmptyDownloadsTXB.Text" xml:space="preserve">
+    <value>There are no downloads</value>
+  </data>
+  <data name="QueuedBadge.Text" xml:space="preserve">
+    <value>Queued</value>
+  </data>
+  <data name="DownloadingBadge.Text" xml:space="preserve">
+    <value>Downloading</value>
+  </data>
+  <data name="CompletedBadge.Text" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="CancelledBadge.Text" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="FailedBadge.Text" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="RetryDownloadBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Retry this download</value>
+  </data>
+  <data name="CancelDownloadBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Cancel this download</value>
+  </data>
+  <data name="DeleteDownloadBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Delete this download</value>
+  </data>
+  <data name="SettingsHeader.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="AppearanceSection.Text" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="AppThemeCard.Header" xml:space="preserve">
+    <value>Application Theme</value>
+  </data>
+  <data name="AppThemeCard.Description" xml:space="preserve">
+    <value>Select the application theme</value>
+  </data>
+  <data name="PreferencesSection.Text" xml:space="preserve">
+    <value>Preferences</value>
+  </data>
+  <data name="AutoComicUpdateCard.Header" xml:space="preserve">
+    <value>Update Comics on Startup</value>
+  </data>
+  <data name="AutoComicUpdateCard.Description" xml:space="preserve">
+    <value>Synchronizes favorite comic data and chapters on startup</value>
+  </data>
+  <data name="ReaderSection.Text" xml:space="preserve">
+    <value>Reader</value>
+  </data>
+  <data name="AutoFullscreenCard.Header" xml:space="preserve">
+    <value>Fullscreen</value>
+  </data>
+  <data name="AutoFullscreenCard.Description" xml:space="preserve">
+    <value>Automatically enter in Fullscreen mode</value>
+  </data>
+  <data name="ReadingModeCard.Header" xml:space="preserve">
+    <value>Reading Mode</value>
+  </data>
+  <data name="ReadingModeCard.Description" xml:space="preserve">
+    <value>Change the direction and flow of reading</value>
+  </data>
+  <data name="ScalingModeCard.Header" xml:space="preserve">
+    <value>Scaling Mode</value>
+  </data>
+  <data name="ScalingModeCard.Description" xml:space="preserve">
+    <value>Adjust how comic pages fit your screen</value>
+  </data>
+  <data name="SourcesSection.Text" xml:space="preserve">
+    <value>Sources</value>
+  </data>
+  <data name="ComicSourcesExpander.Header" xml:space="preserve">
+    <value>Comic Sources</value>
+  </data>
+  <data name="ComicSourcesExpander.Description" xml:space="preserve">
+    <value>Sources from which the comic will be extracted</value>
+  </data>
+  <data name="NewComicSourceBT.Content" xml:space="preserve">
+    <value>Add New Source</value>
+  </data>
+  <data name="EmptyComicSourcesInfoBar.Title" xml:space="preserve">
+    <value>You haven't added any sources yet</value>
+  </data>
+  <data name="CheckForUpdatesMNItem.Text" xml:space="preserve">
+    <value>Check for Updates</value>
+  </data>
+  <data name="DeleteComicSourceMNItem.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DefaultComicSourceCard.Header" xml:space="preserve">
+    <value>Default Source</value>
+  </data>
+  <data name="DefaultComicSourceCard.Description" xml:space="preserve">
+    <value>Set default comic source</value>
+  </data>
+  <data name="StorageSection.Text" xml:space="preserve">
+    <value>Storage</value>
+  </data>
+  <data name="CleanUpCard.Header" xml:space="preserve">
+    <value>Clean Up Storage</value>
+  </data>
+  <data name="CleanUpCard.Description" xml:space="preserve">
+    <value>Removes chapters and comics data that are no longer in your favorites</value>
+  </data>
+  <data name="CleanUpBT.Content" xml:space="preserve">
+    <value>Clean Up</value>
+  </data>
+  <data name="AboutSection.Text" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="About/Copyright" xml:space="preserve">
+    <value>© {0} {1}. Licensed under {2}</value>
+  </data>
+  <data name="VersionRun.Text" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="ProjectRepoHLBT.Content" xml:space="preserve">
+    <value>Project Repository</value>
+  </data>
+  <data name="License" xml:space="preserve">
+    <value>License ({0})</value>
+  </data>
+  <data name="CheckUpdatesHLBT.Content" xml:space="preserve">
+    <value>Check for Updates</value>
+  </data>
+  <data name="FeedbackHLBT.Content" xml:space="preserve">
+    <value>Send Feedback</value>
+  </data>
+  <data name="ContinueTXB.Text" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="UpdateMNItem.Text" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="EditLocalComicMNItem.Text" xml:space="preserve">
+    <value>Edit Local Comic</value>
+  </data>
+  <data name="CollectionsMNItem.Text" xml:space="preserve">
+    <value>Collections</value>
+  </data>
+  <data name="OpenInBrowserMNItem.Text" xml:space="preserve">
+    <value>Open in Browser</value>
+  </data>
+  <data name="UnvailableComicInfoBar.Title" xml:space="preserve">
+    <value>This Comic Is No Longer Available in This Source</value>
+  </data>
+  <data name="UnvailableComicInfoBar.Message" xml:space="preserve">
+    <value>You can still read downloaded chapters.</value>
+  </data>
+  <data name="AuthorTXB.Text" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="PublishedTXB.Text" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="StatusTXB.Text" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="SynopsisTXB.Text" xml:space="preserve">
+    <value>Synopsis</value>
+  </data>
+  <data name="ChaptersTXB.Text" xml:space="preserve">
+    <value>Chapters</value>
+  </data>
+  <data name="RescanChaptersTXB.Text" xml:space="preserve">
+    <value>Rescan Chapters</value>
+  </data>
+  <data name="MarkAllChaptersAsReadMNItem.Text" xml:space="preserve">
+    <value>Mark all as read</value>
+  </data>
+  <data name="MarkAllChaptersAsUnreadMNItem.Text" xml:space="preserve">
+    <value>Mark all as unread</value>
+  </data>
+  <data name="EmptyChaptersTXB.Text" xml:space="preserve">
+    <value>No chapters found in this language.</value>
+  </data>
+  <data name="LoadingComicTXB.Text" xml:space="preserve">
+    <value>Loading Comic...</value>
+  </data>
+  <data name="ComicErrorSuggestionTXB.Text" xml:space="preserve">
+    <value>Try going back and selecting the comic again.</value>
+  </data>
+  <data name="MarkPreviousChaptersAsReadMNItem.Text" xml:space="preserve">
+    <value>Mark previous chapters as read</value>
+  </data>
+  <data name="BackToNavigationBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Back to Navigation</value>
+  </data>
+  <data name="RightToLeftModeMNItem.Text" xml:space="preserve">
+    <value>Right to Left</value>
+  </data>
+  <data name="LeftToRightModeMNItem.Text" xml:space="preserve">
+    <value>Left to Right</value>
+  </data>
+  <data name="VerticalModeMNItem.Text" xml:space="preserve">
+    <value>Vertical</value>
+  </data>
+  <data name="FitScreenModeMNItem.Text" xml:space="preserve">
+    <value>Fit Screen</value>
+  </data>
+  <data name="FitWidthModeMNItem.Text" xml:space="preserve">
+    <value>Fit Width</value>
+  </data>
+  <data name="FitHeightModeMNItem.Text" xml:space="preserve">
+    <value>Fit Height</value>
+  </data>
+  <data name="OriginalSizeModeMNItem.Text" xml:space="preserve">
+    <value>Original Size</value>
+  </data>
+  <data name="FailedLoadingPageTXB.Text" xml:space="preserve">
+    <value>Failed to load page</value>
+  </data>
+  <data name="TryLoadPageTXB.Text" xml:space="preserve">
+    <value>Try Again</value>
+  </data>
+  <data name="LoadingChapterTXB.Text" xml:space="preserve">
+    <value>Loading Chapter...</value>
+  </data>
+  <data name="ChapterErrorSuggestionTXB.Text" xml:space="preserve">
+    <value>Try going back and selecting the chapter again.</value>
+  </data>
+  <data name="HelpHeader.Text" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="FirstStepsSection.Text" xml:space="preserve">
+    <value>First Steps</value>
+  </data>
+  <data name="ComicSourcesHelpExpander.Header" xml:space="preserve">
+    <value>Comic Sources</value>
+  </data>
+  <data name="ComicSourcesHelpExpander.Description" xml:space="preserve">
+    <value>Understanding Yukari plugins</value>
+  </data>
+  <data name="ComicSourcesHelp1" xml:space="preserve">
+    <value>**Yukari** doesn't come with pre-installed **Comic Sources** for legal reasons. You add the sources you want through **community plugins**.</value>
+  </data>
+  <data name="ComicSourcesHelp2" xml:space="preserve">
+    <value>Installing a **Comic Source** is simple: download the **.dll** plugin, go to: **Settings → Comic Sources → Add New Source** and select the downloaded plugin.</value>
+  </data>
+  <data name="ComicSourcesHelp3" xml:space="preserve">
+    <value>You can find the plugins [HERE](https://github.com/orgs/Yukari-App/repositories?q=Plugin%20sort%3Aname-asc). Select a **repository** with "Plugin" in ter name, go to the **releases** section, and download a compatible version.</value>
+  </data>
+  <data name="ComicSourcesHelp4" xml:space="preserve">
+    <value>**Make sure you are using the latest version of Yukari** to guarantee compatibility with the newest plugins. Check the [releases page](https://github.com/Yukari-App/Yukari/releases).</value>
+  </data>
+  <data name="ComicsSection.Text" xml:space="preserve">
+    <value>Comics</value>
+  </data>
+  <data name="OnlineComicsHelpExpander.Header" xml:space="preserve">
+    <value>Online</value>
+  </data>
+  <data name="OnlineComicsHelpExpander.Description" xml:space="preserve">
+    <value>Discovering and reading comics from plugins</value>
+  </data>
+  <data name="OnlineComicsHelp1" xml:space="preserve">
+    <value>Use the **Discover** page to browse trending comics or search by title across your installed sources.</value>
+  </data>
+  <data name="OnlineComicsHelp2" xml:space="preserve">
+    <value>Favoriting a comic saves it to your library and enables **Downloads** feature per chapter and language.</value>
+  </data>
+  <data name="OnlineComicsHelp3" xml:space="preserve">
+    <value>Chapters are **not updated automatically**. Use the **Update** option in the Comic page menu to fetch new chapters.</value>
+  </data>
+  <data name="LocalComicsHelpExpander.Header" xml:space="preserve">
+    <value>Local</value>
+  </data>
+  <data name="LocalComicsHelpExpander.Description" xml:space="preserve">
+    <value>Reading your personal comic collection</value>
+  </data>
+  <data name="LocalComicsHelp1" xml:space="preserve">
+    <value>Yukari supports two local formats: **folders containing images** (one folder per chapter) and **.cbz** archives. Pages are read directly without extraction.</value>
+  </data>
+  <data name="LocalComicsHelp2" xml:space="preserve">
+    <value>To add a local comic: open **Favorites** → ⋯ menu → **Add Local Comic**. Fill in the details and point to the folder containing your chapters.</value>
+  </data>
+  <data name="LocalComicsHelp3" xml:space="preserve">
+    <value>If you add new chapters to the folder, use **Rescan Chapters** on the Comic page to detect them. Removing a local comic from favorites **never deletes your original files**.</value>
+  </data>
+  <data name="ReaderHelpExpander.Header" xml:space="preserve">
+    <value>Reader</value>
+  </data>
+  <data name="ReaderHelpExpander.Description" xml:space="preserve">
+    <value>Reading modes, scaling and shortcuts</value>
+  </data>
+  <data name="ReaderHelp1" xml:space="preserve">
+    <value>Three reading modes are available: **Right to Left** (manga), **Left to Right**, (western) and **Vertical** (webtoons). Change via the reader menu.</value>
+  </data>
+  <data name="ReaderHelp2" xml:space="preserve">
+    <value>Four scaling modes: **Fit Screen**, **Fit Width**, **Fit Height** and **Original Size**. Press **F11** or use **Fullscreen** button to toggle fullscreen.</value>
+  </data>
+  <data name="ReaderHelp3" xml:space="preserve">
+    <value>The **Continue** button on the Comic page resumes from your last read chapter and page automatically.</value>
+  </data>
+  <data name="PersistenceSection.Text" xml:space="preserve">
+    <value>Persistence</value>
+  </data>
+  <data name="DownloadsHelpExpander.Header" xml:space="preserve">
+    <value>Downloads</value>
+  </data>
+  <data name="DownloadsHelpExpander.Description" xml:space="preserve">
+    <value>Offline reading and storage management</value>
+  </data>
+  <data name="DownloadsHelp1" xml:space="preserve">
+    <value>Download chapters from the Comic page to read them **offline**. Downloads run in the background and progress is shown per chapter.</value>
+  </data>
+  <data name="DownloadsHelp2" xml:space="preserve">
+    <value>Downloaded chapters are stored in **Yukari's app data folder**. You can delete individual chapters or all at once from the Comic page.</value>
+  </data>
+  <data name="DownloadsHelp3" xml:space="preserve">
+    <value>Removing a comic from favorites **automatically deletes all its downloaded data**.</value>
+  </data>
+    <data name="SupportSection.Text" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="SupportHelpExpander.Header" xml:space="preserve">
+    <value>Need Help?</value>
+  </data>
+  <data name="SupportHelpExpander.Description" xml:space="preserve">
+    <value>Getting help and reporting problems</value>
+  </data>
+  <data name="SupportHelp1" xml:space="preserve">
+    <value>If something isn't working, check the [known issues](https://github.com/Yukari-App/Yukari/issues) or report a new one. Your feedback is what makes Yukari better!</value>
+  </data>
+  <data name="InitializationErrorTXB.Text" xml:space="preserve">
+    <value>An Error Occurred During Yukari Initialization</value>
+  </data>
+  <data name="InitializationErrorSuggestionTXB.Text" xml:space="preserve">
+    <value>Try reopening the app again. If the problem persists, please send feedback using the buttons below.</value>
+  </data>
+  <data name="CollectionsManagerHeader.Text" xml:space="preserve">
+    <value>Collections Manager</value>
+  </data>
+  <data name="CollectionsManagerDialog.CloseButtonText" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="EmptyCollectionsInfoBar.Title" xml:space="preserve">
+    <value>You don't have any collections yet</value>
+  </data>
+  <data name="EmptyCollectionsInfoBar.Message" xml:space="preserve">
+    <value>To create one, enter a name below and click the button on the right.</value>
+  </data>
+  <data name="NewCollectionTXBox.PlaceholderText" xml:space="preserve">
+    <value>New Collection Name</value>
+  </data>
+  <data name="ComicCollectionsHeader.Text" xml:space="preserve">
+    <value>Collections</value>
+  </data>
+  <data name="ComicCollectionsDialog.CloseButtonText" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="EmptyComicCollectionsInfoBar.Title" xml:space="preserve">
+    <value>You don't have any collections yet</value>
+  </data>
+  <data name="EmptyComicCollectionsInfoBar.Message" xml:space="preserve">
+    <value>To create one, go to Favorites → Collections → Manager.</value>
+  </data>
+  <data name="FiltersHeader.Text" xml:space="preserve">
+    <value>Filters</value>
+  </data>
+  <data name="FiltersDialog.Title" xml:space="preserve">
+    <value>Filters</value>
+  </data>
+  <data name="FiltersDialog.CloseButtonText" xml:space="preserve">
+    <value>Close &amp; Apply</value>
+  </data>
+    <data name="LocalComicManagerHeader.Text" xml:space="preserve">
+    <value>Local Comic Manager</value>
+  </data>
+  <data name="LocalComicManagerDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="TitleTXBox.Header" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="AuthorTXBox.Header" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="TagsTXBox.Header" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="TagsTXBox.PlaceholderText" xml:space="preserve">
+    <value>Separate tags with commas. Ex: 'tag1,tag2,tag3'</value>
+  </data>
+  <data name="DescriptionTXBox.Header" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="CoverTXBox.Header" xml:space="preserve">
+    <value>Cover Path</value>
+  </data>
+  <data name="ComicFolderTXBox.Header" xml:space="preserve">
+    <value>Comic Folder Path</value>
+  </data>
+  <data name="ChapterFormatCBBox.Header" xml:space="preserve">
+    <value>Ch. Format"</value>
+  </data>
+  <data name="LocalComicManagerErrorTXB.Text" xml:space="preserve">
+    <value>Can't Get Local Comic Details"</value>
+  </data>
+</root>

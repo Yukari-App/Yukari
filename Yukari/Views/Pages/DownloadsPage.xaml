@@ -46,11 +46,11 @@
                             BorderThickness="1"
                             CornerRadius="8"
                             Visibility="{x:Bind Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Queued, Mode=OneWay}">
-                        <TextBlock Margin="4,0"
+                        <TextBlock x:Uid="QueuedBadge"
+                                   Margin="4,0"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   FontSize="12"
-                                   Text="Queued" />
+                                   FontSize="12" />
                     </Border>
 
                     <Border Grid.Column="1"
@@ -61,11 +61,11 @@
                             BorderThickness="1"
                             CornerRadius="8"
                             Visibility="{x:Bind Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Downloading, Mode=OneWay}">
-                        <TextBlock Margin="4,0"
+                        <TextBlock x:Uid="DownloadingBadge"
+                                   Margin="4,0"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   FontSize="12"
-                                   Text="Downloading" />
+                                   FontSize="12" />
                     </Border>
 
                     <Border Grid.Column="1"
@@ -76,11 +76,11 @@
                             BorderThickness="1"
                             CornerRadius="8"
                             Visibility="{x:Bind Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Completed, Mode=OneWay}">
-                        <TextBlock Margin="4,0"
+                        <TextBlock x:Uid="CompletedBadge"
+                                   Margin="4,0"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   FontSize="12"
-                                   Text="Completed" />
+                                   FontSize="12" />
                     </Border>
 
                     <Border Grid.Column="1"
@@ -91,11 +91,11 @@
                             BorderThickness="1"
                             CornerRadius="8"
                             Visibility="{x:Bind Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Cancelled, Mode=OneWay}">
-                        <TextBlock Margin="4,0"
+                        <TextBlock x:Uid="CancelledBadge"
+                                   Margin="4,0"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   FontSize="12"
-                                   Text="Cancelled" />
+                                   FontSize="12" />
                     </Border>
                     <Border Grid.Column="1"
                             Height="20"
@@ -105,14 +105,15 @@
                             BorderThickness="1"
                             CornerRadius="8"
                             Visibility="{x:Bind Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Failed, Mode=OneWay}">
-                        <TextBlock Margin="4,0"
+                        <TextBlock x:Uid="FailedBadge"
+                                   Margin="4,0"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   FontSize="12"
-                                   Text="Failed" />
+                                   FontSize="12" />
                     </Border>
 
-                    <Button Grid.Column="2"
+                    <Button x:Uid="RetryDownloadBT"
+                            Grid.Column="2"
                             Width="34"
                             Height="34"
                             Padding="0"
@@ -120,9 +121,9 @@
                             Click="CancelOrRetryItemButton_Click"
                             CommandParameter="{x:Bind}"
                             Content="{ui:FontIcon Glyph=&#xE72C;}"
-                            ToolTipService.ToolTip="Retry this download"
                             Visibility="{x:Bind CanRetry, Mode=OneWay}" />
-                    <Button Grid.Column="2"
+                    <Button x:Uid="CancelDownloadBT"
+                            Grid.Column="2"
                             Width="34"
                             Height="34"
                             Padding="0"
@@ -130,17 +131,16 @@
                             Click="CancelOrRetryItemButton_Click"
                             CommandParameter="{x:Bind}"
                             Content="{ui:FontIcon Glyph=&#xF78A;}"
-                            ToolTipService.ToolTip="Cancel this download"
                             Visibility="{x:Bind CanCancel, Mode=OneWay}" />
-                    <Button Grid.Column="3"
+                    <Button x:Uid="DeleteDownloadBT"
+                            Grid.Column="3"
                             Width="34"
                             Height="34"
                             Padding="0"
                             VerticalAlignment="Top"
                             Click="DeleteItemButton_Click"
                             CommandParameter="{x:Bind}"
-                            Content="{ui:FontIcon Glyph=&#xE74D;}"
-                            ToolTipService.ToolTip="Delete this download" />
+                            Content="{ui:FontIcon Glyph=&#xE74D;}" />
                 </Grid>
 
                 <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="4">
@@ -169,10 +169,10 @@
                         VerticalAlignment="Center"
                         Orientation="Horizontal">
                 <FontIcon FontSize="24" Glyph="&#xE896;" />
-                <TextBlock Margin="8,0,0,0"
+                <TextBlock x:Uid="DownloadsHeader"
+                           Margin="8,0,0,0"
                            VerticalAlignment="Center"
-                           Style="{StaticResource TitleTextBlockStyle}"
-                           Text="Downloads" />
+                           Style="{StaticResource TitleTextBlockStyle}" />
             </StackPanel>
 
             <StackPanel Grid.Column="2"
@@ -181,19 +181,19 @@
                         Orientation="Horizontal"
                         Spacing="2">
 
-                <Button Width="34"
+                <Button x:Uid="ClearFinishedBT"
+                        Width="34"
                         Height="34"
                         Padding="0"
                         Command="{x:Bind ViewModel.ClearFinishedDownloadsCommand}"
-                        Content="{ui:FontIcon Glyph=&#xEA99;}"
-                        ToolTipService.ToolTip="Clear completed downloads" />
+                        Content="{ui:FontIcon Glyph=&#xEA99;}" />
                 <AppBarSeparator />
-                <Button Width="34"
+                <Button x:Uid="CancelUnfinishedBT"
+                        Width="34"
                         Height="34"
                         Padding="0"
                         Command="{x:Bind ViewModel.CancelAllUnfinishedDownloadsCommand}"
-                        Content="{ui:FontIcon Glyph=&#xF78A;}"
-                        ToolTipService.ToolTip="Cancel unfinished downloads" />
+                        Content="{ui:FontIcon Glyph=&#xF78A;}" />
 
             </StackPanel>
         </Grid>
@@ -210,10 +210,10 @@
                           BorderThickness="1"
                           CornerRadius="8"
                           Visibility="{x:Bind ViewModel.NoDownloads, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-                        <TextBlock HorizontalAlignment="Center"
+                        <TextBlock x:Uid="EmptyDownloadsTXB"
+                                   HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   FontSize="16"
-                                   Text="There are no downloads" />
+                                   FontSize="16" />
                     </Grid>
 
                     <ItemsRepeater ItemTemplate="{StaticResource DownloadItemTemplate}" ItemsSource="{x:Bind ViewModel.Downloads, Mode=OneWay}" />

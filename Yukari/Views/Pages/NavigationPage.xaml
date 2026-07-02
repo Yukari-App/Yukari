@@ -25,13 +25,13 @@
                        VerticalAlignment="Center"
                        Style="{StaticResource CaptionTextBlockStyle}"
                        Text="Yukari" />
-            <AutoSuggestBox Grid.Column="2"
+            <AutoSuggestBox x:Uid="SearchBox"
+                            Grid.Column="2"
                             MaxWidth="300"
                             Margin="8,0,8,0"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
                             IsEnabled="{x:Bind ViewModel.IsSearchEnabled, Mode=OneWay}"
-                            PlaceholderText="Search for Comics"
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}"
                             TextChanged="AutoSuggestBox_TextChanged" />
@@ -55,17 +55,17 @@
             </NavigationView.Resources>
 
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="Favorites"
+                <NavigationViewItem x:Uid="FavoritesNVItem"
                                     Icon="Favorite"
                                     IsSelected="True"
                                     Tag="Yukari.Views.Pages.FavoritesPage" />
-                <NavigationViewItem Content="Discover" Icon="Library" Tag="Yukari.Views.Pages.DiscoverPage" />
+                <NavigationViewItem x:Uid="DiscoverNVItem" Icon="Library" Tag="Yukari.Views.Pages.DiscoverPage" />
 
             </NavigationView.MenuItems>
 
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Content="Downloads" Icon="Download" Tag="Yukari.Views.Pages.DownloadsPage" />
-                <NavigationViewItem Content="Help" Icon="Help" Tag="Yukari.Views.Pages.HelpPage" />
+                <NavigationViewItem x:Uid="DownloadsNVItem" Icon="Download" Tag="Yukari.Views.Pages.DownloadsPage" />
+                <NavigationViewItem x:Uid="HelpNVItem" Icon="Help" Tag="Yukari.Views.Pages.HelpPage" />
             </NavigationView.FooterMenuItems>
 
             <Frame x:Name="ContentFrame" Padding="16,16,0,0" Navigated="ContentFrame_Navigated">

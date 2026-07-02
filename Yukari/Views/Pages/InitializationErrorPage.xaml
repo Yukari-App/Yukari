@@ -33,10 +33,10 @@
               RowDefinitions="Auto, Auto, *, Auto"
               RowSpacing="8">
             <FontIcon FontSize="96" Foreground="{ThemeResource SystemFillColorCriticalBrush}" Glyph="&#xEB90;" />
-            <TextBlock Grid.Row="1"
+            <TextBlock x:Uid="InitializationErrorTXB"
+                       Grid.Row="1"
                        HorizontalAlignment="Center"
-                       Style="{StaticResource TitleTextBlockStyle}"
-                       Text="An Error Occurred During Yukari Initialization" />
+                       Style="{StaticResource TitleTextBlockStyle}" />
             <ScrollViewer Grid.Row="2"
                           MaxWidth="820"
                           MaxHeight="280"
@@ -53,25 +53,26 @@
                            IsTextSelectionEnabled="True"
                            TextWrapping="Wrap" />
             </ScrollViewer>
-            <TextBlock Grid.Row="3"
+            <TextBlock x:Uid="InitializationErrorSuggestionTXB"
+                       Grid.Row="3"
                        HorizontalAlignment="Center"
                        Style="{StaticResource BodyStrongTextBlockStyle}"
-                       Text="Try reopening the app again. If the problem persists, please send feedback using the buttons below."
                        TextAlignment="Center" />
 
         </Grid>
         <Grid Grid.Row="2" Margin="4,0,4,4" ColumnDefinitions="Auto, *, Auto">
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
-                <HyperlinkButton Content="Send FeedBack" NavigateUri="https://github.com/Yukari-App/Yukari/issues" />
-                <HyperlinkButton Content="Project Repository" NavigateUri="https://github.com/Yukari-App/Yukari" />
+                <HyperlinkButton x:Uid="FeedbackHLBT" NavigateUri="https://github.com/Yukari-App/Yukari/issues" />
+                <HyperlinkButton x:Uid="ProjectRepoHLBT" NavigateUri="https://github.com/Yukari-App/Yukari" />
             </StackPanel>
-            <TextBlock x:Name="VersionTextBlock"
-                       Grid.Column="2"
+            <TextBlock Grid.Column="2"
                        Margin="0,0,8,0"
                        HorizontalAlignment="Right"
                        VerticalAlignment="Center"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       IsTextSelectionEnabled="True" />
+                       IsTextSelectionEnabled="True">
+                <Run x:Uid="VersionRun" /> <Run x:Name="VersionRun" />
+            </TextBlock>
         </Grid>
     </Grid>
 </Page>

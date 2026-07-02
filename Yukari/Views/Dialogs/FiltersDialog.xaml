@@ -9,8 +9,7 @@
                xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
                xmlns:ui="using:CommunityToolkit.WinUI"
                xmlns:vmc="using:Yukari.ViewModels.Components"
-               Title="Filters"
-               CloseButtonText="Close &amp; Apply"
+               x:Uid="FiltersDialog"
                DefaultButton="Close"
                Style="{StaticResource DefaultContentDialogStyle}"
                mc:Ignorable="d">
