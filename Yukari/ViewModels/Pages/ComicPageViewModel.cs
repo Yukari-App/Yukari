@@ -46,6 +46,7 @@ public partial class ComicPageViewModel
         nameof(IsComicAvailable),
         nameof(IsOnlineFeaturesVisible),
         nameof(AuthorDisplay),
+        nameof(IsPublishedVisible),
         nameof(StatusDisplay),
         nameof(IsTagsVisible),
         nameof(DisplayTags),
@@ -55,6 +56,7 @@ public partial class ComicPageViewModel
     public partial ComicModel? Comic { get; set; }
 
     public string AuthorDisplay => Comic?.Author ?? _localizationService.GetString("Unknown");
+    public bool IsPublishedVisible => Comic?.Year != null;
 
     public string StatusDisplay =>
         Comic?.Status switch

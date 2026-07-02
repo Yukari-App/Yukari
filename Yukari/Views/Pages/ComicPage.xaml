@@ -325,14 +325,17 @@
                                     </StackPanel>
                                     <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.AuthorDisplay, Mode=OneWay}" />
 
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{x:Bind ViewModel.IsPublishedVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                                         <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE787;" />
                                         <TextBlock x:Uid="PublishedTXB"
                                                    VerticalAlignment="Center"
                                                    FontSize="20"
                                                    Style="{StaticResource TitleTextBlockStyle}" />
                                     </StackPanel>
-                                    <TextBlock Margin="0,0,0,12" FontSize="16" Text="{x:Bind ViewModel.Comic.Year, Mode=OneWay}" />
+                                    <TextBlock Margin="0,0,0,12"
+                                               FontSize="16"
+                                               Text="{x:Bind ViewModel.Comic.Year, Mode=OneWay}"
+                                               Visibility="{x:Bind ViewModel.IsPublishedVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
                                     <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{x:Bind ViewModel.IsLocalComic, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}">
                                         <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE9D9;" />
