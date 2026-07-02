@@ -46,7 +46,7 @@
       <NewPriFile>$(TargetDir)Resources.pri</NewPriFile>
     </PropertyGroup>
 
-    <Move
+    <Copy
       SourceFiles="$(OriginalPriFile)"
       DestinationFiles="$(NewPriFile)"
       ContinueOnError="false"
