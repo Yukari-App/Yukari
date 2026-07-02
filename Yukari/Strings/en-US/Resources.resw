@@ -142,7 +142,7 @@
     <value>Alphabetical</value>
   </data>
   <data name="LastReadRMItem.Text" xml:space="preserve">
-    <value>Last read</value>
+    <value>Last Read</value>
   </data>
   <data name="AscendingRMItem.Text" xml:space="preserve">
     <value>Ascending</value>
@@ -413,7 +413,7 @@
     <value>Original Size</value>
   </data>
   <data name="FailedLoadingPageTXB.Text" xml:space="preserve">
-    <value>Failed to load page</value>
+    <value>Failed to Load Page</value>
   </data>
   <data name="TryLoadPageTXB.Text" xml:space="preserve">
     <value>Try Again</value>
@@ -577,7 +577,7 @@
   <data name="AuthorTXBox.Header" xml:space="preserve">
     <value>Author</value>
   </data>
-   <data name="YearNBox.Header" xml:space="preserve">
+  <data name="YearNBox.Header" xml:space="preserve">
     <value>Year</value>
   </data>
   <data name="TagsTXBox.Header" xml:space="preserve">
