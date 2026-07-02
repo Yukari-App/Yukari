@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using Windows.ApplicationModel.Resources;
+using Yukari.Services.UI;
 using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages;
@@ -16,14 +16,14 @@ public sealed partial class SettingsPage : Page
         ViewModel = App.GetService<SettingsPageViewModel>();
         DataContext = ViewModel;
 
-        var loader = ResourceLoader.GetForViewIndependentUse();
-        AboutExpander.Description = string.Format(
-            loader.GetString("About/Copyright"),
+        var lclService = App.GetService<ILocalizationService>();
+        AboutExpander.Description = lclService.GetFormattedString(
+            "About/Copyright",
             "2026",
             "TXG0Fk3",
             "GPL-3.0"
         );
-        LicenseHLBT.Content = string.Format(loader.GetString("License"), "GPL-3.0");
+        LicenseHLBT.Content = lclService.GetFormattedString("License", "GPL-3.0");
     }
 
     protected override async void OnNavigatedFrom(NavigationEventArgs e)
