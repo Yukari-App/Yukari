@@ -1,4 +1,5 @@
 using Yukari.Enums;
+using Yukari.Services.UI;
 
 namespace Yukari.Helpers.UI;
 
@@ -13,12 +14,15 @@ public static class ReadingModeHelper
             _ => string.Empty,
         };
 
-    public static string ToDisplayName(ReadingMode mode) =>
-        mode switch
+    public static string ToDisplayName(ReadingMode mode)
+    {
+        var localization = App.GetService<ILocalizationService>();
+        return mode switch
         {
-            ReadingMode.RightToLeft => "Right to Left",
-            ReadingMode.LeftToRight => "Left to Right",
-            ReadingMode.Vertical => "Vertical",
+            ReadingMode.RightToLeft => localization.GetString("ReadingMode/RightToLeft"),
+            ReadingMode.LeftToRight => localization.GetString("ReadingMode/LeftToRight"),
+            ReadingMode.Vertical => localization.GetString("ReadingMode/Vertical"),
             _ => string.Empty,
         };
+    }
 }

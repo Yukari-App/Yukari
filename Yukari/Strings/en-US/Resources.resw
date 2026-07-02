@@ -507,7 +507,7 @@
   <data name="DownloadsHelp3" xml:space="preserve">
     <value>Removing a comic from favorites **automatically deletes all its downloaded data**.</value>
   </data>
-    <data name="SupportSection.Text" xml:space="preserve">
+  <data name="SupportSection.Text" xml:space="preserve">
     <value>Support</value>
   </data>
   <data name="SupportHelpExpander.Header" xml:space="preserve">
@@ -561,10 +561,10 @@
   <data name="FiltersDialog.CloseButtonText" xml:space="preserve">
     <value>Close &amp; Apply</value>
   </data>
-    <data name="LocalComicManagerHeader.Text" xml:space="preserve">
+  <data name="LocalComicManagerHeader.Text" xml:space="preserve">
     <value>Local Comic Manager</value>
   </data>
-  <data name="LocalComicManagerDialog.PrimaryButtonText" xml:space="preserve">
+  <data name="LocalComicManagerDialog.CloseButtonText" xml:space="preserve">
     <value>Close</value>
   </data>
   <data name="TitleTXBox.Header" xml:space="preserve">
@@ -589,9 +589,231 @@
     <value>Comic Folder Path</value>
   </data>
   <data name="ChapterFormatCBBox.Header" xml:space="preserve">
-    <value>Ch. Format"</value>
+    <value>Ch. Format</value>
   </data>
-  <data name="LocalComicManagerErrorTXB.Text" xml:space="preserve">
-    <value>Can't Get Local Comic Details"</value>
+  <data name="LocalChaptersFormat/FolderWithImages" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="ReadingMode/RightToLeft" xml:space="preserve">
+    <value>Right to Left</value>
+  </data>
+  <data name="ReadingMode/LeftToRight" xml:space="preserve">
+    <value>Left to Right</value>
+  </data>
+  <data name="ReadingMode/Vertical" xml:space="preserve">
+    <value>Vertical</value>
+  </data>
+  <data name="ScalingMode/FitScreen" xml:space="preserve">
+    <value>Fit Screen</value>
+  </data>
+  <data name="ScalingMode/FitWidth" xml:space="preserve">
+    <value>Fit Width</value>
+  </data>
+  <data name="ScalingMode/FitHeight" xml:space="preserve">
+    <value>Fit Height</value>
+  </data>
+  <data name="ScalingMode/OriginalSize" xml:space="preserve">
+    <value>Original Size</value>
+  </data>
+  <data name="ComicStatus/Ongoing" xml:space="preserve">
+    <value>Ongoing</value>
+  </data>
+  <data name="ComicStatus/Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="ComicStatus/Hiatus" xml:space="preserve">
+    <value>Hiatus</value>
+  </data>
+  <data name="ComicStatus/Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="ErrorGettingSourceFilters" xml:space="preserve">
+    <value>Error Getting Source Filters</value>
+  </data>
+  <data name="ErrorGettingSourceLanguages" xml:space="preserve">
+    <value>Error Getting Source Languages</value>
+  </data>
+  <data name="ErrorFetchingComics" xml:space="preserve">
+    <value>Error Fetching Comics</value>
+  </data>
+  <data name="ErrorFetchingFavoriteComics" xml:space="preserve">
+    <value>Error Fetching Favorite Comics</value>
+  </data>
+  <data name="ErrorFetchingComicDetails" xml:space="preserve">
+    <value>Error Fetching Comic Details</value>
+  </data>
+  <data name="ErrorFetchingComicUserData" xml:space="preserve">
+    <value>Error Fetching Comic User Data</value>
+  </data>
+  <data name="ErrorFetchingCollections" xml:space="preserve">
+    <value>Error Fetching Collections</value>
+  </data>
+  <data name="ErrorFetchingComicReadingProgress" xml:space="preserve">
+    <value>Error Fetching Comic Reading Progress</value>
+  </data>
+  <data name="ErrorFetchingChapters" xml:space="preserve">
+    <value>Error Fetching Chapters</value>
+  </data>
+  <data name="ErrorFetchingChapterUserData" xml:space="preserve">
+    <value>Error Fetching Chapter User Data</value>
+  </data>
+  <data name="ErrorFetchingChapterPages" xml:space="preserve">
+    <value>Error Fetching Chapter Pages</value>
+  </data>
+  <data name="ErrorFetchingComicSources" xml:space="preserve">
+    <value>Error Fetching Comic Sources</value>
+  </data>
+  <data name="FailedAddingToFavorites" xml:space="preserve">
+    <value>Failed Adding To Favorites</value>
+  </data>
+  <data name="FailedToAddLocalComic" xml:space="preserve">
+    <value>Failed To Add Local Comic</value>
+  </data>
+  <data name="ErrorSavingProgress" xml:space="preserve">
+    <value>Error Saving Progress</value>
+  </data>
+  <data name="ErrorCreatingCollection" xml:space="preserve">
+    <value>Error Creating Collection</value>
+  </data>
+  <data name="ErrorRenamingCollection" xml:space="preserve">
+    <value>Error Renaming Collection</value>
+  </data>
+  <data name="ErrorAddingComicToCollection" xml:space="preserve">
+    <value>Error Adding Comic To Collection</value>
+  </data>
+  <data name="ErrorSavingComicReadingProgress" xml:space="preserve">
+    <value>Error Saving Comic Reading Progress</value>
+  </data>
+  <data name="ErrorPersistingChapters" xml:space="preserve">
+    <value>Error Persisting Chapters</value>
+  </data>
+  <data name="ErrorPersistingLocalChapters" xml:space="preserve">
+    <value>Error Persisting Local Chapters</value>
+  </data>
+  <data name="ErrorRescanningLocalChapters" xml:space="preserve">
+    <value>Error Rescanning Local Chapters</value>
+  </data>
+  <data name="ErrorSavingChapterProgress" xml:space="preserve">
+    <value>Error Saving Chapter Progress</value>
+  </data>
+  <data name="ErrorSettingReadStatus" xml:space="preserve">
+    <value>Error Setting Read Status</value>
+  </data>
+  <data name="ErrorUpdatingChapterPageCount" xml:space="preserve">
+    <value>Error Updating Chapter Page Count</value>
+  </data>
+  <data name="ErrorAddingUpdatingComicSource" xml:space="preserve">
+    <value>Error Adding/Updating Comic Source</value>
+  </data>
+  <data name="ErrorUpdatingComicSourceStatus" xml:space="preserve">
+    <value>Error Updating Comic Source Status</value>
+  </data>
+  <data name="ErrorRemovingComicFromFavorites" xml:space="preserve">
+    <value>Error Removing Comic From Favorites</value>
+  </data>
+  <data name="ErrorRemovingCollection" xml:space="preserve">
+    <value>Error Removing Collection</value>
+  </data>
+  <data name="ErrorRemovingComicFromCollection" xml:space="preserve">
+    <value>Error Removing Comic From Collection</value>
+  </data>
+  <data name="ErrorRemovingComicSource" xml:space="preserve">
+    <value>Error Removing Comic Source</value>
+  </data>
+  <data name="ErrorCleaningUpData" xml:space="preserve">
+    <value>Error Cleaning Up Data</value>
+  </data>
+  <data name="NoInternetConnectionOrSourceIsOffline" xml:space="preserve">
+    <value>No internet connection or source is offline.</value>
+  </data>
+  <data name="DefaultErrorNotificationTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="DefaultInfoNotificationTitle" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="DefaultSuccessNotificationTitle" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="DefaultWarningNotificationTitle" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="AddLocalComic" xml:space="preserve">
+    <value>Add Local Comic</value>
+  </data>
+  <data name="EditLocalComic" xml:space="preserve">
+    <value>Edit Local Comic</value>
+  </data>
+  <data name="ErrorInvalidComicUrl" xml:space="preserve">
+    <value>Invalid ComicUrl</value>
+  </data>
+  <data name="SuccessAddingUpdatingLocalComic" xml:space="preserve">
+    <value>Local comic added/updated</value>
+  </data>
+  <data name="HiddenTags" xml:space="preserve">
+    <value>{0} are hidden</value>
+  </data>
+  <data name="DeleteAllChapters" xml:space="preserve">
+    <value>Delete All</value>
+  </data>
+  <data name="DownloadAllChapters" xml:space="preserve">
+    <value>Download All</value>
+  </data>
+  <data name="SuccessUpdatingComic" xml:space="preserve">
+    <value>Comic data updated successfully.</value>
+  </data>
+  <data name="SuccessChaptersRescanned" xml:space="preserve">
+    <value>Chapters rescanned.</value>
+  </data>
+  <data name="ErrorComicNotFoundTitle" xml:space="preserve">
+    <value>Comic Not Found</value>
+  </data>
+  <data name="ErrorComicNotFoundMessage" xml:space="preserve">
+    <value>You are trying to access a comic that probably doesn't exist</value>
+  </data>
+  <data name="WarningSourceDisabled" xml:space="preserve">
+    <value>Comic Source Disabled</value>
+  </data>
+  <data name="WarningReachedResultsLimitTitle" xml:space="preserve">
+    <value>No More Results</value>
+  </data>
+  <data name="WarningReachedResultsLimitMessage" xml:space="preserve">
+    <value>You've reached the end of the results.</value>
+  </data>
+  <data name="NextChapter" xml:space="preserve">
+    <value>Next Chapter</value>
+  </data>
+  <data name="PreviousChapter" xml:space="preserve">
+    <value>Previous Chapter</value>
+  </data>
+  <data name="ErrorNoChaptersFoundTitle" xml:space="preserve">
+    <value>No Chapters Found</value>
+  </data>
+  <data name="ErrorNoChaptersFoundMessage" xml:space="preserve">
+    <value>No chapters found for this language.</value>
+  </data>
+  <data name="WarningSelectedChapterNotFound" xml:space="preserve">
+    <value>Selected chapter not found. Loading first chapter instead.</value>
+  </data>
+  <data name="ErrorEmptyChapterPagesTitle" xml:space="preserve">
+    <value>This Chapter Has No Pages</value>
+  </data>
+  <data name="ErrorEmptyChapterPagesMessage" xml:space="preserve">
+    <value>No Pages Found For This Chapter.</value>
+  </data>
+  <data name="SuccessComicSourceAddedUpdated" xml:space="preserve">
+    <value>Comic source added/updated successfully.</value>
+  </data>
+  <data name="WarningUpdatingSourceInUseRestartRequest" xml:space="preserve">
+    <value>The source is already in use and cannot be updated now. Restart Yukari to complete the update.</value>
+  </data>
+  <data name="WarningRemovingSourceInUseRestartRequest" xml:space="preserve">
+    <value>The source is currently in use and cannot be removed. Restart Yukari to complete the removal.</value>
+  </data>
+  <data name="SuccessStorageCleanedUp" xml:space="preserve">
+    <value>Storage cleaned up successfully.</value>
   </data>
 </root>

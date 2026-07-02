@@ -16,6 +16,7 @@ public partial class LocalComicDialogViewModel : ObservableObject
     private readonly IComicService _comicService;
     private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
+    private readonly ILocalizationService _localizationService;
 
     private ComicModel? _oldComic;
 
@@ -63,17 +64,20 @@ public partial class LocalComicDialogViewModel : ObservableObject
 
     public bool IsPrimaryButtonEnabled =>
         !string.IsNullOrWhiteSpace(Title) && !string.IsNullOrWhiteSpace(ComicFolderPath);
-    public string PrimaryButtonText => Key == null ? "Add Local Comic" : "Edit Local Comic";
+    public string PrimaryButtonText =>
+        _localizationService.GetString(Key == null ? "AddLocalComic" : "EditLocalComic");
 
     public LocalComicDialogViewModel(
         IComicService comicService,
         IDialogService dialogService,
-        INotificationService notificationService
+        INotificationService notificationService,
+        ILocalizationService localizationService
     )
     {
         _comicService = comicService;
         _dialogService = dialogService;
         _notificationService = notificationService;
+        _localizationService = localizationService;
     }
 
     public async Task InitializeAsync(ContentKey? comicKey)
@@ -94,7 +98,7 @@ public partial class LocalComicDialogViewModel : ObservableObject
 
         if (_oldComic.ComicUrl == null || string.IsNullOrWhiteSpace(_oldComic.ComicUrl))
         {
-            ErrorMessage = "Invalid ComicUrl";
+            ErrorMessage = _localizationService.GetString("ErrorInvalidComicUrl");
             IsError = true;
             return;
         }
@@ -194,7 +198,9 @@ public partial class LocalComicDialogViewModel : ObservableObject
             }
         }
 
-        _notificationService.ShowSuccess("Local comic added/updated");
+        _notificationService.ShowSuccess(
+            _localizationService.GetString("SuccessAddingUpdatingLocalComic")
+        );
     }
 
     private static string? NullIfWhiteSpace(string text) =>

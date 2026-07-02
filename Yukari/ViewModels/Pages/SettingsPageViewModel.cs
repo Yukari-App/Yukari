@@ -25,6 +25,7 @@ public partial class SettingsPageViewModel : ObservableObject
     private readonly INotificationService _notificationService;
     private readonly IDialogService _dialogService;
     private readonly IMessenger _messenger;
+    private readonly ILocalizationService _localizationService;
 
     private bool _isInitializing = true;
 
@@ -66,7 +67,8 @@ public partial class SettingsPageViewModel : ObservableObject
         IComicService comicService,
         INotificationService notificationService,
         IDialogService dialogService,
-        IMessenger messenger
+        IMessenger messenger,
+        ILocalizationService localizationService
     )
     {
         _settingsService = settingsService;
@@ -74,6 +76,7 @@ public partial class SettingsPageViewModel : ObservableObject
         _notificationService = notificationService;
         _dialogService = dialogService;
         _messenger = messenger;
+        _localizationService = localizationService;
 
         _ = LoadSettingsAsync();
     }
@@ -110,7 +113,7 @@ public partial class SettingsPageViewModel : ObservableObject
         if (result.Kind == ResultKind.PendingRestart)
         {
             _notificationService.ShowWarning(
-                "The source is already in use and cannot be updated now. Restart Yukari to complete the update."
+                _localizationService.GetString("WarningUpdatingSourceInUseRestartRequest")
             );
             return;
         }
@@ -127,7 +130,9 @@ public partial class SettingsPageViewModel : ObservableObject
                 s.Name == _settingsService.Current.DefaultComicSourceName
             ) ?? AvailableComicSources.First();
 
-        _notificationService.ShowSuccess("Comic source added/updated successfully.");
+        _notificationService.ShowSuccess(
+            _localizationService.GetString("SuccessComicSourceAddedUpdated")
+        );
         _messenger.Send(new ComicSourcesUpdatedMessage());
     }
 
@@ -139,7 +144,7 @@ public partial class SettingsPageViewModel : ObservableObject
         if (result.Kind == ResultKind.PendingRestart)
         {
             _notificationService.ShowWarning(
-                "The source is currently in use and cannot be removed. Restart Yukari to complete the removal."
+                _localizationService.GetString("WarningRemovingSourceInUseRestartRequest")
             );
             return;
         }
@@ -191,7 +196,7 @@ public partial class SettingsPageViewModel : ObservableObject
             return;
         }
 
-        _notificationService.ShowSuccess("Storage cleaned up successfully.");
+        _notificationService.ShowSuccess(_localizationService.GetString("SuccessStorageCleanedUp"));
     }
 
     private async Task LoadComicSourcesAsync()

@@ -28,6 +28,7 @@ public partial class DiscoverPageViewModel
     private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
     private readonly IMessenger _messenger;
+    private readonly ILocalizationService _localizationService;
 
     private bool _isDirty = false;
     private bool _isActive = false;
@@ -73,7 +74,8 @@ public partial class DiscoverPageViewModel
         ISettingsService settingsService,
         IDialogService dialogService,
         INotificationService notificationService,
-        IMessenger messenger
+        IMessenger messenger,
+        ILocalizationService localizationService
     )
     {
         _comicService = comicService;
@@ -81,6 +83,7 @@ public partial class DiscoverPageViewModel
         _dialogService = dialogService;
         _notificationService = notificationService;
         _messenger = messenger;
+        _localizationService = localizationService;
 
         _messenger.Register<ComicSourcesUpdatedMessage>(this);
     }
@@ -263,8 +266,8 @@ public partial class DiscoverPageViewModel
                 {
                     _currentPage--;
                     _notificationService.ShowWarning(
-                        "You've reached the end of the results.",
-                        "No more results"
+                        _localizationService.GetString("WarningReachedResultsLimitMessage"),
+                        _localizationService.GetString("WarningReachedResultsLimitTitle")
                     );
                 }
             }

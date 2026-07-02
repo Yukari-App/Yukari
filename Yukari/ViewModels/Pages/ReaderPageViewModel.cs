@@ -25,6 +25,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     private readonly ISettingsService _settingsService;
     private readonly INotificationService _notificationService;
     private readonly IMessenger _messenger;
+    private readonly ILocalizationService _localizationService;
 
     private readonly ReaderDisplayContext _displayContext = new();
 
@@ -88,10 +89,14 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         ReadingMode == ReadingMode.RightToLeft ? PreviousChapterCommand : NextChapterCommand;
 
     public string ForwardChapterNavigationButtonToolTip =>
-        ReadingMode == ReadingMode.RightToLeft ? "Next Chapter" : "Previous Chapter";
+        _localizationService.GetString(
+            ReadingMode == ReadingMode.RightToLeft ? "NextChapter" : "PreviousChapter"
+        );
 
     public string BackwardChapterNavigationButtonToolTip =>
-        ReadingMode == ReadingMode.RightToLeft ? "Previous Chapter" : "Next Chapter";
+        _localizationService.GetString(
+            ReadingMode == ReadingMode.RightToLeft ? "Previous Chapter" : "Next Chapter"
+        );
 
     public bool IsHorizontalPageNavigationButtonsVisible =>
         ReadingMode is ReadingMode.RightToLeft or ReadingMode.LeftToRight;
@@ -129,13 +134,15 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         IComicService comicService,
         ISettingsService settingsService,
         INotificationService notificationService,
-        IMessenger messenger
+        IMessenger messenger,
+        ILocalizationService localizationService
     )
     {
         _comicService = comicService;
         _settingsService = settingsService;
         _notificationService = notificationService;
         _messenger = messenger;
+        _localizationService = localizationService;
 
         _messenger.RegisterAll(this);
         LoadReaderSettings();
@@ -172,7 +179,9 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         {
             ChapterState = LoadState.Error;
             IsWarning = result.Kind == ResultKind.ComicSourceDisabled;
-            ChapterErrorTitle = IsWarning ? "Comic Source Disabled" : result.ErrorTitle;
+            ChapterErrorTitle = IsWarning
+                ? _localizationService.GetString("WarningSourceDisabled")
+                : result.ErrorTitle;
             ChapterErrorMessage = result.Error;
             return;
         }
@@ -184,8 +193,8 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         if (_chapters.Length == 0)
         {
             ChapterState = LoadState.Error;
-            ChapterErrorTitle = "No Chapters Found";
-            ChapterErrorMessage = "No chapters found for this language.";
+            ChapterErrorTitle = _localizationService.GetString("ErrorNoChaptersFoundTitle");
+            ChapterErrorMessage = _localizationService.GetString("ErrorNoChaptersFoundMessage");
             return;
         }
 
@@ -198,7 +207,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         {
             _currentChapterIndex = 0;
             _notificationService.ShowWarning(
-                "Selected chapter not found. Loading first chapter instead."
+                _localizationService.GetString("WarningSelectedChapterNotFound")
             );
         }
         else if (navigationFromContinueButton && _chapters[_currentChapterIndex].UserData.IsRead)
@@ -247,7 +256,9 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         {
             ChapterState = LoadState.Error;
             IsWarning = pagesResult.Kind == ResultKind.ComicSourceDisabled;
-            ChapterErrorTitle = IsWarning ? "Comic Source Disabled" : pagesResult.ErrorTitle;
+            ChapterErrorTitle = IsWarning
+                ? _localizationService.GetString("WarningSourceDisabled")
+                : pagesResult.ErrorTitle;
             ChapterErrorMessage = pagesResult.Error;
             return;
         }
@@ -277,8 +288,8 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         {
             ChapterState = LoadState.Error;
             IsWarning = true;
-            ChapterErrorTitle = "This Chapter Has No Pages";
-            ChapterErrorMessage = "No Pages Found For This Chapter.";
+            ChapterErrorTitle = _localizationService.GetString("ErrorEmptyChapterPagesTitle");
+            ChapterErrorMessage = _localizationService.GetString("ErrorEmptyChapterPagesMessage");
             return;
         }
 

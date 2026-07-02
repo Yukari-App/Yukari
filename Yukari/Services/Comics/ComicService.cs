@@ -15,6 +15,7 @@ using Yukari.Models.Data;
 using Yukari.Models.DTO;
 using Yukari.Services.Sources;
 using Yukari.Services.Storage;
+using Yukari.Services.UI;
 
 namespace Yukari.Services.Comics;
 
@@ -24,6 +25,7 @@ internal class ComicService : IComicService
     private readonly ISourceService _srcService;
     private readonly ILocalSourceService _localService;
     private readonly IDownloadService _dloadService;
+    private readonly ILocalizationService _localizationService;
     private readonly ILogger<ComicService> _logger;
 
     public ComicService(
@@ -31,6 +33,7 @@ internal class ComicService : IComicService
         ISourceService srcService,
         ILocalSourceService localService,
         IDownloadService dloadService,
+        ILocalizationService localizationService,
         ILogger<ComicService> logger
     )
     {
@@ -38,6 +41,7 @@ internal class ComicService : IComicService
         _srcService = srcService;
         _localService = localService;
         _dloadService = dloadService;
+        _localizationService = localizationService;
         _logger = logger;
     }
 
@@ -54,7 +58,7 @@ internal class ComicService : IComicService
                 await LoadComicSourceAsync(sourceName, ct);
                 return Result<IReadOnlyList<Filter>>.Success(_srcService.GetFilters(sourceName));
             },
-            "Error Getting Source Filters",
+            _localizationService.GetString("ErrorGettingSourceFilters"),
             ct
         );
     }
@@ -72,7 +76,7 @@ internal class ComicService : IComicService
                     _srcService.GetLanguages(sourceName)
                 );
             },
-            "Error Getting Source Languages",
+            _localizationService.GetString("ErrorGettingSourceLanguages"),
             ct
         );
     }
@@ -102,7 +106,7 @@ internal class ComicService : IComicService
 
                 return Result<IReadOnlyList<ComicModel>>.Success(comics);
             },
-            "Error Fetching Comics",
+            _localizationService.GetString("ErrorFetchingComics"),
             ct
         );
     }
@@ -126,7 +130,7 @@ internal class ComicService : IComicService
                         ct
                     )
                 ),
-            "Error Fetching Favorite Comics",
+            _localizationService.GetString("ErrorFetchingFavoriteComics"),
             ct
         );
     }
@@ -164,7 +168,7 @@ internal class ComicService : IComicService
 
                 return Result<ComicAggregate?>.Success(new ComicAggregate(comic, userData));
             },
-            "Error Fetching Comic Details",
+            _localizationService.GetString("ErrorFetchingComicDetails"),
             ct
         );
     }
@@ -177,7 +181,7 @@ internal class ComicService : IComicService
         return await ExecuteAsync(
             async (ct) =>
                 Result<ComicUserData>.Success(await _dbService.GetComicUserDataAsync(comicKey, ct)),
-            "Error Fetching Comic User Data",
+            _localizationService.GetString("ErrorFetchingComicUserData"),
             ct
         );
     }
@@ -189,7 +193,7 @@ internal class ComicService : IComicService
         return await ExecuteAsync(
             async (ct) =>
                 Result<IReadOnlyList<string>>.Success(await _dbService.GetCollectionsAsync(ct)),
-            "Error Fetching Collections",
+            _localizationService.GetString("ErrorFetchingCollections"),
             ct
         );
     }
@@ -205,7 +209,7 @@ internal class ComicService : IComicService
                 Result<ComicReadingProgress>.Success(
                     await _dbService.GetComicReadingProgressAsync(comicKey, language, ct)
                 ),
-            "Error Fetching Comic Reading Progress",
+            _localizationService.GetString("ErrorFetchingComicReadingProgress"),
             ct
         );
     }
@@ -258,7 +262,7 @@ internal class ComicService : IComicService
                         .ToList()
                 );
             },
-            "Error Fetching Chapters",
+            _localizationService.GetString("ErrorFetchingChapters"),
             ct
         );
     }
@@ -274,7 +278,7 @@ internal class ComicService : IComicService
                 Result<ChapterUserData>.Success(
                     await _dbService.GetChapterUserDataAsync(comicKey, chapterKey, ct)
                 ),
-            "Error Fetching Chapter User Data",
+            _localizationService.GetString("ErrorFetchingChapterUserData"),
             ct
         );
     }
@@ -317,7 +321,7 @@ internal class ComicService : IComicService
 
                 return Result<IReadOnlyList<ChapterPageModel>>.Success(pages);
             },
-            "Error Fetching Chapter Pages",
+            _localizationService.GetString("ErrorFetchingChapterPages"),
             ct
         );
     }
@@ -331,7 +335,7 @@ internal class ComicService : IComicService
                 Result<IReadOnlyList<ComicSourceModel>>.Success(
                     await _dbService.GetComicSourcesAsync(ct)
                 ),
-            "Error Fetching Comic Sources",
+            _localizationService.GetString("ErrorFetchingComicSources"),
             ct
         );
     }
@@ -378,7 +382,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Comic {ComicKey} added to favorites", comicKey);
                 return Result.Success();
             },
-            "Failed To Add To Favorites"
+            _localizationService.GetString("FailedAddingToFavorites")
         );
     }
 
@@ -418,7 +422,7 @@ internal class ComicService : IComicService
                 );
                 return Result<ContentKey>.Success(new(comic.Id, comic.Source));
             },
-            "Failed To Add Local Comic"
+            _localizationService.GetString("FailedToAddLocalComic")
         );
     }
 
@@ -435,7 +439,7 @@ internal class ComicService : IComicService
                 _logger.LogDebug("User data updated for comic {ComicKey}", comicKey);
                 return Result.Success();
             },
-            "Error Saving Progress"
+            _localizationService.GetString("ErrorSavingProgress")
         );
     }
 
@@ -449,7 +453,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Collection '{Name}' created", name);
                 return Result.Success();
             },
-            "Error Creating Collection"
+            _localizationService.GetString("ErrorCreatingCollection")
         );
     }
 
@@ -467,7 +471,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error Renaming Collection"
+            _localizationService.GetString("ErrorRenamingCollection")
         );
     }
 
@@ -485,7 +489,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error Adding Comic To Collection"
+            _localizationService.GetString("ErrorAddingComicToCollection")
         );
     }
 
@@ -507,7 +511,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error Saving Comic Reading Progress"
+            _localizationService.GetString("ErrorSavingComicReadingProgress")
         );
     }
 
@@ -525,7 +529,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error Persisting Chapters"
+            _localizationService.GetString("ErrorPersistingChapters")
         );
     }
 
@@ -572,7 +576,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Chapters updated for comic {ComicKey}", comicKey);
                 return Result.Success();
             },
-            "Error Persisting Local Chapters"
+            _localizationService.GetString("ErrorPersistingLocalChapters")
         );
     }
 
@@ -587,7 +591,7 @@ internal class ComicService : IComicService
                 var (path, format) = LocalComicConstants.DecodeChaptersPath(encodedChaptersPath);
                 return await UpsertLocalChaptersAsync(comicKey, path, format);
             },
-            "Error Rescanning Local Chapters"
+            _localizationService.GetString("ErrorRescanningLocalChapters")
         );
     }
 
@@ -609,7 +613,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error Saving Chapter Progress"
+            _localizationService.GetString("ErrorSavingChapterProgress")
         );
     }
 
@@ -632,7 +636,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error Setting Read Status"
+            _localizationService.GetString("ErrorSettingReadStatus")
         );
     }
 
@@ -648,7 +652,7 @@ internal class ComicService : IComicService
                 await _dbService.UpdateChapterPageCountAsync(comicKey, chapterKey, count);
                 return Result.Success();
             },
-            "Error updating chapter page count"
+            _localizationService.GetString("ErrorUpdatingChapterPageCount")
         );
     }
 
@@ -697,7 +701,7 @@ internal class ComicService : IComicService
                     return Result.PendingRestart();
                 }
             },
-            "Error Adding/Updating Comic Source"
+            _localizationService.GetString("ErrorAddingUpdatingComicSource")
         );
     }
 
@@ -715,7 +719,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error Updating Comic Source Status"
+            _localizationService.GetString("ErrorUpdatingComicSourceStatus")
         );
     }
 
@@ -730,7 +734,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Comic {ComicKey} removed from favorites", comicKey);
                 return Result.Success();
             },
-            "Error Removing Comic from Favorites"
+            _localizationService.GetString("ErrorRemovingComicFromFavorites")
         );
     }
 
@@ -744,7 +748,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Collection '{Name}' removed", collectionName);
                 return Result.Success();
             },
-            "Error Removing Collection"
+            _localizationService.GetString("ErrorRemovingCollection")
         );
     }
 
@@ -765,7 +769,7 @@ internal class ComicService : IComicService
                 );
                 return Result.Success();
             },
-            "Error Removing Comic from Collection"
+            _localizationService.GetString("ErrorRemovingComicFromCollection")
         );
     }
 
@@ -807,7 +811,7 @@ internal class ComicService : IComicService
                     return Result.PendingRestart();
                 }
             },
-            "Error Removing Comic Source"
+            _localizationService.GetString("ErrorRemovingComicSource")
         );
     }
 
@@ -822,7 +826,7 @@ internal class ComicService : IComicService
                 _logger.LogInformation("Storage cleanup completed");
                 return Result.Success();
             },
-            "Error Cleaning Up Data"
+            _localizationService.GetString("ErrorCleaningUpData")
         );
     }
 
@@ -896,7 +900,10 @@ internal class ComicService : IComicService
         catch (Exception ex) when (IsNetworkError(ex))
         {
             _logger.LogWarning(ex, "Network error in {Operation}", errorTitle);
-            return Result<T>.Failure("No internet connection or source is offline.", errorTitle);
+            return Result<T>.Failure(
+                _localizationService.GetString("NoInternetConnectionOrSourceIsOffline"),
+                errorTitle
+            );
         }
         catch (Exception ex)
         {
@@ -919,7 +926,10 @@ internal class ComicService : IComicService
         catch (Exception ex) when (IsNetworkError(ex))
         {
             _logger.LogWarning(ex, "Network error in {Operation}", errorTitle);
-            return Result.Failure("No internet connection or source is offline.", errorTitle);
+            return Result.Failure(
+                _localizationService.GetString("NoInternetConnectionOrSourceIsOffline"),
+                errorTitle
+            );
         }
         catch (Exception ex)
         {

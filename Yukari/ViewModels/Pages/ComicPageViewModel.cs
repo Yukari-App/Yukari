@@ -33,6 +33,7 @@ public partial class ComicPageViewModel
     private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
     private readonly IMessenger _messenger;
+    private readonly ILocalizationService _localizationService;
 
     private ContentKey? _comicKey;
 
@@ -53,16 +54,16 @@ public partial class ComicPageViewModel
     )]
     public partial ComicModel? Comic { get; set; }
 
-    public string AuthorDisplay => Comic?.Author ?? "Unknown";
+    public string AuthorDisplay => Comic?.Author ?? _localizationService.GetString("Unknown");
 
     public string StatusDisplay =>
         Comic?.Status switch
         {
-            ComicStatus.Ongoing => "Ongoing",
-            ComicStatus.Completed => "Completed",
-            ComicStatus.Hiatus => "Hiatus",
-            ComicStatus.Cancelled => "Cancelled",
-            _ => "Unknown",
+            ComicStatus.Ongoing => _localizationService.GetString("ComicStatus/Ongoing"),
+            ComicStatus.Completed => _localizationService.GetString("ComicStatus/Completed"),
+            ComicStatus.Hiatus => _localizationService.GetString("ComicStatus/Hiatus"),
+            ComicStatus.Cancelled => _localizationService.GetString("ComicStatus/Cancelled"),
+            _ => _localizationService.GetString("Unknown"),
         };
 
     public bool IsTagsVisible => Comic?.Tags.Length > 0;
@@ -72,7 +73,12 @@ public partial class ComicPageViewModel
 
     public bool HasHiddenTags => Comic?.Tags.Length > MaxTagsToShow;
     public string HiddenTagsText =>
-        HasHiddenTags ? $"{Comic?.Tags.Length - MaxTagsToShow} are hidden" : string.Empty;
+        HasHiddenTags
+            ? _localizationService.GetFormattedString(
+                "HiddenTags",
+                Comic!.Tags.Length - MaxTagsToShow
+            )
+            : string.Empty;
 
     [ObservableProperty]
     public partial List<ChapterItemViewModel>? Chapters { get; set; }
@@ -142,14 +148,18 @@ public partial class ComicPageViewModel
 
     public string FavoriteIcon => IsFavorite ? "\uE8D9" : "\uE734";
     public string DownloadAllIcon => IsAllChaptersDownloaded ? "\uE74D" : "\uE896";
-    public string DownloadAllText => IsAllChaptersDownloaded ? "Delete All" : "Download All";
+    public string DownloadAllText =>
+        _localizationService.GetString(
+            IsAllChaptersDownloaded ? "DeleteAllChapters" : "DownloadAllChapters"
+        );
 
     public ComicPageViewModel(
         IComicService comicService,
         IDownloadService downloadService,
         IDialogService dialogService,
         INotificationService notificationService,
-        IMessenger messenger
+        IMessenger messenger,
+        ILocalizationService localizationService
     )
     {
         _comicService = comicService;
@@ -157,6 +167,7 @@ public partial class ComicPageViewModel
         _dialogService = dialogService;
         _notificationService = notificationService;
         _messenger = messenger;
+        _localizationService = localizationService;
 
         _messenger.RegisterAll(this);
     }
@@ -272,7 +283,7 @@ public partial class ComicPageViewModel
         await RefreshComicAsync();
         await RefreshChaptersAsync();
 
-        _notificationService.ShowSuccess("Comic data updated successfully.");
+        _notificationService.ShowSuccess(_localizationService.GetString("SuccessUpdatingComic"));
     }
 
     [RelayCommand]
@@ -356,7 +367,9 @@ public partial class ComicPageViewModel
             return;
         }
         await RefreshChaptersAsync();
-        _notificationService.ShowSuccess("Chapters rescanned.");
+        _notificationService.ShowSuccess(
+            _localizationService.GetString("SuccessChaptersRescanned")
+        );
     }
 
     [RelayCommand]
@@ -411,8 +424,8 @@ public partial class ComicPageViewModel
         {
             Comic = null;
             ComicLoadState = LoadState.Error;
-            ComicErrorTitle = "Comic not found";
-            ComicErrorMessage = "You are trying to access a comic that probably doesn't exist";
+            ComicErrorTitle = _localizationService.GetString("ErrorComicNotFoundTitle");
+            ComicErrorMessage = _localizationService.GetString("ErrorComicNotFoundMessage");
             return;
         }
 
@@ -517,7 +530,10 @@ public partial class ComicPageViewModel
     private void HandleNotSuccessResult(Result result)
     {
         if (result.Kind == ResultKind.ComicSourceDisabled)
-            _notificationService.ShowWarning(result.Error!, "Source Disabled");
+            _notificationService.ShowWarning(
+                result.Error!,
+                _localizationService.GetString("WarningSourceDisabled")
+            );
         else if (!result.IsSuccess)
             _notificationService.ShowError(result.Error!, result.ErrorTitle!);
     }

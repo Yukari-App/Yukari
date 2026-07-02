@@ -16,7 +16,7 @@ public static class DisplayHelper
         var display = $"{volume}{number}{title}".Trim();
 
         if (string.IsNullOrEmpty(display))
-            display = $"Chapter {chapter.Id}";
+            display = chapter.Id;
 
         return display;
     }

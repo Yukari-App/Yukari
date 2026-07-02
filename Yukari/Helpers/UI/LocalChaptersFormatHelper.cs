@@ -1,4 +1,5 @@
 using Yukari.Enums;
+using Yukari.Services.UI;
 
 namespace Yukari.Helpers.UI;
 
@@ -12,11 +13,16 @@ public static class LocalChaptersFormatHelper
             _ => string.Empty,
         };
 
-    public static string ToDisplayName(LocalChaptersFormat format) =>
-        format switch
+    public static string ToDisplayName(LocalChaptersFormat format)
+    {
+        var localization = App.GetService<ILocalizationService>();
+        return format switch
         {
-            LocalChaptersFormat.FolderWithImages => "Folder",
+            LocalChaptersFormat.FolderWithImages => localization.GetString(
+                "LocalChaptersFormat/FolderWithImages"
+            ),
             LocalChaptersFormat.Cbz => ".cbz",
             _ => string.Empty,
         };
+    }
 }
