@@ -555,7 +555,10 @@ public class DiscoverPageViewModelTests
         await SetSelectedSourceAndWait("ErrorSource");
 
         // Assert
-        _notificationServiceMock.Verify(n => n.ShowError("API error"), Times.Exactly(2));
+        _notificationServiceMock.Verify(
+            n => n.ShowError("API error", It.IsAny<string>()),
+            Times.Exactly(2)
+        );
         _sut.IsContentLoading.Should().BeFalse();
     }
 
