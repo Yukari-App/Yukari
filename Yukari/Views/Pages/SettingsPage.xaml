@@ -57,7 +57,13 @@
                                           HorizontalAlignment="Stretch"
                                           HorizontalContentAlignment="Stretch"
                                           HeaderIcon="{ui:FontIcon Glyph=}">
-                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableThemeModes}" SelectedItem="{x:Bind ViewModel.SelectedThemeMode, Mode=TwoWay}" />
+                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableThemeModes}" SelectedItem="{x:Bind ViewModel.SelectedThemeMode, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="enums:ThemeMode">
+                                    <TextBlock Text="{x:Bind helpers:ThemeModeHelper.ToDisplayName((enums:ThemeMode))}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </toolkit:SettingsCard>
 
                     <!--  Preferences Section  -->
