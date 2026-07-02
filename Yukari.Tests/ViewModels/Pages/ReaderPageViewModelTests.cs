@@ -28,6 +28,7 @@ public class ReaderPageViewModelTests
     private readonly Mock<ISettingsService> _mockSettingsService;
     private readonly Mock<INotificationService> _mockNotificationService;
     private readonly FakeMessenger _mockMessenger;
+    private readonly Mock<ILocalizationService> _localizationServiceMock;
 
     private readonly ReaderPageViewModel _sut;
 
@@ -37,6 +38,7 @@ public class ReaderPageViewModelTests
         _mockSettingsService = new Mock<ISettingsService>();
         _mockNotificationService = new Mock<INotificationService>();
         _mockMessenger = new FakeMessenger();
+        _localizationServiceMock = new Mock<ILocalizationService>();
 
         _mockSettingsService
             .Setup(s => s.Current)
@@ -67,7 +69,8 @@ public class ReaderPageViewModelTests
             _mockComicService.Object,
             _mockSettingsService.Object,
             _mockNotificationService.Object,
-            _mockMessenger
+            _mockMessenger,
+            _localizationServiceMock.Object
         );
     }
 

@@ -29,6 +29,7 @@ public class DiscoverPageViewModelTests
     private readonly Mock<IDialogService> _dialogServiceMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
     private readonly FakeMessenger _fakeMessenger;
+    private readonly Mock<ILocalizationService> _localizationServiceMock;
 
     private readonly DiscoverPageViewModel _sut;
 
@@ -39,6 +40,7 @@ public class DiscoverPageViewModelTests
         _dialogServiceMock = new Mock<IDialogService>();
         _notificationServiceMock = new Mock<INotificationService>();
         _fakeMessenger = new FakeMessenger();
+        _localizationServiceMock = new Mock<ILocalizationService>();
 
         SetupSafeDefaultReturns();
 
@@ -47,7 +49,8 @@ public class DiscoverPageViewModelTests
             _settingsServiceMock.Object,
             _dialogServiceMock.Object,
             _notificationServiceMock.Object,
-            _fakeMessenger
+            _fakeMessenger,
+            _localizationServiceMock.Object
         );
     }
 

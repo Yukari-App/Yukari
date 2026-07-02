@@ -21,6 +21,7 @@ public class SettingsPageViewModelTests
     private readonly Mock<INotificationService> _notificationServiceMock;
     private readonly Mock<IDialogService> _dialogServiceMock;
     private readonly IMessenger _messenger;
+    private readonly Mock<ILocalizationService> _localizationServiceMock;
 
     private readonly SettingsPageViewModel _sut;
 
@@ -31,6 +32,7 @@ public class SettingsPageViewModelTests
         _notificationServiceMock = new Mock<INotificationService>();
         _dialogServiceMock = new Mock<IDialogService>();
         _messenger = new FakeMessenger();
+        _localizationServiceMock = new Mock<ILocalizationService>();
 
         _settingsServiceMock.Setup(s => s.Current).Returns(new AppSettings());
         _comicServiceMock
@@ -44,7 +46,8 @@ public class SettingsPageViewModelTests
             _comicServiceMock.Object,
             _notificationServiceMock.Object,
             _dialogServiceMock.Object,
-            _messenger
+            _messenger,
+            _localizationServiceMock.Object
         );
     }
 

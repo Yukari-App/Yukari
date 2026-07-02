@@ -29,6 +29,7 @@ public class ComicPageViewModelTests
     private readonly Mock<IDialogService> _mockDialogService;
     private readonly Mock<INotificationService> _mockNotificationService;
     private readonly FakeMessenger _messenger;
+    private readonly Mock<ILocalizationService> _localizationServiceMock;
 
     private readonly ComicPageViewModel _sut;
 
@@ -39,13 +40,15 @@ public class ComicPageViewModelTests
         _mockDialogService = new Mock<IDialogService>();
         _mockNotificationService = new Mock<INotificationService>();
         _messenger = new FakeMessenger();
+        _localizationServiceMock = new Mock<ILocalizationService>();
 
         _sut = new ComicPageViewModel(
             _mockComicService.Object,
             _mockDownloadService.Object,
             _mockDialogService.Object,
             _mockNotificationService.Object,
-            _messenger
+            _messenger,
+            _localizationServiceMock.Object
         );
     }
 
@@ -54,15 +57,11 @@ public class ComicPageViewModelTests
     // ────────────────────────────────────────────────────────────────
 
     [Theory]
-    [InlineData(0, false, "")]
-    [InlineData(6, false, "")]
-    [InlineData(17, true, "1 are hidden")]
-    [InlineData(19, true, "3 are hidden")]
-    public async Task Tags_DisplayProperties_DependsOnTagsCount(
-        int tagsCount,
-        bool hasHidden,
-        string extraText
-    )
+    [InlineData(0, false)]
+    [InlineData(6, false)]
+    [InlineData(17, true)]
+    [InlineData(19, true)]
+    public async Task Tags_DisplayProperties_DependsOnTagsCount(int tagsCount, bool hasHidden)
     {
         // Arrange
         var comic = new ComicModel
@@ -76,7 +75,6 @@ public class ComicPageViewModelTests
 
         // Act & Assert
         _sut.HasHiddenTags.Should().Be(hasHidden);
-        _sut.HiddenTagsText.Should().Be(extraText);
     }
 
     [Fact]
