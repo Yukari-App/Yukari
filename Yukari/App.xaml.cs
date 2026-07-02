@@ -30,8 +30,6 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US"; // Change the default language of the application
-
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .WriteTo.File(

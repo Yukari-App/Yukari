@@ -39,6 +39,20 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
 
+  <!-- Workaround for https://github.com/microsoft/WindowsAppSDK/issues/5832 -->
+  <Target Name="RenamePriFile" AfterTargets="Build">
+    <PropertyGroup>
+      <OriginalPriFile>$(TargetDir)$(AssemblyName).pri</OriginalPriFile>
+      <NewPriFile>$(TargetDir)Resources.pri</NewPriFile>
+    </PropertyGroup>
+
+    <Move
+      SourceFiles="$(OriginalPriFile)"
+      DestinationFiles="$(NewPriFile)"
+      ContinueOnError="false"
+    />
+  </Target>
+
   <Target Name="CleanPublish" AfterTargets="Publish">
     <ItemGroup>
       <_AiFiles Include="$(PublishDir)Microsoft.Windows.AI.*" />
@@ -54,14 +68,15 @@
     <RemoveDir Directories="@(_MuiFolders)" />
   </Target>
 
+  <!-- Publishing does not automatically copy these items, but they are required -->
   <ItemGroup>
     <Content Include="Assets\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
 
-    <None Include="$(TargetDir)$(TargetName).pri">
-      <Link>$(TargetName).pri</Link>
+    <None Include="$(TargetDir)Resources.pri">
+      <Link>Resources.pri</Link>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
   </ItemGroup>
