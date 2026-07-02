@@ -95,7 +95,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
 
     public string BackwardChapterNavigationButtonToolTip =>
         _localizationService.GetString(
-            ReadingMode == ReadingMode.RightToLeft ? "Previous Chapter" : "Next Chapter"
+            ReadingMode == ReadingMode.RightToLeft ? "PreviousChapter" : "NextChapter"
         );
 
     public bool IsHorizontalPageNavigationButtonsVisible =>
