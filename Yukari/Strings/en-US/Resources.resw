@@ -385,6 +385,9 @@
   <data name="BackToNavigationBT.ToolTipService.ToolTip" xml:space="preserve">
     <value>Back to Navigation</value>
   </data>
+  <data name="ReadingModeSBItem.Text" xml:space="preserve">
+    <value>Reading Mode</value>
+  </data>
   <data name="RightToLeftModeMNItem.Text" xml:space="preserve">
     <value>Right to Left</value>
   </data>
@@ -393,6 +396,9 @@
   </data>
   <data name="VerticalModeMNItem.Text" xml:space="preserve">
     <value>Vertical</value>
+  </data>
+  <data name="ScalingModeSBItem.Text" xml:space="preserve">
+    <value>Scaling Mode</value>
   </data>
   <data name="FitScreenModeMNItem.Text" xml:space="preserve">
     <value>Fit Screen</value>
@@ -595,6 +601,15 @@
   </data>
   <data name="LocalChaptersFormat/FolderWithImages" xml:space="preserve">
     <value>Folder</value>
+  </data>
+  <data name="ThemeMode/Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="ThemeMode/Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="ThemeMode/System" xml:space="preserve">
+    <value>System</value>
   </data>
   <data name="ReadingMode/RightToLeft" xml:space="preserve">
     <value>Right to Left</value>
