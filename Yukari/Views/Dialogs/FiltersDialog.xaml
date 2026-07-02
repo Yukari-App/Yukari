@@ -14,6 +14,13 @@
                Style="{StaticResource DefaultContentDialogStyle}"
                mc:Ignorable="d">
 
+    <ContentDialog.Title>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <FontIcon FontSize="24" Glyph="&#xE71C;" />
+            <TextBlock x:Uid="FiltersHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
+        </StackPanel>
+    </ContentDialog.Title>
+
     <ContentDialog.Resources>
         <selectors:FilterTemplateSelector x:Key="FilterTemplateSelector" MultipleFilterTemplate="{StaticResource MultipleFilterTemplate}" SingleFilterTemplate="{StaticResource SingleFilterTemplate}" />
 

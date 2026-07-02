@@ -158,6 +158,7 @@
   </data>
   <data name="CollectionsManagerBT.Text" xml:space="preserve">
     <value>Manager</value>
+    <comment>Try using less than 10 characters.</comment>
   </data>
   <data name="AddLocalComicMNItem.Text" xml:space="preserve">
     <value>Add Local Comic</value>
@@ -555,9 +556,6 @@
   <data name="FiltersHeader.Text" xml:space="preserve">
     <value>Filters</value>
   </data>
-  <data name="FiltersDialog.Title" xml:space="preserve">
-    <value>Filters</value>
-  </data>
   <data name="FiltersDialog.CloseButtonText" xml:space="preserve">
     <value>Close &amp; Apply</value>
   </data>
@@ -572,6 +570,9 @@
   </data>
   <data name="AuthorTXBox.Header" xml:space="preserve">
     <value>Author</value>
+  </data>
+   <data name="YearNBox.Header" xml:space="preserve">
+    <value>Year</value>
   </data>
   <data name="TagsTXBox.Header" xml:space="preserve">
     <value>Tags</value>
@@ -590,6 +591,7 @@
   </data>
   <data name="ChapterFormatCBBox.Header" xml:space="preserve">
     <value>Ch. Format</value>
+    <comment>Try using less than 10 characters.</comment>
   </data>
   <data name="LocalChaptersFormat/FolderWithImages" xml:space="preserve">
     <value>Folder</value>
