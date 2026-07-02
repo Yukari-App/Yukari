@@ -34,8 +34,8 @@
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="4">
                     <TextBox x:Uid="AuthorTXBox" Grid.Column="0" Text="{x:Bind ViewModel.Author, Mode=TwoWay}" />
-                    <NumberBox Grid.Column="1"
-                               Header="Year"
+                    <NumberBox x:Uid="YearNBox"
+                               Grid.Column="1"
                                Maximum="9999"
                                Minimum="1"
                                SpinButtonPlacementMode="Compact"
