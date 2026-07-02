@@ -115,7 +115,7 @@
                 <Button Content="{ui:FontIcon Glyph=&#xE712;}" Style="{StaticResource TitleBarButtonStyle}" ToolTipService.ToolTip="Options">
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
-                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE736;}" Text="Reading Mode">
+                            <MenuFlyoutSubItem x:Uid="ReadingModeSBItem" Icon="{ui:FontIcon Glyph=&#xE736;}">
                                 <RadioMenuFlyoutItem x:Uid="RightToLeftModeMNItem"
                                                      Command="{x:Bind ViewModel.SetReadingModeCommand}"
                                                      CommandParameter="RightToLeft"
@@ -135,7 +135,7 @@
                                                      Icon="{ui:FontIcon Glyph=&#xF0AE;}"
                                                      IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Vertical, Mode=OneWay}" />
                             </MenuFlyoutSubItem>
-                            <MenuFlyoutSubItem Icon="{ui:FontIcon Glyph=&#xE9A6;}" Text="Scaling Mode">
+                            <MenuFlyoutSubItem x:Uid="ScalingModeSBItem" Icon="{ui:FontIcon Glyph=&#xE9A6;}">
                                 <RadioMenuFlyoutItem x:Uid="FitScreenModeMNItem"
                                                      Command="{x:Bind ViewModel.SetScalingModeCommand}"
                                                      CommandParameter="FitScreen"
