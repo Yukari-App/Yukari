@@ -41,6 +41,7 @@ Enjoy **offline reading** of your downloaded/local collection, with optional onl
 - ⚙️ **Dynamic Plugins** — Add as many comic/manga sources as you want (maintained by the community)
 - 🌙 **Dark / Light Theme** — Automatic system theme support (Fluent Design with WinUI 3)
 - 🛡️ **100% Local & Private** — No telemetry, no ads, no mandatory login or cloud sync
+- 🌍 **Multilingual** — interface available in English, Portuguese, Spanish, and Japanese
 
 <div align="center">
     <h2>📥 Installation</h2>
