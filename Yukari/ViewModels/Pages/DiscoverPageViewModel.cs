@@ -285,14 +285,14 @@ public partial class DiscoverPageViewModel
 
     async partial void OnSelectedComicSourceChanged(ComicSourceModel? value)
     {
-        if (value == null)
-        {
-            SearchedComics.Clear();
-            _availableFilters = null;
-            _appliedFilters = null;
-            return;
-        }
+        SearchedComics.Clear();
+        _availableFilters = null;
+        _appliedFilters = null;
 
+        if (value == null)
+            return;
+
+        IsContentLoading = true;
         await UpdateAvailableFiltersAsync();
         await UpdateDisplayedComicsAsync();
     }
