@@ -46,7 +46,7 @@ internal class SourceService : ISourceService
                 // AssemblyLoadContext.Default is intentionally used instead of a collectible context.
                 // Plugins are small and rarely removed during a session — the complexity of a collectible
                 // context is not justified. DLL removal is handled by deferred deletion at next startup.
-                type = GetSourceTypeFromAssembly(comicSource.DllPath);
+                type = await GetSourceTypeFromAssemblyAsync(comicSource.DllPath);
                 _sourceTypeCache[comicSource.Name] = type;
             }
 
@@ -151,12 +151,12 @@ internal class SourceService : ISourceService
             .ToList();
     }
 
-    public ComicSourceModel GetComicSourceModelFromAssembly(
+    public async Task<ComicSourceModel> GetComicSourceModelFromAssemblyAsync(
         string dllPath,
         bool metadataOnly = false
     )
     {
-        var type = GetSourceTypeFromAssembly(dllPath, metadataOnly);
+        var type = await GetSourceTypeFromAssemblyAsync(dllPath, metadataOnly);
         var comicSourceMetadata =
             type.GetCustomAttribute<ComicSourceMetadataAttribute>()
             ?? throw new InvalidOperationException(
@@ -221,7 +221,10 @@ internal class SourceService : ISourceService
         return source;
     }
 
-    private Type GetSourceTypeFromAssembly(string pluginPath, bool collectibleContext = false)
+    private async Task<Type> GetSourceTypeFromAssemblyAsync(
+        string pluginPath,
+        bool collectibleContext = false
+    )
     {
         if (!File.Exists(pluginPath))
             throw new FileNotFoundException();
@@ -232,22 +235,26 @@ internal class SourceService : ISourceService
 
         try
         {
-            Assembly pluginAssembly = context.LoadFromAssemblyPath(pluginPath);
+            return await Task.Run(() =>
+            {
+                Assembly pluginAssembly = context.LoadFromAssemblyPath(pluginPath);
+                var comicSourceType =
+                    pluginAssembly
+                        .GetTypes()
+                        .FirstOrDefault(t =>
+                            typeof(IComicSource).IsAssignableFrom(t)
+                            && !t.IsInterface
+                            && !t.IsAbstract
+                        )
+                    ?? throw new InvalidOperationException(
+                        $"{pluginPath} does not implement IComicSource."
+                    );
 
-            var type =
-                pluginAssembly
-                    .GetTypes()
-                    .FirstOrDefault(t =>
-                        typeof(IComicSource).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract
-                    )
-                ?? throw new InvalidOperationException(
-                    $"{pluginPath} does not implement IComicSource."
-                );
+                if (!collectibleContext)
+                    ValidateCoreCompatibility(Path.GetFileName(pluginPath), pluginAssembly);
 
-            if (!collectibleContext)
-                ValidateCoreCompatibility(Path.GetFileName(pluginPath), pluginAssembly);
-
-            return type;
+                return comicSourceType;
+            });
         }
         catch (Exception ex) when (ex is ReflectionTypeLoadException or TypeLoadException)
         {

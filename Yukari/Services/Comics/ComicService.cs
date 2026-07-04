@@ -661,7 +661,10 @@ internal class ComicService : IComicService
         return await ExecuteAsync(
             async () =>
             {
-                var comicSource = _srcService.GetComicSourceModelFromAssembly(pluginPath, true);
+                var comicSource = await _srcService.GetComicSourceModelFromAssemblyAsync(
+                    pluginPath,
+                    true
+                );
                 if (
                     comicSource.Name.Equals(
                         LocalComicConstants.SourceName,
