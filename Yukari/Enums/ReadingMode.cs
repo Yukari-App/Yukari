@@ -5,4 +5,5 @@ public enum ReadingMode
     RightToLeft,
     LeftToRight,
     Vertical,
+    Webtoon,
 }

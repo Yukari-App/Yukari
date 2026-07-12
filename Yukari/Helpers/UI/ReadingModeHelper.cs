@@ -11,6 +11,7 @@ public static class ReadingModeHelper
             ReadingMode.RightToLeft => "\uF0B0",
             ReadingMode.LeftToRight => "\uF0AF",
             ReadingMode.Vertical => "\uF0AE",
+            ReadingMode.Webtoon => "\uF0AE",
             _ => string.Empty,
         };
 
@@ -22,6 +23,7 @@ public static class ReadingModeHelper
             ReadingMode.RightToLeft => localization.GetString("ReadingMode/RightToLeft"),
             ReadingMode.LeftToRight => localization.GetString("ReadingMode/LeftToRight"),
             ReadingMode.Vertical => localization.GetString("ReadingMode/Vertical"),
+            ReadingMode.Webtoon => localization.GetString("ReadingMode/Webtoon"),
             _ => string.Empty,
         };
     }
