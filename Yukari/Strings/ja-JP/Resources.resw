@@ -385,7 +385,7 @@
   <data name="BackToNavigationBT.ToolTipService.ToolTip" xml:space="preserve">
     <value>ナビゲーションに戻る</value>
   </data>
-    <data name="ReadingModeSBItem.Text" xml:space="preserve">
+  <data name="ReadingModeSBItem.Text" xml:space="preserve">
     <value>読み方</value>
   </data>
   <data name="RightToLeftModeMNItem.Text" xml:space="preserve">
@@ -577,7 +577,7 @@
   <data name="AuthorTXBox.Header" xml:space="preserve">
     <value>作者</value>
   </data>
-   <data name="YearNBox.Header" xml:space="preserve">
+  <data name="YearNBox.Header" xml:space="preserve">
     <value>年</value>
   </data>
   <data name="TagsTXBox.Header" xml:space="preserve">
@@ -832,5 +832,11 @@
   </data>
   <data name="SuccessStorageCleanedUp" xml:space="preserve">
     <value>ストレージが正常にクリーンアップされました。</value>
+  </data>
+  <data name="ReadingMode/Webtoon" xml:space="preserve">
+    <value>縦読み</value>
+  </data>
+  <data name="WebtoonModeMNItem.Text" xml:space="preserve">
+    <value>縦読み</value>
   </data>
 </root>

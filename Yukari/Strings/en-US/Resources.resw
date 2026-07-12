@@ -833,4 +833,10 @@
   <data name="SuccessStorageCleanedUp" xml:space="preserve">
     <value>Storage cleaned up successfully.</value>
   </data>
+  <data name="ReadingMode/Webtoon" xml:space="preserve">
+    <value>Webtoon</value>
+  </data>
+  <data name="WebtoonModeMNItem.Text" xml:space="preserve">
+    <value>Webtoon</value>
+  </data>
 </root>
