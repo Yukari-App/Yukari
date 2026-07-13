@@ -109,6 +109,7 @@ public partial class App : Application
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<INotificationService, NotificationService>();
+        services.AddSingleton<IImageCacheService, ImageCacheService>();
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<ILocalizationService, LocalizationService>();
