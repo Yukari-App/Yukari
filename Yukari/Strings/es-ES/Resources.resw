@@ -488,7 +488,7 @@
     <value>Modos de lectura, escala y atajos</value>
   </data>
   <data name="ReaderHelp1" xml:space="preserve">
-    <value>Tres modos de lectura están disponibles: **Derecha a izquierda** (manga), **Izquierda a derecha** (occidental) y **Vertical** (webtoons). Cambia a través del menú del lector.</value>
+    <value>Cuatro modos de lectura están disponibles: **Derecha a izquierda** (manga), **Izquierda a derecha** (occidental), **Vertical** (de arriba a abajo, por página) y **Webtoon** (desplazamiento continuo). Cambia a través del menú del lector.</value>
   </data>
   <data name="ReaderHelp2" xml:space="preserve">
     <value>Cuatro modos de escala: **Ajustar a pantalla**, **Ajustar al ancho**, **Ajustar a la altura** y **Tamaño original**. Pulsa **F11** o usa el botón **Pantalla completa** para alternar la pantalla completa.</value>

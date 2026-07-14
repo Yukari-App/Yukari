@@ -488,7 +488,7 @@
     <value>Reading modes, scaling and shortcuts</value>
   </data>
   <data name="ReaderHelp1" xml:space="preserve">
-    <value>Three reading modes are available: **Right to Left** (manga), **Left to Right**, (western) and **Vertical** (webtoons). Change via the reader menu.</value>
+    <value>Four reading modes are available: **Right to Left** (manga), **Left to Right** (western), **Vertical** (top-to-bottom, page by page), and **Webtoon** (continuous scroll). Change via the reader menu.</value>
   </data>
   <data name="ReaderHelp2" xml:space="preserve">
     <value>Four scaling modes: **Fit Screen**, **Fit Width**, **Fit Height** and **Original Size**. Press **F11** or use **Fullscreen** button to toggle fullscreen.</value>
