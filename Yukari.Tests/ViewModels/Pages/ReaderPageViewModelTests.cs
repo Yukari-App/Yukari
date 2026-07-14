@@ -27,6 +27,7 @@ public class ReaderPageViewModelTests
     private readonly Mock<IComicService> _mockComicService;
     private readonly Mock<ISettingsService> _mockSettingsService;
     private readonly Mock<INotificationService> _mockNotificationService;
+    private readonly Mock<IImageCacheService> _mockImageCacheService;
     private readonly FakeMessenger _mockMessenger;
     private readonly Mock<ILocalizationService> _localizationServiceMock;
 
@@ -37,6 +38,7 @@ public class ReaderPageViewModelTests
         _mockComicService = new Mock<IComicService>();
         _mockSettingsService = new Mock<ISettingsService>();
         _mockNotificationService = new Mock<INotificationService>();
+        _mockImageCacheService = new Mock<IImageCacheService>();
         _mockMessenger = new FakeMessenger();
         _localizationServiceMock = new Mock<ILocalizationService>();
 
@@ -69,6 +71,7 @@ public class ReaderPageViewModelTests
             _mockComicService.Object,
             _mockSettingsService.Object,
             _mockNotificationService.Object,
+            _mockImageCacheService.Object,
             _mockMessenger,
             _localizationServiceMock.Object
         );

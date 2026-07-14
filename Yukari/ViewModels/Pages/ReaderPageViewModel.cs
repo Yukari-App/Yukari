@@ -24,6 +24,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     private readonly IComicService _comicService;
     private readonly ISettingsService _settingsService;
     private readonly INotificationService _notificationService;
+    private readonly IImageCacheService _imageCacheService;
     private readonly IMessenger _messenger;
     private readonly ILocalizationService _localizationService;
 
@@ -58,10 +59,21 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     [NotifyCanExecuteChangedFor(nameof(NextPageCommand), nameof(PreviousPageCommand))]
     public partial int CurrentPageIndex { get; set; } = 0;
 
+    // WebtoonPageIndex is separate from CurrentPageIndex because Webtoon mode updates the index
+    // at a very high frequency during scrolling. Writing directly to CurrentPageIndex would flood
+    // the TwoWay-bound FlipView (even when invisible), corrupting its internal state. Sync between
+    // the two only happens on reading mode change (OnReadingModeChanged).
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PageIndicatorText))]
+    public partial int WebtoonPageIndex { get; set; } = 0;
+
+    [ObservableProperty]
+    public partial bool IsPositioningWebtoonScroll { get; set; }
+
     public string PageIndicatorText =>
-        ChapterPages != null && ChapterPages.Count > 0
-            ? $"{CurrentPageIndex + 1} / {ChapterPages.Count}"
-            : "0 / 0";
+        ChapterPages == null || ChapterPages.Count == 0 ? "0 / 0"
+        : ReadingMode == ReadingMode.Webtoon ? $"{WebtoonPageIndex + 1} / {ChapterPages.Count}"
+        : $"{CurrentPageIndex + 1} / {ChapterPages.Count}";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FullscreenButtonIcon))]
@@ -77,8 +89,11 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         nameof(BackwardChapterNavigationButtonToolTip),
         nameof(IsHorizontalPageNavigationButtonsVisible),
         nameof(IsVerticalPageNavigationButtonsVisible),
+        nameof(IsVerticalPageNumberIndicatorVisible),
         nameof(ForwardPageNavigationButtonCommand),
-        nameof(BackwardPageNavigationButtonCommand)
+        nameof(BackwardPageNavigationButtonCommand),
+        nameof(IsDefaultReaderVisible),
+        nameof(IsWebtoonReaderVisible)
     )]
     public partial ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
 
@@ -102,6 +117,8 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         ReadingMode is ReadingMode.RightToLeft or ReadingMode.LeftToRight;
 
     public bool IsVerticalPageNavigationButtonsVisible => ReadingMode == ReadingMode.Vertical;
+    public bool IsVerticalPageNumberIndicatorVisible =>
+        ReadingMode is ReadingMode.Vertical or ReadingMode.Webtoon;
 
     public IRelayCommand ForwardPageNavigationButtonCommand =>
         ReadingMode == ReadingMode.RightToLeft ? NextPageCommand : PreviousPageCommand;
@@ -113,7 +130,13 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     public partial ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsLoading), nameof(IsLoaded), nameof(IsError))]
+    [NotifyPropertyChangedFor(
+        nameof(IsLoading),
+        nameof(IsLoaded),
+        nameof(IsError),
+        nameof(IsDefaultReaderVisible),
+        nameof(IsWebtoonReaderVisible)
+    )]
     [NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))]
     public partial LoadState ChapterState { get; set; } = LoadState.Loading;
 
@@ -130,10 +153,14 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     public bool IsLoaded => ChapterState == LoadState.Loaded;
     public bool IsError => ChapterState == LoadState.Error;
 
+    public bool IsDefaultReaderVisible => IsLoaded && ReadingMode != ReadingMode.Webtoon;
+    public bool IsWebtoonReaderVisible => IsLoaded && ReadingMode == ReadingMode.Webtoon;
+
     public ReaderPageViewModel(
         IComicService comicService,
         ISettingsService settingsService,
         INotificationService notificationService,
+        IImageCacheService imageCacheService,
         IMessenger messenger,
         ILocalizationService localizationService
     )
@@ -141,6 +168,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         _comicService = comicService;
         _settingsService = settingsService;
         _notificationService = notificationService;
+        _imageCacheService = imageCacheService;
         _messenger = messenger;
         _localizationService = localizationService;
 
@@ -264,11 +292,15 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         }
 
         ChapterPages = pagesResult
-            .Value!.Select(p => new ChapterPageItemViewModel(p, _displayContext))
+            .Value!.Select(p => new ChapterPageItemViewModel(
+                _imageCacheService,
+                p,
+                _displayContext
+            ))
             .ToList();
 
         var chapterUserData = _chapters[_currentChapterIndex].UserData;
-        CurrentPageIndex =
+        CurrentPageIndex = WebtoonPageIndex =
             chapterUserData.LastPageRead > 0 && (!chapterUserData.IsRead && !forceFirstPage)
                 ? chapterUserData.LastPageRead.Value - 1
                 : 0;
@@ -386,10 +418,13 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         if (!chapterUserData.IsRead)
         {
             var hasPages = ChapterPages?.Count > 0;
-            chapterUserData.LastPageRead = hasPages ? CurrentPageIndex + 1 : 0;
-            chapterUserData.IsRead = hasPages
-                ? CurrentChapter.Pages == chapterUserData.LastPageRead
-                : false;
+            chapterUserData.LastPageRead = hasPages
+                ? ReadingMode == ReadingMode.Webtoon
+                    ? WebtoonPageIndex + 1
+                    : CurrentPageIndex + 1
+                : 0;
+            chapterUserData.IsRead =
+                hasPages && CurrentChapter.Pages == chapterUserData.LastPageRead;
 
             var chapterProgressResult = await _comicService.UpsertChapterUserDataAsync(
                 _comicKey,
@@ -417,6 +452,17 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         {
             _notificationService.ShowError(comicProgressResult.Error!);
         }
+    }
+
+    partial void OnReadingModeChanged(ReadingMode oldValue, ReadingMode newValue)
+    {
+        if (!IsLoaded)
+            return;
+
+        if (oldValue == ReadingMode.Webtoon)
+            CurrentPageIndex = WebtoonPageIndex;
+        else
+            WebtoonPageIndex = CurrentPageIndex;
     }
 
     partial void OnScalingModeChanged(ScalingMode value) => _displayContext.ScalingMode = value;

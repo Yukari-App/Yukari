@@ -90,7 +90,6 @@
                         Margin="4,0,4,0"
                         Orientation="Horizontal"
                         Spacing="4">
-
                 <Button Command="{x:Bind ViewModel.ForwardChapterNavigationButtonCommand, Mode=OneWay}"
                         Content="{ui:FontIcon Glyph=&#xE76B;}"
                         Style="{StaticResource TitleBarButtonStyle}"
@@ -134,6 +133,12 @@
                                                      GroupName="ReadingMode"
                                                      Icon="{ui:FontIcon Glyph=&#xF0AE;}"
                                                      IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Vertical, Mode=OneWay}" />
+                                <RadioMenuFlyoutItem x:Uid="WebtoonModeMNItem"
+                                                     Command="{x:Bind ViewModel.SetReadingModeCommand}"
+                                                     CommandParameter="Webtoon"
+                                                     GroupName="ReadingMode"
+                                                     Icon="{ui:FontIcon Glyph=&#xF0AE;}"
+                                                     IsChecked="{x:Bind ViewModel.ReadingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Webtoon, Mode=OneWay}" />
                             </MenuFlyoutSubItem>
                             <MenuFlyoutSubItem x:Uid="ScalingModeSBItem" Icon="{ui:FontIcon Glyph=&#xE9A6;}">
                                 <RadioMenuFlyoutItem x:Uid="FitScreenModeMNItem"
@@ -178,7 +183,7 @@
                       FlowDirection="{x:Bind ViewModel.ReadingMode, Converter={StaticResource ReadingModeToFlowDirectionConverter}, Mode=OneWay}"
                       ItemsSource="{x:Bind ViewModel.ChapterPages, Mode=OneWay}"
                       SelectedIndex="{x:Bind ViewModel.CurrentPageIndex, Mode=TwoWay}"
-                      Visibility="{x:Bind ViewModel.IsLoaded, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                      Visibility="{x:Bind ViewModel.IsDefaultReaderVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                 <FlipView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <VirtualizingStackPanel Orientation="{Binding ReadingMode, Converter={StaticResource ReadingModeToOrientationConverter}, Mode=OneWay}" />
@@ -215,19 +220,19 @@
                 <FlipView.ItemTemplate>
                     <DataTemplate x:DataType="vmc:ChapterPageItemViewModel">
                         <ScrollViewer x:Name="PageScrollViewer"
-                                      DoubleTapped="PageScrollViewer_DoubleTapped"
+                                      DoubleTapped="ScrollViewer_DoubleTapped"
                                       FlowDirection="LeftToRight"
                                       HorizontalScrollBarVisibility="Hidden"
                                       HorizontalScrollMode="Auto"
+                                      Loaded="ScrollViewer_Loaded"
                                       MinZoomFactor="1"
-                                      PointerEntered="PageScrollViewer_PointerEntered"
-                                      PointerExited="PageScrollViewer_PointerExited"
-                                      PointerMoved="PageScrollViewer_PointerMoved"
-                                      PointerPressed="PageScrollViewer_PointerPressed"
-                                      PointerReleased="PageScrollViewer_PointerReleased"
+                                      PointerEntered="ScrollViewer_PointerEntered"
+                                      PointerExited="ScrollViewer_PointerExited"
+                                      PointerMoved="ScrollViewer_PointerMoved"
+                                      PointerPressed="ScrollViewer_PointerPressed"
                                       VerticalScrollBarVisibility="Hidden"
                                       VerticalScrollMode="Auto"
-                                      ViewChanged="PageScrollViewer_ViewChanged"
+                                      ViewChanged="ScrollViewer_ViewChanged"
                                       ZoomMode="Enabled">
 
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -261,14 +266,103 @@
                                        VerticalAlignment="Center"
                                        ImageFailed="Page_ImageFailed"
                                        ImageOpened="Page_ImageOpened"
-                                       Source="{Binding ImageUrl, Converter={StaticResource UrlToImageConverter}}"
+                                       Source="{x:Bind ImageUrl, Converter={StaticResource UrlToImageConverter}, Mode=OneWay}"
                                        Stretch="Uniform"
+                                       Tag="{x:Bind}"
                                        Visibility="{x:Bind HasError, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
                             </Grid>
                         </ScrollViewer>
                     </DataTemplate>
                 </FlipView.ItemTemplate>
             </FlipView>
+
+            <Grid>
+                <ScrollViewer x:Name="WebtoonScrollViewer"
+                              DoubleTapped="ScrollViewer_DoubleTapped"
+                              HorizontalScrollBarVisibility="Hidden"
+                              HorizontalScrollMode="Auto"
+                              Loaded="ScrollViewer_Loaded"
+                              MinZoomFactor="1"
+                              PointerEntered="ScrollViewer_PointerEntered"
+                              PointerExited="ScrollViewer_PointerExited"
+                              PointerMoved="ScrollViewer_PointerMoved"
+                              PointerPressed="ScrollViewer_PointerPressed"
+                              VerticalScrollBarVisibility="Hidden"
+                              VerticalScrollMode="Auto"
+                              ViewChanged="ScrollViewer_ViewChanged"
+                              Visibility="{x:Bind ViewModel.IsWebtoonReaderVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
+                              ZoomMode="Enabled">
+                    <StackPanel>
+                        <Border x:Name="TopSpacer" />
+
+                        <ItemsControl x:Name="WebtoonPageItemsControl" ItemsSource="{x:Bind VisibleWebtoonPages, Mode=OneTime}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vmc:ChapterPageItemViewModel">
+                                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Border Width="{x:Bind WebtoonMaxWidth, Mode=OneWay}"
+                                                Height="{x:Bind PlaceholderWebtoonHeight, Mode=OneWay}"
+                                                Background="{ThemeResource SmokeFillColorDefaultBrush}"
+                                                Visibility="{x:Bind IsWebtoonPlaceholderVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+
+                                        <ProgressRing Width="45"
+                                                      Height="45"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      IsIndeterminate="True"
+                                                      Visibility="{x:Bind IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+
+                                        <StackPanel HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Spacing="10"
+                                                    Visibility="{x:Bind HasError, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                                            <FontIcon HorizontalAlignment="Center"
+                                                      FontSize="40"
+                                                      Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                      Glyph="&#xEB90;" />
+                                            <TextBlock x:Uid="FailedLoadingPageTXB" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                            <Button HorizontalAlignment="Center" Command="{x:Bind RetryCommand}">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon FontSize="16" Glyph="&#xE72C;" />
+                                                    <TextBlock x:Uid="TryLoadPageTXB" />
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+
+                                        <Image MaxWidth="{x:Bind WebtoonMaxWidth, Mode=OneWay}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               ImageFailed="Page_ImageFailed"
+                                               ImageOpened="Page_ImageOpened"
+                                               Source="{x:Bind ImageUrl, Converter={StaticResource UrlToImageConverter}, Mode=OneWay}"
+                                               Stretch="Uniform"
+                                               Tag="{x:Bind}"
+                                               Visibility="{x:Bind HasError, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert, Mode=OneWay}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border x:Name="BottomSpacer" />
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="{x:Bind ViewModel.IsPositioningWebtoonScroll, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <SystemBackdropElement>
+                        <SystemBackdropElement.SystemBackdrop>
+                            <MicaBackdrop Kind="Base" />
+                        </SystemBackdropElement.SystemBackdrop>
+                    </SystemBackdropElement>
+
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+                        <ProgressRing Width="45"
+                                      Height="45"
+                                      HorizontalAlignment="Center"
+                                      IsActive="{x:Bind ViewModel.IsPositioningWebtoonScroll, Mode=OneWay}"
+                                      IsIndeterminate="True" />
+                        <TextBlock x:Uid="LoadingPagesTXB" HorizontalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
 
             <Button x:Name="LeftEdgeButton"
                     Grid.Row="1"
@@ -322,7 +416,7 @@
                        FontSize="12"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Text="{x:Bind ViewModel.PageIndicatorText, Mode=OneWay}"
-                       Visibility="{x:Bind ViewModel.IsVerticalPageNavigationButtonsVisible, Mode=OneWay}" />
+                       Visibility="{x:Bind ViewModel.IsVerticalPageNumberIndicatorVisible, Mode=OneWay}" />
         </Grid>
 
         <Grid Grid.Row="1"
