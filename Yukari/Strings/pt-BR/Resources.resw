@@ -839,4 +839,7 @@
   <data name="WebtoonModeMNItem.Text" xml:space="preserve">
     <value>Webtoon</value>
   </data>
+  <data name="LoadingPagesTXB.Text" xml:space="preserve">
+    <value>Carregando Páginas...</value>
+  </data>
 </root>

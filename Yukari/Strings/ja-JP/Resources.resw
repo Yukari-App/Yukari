@@ -839,4 +839,7 @@
   <data name="WebtoonModeMNItem.Text" xml:space="preserve">
     <value>縦読み</value>
   </data>
+  <data name="LoadingPagesTXB.Text" xml:space="preserve">
+    <value>ページ読み込み中...</value>
+  </data>
 </root>
