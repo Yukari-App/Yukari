@@ -39,6 +39,8 @@ internal class DataService : IDataService
         return connection;
     }
 
+    #region Read Operations
+
     public async Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(
         string? queryText = null,
         string? collectionName = null,
@@ -401,6 +403,10 @@ internal class DataService : IDataService
         );
         return result.ToList();
     }
+
+    #endregion
+
+    #region Write Operations
 
     public async Task UpsertFavoriteComicAsync(ComicModel comic)
     {
@@ -813,6 +819,10 @@ internal class DataService : IDataService
         );
     }
 
+    #endregion
+
+    #region Delete Operations
+
     public async Task RemoveFavoriteComicAsync(ContentKey comicKey)
     {
         using var connection = await GetOpenConnectionAsync();
@@ -1039,4 +1049,6 @@ internal class DataService : IDataService
 
         return unfavoriteComics.ToList();
     }
+
+    #endregion
 }

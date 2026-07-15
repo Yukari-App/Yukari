@@ -45,7 +45,7 @@ internal class ComicService : IComicService
         _logger = logger;
     }
 
-    // --- Read Methods ---
+    #region Read Methods
 
     public async Task<Result<IReadOnlyList<Filter>>> GetSourceFiltersAsync(
         string sourceName,
@@ -340,7 +340,9 @@ internal class ComicService : IComicService
         );
     }
 
-    // --- Write Methods ---
+    #endregion
+
+    #region Write Methods
 
     public async Task<Result> UpsertFavoriteComicAsync(ContentKey comicKey)
     {
@@ -726,6 +728,10 @@ internal class ComicService : IComicService
         );
     }
 
+    #endregion
+
+    #region Delete Methods
+
     public async Task<Result> RemoveFavoriteComicAsync(ContentKey comicKey)
     {
         return await ExecuteAsync(
@@ -833,7 +839,9 @@ internal class ComicService : IComicService
         );
     }
 
-    // --- Helpers && Private Methods ---
+    #endregion
+
+    #region Helpers
 
     private async Task<IReadOnlyList<ChapterModel>> FetchAndCacheChaptersAsync(
         ContentKey comicKey,
@@ -948,4 +956,6 @@ internal class ComicService : IComicService
             || ex is System.Net.Sockets.SocketException
             || ex.InnerException is System.Net.Http.HttpRequestException;
     }
+
+    #endregion
 }
