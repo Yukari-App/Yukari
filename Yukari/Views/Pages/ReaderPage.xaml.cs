@@ -129,9 +129,6 @@ public sealed partial class ReaderPage : Page
         if (PagesFlipView == null || PagesFlipView.Items.Count == 0)
             return;
 
-        await Task.Yield();
-        PagesFlipView.UpdateLayout();
-
         var backupIndex = PagesFlipView.SelectedIndex;
         PagesFlipView.SelectedIndex = -1;
         await Task.Yield();
