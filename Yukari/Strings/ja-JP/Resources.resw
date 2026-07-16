@@ -842,4 +842,7 @@
   <data name="LoadingPagesTXB.Text" xml:space="preserve">
     <value>ページ読み込み中...</value>
   </data>
+  <data name="ReverseChapterOrderMNItem.Text" xml:space="preserve">
+    <value>章の順序を反転</value>
+  </data>
 </root>
