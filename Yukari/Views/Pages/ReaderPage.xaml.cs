@@ -136,6 +136,7 @@ public sealed partial class ReaderPage : Page
         var isHorizontal = (ShadowedText)sender == HorizontalPageIndicator;
         var flyout = new Flyout
         {
+            ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
             Placement = isHorizontal ? FlyoutPlacementMode.Top : FlyoutPlacementMode.Left,
             ShouldConstrainToRootBounds = true,
         };
@@ -149,7 +150,7 @@ public sealed partial class ReaderPage : Page
 
         var slider = new Slider
         {
-            Margin = isHorizontal ? new Thickness(12, 4, 12, 4) : new Thickness(4, 12, 4, 12),
+            Margin = isHorizontal ? new Thickness(10, 4, 10, 4) : new Thickness(4, 10, 4, 10),
             Minimum = 1,
             Orientation = isHorizontal ? Orientation.Horizontal : Orientation.Vertical,
             Maximum = ViewModel.ChapterPages.Count,
@@ -175,6 +176,18 @@ public sealed partial class ReaderPage : Page
 
         flyout.Content = slider;
         flyout.ShowAt((FrameworkElement)sender);
+    }
+
+    private void PageIndicator_PointerEntered(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is ShadowedText text)
+            text.Opacity = 0.75;
+    }
+
+    private void PageIndicator_PointerExited(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is ShadowedText text)
+            text.Opacity = 1.0;
     }
 
     #endregion
