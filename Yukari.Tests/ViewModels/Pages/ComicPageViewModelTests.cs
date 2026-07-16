@@ -931,7 +931,7 @@ public class ComicPageViewModelTests
             );
 
         // Act
-        await _sut.MarkPreviousChaptersAsReadCommand.ExecuteAsync(_sut.Chapters[1]);
+        await _sut.MarkPreviousChaptersAsReadCommand.ExecuteAsync(_sut.Chapters![1]);
 
         // Assert
         _mockComicService.Verify(
@@ -939,6 +939,63 @@ public class ComicPageViewModelTests
             Times.Once
         );
         _sut.Chapters[0].IsRead.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task MarkPreviousChaptersAsRead_WhenReversedOrder_MarksChronologicallyOlderChapters()
+    {
+        // Arrange
+        await ChangeSutComic(
+            chapters: new List<ChapterAggregate>
+            {
+                new ChapterAggregate(
+                    new ChapterModel
+                    {
+                        Id = "ch-001",
+                        Source = SourceName,
+                        Language = "en",
+                    },
+                    new ChapterUserData { IsRead = false }
+                ),
+                new ChapterAggregate(
+                    new ChapterModel
+                    {
+                        Id = "ch-002",
+                        Source = SourceName,
+                        Language = "en",
+                    },
+                    new ChapterUserData { IsRead = false }
+                ),
+                new ChapterAggregate(
+                    new ChapterModel
+                    {
+                        Id = "ch-003",
+                        Source = SourceName,
+                        Language = "en",
+                    },
+                    new ChapterUserData { IsRead = false }
+                ),
+            }
+        );
+
+        _sut.ReversedChapterOrder = true;
+        await Task.Delay(50, TestContext.Current.CancellationToken);
+
+        _mockComicService
+            .Setup(s => s.UpsertChaptersIsReadAsync(ComicKey, new[] { "ch-002", "ch-001" }, true))
+            .ReturnsAsync(Result.Success());
+        _mockComicService
+            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<IReadOnlyList<ChapterAggregate>>.Success([]));
+
+        // Act
+        await _sut.MarkPreviousChaptersAsReadCommand.ExecuteAsync(_sut.Chapters![0]);
+
+        // Assert
+        _mockComicService.Verify(
+            c => c.UpsertChaptersIsReadAsync(ComicKey, new[] { "ch-002", "ch-001" }, true),
+            Times.Once
+        );
     }
 
     [Theory]
@@ -1063,6 +1120,48 @@ public class ComicPageViewModelTests
     // ────────────────────────────────────────────────────────────────
     // PROPERTY CHANGE EVENTS
     // ────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task OnReversedChapterOrderChanged_ReversesChaptersInPlace_AndPersistsPreference()
+    {
+        // Arrange
+        await ChangeSutComic(
+            chapters: new List<ChapterAggregate>
+            {
+                new ChapterAggregate(
+                    new ChapterModel { Id = "ch-001", Source = SourceName },
+                    new()
+                ),
+                new ChapterAggregate(
+                    new ChapterModel { Id = "ch-002", Source = SourceName },
+                    new()
+                ),
+            }
+        );
+
+        // Act
+        _sut.ReversedChapterOrder = true;
+        await Task.Delay(50, TestContext.Current.CancellationToken);
+
+        // Assert
+        _sut.Chapters!.Select(c => c.Key.Id).Should().Equal("ch-002", "ch-001");
+        _mockSettingsService.Verify(s => s.Set(s => s.ReversedChaptersOrder, true), Times.Once);
+        _mockSettingsService.Verify(s => s.SaveAsync(), Times.Once);
+    }
+
+    [Fact]
+    public void OnReversedChapterOrderChanged_DoesNothing_WhenComicNotYetLoaded()
+    {
+        // Act
+        _sut.ReversedChapterOrder = true;
+
+        // Assert
+        _mockSettingsService.Verify(
+            s => s.Set(s => s.ReversedChaptersOrder, It.IsAny<bool>()),
+            Times.Never
+        );
+        _mockSettingsService.Verify(s => s.SaveAsync(), Times.Never);
+    }
 
     [Fact]
     public async Task OnSelectedLangChanged_RefreshChapters_AndUpdateLastSelectedLanguage()
