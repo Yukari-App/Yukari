@@ -436,6 +436,8 @@
                                                 IsEnabled="{x:Bind ViewModel.IsInterfaceReady, Mode=OneWay}">
                                             <Button.Flyout>
                                                 <MenuFlyout Placement="Bottom">
+                                                    <ToggleMenuFlyoutItem x:Uid="ReverseChapterOrderMNItem" Icon="{ui:FontIcon Glyph=&#xE8CB;}" IsChecked="{x:Bind ViewModel.ReversedChapterOrder, Mode=TwoWay}" />
+                                                    <MenuFlyoutSeparator />
                                                     <MenuFlyoutItem x:Uid="MarkAllChaptersAsReadMNItem" Command="{x:Bind ViewModel.MarkAllAsReadCommand}" Icon="{ui:FontIcon Glyph=&#xE890;}" />
                                                     <MenuFlyoutItem x:Uid="MarkAllChaptersAsUnreadMNItem" Command="{x:Bind ViewModel.MarkAllAsUnreadCommand}" Icon="{ui:FontIcon Glyph=&#xED1A;}" />
                                                 </MenuFlyout>

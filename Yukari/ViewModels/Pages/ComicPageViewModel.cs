@@ -15,6 +15,7 @@ using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.Settings;
 using Yukari.Services.Storage;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
@@ -30,6 +31,7 @@ public partial class ComicPageViewModel
 
     private readonly IComicService _comicService;
     private readonly IDownloadService _downloadService;
+    private readonly ISettingsService _settingsService;
     private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
     private readonly IMessenger _messenger;
@@ -84,6 +86,9 @@ public partial class ComicPageViewModel
 
     [ObservableProperty]
     public partial List<ChapterItemViewModel>? Chapters { get; set; }
+
+    [ObservableProperty]
+    public partial bool ReversedChapterOrder { get; set; } = false;
 
     [ObservableProperty]
     public partial string? SelectedLang { get; set; }
@@ -158,6 +163,7 @@ public partial class ComicPageViewModel
     public ComicPageViewModel(
         IComicService comicService,
         IDownloadService downloadService,
+        ISettingsService settingsService,
         IDialogService dialogService,
         INotificationService notificationService,
         IMessenger messenger,
@@ -166,12 +172,15 @@ public partial class ComicPageViewModel
     {
         _comicService = comicService;
         _downloadService = downloadService;
+        _settingsService = settingsService;
         _dialogService = dialogService;
         _notificationService = notificationService;
         _messenger = messenger;
         _localizationService = localizationService;
 
         _messenger.RegisterAll(this);
+
+        ReversedChapterOrder = _settingsService.Current.ReversedChaptersOrder;
     }
 
     public void Receive(ChapterUserDataUpdatedMessage message) =>
@@ -387,10 +396,12 @@ public partial class ComicPageViewModel
     private async Task MarkPreviousChaptersAsRead(ChapterItemViewModel item)
     {
         var index = Chapters!.IndexOf(item);
-        if (index <= 0)
+        if (index < 0)
             return;
 
-        var chapterIDs = Chapters.Take(index).Select(c => c.Key.Id).ToArray();
+        var chapterIDs = (ReversedChapterOrder ? Chapters.Skip(index + 1) : Chapters.Take(index))
+            .Select(c => c.Key.Id)
+            .ToArray();
 
         await UpdateChaptersReadStatusAsync(chapterIDs, true);
     }
@@ -440,8 +451,15 @@ public partial class ComicPageViewModel
         ComicLoadState = LoadState.Loaded;
     }
 
-    private async Task RefreshChaptersAsync()
+    private async Task RefreshChaptersAsync(bool reverseInPlace = false)
     {
+        if (reverseInPlace)
+        {
+            if (Chapters is { Count: > 1 })
+                Chapters = Chapters.AsEnumerable().Reverse().ToList();
+            return;
+        }
+
         if (!IsComicLoaded || _comicKey == null)
             return;
 
@@ -477,26 +495,25 @@ public partial class ComicPageViewModel
 
         if (result.IsSuccess)
         {
-            var chapterAggregates = result.Value;
+            var chapterAggregates = result.Value!;
+            var chapterItems = chapterAggregates.Select(c =>
+            {
+                var ivm = new ChapterItemViewModel(
+                    _comicService,
+                    _downloadService,
+                    _notificationService,
+                    c,
+                    _comicKey,
+                    IsFavorite,
+                    Comic!.Title,
+                    NavigateToReaderCommand,
+                    MarkPreviousChaptersAsReadCommand
+                );
+                ivm.PropertyChanged += OnChapterDownloadStatusChanged;
+                return ivm;
+            });
 
-            Chapters = chapterAggregates
-                ?.Select(c =>
-                {
-                    var ivm = new ChapterItemViewModel(
-                        _comicService,
-                        _downloadService,
-                        _notificationService,
-                        c,
-                        _comicKey,
-                        IsFavorite,
-                        Comic!.Title,
-                        NavigateToReaderCommand,
-                        MarkPreviousChaptersAsReadCommand
-                    );
-                    ivm.PropertyChanged += OnChapterDownloadStatusChanged;
-                    return ivm;
-                })
-                .ToList();
+            Chapters = (ReversedChapterOrder ? chapterItems.Reverse() : chapterItems).ToList();
         }
         else
         {
@@ -556,6 +573,15 @@ public partial class ComicPageViewModel
         {
             UpdateIsAllChaptersDownloaded();
         }
+    }
+
+    async partial void OnReversedChapterOrderChanged(bool value)
+    {
+        if (!IsComicLoaded)
+            return;
+        await RefreshChaptersAsync(true);
+        _settingsService.Set(s => s.ReversedChaptersOrder, value);
+        await _settingsService.SaveAsync();
     }
 
     async partial void OnSelectedLangChanged(string? value)

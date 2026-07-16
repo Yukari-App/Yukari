@@ -8,7 +8,9 @@ using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Models.Data;
 using Yukari.Models.DTO;
+using Yukari.Models.Settings;
 using Yukari.Services.Comics;
+using Yukari.Services.Settings;
 using Yukari.Services.Storage;
 using Yukari.Services.UI;
 using Yukari.Tests.TestUtils;
@@ -26,6 +28,7 @@ public class ComicPageViewModelTests
 
     private readonly Mock<IComicService> _mockComicService;
     private readonly Mock<IDownloadService> _mockDownloadService;
+    private readonly Mock<ISettingsService> _mockSettingsService;
     private readonly Mock<IDialogService> _mockDialogService;
     private readonly Mock<INotificationService> _mockNotificationService;
     private readonly FakeMessenger _messenger;
@@ -37,14 +40,18 @@ public class ComicPageViewModelTests
     {
         _mockComicService = new Mock<IComicService>();
         _mockDownloadService = new Mock<IDownloadService>();
+        _mockSettingsService = new Mock<ISettingsService>();
         _mockDialogService = new Mock<IDialogService>();
         _mockNotificationService = new Mock<INotificationService>();
         _messenger = new FakeMessenger();
         _localizationServiceMock = new Mock<ILocalizationService>();
 
+        _mockSettingsService.Setup(s => s.Current).Returns(new AppSettings());
+
         _sut = new ComicPageViewModel(
             _mockComicService.Object,
             _mockDownloadService.Object,
+            _mockSettingsService.Object,
             _mockDialogService.Object,
             _mockNotificationService.Object,
             _messenger,
