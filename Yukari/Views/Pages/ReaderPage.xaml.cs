@@ -130,7 +130,11 @@ public sealed partial class ReaderPage : Page
 
     private void PageIndicator_Tapped(object sender, TappedRoutedEventArgs e)
     {
-        if (ViewModel.ChapterPages == null || ViewModel.ChapterPages.Count <= 1)
+        if (
+            ViewModel.ChapterPages == null
+            || ViewModel.ChapterPages.Count <= 1
+            || ViewModel.IsPositioningWebtoonScroll
+        )
             return;
 
         var isHorizontal = (ShadowedText)sender == HorizontalPageIndicator;
@@ -170,6 +174,7 @@ public sealed partial class ReaderPage : Page
             {
                 await Task.Delay(350, _sliderDebounceCts.Token);
                 ViewModel.JumpToPageCommand.Execute((int)slider.Value - 1);
+                flyout.Hide();
             }
             catch (TaskCanceledException) { }
         };
