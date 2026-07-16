@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
@@ -15,12 +16,15 @@ using Yukari.Enums;
 using Yukari.Models.DTO;
 using Yukari.ViewModels.Components;
 using Yukari.ViewModels.Pages;
+using Yukari.Views.Controls;
 
 namespace Yukari.Views.Pages;
 
 public sealed partial class ReaderPage : Page
 {
     public ReaderPageViewModel ViewModel { get; set; }
+
+    private CancellationTokenSource? _sliderDebounceCts;
 
     private Point _lastMousePosition;
     private double _startHorizontalOffset;
@@ -67,6 +71,10 @@ public sealed partial class ReaderPage : Page
     {
         base.OnNavigatedFrom(e);
         ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+
+        _sliderDebounceCts?.Cancel();
+        _sliderDebounceCts?.Dispose();
+        _sliderDebounceCts = null;
     }
 
     #region ViewModel Events
@@ -119,6 +127,55 @@ public sealed partial class ReaderPage : Page
 
     private void UpdateScreenSize(double width, double height) =>
         ViewModel.SetScreenSizeCommand.Execute((width, height));
+
+    private void PageIndicator_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        if (ViewModel.ChapterPages == null || ViewModel.ChapterPages.Count <= 1)
+            return;
+
+        var isHorizontal = (ShadowedText)sender == HorizontalPageIndicator;
+        var flyout = new Flyout
+        {
+            Placement = isHorizontal ? FlyoutPlacementMode.Top : FlyoutPlacementMode.Left,
+            ShouldConstrainToRootBounds = true,
+        };
+
+        var presenterStyle = new Style(typeof(FlyoutPresenter));
+        presenterStyle.Setters.Add(new Setter(MinHeightProperty, 0));
+        presenterStyle.Setters.Add(new Setter(MinWidthProperty, 0));
+        presenterStyle.Setters.Add(new Setter(CornerRadiusProperty, new CornerRadius(8)));
+        presenterStyle.Setters.Add(new Setter(PaddingProperty, new Thickness(0)));
+        flyout.FlyoutPresenterStyle = presenterStyle;
+
+        var slider = new Slider
+        {
+            Margin = isHorizontal ? new Thickness(12, 4, 12, 4) : new Thickness(4, 12, 4, 12),
+            Minimum = 1,
+            Orientation = isHorizontal ? Orientation.Horizontal : Orientation.Vertical,
+            Maximum = ViewModel.ChapterPages.Count,
+            Value = ViewModel.CurrentPageForDisplay,
+            IsDirectionReversed = ViewModel.ReadingMode != ReadingMode.LeftToRight,
+            Height = isHorizontal ? 32 : 380,
+            Width = isHorizontal ? 380 : 32,
+        };
+
+        slider.ValueChanged += async (s, args) =>
+        {
+            _sliderDebounceCts?.Cancel();
+            _sliderDebounceCts?.Dispose();
+            _sliderDebounceCts = new();
+
+            try
+            {
+                await Task.Delay(350, _sliderDebounceCts.Token);
+                ViewModel.JumpToPageCommand.Execute((int)slider.Value - 1);
+            }
+            catch (TaskCanceledException) { }
+        };
+
+        flyout.Content = slider;
+        flyout.ShowAt((FrameworkElement)sender);
+    }
 
     #endregion
 

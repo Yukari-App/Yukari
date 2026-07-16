@@ -406,22 +406,26 @@
                 <controls:ShadowedIcon FontSize="20" Glyph="&#xE96E;" OutlineBrush="{ThemeResource FocusStrokeColorInnerBrush}" />
             </Button>
 
-            <controls:ShadowedText Grid.Row="1"
+            <controls:ShadowedText x:Name="HorizontalPageIndicator"
+                                   Grid.Row="1"
                                    Margin="0,0,0,8"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Bottom"
                                    FontSize="12"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                    OutlineBrush="{ThemeResource FocusStrokeColorInnerBrush}"
+                                   Tapped="PageIndicator_Tapped"
                                    Text="{x:Bind ViewModel.PageIndicatorText, Mode=OneWay}"
                                    Visibility="{x:Bind ViewModel.IsHorizontalPageNavigationButtonsVisible, Mode=OneWay}" />
-            <controls:ShadowedText Grid.Row="1"
+            <controls:ShadowedText x:Name="VerticalPageIndicator"
+                                   Grid.Row="1"
                                    Margin="0,8,8,0"
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Center"
                                    FontSize="12"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                    OutlineBrush="{ThemeResource FocusStrokeColorInnerBrush}"
+                                   Tapped="PageIndicator_Tapped"
                                    Text="{x:Bind ViewModel.PageIndicatorText, Mode=OneWay}"
                                    Visibility="{x:Bind ViewModel.IsVerticalPageNumberIndicatorVisible, Mode=OneWay}" />
         </Grid>

@@ -70,10 +70,11 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     [ObservableProperty]
     public partial bool IsPositioningWebtoonScroll { get; set; }
 
+    public int CurrentPageForDisplay =>
+        ReadingMode == ReadingMode.Webtoon ? WebtoonPageIndex + 1 : CurrentPageIndex + 1;
+
     public string PageIndicatorText =>
-        ChapterPages == null || ChapterPages.Count == 0 ? "0 / 0"
-        : ReadingMode == ReadingMode.Webtoon ? $"{WebtoonPageIndex + 1} / {ChapterPages.Count}"
-        : $"{CurrentPageIndex + 1} / {ChapterPages.Count}";
+        ChapterPages?.Count > 0 ? $"{CurrentPageForDisplay} / {ChapterPages.Count}" : "0 / 0";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FullscreenButtonIcon))]
@@ -375,6 +376,14 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
 
     [RelayCommand(CanExecute = nameof(CanGoToPreviousPage))]
     private void PreviousPage() => CurrentPageIndex--;
+
+    [RelayCommand]
+    private void JumpToPage(int pageIndex)
+    {
+        if (ChapterPages == null || pageIndex < 0 || pageIndex >= ChapterPages.Count)
+            return;
+        CurrentPageIndex = pageIndex;
+    }
 
     [RelayCommand]
     private void ToggleFullscreen() => _messenger.Send(new SetFullscreenMessage(IsFullscreen));
