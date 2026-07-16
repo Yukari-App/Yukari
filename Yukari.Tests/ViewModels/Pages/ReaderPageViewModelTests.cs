@@ -568,6 +568,33 @@ public class ReaderPageViewModelTests
         _sut.CurrentPageIndex.Should().Be(currentPage - 1);
     }
 
+    [Theory]
+    [InlineData(3, true)]
+    [InlineData(-1, false)]
+    [InlineData(10, false)]
+    public async Task JumpToPage_SetsCurrentPageIndex_OnlyWhenWithinBounds(
+        int targetIndex,
+        bool shouldJump
+    )
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+        await ChangeSutAsync("ch-001", false, chapters);
+        var originalIndex = _sut.CurrentPageIndex;
+
+        // Act
+        _sut.JumpToPageCommand.Execute(targetIndex);
+
+        // Assert
+        _sut.CurrentPageIndex.Should().Be(shouldJump ? targetIndex : originalIndex);
+    }
+
     // ToggleFullscreen ToggleButton is TwoWay
     [Fact]
     public void ToggleFullscreen_SendMessage()
@@ -586,6 +613,55 @@ public class ReaderPageViewModelTests
             .GetSingleSentMessage<SetFullscreenMessage>()
             .IsFullscreen.Should()
             .Be(!currentFullscreenValue);
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // PROPERTY CHANGE EVENTS
+    // ────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task OnReadingModeChanged_ToWebtoon_SyncsWebtoonPageIndexFromCurrentPageIndex()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData() { LastPageRead = 4 }
+            ),
+        };
+        await ChangeSutAsync("ch-001", false, chapters);
+        _sut.CurrentPageIndex.Should().Be(3);
+
+        // Act
+        _sut.ReadingMode = ReadingMode.Webtoon;
+
+        // Assert
+        _sut.WebtoonPageIndex.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task OnReadingModeChanged_FromWebtoon_SyncsCurrentPageIndexFromWebtoonPageIndex()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+        await ChangeSutAsync("ch-001", false, chapters);
+        _sut.ReadingMode = ReadingMode.Webtoon;
+
+        _sut.WebtoonPageIndex = 6;
+        _sut.CurrentPageIndex.Should().NotBe(6);
+
+        // Act
+        _sut.ReadingMode = ReadingMode.Vertical;
+
+        // Assert
+        _sut.CurrentPageIndex.Should().Be(6);
     }
 
     // ────────────────────────────────────────────────────────────────
