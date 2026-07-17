@@ -204,8 +204,8 @@ public sealed partial class ReaderPage : Page
         if (PagesFlipView == null || PagesFlipView.Items.Count == 0)
             return;
 
-        var backupIndex = PagesFlipView.SelectedIndex;
-        PagesFlipView.SelectedIndex = -1;
+        var backupIndex = ViewModel.CurrentPageIndex;
+        PagesFlipView.SelectedIndex = 0;
         await Task.Yield();
         PagesFlipView.SelectedIndex = backupIndex;
     }
