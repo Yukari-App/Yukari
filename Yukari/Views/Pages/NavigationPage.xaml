@@ -14,7 +14,7 @@
               Padding="0"
               VerticalAlignment="Top"
               AutomationProperties.AutomationId="AppTitleBar"
-              ColumnDefinitions="Auto, Auto, *, 144">
+              ColumnDefinitions="Auto, Auto, Auto, *, 144">
             <Image Width="19"
                    Height="19"
                    HorizontalAlignment="Left"
@@ -25,8 +25,21 @@
                        VerticalAlignment="Center"
                        Style="{StaticResource CaptionTextBlockStyle}"
                        Text="Yukari" />
+            <Border x:Name="DebugBadge"
+                    Grid.Column="2"
+                    Height="20"
+                    Margin="8,0,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Visibility="Collapsed">
+                <TextBlock Margin="4,0" Style="{StaticResource CaptionTextBlockStyle}" Text="Debug" />
+            </Border>
             <AutoSuggestBox x:Uid="SearchBox"
-                            Grid.Column="2"
+                            Grid.Column="3"
                             MaxWidth="300"
                             Margin="8,0,8,0"
                             HorizontalAlignment="Stretch"

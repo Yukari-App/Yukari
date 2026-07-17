@@ -19,6 +19,10 @@ public sealed partial class NavigationPage : Page
         ViewModel = App.GetService<NavigationPageViewModel>();
         DataContext = ViewModel;
 
+#if DEBUG || DEBUG_UNPACKAGED
+        DebugBadge.Visibility = Visibility.Visible;
+#endif
+
         Loaded += OnLoaded;
     }
 
