@@ -174,7 +174,11 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
         _settingsService.SettingChanged -= Settings_Changed;
         Closed -= MainWindow_Closed;
 
+#if DEBUG || DEBUG_UNPACKAGED
+        Log.Debug("Yukari Debug closing — session ended");
+#else
         Log.Information("Yukari closing — session ended");
+#endif
         await Log.CloseAndFlushAsync();
         Close();
     }

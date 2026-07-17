@@ -31,7 +31,11 @@ public partial class App : Application
     {
         InitializeComponent();
         Log.Logger = new LoggerConfiguration()
+#if DEBUG || DEBUG_UNPACKAGED
+            .MinimumLevel.Debug()
+#else
             .MinimumLevel.Information()
+#endif
             .WriteTo.File(
                 path: Path.Combine(AppDataHelper.GetAppDataPath(), "Logs", "yukari-.log"),
                 rollingInterval: RollingInterval.Day,
@@ -40,7 +44,11 @@ public partial class App : Application
             )
             .CreateLogger();
 
+#if DEBUG || DEBUG_UNPACKAGED
+        Log.Debug("Yukari Debug starting — version {Version}", AppInfoHelper.Version);
+#else
         Log.Information("Yukari starting — version {Version}", AppInfoHelper.Version);
+#endif
 
         _services = ConfigureServices();
     }
