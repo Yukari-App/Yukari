@@ -37,7 +37,7 @@ Enjoy **offline reading** of your downloaded/local collection, with optional onl
 - 📂 Local Comics — Read comics stored on your device (folders or CBZ files)
 - 📋 **Collections** — Organize favorites into custom collections
 - 🔍 **Advanced Search** — Full filtering support (tags, status, etc.) in the Discover section
-- 📖 **Powerful Reader** — RTL / LTR / Vertical modes, Fit Width / Fit Height / Fit Screen scaling, smooth scrolling, zoom
+- 📖 **Powerful Reader** — RTL / LTR / Vertical / Webtoon modes, Fit Width / Fit Height / Fit Screen / Original Size scaling, double-tap to zoom, and a page slider to jump anywhere in the chapter
 - ⚙️ **Dynamic Plugins** — Add as many comic/manga sources as you want (maintained by the community)
 - 🌙 **Dark / Light Theme** — Automatic system theme support (Fluent Design with WinUI 3)
 - 🛡️ **100% Local & Private** — No telemetry, no ads, no mandatory login or cloud sync
