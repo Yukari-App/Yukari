@@ -54,10 +54,9 @@ internal class ComicService : IComicService
     {
         return await ExecuteAsync(
             async (ct) =>
-            {
-                await LoadComicSourceAsync(sourceName, ct);
-                return Result<IReadOnlyList<Filter>>.Success(_srcService.GetFilters(sourceName));
-            },
+                Result<IReadOnlyList<Filter>>.Success(
+                    await _srcService.GetFiltersAsync(sourceName, ct)
+                ),
             _localizationService.GetString("ErrorGettingSourceFilters"),
             ct
         );
@@ -70,12 +69,9 @@ internal class ComicService : IComicService
     {
         return await ExecuteAsync(
             async (ct) =>
-            {
-                await LoadComicSourceAsync(sourceName, ct);
-                return Result<IReadOnlyDictionary<string, string>>.Success(
-                    _srcService.GetLanguages(sourceName)
-                );
-            },
+                Result<IReadOnlyDictionary<string, string>>.Success(
+                    await _srcService.GetLanguagesAsync(sourceName, ct)
+                ),
             _localizationService.GetString("ErrorGettingSourceLanguages"),
             ct
         );
@@ -99,7 +95,6 @@ internal class ComicService : IComicService
                     filters
                 );
 
-                await LoadComicSourceAsync(sourceName, ct);
                 var comics = string.IsNullOrEmpty(queryText)
                     ? await _srcService.GetTrendingComicsAsync(sourceName, filters, page, ct)
                     : await _srcService.SearchComicsAsync(sourceName, queryText, filters, page, ct);
@@ -155,7 +150,6 @@ internal class ComicService : IComicService
                 }
                 else
                 {
-                    await LoadComicSourceAsync(comicKey.Source, ct);
                     comic = await _srcService.GetComicDetailsAsync(
                         comicKey.Source,
                         comicKey.Id,
@@ -310,7 +304,6 @@ internal class ComicService : IComicService
                 }
                 else
                 {
-                    await LoadComicSourceAsync(comicKey.Source, ct);
                     pages = await _srcService.GetChapterPagesAsync(
                         comicKey.Source,
                         comicKey.Id,
@@ -349,7 +342,6 @@ internal class ComicService : IComicService
         return await ExecuteAsync(
             async () =>
             {
-                await LoadComicSourceAsync(comicKey.Source);
                 var comicDetails = await _srcService.GetComicDetailsAsync(
                     comicKey.Source,
                     comicKey.Id
@@ -850,7 +842,6 @@ internal class ComicService : IComicService
         CancellationToken ct = default
     )
     {
-        await LoadComicSourceAsync(comicKey.Source, ct);
         var chapters = await _srcService.GetAllChaptersAsync(
             comicKey.Source,
             comicKey.Id,
@@ -862,29 +853,6 @@ internal class ComicService : IComicService
             await _dbService.UpsertChaptersAsync(comicKey, language, chapters);
 
         return chapters;
-    }
-
-    private async Task LoadComicSourceAsync(string sourceName, CancellationToken ct = default)
-    {
-        var comicSource =
-            (await _dbService.GetComicSourceDetailsAsync(sourceName, ct))
-            ?? throw new InvalidOperationException(
-                $"The source '{sourceName}' is not registered in the database."
-            );
-
-        if (!comicSource.IsEnabled)
-        {
-            _logger.LogWarning(
-                "Attempted to load disabled comic source '{SourceName}'",
-                sourceName
-            );
-
-            throw new ComicSourceDisabledException(
-                $"The source '{sourceName}' is currently disabled. Please enable it in the settings."
-            );
-        }
-
-        await _srcService.LoadSourceAsync(comicSource);
     }
 
     // Wraps all public operations: catches OperationCanceledException, ComicSourceDisabledException,

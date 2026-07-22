@@ -14,11 +14,13 @@ using Yukari.Core.Sources;
 using Yukari.Exceptions;
 using Yukari.Helpers;
 using Yukari.Models;
+using Yukari.Services.Storage;
 
 namespace Yukari.Services.Sources;
 
 internal class SourceService : ISourceService
 {
+    private readonly IDataService _dataService;
     private readonly ILogger<SourceService> _logger;
 
     private readonly ISharedHttpClient _sharedHttpClient;
@@ -27,10 +29,12 @@ internal class SourceService : ISourceService
     private readonly ConcurrentDictionary<string, IComicSource> _sourceInstances = new();
 
     public SourceService(
+        IDataService dataService,
         ILogger<SourceService> logger,
         HttpClient httpClient
     )
     {
+        _dataService = dataService;
         _logger = logger;
         _sharedHttpClient = new SharedHttpClient(httpClient);
     }
@@ -79,11 +83,23 @@ internal class SourceService : ISourceService
         _sourceTypeCache.TryRemove(sourceName, out _);
     }
 
-    public IReadOnlyList<Filter> GetFilters(string sourceName) =>
-        GetLoadedSource(sourceName).Filters;
+    public async Task<IReadOnlyList<Filter>> GetFiltersAsync(
+        string sourceName,
+        CancellationToken ct = default
+    )
+    {
+        await EnsureLoadedAsync(sourceName, ct);
+        return GetLoadedSource(sourceName).Filters;
+    }
 
-    public IReadOnlyDictionary<string, string> GetLanguages(string sourceName) =>
-        GetLoadedSource(sourceName).Languages;
+    public async Task<IReadOnlyDictionary<string, string>> GetLanguagesAsync(
+        string sourceName,
+        CancellationToken ct = default
+    )
+    {
+        await EnsureLoadedAsync(sourceName, ct);
+        return GetLoadedSource(sourceName).Languages;
+    }
 
     public async Task<IReadOnlyList<ComicModel>> SearchComicsAsync(
         string sourceName,
@@ -95,6 +111,7 @@ internal class SourceService : ISourceService
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page);
 
+        await EnsureLoadedAsync(sourceName, ct);
         var comics = await GetLoadedSource(sourceName).SearchAsync(query, filters, page, ct);
         return comics.Select(c => MapToModel(c, sourceName)).ToList();
     }
@@ -108,6 +125,7 @@ internal class SourceService : ISourceService
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page);
 
+        await EnsureLoadedAsync(sourceName, ct);
         var comics = await GetLoadedSource(sourceName).GetTrendingAsync(filters, page, ct);
         return comics.Select(c => MapToModel(c, sourceName)).ToList();
     }
@@ -118,6 +136,7 @@ internal class SourceService : ISourceService
         CancellationToken ct = default
     )
     {
+        await EnsureLoadedAsync(sourceName, ct);
         var comic = await GetLoadedSource(sourceName).GetDetailsAsync(comicId, ct);
         if (comic == null)
             return null;
@@ -132,6 +151,7 @@ internal class SourceService : ISourceService
         CancellationToken ct = default
     )
     {
+        await EnsureLoadedAsync(sourceName, ct);
         var chapters = await GetLoadedSource(sourceName).GetAllChaptersAsync(comicId, language, ct);
         return chapters
             .Select(c => new ChapterModel
@@ -156,6 +176,7 @@ internal class SourceService : ISourceService
         CancellationToken ct = default
     )
     {
+        await EnsureLoadedAsync(sourceName, ct);
         var pages = await GetLoadedSource(sourceName).GetChapterPagesAsync(comicId, chapterId, ct);
         return pages
             .Select(p => new ChapterPageModel
@@ -164,6 +185,16 @@ internal class SourceService : ISourceService
                 ImageUrl = SourceImageUrlHelper.Encode(sourceName, p.ImageUrl),
             })
             .ToList();
+    }
+
+    public async Task<byte[]?> GetImageBytesAsync(
+        string sourceName,
+        string imageUrl,
+        CancellationToken ct = default
+    )
+    {
+        await EnsureLoadedAsync(sourceName, ct);
+        return await GetLoadedSource(sourceName).GetImageBytesAsync(imageUrl, ct);
     }
 
     public async Task<ComicSourceModel> GetComicSourceModelFromAssemblyAsync(
@@ -215,7 +246,10 @@ internal class SourceService : ISourceService
             Tags = coreComic.Tags,
             Year = coreComic.Year,
             CoverImageUrl = TryEncodeImageUrl(sourceName, coreComic.CoverImageUrl),
-            Langs = CreateLanguageModelArray(GetLanguages(sourceName), coreComic.Langs),
+            Langs = CreateLanguageModelArray(
+                GetLoadedSource(sourceName).Languages,
+                coreComic.Langs
+            ),
         };
 
     private LanguageModel[] CreateLanguageModelArray(
@@ -230,6 +264,25 @@ internal class SourceService : ISourceService
                 ))
                 .ToArray()
             ?? [];
+    }
+
+    private async Task EnsureLoadedAsync(string sourceName, CancellationToken ct = default)
+    {
+        if (_sourceInstances.ContainsKey(sourceName))
+            return;
+
+        var comicSourceModel =
+            await _dataService.GetComicSourceDetailsAsync(sourceName, ct)
+            ?? throw new InvalidOperationException(
+                $"The source '{sourceName}' is not registered in the database."
+            );
+
+        if (!comicSourceModel.IsEnabled)
+            throw new ComicSourceDisabledException(
+                $"The source '{sourceName}' is currently disabled. Please enable it in the settings."
+            );
+
+        await LoadSourceAsync(comicSourceModel);
     }
 
     private IComicSource GetLoadedSource(string sourceName)
