@@ -142,9 +142,10 @@ internal class DownloadService : IDownloadService
         {
             return await DownloadImageAsync(imageUrl, destFile);
         }
-        catch
+        catch (Exception ex)
         {
-            return imageUrl;
+            _logger.LogError(ex, "Failed downloading {Comic} cover", comicKey);
+            return null;
         }
     }
 
@@ -163,9 +164,10 @@ internal class DownloadService : IDownloadService
         {
             return await DownloadImageAsync(logoUrl, destFile);
         }
-        catch
+        catch (Exception ex)
         {
-            return logoUrl;
+            _logger.LogError(ex, "Failed downloading {Source} logo", sourceName);
+            return null;
         }
     }
 
