@@ -708,6 +708,8 @@ internal class ComicService : IComicService
             async () =>
             {
                 await _dbService.UpdateComicSourceIsEnabledAsync(sourceName, isEnabled);
+                if (!isEnabled)
+                    await _srcService.UnloadSourceAsync(sourceName);
 
                 _logger.LogInformation(
                     "Comic source '{SourceName}' has been {Status}",
