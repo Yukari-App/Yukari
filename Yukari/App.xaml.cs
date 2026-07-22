@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -127,6 +128,13 @@ public partial class App : Application
         services.AddSingleton<ISourceService, SourceService>();
         services.AddSingleton<ILocalSourceService, LocalSourceService>();
         services.AddSingleton<IComicService, ComicService>();
+
+        services.AddSingleton(sp =>
+        {
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"Yukari/{AppInfoHelper.Version}");
+            return httpClient;
+        });
 
         return services.BuildServiceProvider();
     }
