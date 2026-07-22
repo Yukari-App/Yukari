@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -12,27 +11,31 @@ using Yukari.Helpers;
 using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Models.DTO;
+using Yukari.Services.Sources;
 
 namespace Yukari.Services.Storage;
 
 internal class DownloadService : IDownloadService
 {
     private readonly IDataService _dataService;
+    private readonly ISourceService _sourceService;
     private readonly ILogger<DownloadService> _logger;
-
-    private readonly HttpClient _httpClient = new();
 
     private readonly Channel<DownloadItem> _downloadQueue = Channel.CreateUnbounded<DownloadItem>();
     private readonly List<DownloadItem> _downloads = new();
 
     public event Action<IReadOnlyList<DownloadItem>>? DownloadsChanged;
 
-    public DownloadService(IDataService dataService, ILogger<DownloadService> logger)
+    public DownloadService(
+        IDataService dataService,
+        ISourceService sourceService,
+        ILogger<DownloadService> logger
+    )
     {
         _dataService = dataService;
+        _sourceService = sourceService;
         _logger = logger;
 
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari");
         _ = ConsumeQueueAsync();
     }
 
@@ -166,15 +169,17 @@ internal class DownloadService : IDownloadService
         }
     }
 
-    public async Task<byte[]?> GetImageBytesAsync(string imageUrl)
+    public async Task<byte[]?> GetImageBytesAsync(string encodedUrl)
     {
         try
         {
-            return await _httpClient.GetByteArrayAsync(imageUrl);
+            if (!SourceImageUrlHelper.TryDecode(encodedUrl, out var sourceName, out var url))
+                return null;
+            return await _sourceService.GetImageBytesAsync(sourceName, url);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed getting bytes for {imageUrl}", imageUrl);
+            _logger.LogError(ex, "Failed getting bytes for {encodedUrl}", encodedUrl);
             return null;
         }
     }
@@ -254,21 +259,19 @@ internal class DownloadService : IDownloadService
     }
 
     private async Task<string> DownloadImageAsync(
-        string imageUrl,
+        string encodedUrl,
         string destFile,
         CancellationToken ct = default
     )
     {
-        using var resp = await _httpClient.GetAsync(imageUrl, ct);
-        resp.EnsureSuccessStatusCode();
-        await using var stream = await resp.Content.ReadAsStreamAsync(ct);
-        await using var fs = new FileStream(
-            destFile,
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.None
-        );
-        await stream.CopyToAsync(fs, ct);
+        if (!SourceImageUrlHelper.TryDecode(encodedUrl, out var sourceName, out var url))
+            throw new InvalidOperationException("Invalid Encoded Url");
+
+        byte[]? imageBytes =
+            await _sourceService.GetImageBytesAsync(sourceName, url, ct)
+            ?? throw new InvalidOperationException("Failed to download image.");
+
+        await File.WriteAllBytesAsync(destFile, imageBytes, ct);
         return destFile;
     }
 

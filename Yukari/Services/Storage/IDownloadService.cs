@@ -28,5 +28,5 @@ public interface IDownloadService
 
     Task<string?> DownloadComicCoverAsync(string? imageUrl, ContentKey comicKey);
     Task<string?> DownloadPluginLogoAsync(string? logoUrl, string sourceName);
-    Task<byte[]?> GetImageBytesAsync(string imageUrl);
+    Task<byte[]?> GetImageBytesAsync(string encodedUrl);
 }
