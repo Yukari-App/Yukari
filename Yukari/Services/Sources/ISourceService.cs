@@ -44,6 +44,11 @@ public interface ISourceService
         string chapterId,
         CancellationToken ct = default
     );
+    Task<byte[]?> GetImageBytesAsync(
+        string sourceName,
+        string imageUrl,
+        CancellationToken ct = default
+    );
 
     Task<ComicSourceModel> GetComicSourceModelFromAssemblyAsync(
         string dllPath,

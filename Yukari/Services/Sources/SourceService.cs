@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
@@ -20,12 +21,18 @@ internal class SourceService : ISourceService
 {
     private readonly ILogger<SourceService> _logger;
 
+    private readonly ISharedHttpClient _sharedHttpClient;
+
     private readonly ConcurrentDictionary<string, Type> _sourceTypeCache = new();
     private readonly ConcurrentDictionary<string, IComicSource> _sourceInstances = new();
 
-    public SourceService(ILogger<SourceService> logger)
+    public SourceService(
+        ILogger<SourceService> logger,
+        HttpClient httpClient
+    )
     {
         _logger = logger;
+        _sharedHttpClient = new SharedHttpClient(httpClient);
     }
 
     public async Task LoadSourceAsync(ComicSourceModel comicSource)
@@ -51,6 +58,10 @@ internal class SourceService : ISourceService
             }
 
             var instance = (IComicSource)Activator.CreateInstance(type)!;
+
+            if (instance is IRequiresHttpClient requiresHttpClient)
+                requiresHttpClient.SetHttpClient(_sharedHttpClient);
+
             if (!_sourceInstances.TryAdd(comicSource.Name, instance))
                 await instance.DisposeAsync();
         }
@@ -147,7 +158,11 @@ internal class SourceService : ISourceService
     {
         var pages = await GetLoadedSource(sourceName).GetChapterPagesAsync(comicId, chapterId, ct);
         return pages
-            .Select(p => new ChapterPageModel { Number = p.Number, ImageUrl = p.ImageUrl })
+            .Select(p => new ChapterPageModel
+            {
+                Number = p.Number,
+                ImageUrl = SourceImageUrlHelper.Encode(sourceName, p.ImageUrl),
+            })
             .ToList();
     }
 
@@ -177,12 +192,15 @@ internal class SourceService : ISourceService
             Name = comicSourceMetadata.Name,
             Version = comicSourceMetadata.Version,
             ReleasesPage = comicSourceMetadata.ReleasesPage,
-            LogoUrl = comicSourceMetadata.LogoUrl,
+            LogoUrl = TryEncodeImageUrl(comicSourceMetadata.Name, comicSourceMetadata.LogoUrl),
             Description = comicSourceMetadata.Description,
             DllPath = dllPath,
             IsEnabled = true,
         };
     }
+
+    private string? TryEncodeImageUrl(string sourceName, string? imageUrl) =>
+        imageUrl != null ? SourceImageUrlHelper.Encode(sourceName, imageUrl) : null;
 
     private ComicModel MapToModel(Comic coreComic, string sourceName) =>
         new()
@@ -196,7 +214,7 @@ internal class SourceService : ISourceService
             Status = coreComic.Status,
             Tags = coreComic.Tags,
             Year = coreComic.Year,
-            CoverImageUrl = coreComic.CoverImageUrl,
+            CoverImageUrl = TryEncodeImageUrl(sourceName, coreComic.CoverImageUrl),
             Langs = CreateLanguageModelArray(GetLanguages(sourceName), coreComic.Langs),
         };
 
