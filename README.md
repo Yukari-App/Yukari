@@ -81,6 +81,18 @@ Enjoy **offline reading** of your downloaded/local collection, with optional onl
 
 
 <div align="center">
+    <h2>⚠️ Disclaimer</h2>
+  
+**Yukari** is a neutral reading application. By itself, it does not host, provide, aggregate, or distribute any content.
+
+It operates similarly to a web browser: users are free to navigate to any source they choose. The application does not control, endorse, or assume responsibility for the content accessed through plugins.
+
+All online content is accessed exclusively through plugins that interface with external sources. While some plugins may be maintained under the Yukari-App organization or by the same developers, the Yukari project is **not affiliated with, endorsed by, or responsible for** any of the external sources or the content they provide.
+
+Users are solely responsible for ensuring that their use of Yukari and any associated plugins complies with all applicable laws and copyright regulations in their jurisdiction. The developers of Yukari assume no liability for the availability, accuracy, legality, or copyright status of content accessed through any plugins.
+</div>
+
+<div align="center">
     <h2>🤝 Contributing</h2>
   
 Contributions are welcome! You can help improve **Yukari** in several ways:
