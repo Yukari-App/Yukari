@@ -1,5 +1,5 @@
--- Current schema: Version 4
--- Last updated: Migration_004
+-- Current schema: Version 5
+-- Last updated: Migration_005
 -- To understand how we got here, read Migrations/ in order.
 
 -- Comics definition
