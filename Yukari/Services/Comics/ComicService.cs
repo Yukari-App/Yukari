@@ -391,11 +391,11 @@ internal class ComicService : IComicService
                 var comic = new ComicModel()
                 {
                     Id = comicId ?? Guid.NewGuid().ToString(),
-                    Source = LocalComicConstants.SourceName,
+                    Source = LocalComicHelper.SourceName,
                     // ComicUrl is reused for local comics, storing the chapter path encoded
                     // along with the format—this avoids the need for migration.
                     // See LocalComicConstants.
-                    ComicUrl = LocalComicConstants.EncodeChaptersPath(
+                    ComicUrl = LocalComicHelper.EncodeChaptersPath(
                         localComicInfo.ChaptersPath,
                         localComicInfo.ChaptersFormat
                     ),
@@ -405,7 +405,7 @@ internal class ComicService : IComicService
                     Tags = localComicInfo.Tags,
                     Year = localComicInfo.Year,
                     CoverImageUrl = localComicInfo.CoverImageUrl,
-                    Langs = new[] { new LanguageModel(LocalComicConstants.SourceName, "Local") },
+                    Langs = new[] { new LanguageModel(LocalComicHelper.SourceName, "Local") },
                 };
 
                 await _dbService.UpsertFavoriteComicAsync(comic);
@@ -543,7 +543,7 @@ internal class ComicService : IComicService
 
                 await _dbService.UpsertChaptersAsync(
                     comicKey,
-                    LocalComicConstants.SourceName,
+                    LocalComicHelper.SourceName,
                     chapters,
                     false
                 );
@@ -582,7 +582,7 @@ internal class ComicService : IComicService
         return await ExecuteAsync(
             async () =>
             {
-                var (path, format) = LocalComicConstants.DecodeChaptersPath(encodedChaptersPath);
+                var (path, format) = LocalComicHelper.DecodeChaptersPath(encodedChaptersPath);
                 return await UpsertLocalChaptersAsync(comicKey, path, format);
             },
             _localizationService.GetString("ErrorRescanningLocalChapters")
@@ -661,7 +661,7 @@ internal class ComicService : IComicService
                 );
                 if (
                     comicSource.Name.Equals(
-                        LocalComicConstants.SourceName,
+                        LocalComicHelper.SourceName,
                         StringComparison.OrdinalIgnoreCase
                     )
                 )

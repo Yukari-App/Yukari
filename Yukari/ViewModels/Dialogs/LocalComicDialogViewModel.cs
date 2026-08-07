@@ -110,7 +110,7 @@ public partial class LocalComicDialogViewModel : ObservableObject
         Description = _oldComic.Description ?? "";
         CoverPath = _oldComic.CoverImageUrl ?? "";
 
-        var (comicPath, format) = LocalComicConstants.DecodeChaptersPath(_oldComic.ComicUrl);
+        var (comicPath, format) = LocalComicHelper.DecodeChaptersPath(_oldComic.ComicUrl);
         ComicFolderPath = comicPath;
         SelectedChaptersFormat = format;
     }
@@ -118,9 +118,7 @@ public partial class LocalComicDialogViewModel : ObservableObject
     [RelayCommand]
     private async Task OpenCoverPickerAsync()
     {
-        var coverPath = await _dialogService.OpenFilePickerAsync(
-            LocalComicConstants.CoverExtensions
-        );
+        var coverPath = await _dialogService.OpenFilePickerAsync(LocalComicHelper.CoverExtensions);
         if (coverPath != null)
             CoverPath = coverPath;
     }
@@ -179,7 +177,7 @@ public partial class LocalComicDialogViewModel : ObservableObject
         }
         else if (_oldComic?.ComicUrl != null)
         {
-            var (chaptersPath, format) = LocalComicConstants.DecodeChaptersPath(_oldComic.ComicUrl);
+            var (chaptersPath, format) = LocalComicHelper.DecodeChaptersPath(_oldComic.ComicUrl);
             if (chaptersPath != ComicFolderPath || format != SelectedChaptersFormat)
             {
                 var chaptersResult = await _comicService.UpsertLocalChaptersAsync(

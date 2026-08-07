@@ -77,9 +77,9 @@ internal class LocalSourceService : ILocalSourceService
                     return new ChapterModel
                     {
                         Id = dirName,
-                        Source = LocalComicConstants.SourceName,
+                        Source = LocalComicHelper.SourceName,
                         Title = dirName,
-                        Language = LocalComicConstants.SourceName,
+                        Language = LocalComicHelper.SourceName,
                         Pages = images.Count,
                         LastUpdate = DateOnly.FromDateTime(Directory.GetLastWriteTime(dir)),
                         LocalPath = dir,
@@ -120,9 +120,9 @@ internal class LocalSourceService : ILocalSourceService
                     return new ChapterModel
                     {
                         Id = fileName,
-                        Source = LocalComicConstants.SourceName,
+                        Source = LocalComicHelper.SourceName,
                         Title = fileName,
-                        Language = LocalComicConstants.SourceName,
+                        Language = LocalComicHelper.SourceName,
                         Pages = pageCount,
                         LastUpdate = DateOnly.FromDateTime(File.GetLastWriteTime(file)),
                         LocalPath = file,
@@ -141,7 +141,7 @@ internal class LocalSourceService : ILocalSourceService
         {
             using var archive = ZipFile.OpenRead(chapterPath);
             var images = archive
-                .Entries.Where(e => IsImageFile(e.Name))
+                .Entries.Where(e => LocalComicHelper.IsPageImageFile(e.Name))
                 .OrderBy(e => e.FullName, Comparer<string>.Create(NaturalCompare))
                 .ToList();
 
@@ -167,15 +167,9 @@ internal class LocalSourceService : ILocalSourceService
     {
         return Directory
             .GetFiles(directory)
-            .Where(IsImageFile)
+            .Where(LocalComicHelper.IsPageImageFile)
             .OrderBy(f => f, Comparer<string>.Create(NaturalCompare))
             .ToList();
-    }
-
-    private static bool IsImageFile(string fileName)
-    {
-        var ext = Path.GetExtension(fileName).ToLowerInvariant();
-        return ext is ".jpg" or ".jpeg" or ".png" or ".gif" or ".bmp" or ".webp";
     }
 
     private static int CountCbzEntries(string cbzPath)
@@ -183,7 +177,7 @@ internal class LocalSourceService : ILocalSourceService
         try
         {
             using var archive = ZipFile.OpenRead(cbzPath);
-            return archive.Entries.Count(e => IsImageFile(e.Name));
+            return archive.Entries.Count(e => LocalComicHelper.IsPageImageFile(e.Name));
         }
         catch
         {
