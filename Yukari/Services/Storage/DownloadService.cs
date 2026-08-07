@@ -175,7 +175,7 @@ internal class DownloadService : IDownloadService
     {
         try
         {
-            if (!SourceImageUrlHelper.TryDecode(encodedUrl, out var sourceName, out var url))
+            if (!PageUriHelper.TryDecodeSourceImage(encodedUrl, out var sourceName, out var url))
                 return null;
             return await _sourceService.GetImageBytesAsync(sourceName, url);
         }
@@ -266,7 +266,7 @@ internal class DownloadService : IDownloadService
         CancellationToken ct = default
     )
     {
-        if (!SourceImageUrlHelper.TryDecode(encodedUrl, out var sourceName, out var url))
+        if (!PageUriHelper.TryDecodeSourceImage(encodedUrl, out var sourceName, out var url))
             throw new InvalidOperationException("Invalid Encoded Url");
 
         byte[]? imageBytes =

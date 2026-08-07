@@ -151,7 +151,7 @@ internal class LocalSourceService : ILocalSourceService
                         new ChapterPageModel
                         {
                             Number = index + 1,
-                            ImageUrl = $"zip:///{chapterPath}#{entry.FullName}",
+                            ImageUrl = PageUriHelper.EncodeZipEntry(chapterPath, entry.FullName),
                         }
                 )
                 .ToArray();

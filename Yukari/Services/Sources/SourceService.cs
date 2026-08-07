@@ -182,7 +182,7 @@ internal class SourceService : ISourceService
             .Select(p => new ChapterPageModel
             {
                 Number = p.Number,
-                ImageUrl = SourceImageUrlHelper.Encode(sourceName, p.ImageUrl),
+                ImageUrl = PageUriHelper.EncodeSourceImage(sourceName, p.ImageUrl),
             })
             .ToList();
     }
@@ -231,7 +231,7 @@ internal class SourceService : ISourceService
     }
 
     private string? TryEncodeImageUrl(string sourceName, string? imageUrl) =>
-        imageUrl != null ? SourceImageUrlHelper.Encode(sourceName, imageUrl) : null;
+        imageUrl != null ? PageUriHelper.EncodeSourceImage(sourceName, imageUrl) : null;
 
     private ComicModel MapToModel(Comic coreComic, string sourceName) =>
         new()

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.IO.Compression;
@@ -114,8 +114,8 @@ internal class ImageCacheService : IImageCacheService
     {
         try
         {
-            var (cbzPath, entryName) = ParseZipUri(url);
-            using var archive = ZipFile.OpenRead(cbzPath);
+            PageUriHelper.TryDecodeZipEntry(url, out var zipPath, out var entryName);
+            using var archive = ZipFile.OpenRead(zipPath);
             var entry = archive.GetEntry(entryName);
             if (entry == null)
                 return null;
@@ -169,20 +169,11 @@ internal class ImageCacheService : IImageCacheService
         }
     }
 
-    private static (string CbzPath, string EntryName) ParseZipUri(string url)
-    {
-        var withoutScheme = url["zip:///".Length..];
-        var separatorIndex = withoutScheme.IndexOf('#');
-        var cbzPath = withoutScheme[..separatorIndex];
-        var entryName = withoutScheme[(separatorIndex + 1)..];
-        return (cbzPath, entryName);
-    }
-
     private static bool IsSvg(string url) =>
         url.EndsWith(".svg", StringComparison.OrdinalIgnoreCase)
         || url.EndsWith(".svgz", StringComparison.OrdinalIgnoreCase);
 
-    private static bool IsZipEntry(string url) => url.StartsWith("zip:///");
+    private static bool IsZipEntry(string url) => url.StartsWith(PageUriHelper.ZipScheme);
 
     private static bool IsLocalPath(string path) =>
         Path.IsPathRooted(path) && !path.StartsWith("http", StringComparison.OrdinalIgnoreCase);
