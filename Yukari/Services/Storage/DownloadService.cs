@@ -133,9 +133,7 @@ internal class DownloadService : IDownloadService
             return null;
 
         var destFolder = AppDataHelper.GetComicDataPath(comicKey);
-        var ext = Path.GetExtension(imageUrl);
-        if (string.IsNullOrWhiteSpace(ext))
-            ext = ".jpg";
+        var ext = GetImageExtension(imageUrl);
         var destFile = Path.Combine(destFolder, "cover" + ext);
 
         try
@@ -155,9 +153,7 @@ internal class DownloadService : IDownloadService
             return null;
 
         var destFolder = AppDataHelper.GetPluginImagesPath();
-        var ext = Path.GetExtension(logoUrl);
-        if (string.IsNullOrWhiteSpace(ext))
-            ext = ".png";
+        var ext = GetImageExtension(logoUrl);
         var destFile = Path.Combine(destFolder, sourceName + ext);
 
         try
@@ -231,9 +227,7 @@ internal class DownloadService : IDownloadService
             {
                 item.Cts.Token.ThrowIfCancellationRequested();
 
-                var ext = Path.GetExtension(page.ImageUrl);
-                if (string.IsNullOrWhiteSpace(ext))
-                    ext = ".jpg";
+                var ext = GetImageExtension(page.ImageUrl);
                 var destFile = Path.Combine(destFolder, $"{page.Number}{ext}");
 
                 await DownloadImageAsync(page.ImageUrl, destFile, item.Cts.Token);
@@ -303,6 +297,14 @@ internal class DownloadService : IDownloadService
                 comicKey
             );
         }
+    }
+
+    private static string GetImageExtension(string url)
+    {
+        var ext = PageUriHelper.GetFileExtension(url);
+        if (string.IsNullOrWhiteSpace(ext))
+            ext = ".jpg";
+        return ext;
     }
 
     private void NotifyDownloadsChanged() => DownloadsChanged?.Invoke(_downloads.ToList());
