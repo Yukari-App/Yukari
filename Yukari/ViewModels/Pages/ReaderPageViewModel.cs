@@ -24,6 +24,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     private readonly IComicService _comicService;
     private readonly ISettingsService _settingsService;
     private readonly INotificationService _notificationService;
+    private readonly IDialogService _dialogService;
     private readonly IImageCacheService _imageCacheService;
     private readonly IMessenger _messenger;
     private readonly ILocalizationService _localizationService;
@@ -70,8 +71,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     [ObservableProperty]
     public partial bool IsPositioningWebtoonScroll { get; set; }
 
-    public int CurrentPageForDisplay =>
-        ReadingMode == ReadingMode.Webtoon ? WebtoonPageIndex + 1 : CurrentPageIndex + 1;
+    public int CurrentPageForDisplay => GetCurrentChapterIndex() + 1;
 
     public string PageIndicatorText =>
         ChapterPages?.Count > 0 ? $"{CurrentPageForDisplay} / {ChapterPages.Count}" : "0 / 0";
@@ -138,7 +138,11 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         nameof(IsDefaultReaderVisible),
         nameof(IsWebtoonReaderVisible)
     )]
-    [NotifyCanExecuteChangedFor(nameof(NextChapterCommand), nameof(PreviousChapterCommand))]
+    [NotifyCanExecuteChangedFor(
+        nameof(NextChapterCommand),
+        nameof(PreviousChapterCommand),
+        nameof(SaveCurrentPageImageCommand)
+    )]
     public partial LoadState ChapterState { get; set; } = LoadState.Loading;
 
     [ObservableProperty]
@@ -161,6 +165,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         IComicService comicService,
         ISettingsService settingsService,
         INotificationService notificationService,
+        IDialogService dialogService,
         IImageCacheService imageCacheService,
         IMessenger messenger,
         ILocalizationService localizationService
@@ -169,6 +174,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         _comicService = comicService;
         _settingsService = settingsService;
         _notificationService = notificationService;
+        _dialogService = dialogService;
         _imageCacheService = imageCacheService;
         _messenger = messenger;
         _localizationService = localizationService;
@@ -398,6 +404,35 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     private void SetScreenSize((double width, double height) size) =>
         _displayContext.ScreenSize = size;
 
+    private bool CanSaveCurrentPageImage() => IsLoaded && ChapterPages != null;
+
+    [RelayCommand(CanExecute = nameof(CanSaveCurrentPageImage))]
+    private async Task SaveCurrentPageImageAsync()
+    {
+        if (_comicKey == null || ChapterPages == null)
+            return;
+        var currentPageImageUrl = ChapterPages[GetCurrentChapterIndex()].ImageUrl;
+
+        var ext = PageUriHelper.GetFileExtension(currentPageImageUrl);
+        if (string.IsNullOrWhiteSpace(ext))
+            ext = ".jpg";
+
+        var filePath = await _dialogService.OpenFileSavePicker(
+            $"{ComicTitle} - {ChapterTitle} - Page {CurrentPageForDisplay}",
+            new Dictionary<string, string[]> { { ext, new[] { ext } } }
+        );
+
+        filePath = await _imageCacheService.SaveCachedImageAsync(currentPageImageUrl, filePath);
+        if (filePath != null)
+            _notificationService.ShowSuccess(
+                _localizationService.GetString("SuccessSavingCurrentPageImage")
+            );
+        else
+            _notificationService.ShowError(
+                _localizationService.GetString("ErrorSavingCurrentPageImageMessage")
+            );
+    }
+
     private void LoadReaderSettings()
     {
         if (_settingsService.Current.AutoFullscreen)
@@ -427,11 +462,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         if (!chapterUserData.IsRead)
         {
             var hasPages = ChapterPages?.Count > 0;
-            chapterUserData.LastPageRead = hasPages
-                ? ReadingMode == ReadingMode.Webtoon
-                    ? WebtoonPageIndex + 1
-                    : CurrentPageIndex + 1
-                : 0;
+            chapterUserData.LastPageRead = hasPages ? GetCurrentChapterIndex() + 1 : 0;
             chapterUserData.IsRead =
                 hasPages && CurrentChapter.Pages == chapterUserData.LastPageRead;
 
@@ -462,6 +493,9 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
             _notificationService.ShowError(comicProgressResult.Error!);
         }
     }
+
+    private int GetCurrentChapterIndex() =>
+        ReadingMode == ReadingMode.Webtoon ? WebtoonPageIndex : CurrentPageIndex;
 
     partial void OnReadingModeChanged(ReadingMode oldValue, ReadingMode newValue)
     {

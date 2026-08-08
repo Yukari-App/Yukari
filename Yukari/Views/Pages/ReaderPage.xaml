@@ -163,6 +163,8 @@
                                                      GroupName="ScalingMode"
                                                      IsChecked="{x:Bind ViewModel.ScalingMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OriginalSize, Mode=OneWay}" />
                             </MenuFlyoutSubItem>
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem x:Uid="SavePageMNItem" Command="{x:Bind ViewModel.SaveCurrentPageImageCommand}" Icon="{ui:FontIcon Glyph=&#xE74E;}" />
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>

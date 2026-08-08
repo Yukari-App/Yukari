@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -844,5 +844,14 @@
   </data>
   <data name="ReverseChapterOrderMNItem.Text" xml:space="preserve">
     <value>Inverter Ordem dos Capítulos</value>
+  </data>
+  <data name="SavePageMNItem.Text" xml:space="preserve">
+    <value>Salvar Página...</value>
+  </data>
+  <data name="SuccessSavingCurrentPageImage" xml:space="preserve">
+    <value>Imagem da página salva com sucesso!</value>
+  </data>
+  <data name="ErrorSavingCurrentPageImageMessage" xml:space="preserve">
+    <value>Um erro ocorreu ao salvar a imagem.</value>
   </data>
 </root>

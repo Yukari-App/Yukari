@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -844,5 +844,14 @@
   </data>
   <data name="ReverseChapterOrderMNItem.Text" xml:space="preserve">
     <value>章の順序を反転</value>
+  </data>
+  <data name="SavePageMNItem.Text" xml:space="preserve">
+    <value>ページを保存...</value>
+  </data>
+  <data name="SuccessSavingCurrentPageImage" xml:space="preserve">
+    <value>ページの画像が正常に保存されました！</value>
+  </data>
+  <data name="ErrorSavingCurrentPageImageMessage" xml:space="preserve">
+    <value>画像の保存中にエラーが発生しました。</value>
   </data>
 </root>
