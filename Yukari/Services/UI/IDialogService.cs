@@ -19,4 +19,8 @@ public interface IDialogService
     Task ShowLocalComicDialogAsync(ContentKey? comicKey = null);
     Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null);
     Task<string?> OpenFolderPickerAsync();
+    Task<string?> OpenFileSavePicker(
+        string? suggestedFileName = null,
+        Dictionary<string, string[]>? fileTypeChoices = null
+    );
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.Storage.Pickers;
@@ -108,6 +109,32 @@ internal class DialogService : IDialogService
         };
 
         var file = await picker.PickSingleFolderAsync();
+        return file?.Path;
+    }
+
+    public async Task<string?> OpenFileSavePicker(
+        string? suggestedFileName = null,
+        Dictionary<string, string[]>? fileTypeChoices = null
+    )
+    {
+        ThrowIfXamlRootNotInitialized();
+
+        var picker = new FileSavePicker(_xamlRoot!.ContentIslandEnvironment.AppWindowId)
+        {
+            SuggestedStartLocation = PickerLocationId.Downloads,
+            SuggestedFileName = suggestedFileName ?? "File",
+        };
+
+        if (fileTypeChoices is { Count: > 0 })
+        {
+            foreach (var kvp in fileTypeChoices)
+            {
+                var extensions = kvp.Value.Select(e => e.StartsWith('.') ? e : "." + e).ToList();
+                picker.FileTypeChoices.Add(kvp.Key, extensions);
+            }
+        }
+
+        var file = await picker.PickSaveFileAsync();
         return file?.Path;
     }
 
