@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.IO.Compression;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -16,6 +17,7 @@ internal class ImageCacheService : IImageCacheService
     private readonly IDownloadService _downloadService;
 
     private readonly ConcurrentDictionary<string, ImageSource> _cache = new();
+    private readonly ConcurrentDictionary<string, byte[]> _bytesCache = new();
     private readonly ConcurrentDictionary<string, Task> _loadTasks = new();
     private readonly ConcurrentQueue<string> _insertionQueue = new();
 
@@ -74,6 +76,22 @@ internal class ImageCacheService : IImageCacheService
             : null;
     }
 
+    public async Task<string?> SaveCachedImageAsync(string? url, string? filePath)
+    {
+        if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(filePath))
+            return null;
+
+        byte[]? bytes = _bytesCache.TryGetValue(url, out var cachedBytes)
+            ? cachedBytes
+            : await GetImageBytesAsync(url);
+
+        if (bytes == null)
+            return null;
+
+        await File.WriteAllBytesAsync(filePath, bytes);
+        return filePath;
+    }
+
     private void AddToCache(string key, ImageSource imageSource)
     {
         _cache[key] = imageSource;
@@ -84,19 +102,21 @@ internal class ImageCacheService : IImageCacheService
         )
         {
             _cache.TryRemove(oldest, out _);
+            _bytesCache.TryRemove(oldest, out _);
             _loadTasks.TryRemove(oldest, out _);
         }
     }
 
     private async Task LoadAsync(string url, ImageSource imageSource)
     {
-        byte[]? bytes =
-            IsZipEntry(url) ? ReadZipEntryBytes(url)
-            : IsLocalPath(url) ? await ReadLocalFileBytesAsync(url)
-            : await _downloadService.GetImageBytesAsync(url);
-
+        byte[]? bytes = await GetImageBytesAsync(url);
         await ApplyBytesToImageSourceAsync(url, imageSource, bytes);
     }
+
+    public async Task<byte[]?> GetImageBytesAsync(string url) =>
+        IsZipEntry(url) ? ReadZipEntryBytes(url)
+        : IsLocalPath(url) ? await ReadLocalFileBytesAsync(url)
+        : await _downloadService.GetImageBytesAsync(url);
 
     private static async Task<byte[]?> ReadLocalFileBytesAsync(string path)
     {
@@ -151,6 +171,8 @@ internal class ImageCacheService : IImageCacheService
             return;
         }
 
+        _bytesCache[url] = bytes;
+
         using var stream = new MemoryStream(bytes);
         var randomAccessStream = stream.AsRandomAccessStream();
 
@@ -164,6 +186,7 @@ internal class ImageCacheService : IImageCacheService
                 break;
             default:
                 _cache.TryRemove(url, out _);
+                _bytesCache.TryRemove(url, out _);
                 _loadTasks.TryRemove(url, out _);
                 break;
         }
