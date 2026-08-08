@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 
+namespace Yukari.Helpers;
+
 internal static class PageUriHelper
 {
     public const string SourceScheme = "source:///";
