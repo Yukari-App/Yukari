@@ -53,7 +53,8 @@ public partial class ComicPageViewModel
         nameof(IsTagsVisible),
         nameof(DisplayTags),
         nameof(HasHiddenTags),
-        nameof(HiddenTagsText)
+        nameof(HiddenTagsText),
+        nameof(IsDescriptionVisible)
     )]
     public partial ComicModel? Comic { get; set; }
 
@@ -83,6 +84,8 @@ public partial class ComicPageViewModel
                 Comic!.Tags.Length - MaxTagsToShow
             )
             : string.Empty;
+
+    public bool IsDescriptionVisible => !string.IsNullOrWhiteSpace(Comic?.Description);
 
     [ObservableProperty]
     public partial List<ChapterItemViewModel>? Chapters { get; set; }

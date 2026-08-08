@@ -373,7 +373,7 @@
                                 </StackPanel>
                             </Grid>
 
-                            <StackPanel Grid.Row="1" Spacing="8">
+                            <StackPanel Grid.Row="1" Spacing="8" Visibility="{x:Bind ViewModel.IsDescriptionVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE946;" />
                                     <TextBlock x:Uid="SynopsisTXB"
@@ -390,7 +390,7 @@
                                     <TextBlock Margin="0,0,0,2"
                                                FontSize="16"
                                                Style="{StaticResource BodyTextBlockStyle}"
-                                               Text="{x:Bind ViewModel.Comic.Description, Mode=OneWay, TargetNullValue='No description available.'}"
+                                               Text="{x:Bind ViewModel.Comic.Description, Mode=OneWay}"
                                                TextAlignment="Justify"
                                                TextWrapping="WrapWholeWords" />
                                 </ScrollViewer>
