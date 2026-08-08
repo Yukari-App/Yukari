@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 internal static class PageUriHelper
 {
@@ -22,6 +23,18 @@ internal static class PageUriHelper
         out string zipPath,
         out string entryName
     ) => TryDecode(encoded, ZipScheme, "#", out zipPath, out entryName);
+
+    public static string? GetFileExtension(string? encodedUrl)
+    {
+        if (string.IsNullOrWhiteSpace(encodedUrl))
+            return null;
+
+        if (TryDecodeSourceImage(encodedUrl, out _, out var realUrl))
+            return Path.GetExtension(realUrl);
+        if (TryDecodeZipEntry(encodedUrl, out _, out var entryName))
+            return Path.GetExtension(entryName);
+        return Path.GetExtension(encodedUrl);
+    }
 
     private static bool TryDecode(
         string encoded,
