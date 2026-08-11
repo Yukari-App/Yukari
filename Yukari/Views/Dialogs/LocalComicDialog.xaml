@@ -75,10 +75,10 @@
                               ItemsSource="{x:Bind ViewModel.AvailableChaptersFormat}"
                               SelectedItem="{x:Bind ViewModel.SelectedChaptersFormat, Mode=TwoWay}">
                         <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="enums:LocalChaptersFormat">
+                            <DataTemplate x:DataType="enums:LocalChapterFormat">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon VerticalAlignment="Center" FontSize="14" Glyph="{x:Bind helpers:LocalChaptersFormatHelper.ToGlyph((enums:LocalChaptersFormat))}" />
-                                    <TextBlock VerticalAlignment="Center" Text="{x:Bind helpers:LocalChaptersFormatHelper.ToDisplayName((enums:LocalChaptersFormat))}" />
+                                    <FontIcon VerticalAlignment="Center" FontSize="14" Glyph="{x:Bind helpers:LocalChapterFormatHelper.ToGlyph((enums:LocalChapterFormat))}" />
+                                    <TextBlock VerticalAlignment="Center" Text="{x:Bind helpers:LocalChapterFormatHelper.ToDisplayName((enums:LocalChapterFormat))}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>

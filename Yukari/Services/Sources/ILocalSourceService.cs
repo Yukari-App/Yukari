@@ -10,12 +10,12 @@ public interface ILocalSourceService
 {
     Task<IReadOnlyList<ChapterModel>> ScanChaptersAsync(
         string comicDirectory,
-        LocalChaptersFormat format,
+        LocalChapterFormat format,
         CancellationToken ct = default
     );
     Task<IReadOnlyList<ChapterPageModel>> GetPagesAsync(
         string chapterPath,
-        LocalChaptersFormat format,
+        LocalChapterFormat format,
         CancellationToken ct = default
     );
 }

@@ -1,6 +1,6 @@
 namespace Yukari.Enums;
 
-public enum LocalChaptersFormat
+public enum LocalChapterFormat
 {
     FolderWithImages,
     Cbz,

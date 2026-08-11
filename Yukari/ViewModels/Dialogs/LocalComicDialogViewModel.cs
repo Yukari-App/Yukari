@@ -20,8 +20,8 @@ public partial class LocalComicDialogViewModel : ObservableObject
 
     private ComicModel? _oldComic;
 
-    public LocalChaptersFormat[] AvailableChaptersFormat { get; } =
-        Enum.GetValues<LocalChaptersFormat>();
+    public LocalChapterFormat[] AvailableChaptersFormat { get; } =
+        Enum.GetValues<LocalChapterFormat>();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PrimaryButtonText))]
@@ -53,8 +53,8 @@ public partial class LocalComicDialogViewModel : ObservableObject
     public partial string ComicFolderPath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial LocalChaptersFormat SelectedChaptersFormat { get; set; } =
-        LocalChaptersFormat.FolderWithImages;
+    public partial LocalChapterFormat SelectedChaptersFormat { get; set; } =
+        LocalChapterFormat.FolderWithImages;
 
     [ObservableProperty]
     public partial bool IsError { get; set; } = false;

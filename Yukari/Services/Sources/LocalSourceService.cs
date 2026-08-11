@@ -23,7 +23,7 @@ internal class LocalSourceService : ILocalSourceService
 
     public async Task<IReadOnlyList<ChapterModel>> ScanChaptersAsync(
         string comicDirectory,
-        LocalChaptersFormat format,
+        LocalChapterFormat format,
         CancellationToken ct = default
     )
     {
@@ -37,8 +37,8 @@ internal class LocalSourceService : ILocalSourceService
             () =>
                 format switch
                 {
-                    LocalChaptersFormat.FolderWithImages => ScanFolderChapters(comicDirectory),
-                    LocalChaptersFormat.Cbz => ScanCbzChapters(comicDirectory),
+                    LocalChapterFormat.FolderWithImages => ScanFolderChapters(comicDirectory),
+                    LocalChapterFormat.Cbz => ScanCbzChapters(comicDirectory),
                     _ => Array.Empty<ChapterModel>(),
                 },
             ct
@@ -47,15 +47,15 @@ internal class LocalSourceService : ILocalSourceService
 
     public async Task<IReadOnlyList<ChapterPageModel>> GetPagesAsync(
         string chapterPath,
-        LocalChaptersFormat format,
+        LocalChapterFormat format,
         CancellationToken ct = default
     ) =>
         await Task.Run(
             () =>
                 format switch
                 {
-                    LocalChaptersFormat.FolderWithImages => GetFolderPages(chapterPath),
-                    LocalChaptersFormat.Cbz => GetCbzPages(chapterPath),
+                    LocalChapterFormat.FolderWithImages => GetFolderPages(chapterPath),
+                    LocalChapterFormat.Cbz => GetCbzPages(chapterPath),
                     _ => Array.Empty<ChapterPageModel>(),
                 },
             ct

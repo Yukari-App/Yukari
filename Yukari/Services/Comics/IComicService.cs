@@ -88,7 +88,7 @@ public interface IComicService
     Task<Result> UpsertLocalChaptersAsync(
         ContentKey comicKey,
         string chaptersPath,
-        LocalChaptersFormat chaptersFormat
+        LocalChapterFormat chaptersFormat
     );
     Task<Result> RescanLocalChaptersAsync(ContentKey comicKey, string encodedChaptersPath);
     Task<Result> UpsertChapterUserDataAsync(

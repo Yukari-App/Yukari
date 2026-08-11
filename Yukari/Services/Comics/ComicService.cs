@@ -530,7 +530,7 @@ internal class ComicService : IComicService
     public async Task<Result> UpsertLocalChaptersAsync(
         ContentKey comicKey,
         string chaptersPath,
-        LocalChaptersFormat chaptersFormat
+        LocalChapterFormat chaptersFormat
     )
     {
         return await ExecuteAsync(

@@ -10,5 +10,5 @@ public record LocalComicInfo(
     int? Year,
     string? CoverImageUrl,
     string ChaptersPath,
-    LocalChaptersFormat ChaptersFormat
+    LocalChapterFormat ChaptersFormat
 );

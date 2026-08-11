@@ -599,7 +599,7 @@
     <value>Formato</value>
     <comment>Try using less than 10 characters.</comment>
   </data>
-  <data name="LocalChaptersFormat/FolderWithImages" xml:space="preserve">
+  <data name="LocalChapterFormat/FolderWithImages" xml:space="preserve">
     <value>Pasta</value>
   </data>
   <data name="ThemeMode/Light" xml:space="preserve">

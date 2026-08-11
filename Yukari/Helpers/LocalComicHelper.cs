@@ -30,13 +30,13 @@ internal static class LocalComicHelper
         ".webp",
     };
 
-    public static string EncodeChaptersPath(string path, LocalChaptersFormat format) =>
+    public static string EncodeChaptersPath(string path, LocalChapterFormat format) =>
         $"{format.ToString().ToLowerInvariant()}|{path}";
 
-    public static (string Path, LocalChaptersFormat Format) DecodeChaptersPath(string encoded)
+    public static (string Path, LocalChapterFormat Format) DecodeChaptersPath(string encoded)
     {
         var parts = encoded.Split('|', 2);
-        var format = Enum.Parse<LocalChaptersFormat>(parts[0], ignoreCase: true);
+        var format = Enum.Parse<LocalChapterFormat>(parts[0], ignoreCase: true);
         return (parts[1], format);
     }
 

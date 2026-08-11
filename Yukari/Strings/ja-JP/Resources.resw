@@ -599,7 +599,7 @@
     <value>チャプター形式</value>
     <comment>Try using less than 10 characters.</comment>
   </data>
-  <data name="LocalChaptersFormat/FolderWithImages" xml:space="preserve">
+  <data name="LocalChapterFormat/FolderWithImages" xml:space="preserve">
     <value>フォルダ</value>
   </data>
   <data name="ThemeMode/Light" xml:space="preserve">
