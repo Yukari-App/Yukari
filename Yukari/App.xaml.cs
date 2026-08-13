@@ -115,6 +115,7 @@ public partial class App : Application
         services.AddTransient<CollectionsManagerDialogViewModel>();
         services.AddTransient<ComicCollectionsDialogViewModel>();
         services.AddTransient<LocalComicDialogViewModel>();
+        services.AddTransient<ChapterExportDialogViewModel>();
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<INotificationService, NotificationService>();
@@ -125,6 +126,7 @@ public partial class App : Application
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IDataService, DataService>();
         services.AddSingleton<IDownloadService, DownloadService>();
+        services.AddSingleton<IExportService, ExportService>();
         services.AddSingleton<ISourceService, SourceService>();
         services.AddSingleton<ILocalSourceService, LocalSourceService>();
         services.AddSingleton<IComicService, ComicService>();
