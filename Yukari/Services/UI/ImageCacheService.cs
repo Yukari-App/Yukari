@@ -92,6 +92,11 @@ internal class ImageCacheService : IImageCacheService
         return filePath;
     }
 
+    public async Task<byte[]?> GetImageBytesAsync(string url) =>
+        IsZipEntry(url) ? ReadZipEntryBytes(url)
+        : IsLocalPath(url) ? await ReadLocalFileBytesAsync(url)
+        : await _downloadService.GetImageBytesAsync(url);
+
     private void AddToCache(string key, ImageSource imageSource)
     {
         _cache[key] = imageSource;
@@ -112,11 +117,6 @@ internal class ImageCacheService : IImageCacheService
         byte[]? bytes = await GetImageBytesAsync(url);
         await ApplyBytesToImageSourceAsync(url, imageSource, bytes);
     }
-
-    public async Task<byte[]?> GetImageBytesAsync(string url) =>
-        IsZipEntry(url) ? ReadZipEntryBytes(url)
-        : IsLocalPath(url) ? await ReadLocalFileBytesAsync(url)
-        : await _downloadService.GetImageBytesAsync(url);
 
     private static async Task<byte[]?> ReadLocalFileBytesAsync(string path)
     {
