@@ -599,7 +599,14 @@
     <value>チャプター形式</value>
     <comment>Try using less than 10 characters.</comment>
   </data>
+  <data name="ChapterExportFormatCBBox.Header" xml:space="preserve">
+    <value>チャプター形式</value>
+    <comment>Try using less than 10 characters.</comment>
+  </data>
   <data name="LocalChapterFormat/FolderWithImages" xml:space="preserve">
+    <value>フォルダ</value>
+  </data>
+  <data name="ExportFormat/FolderWithImages" xml:space="preserve">
     <value>フォルダ</value>
   </data>
   <data name="ThemeMode/Light" xml:space="preserve">
@@ -853,5 +860,38 @@
   </data>
   <data name="ErrorSavingCurrentPageImageMessage" xml:space="preserve">
     <value>画像の保存中にエラーが発生しました。</value>
+  </data>
+  <data name="ChapterExportHeader.Text" xml:space="preserve">
+    <value>チャプターをエクスポート</value>
+  </data>
+  <data name="ChapterExportDialog.PrimaryButtonText" xml:space="preserve">
+    <value>エクスポート</value>
+  </data>
+  <data name="ExportDestinationTXBox.Header" xml:space="preserve">
+    <value>保存先</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="ExportSuccessTXB.Text" xml:space="preserve">
+    <value>エクスポートが完了しました</value>
+  </data>
+  <data name="ExportErrorTXB.Text" xml:space="preserve">
+    <value>エクスポート中にエラーが発生しました</value>
+  </data>
+  <data name="ExportNameTXBox.Header" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="ExportProgressText" xml:space="preserve">
+    <value>{1}ページ中{0}ページ保存済み</value>
+  </data>
+  <data name="ExportChapterMNItem.Text" xml:space="preserve">
+    <value>チャプターをエクスポート</value>
+  </data>
+  <data name="ChapterExportInfoBar.Message" xml:space="preserve">
+    <value>チャプターがダウンロード済みの場合、エクスポートはより速くなります。</value>
   </data>
 </root>
