@@ -123,7 +123,7 @@ public partial class ChapterExportDialogViewModel : ObservableObject
         IsExporting = true;
 
         var exportName = string.IsNullOrWhiteSpace(ExportName) ? DefaultExportName : ExportName;
-        var finalPath = Path.Combine(DestinationPath, ExportName);
+        var finalPath = Path.Combine(DestinationPath, exportName);
         finalPath += SelectedExportFormat switch
         {
             ExportFormat.Cbz => ".cbz",
