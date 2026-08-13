@@ -410,6 +410,15 @@ public partial class ComicPageViewModel
     }
 
     [RelayCommand]
+    private async Task ExportChapter(ChapterItemViewModel chapterVm) =>
+        await _dialogService.ShowExportDialogAsync(
+            _comicKey!,
+            chapterVm.Key,
+            Comic!.Title,
+            chapterVm.DisplayTitle!
+        );
+
+    [RelayCommand]
     private Task MarkAllAsRead() => MarkAllChaptersReadStatus(true);
 
     [RelayCommand]
@@ -510,7 +519,8 @@ public partial class ComicPageViewModel
                     IsFavorite,
                     Comic!.Title,
                     NavigateToReaderCommand,
-                    MarkPreviousChaptersAsReadCommand
+                    MarkPreviousChaptersAsReadCommand,
+                    ExportChapterCommand
                 );
                 ivm.PropertyChanged += OnChapterDownloadStatusChanged;
                 return ivm;

@@ -43,6 +43,7 @@ public partial class ChapterItemViewModel : ObservableObject
 
     public IRelayCommand<ContentKey>? NavigateToReaderCommand { get; }
     public IRelayCommand<ChapterItemViewModel>? MarkPreviousChaptersAsReadCommand { get; }
+    public IRelayCommand<ChapterItemViewModel> ExportChapterCommand { get; }
 
     public ChapterModel Chapter { get; }
     public ContentKey Key => new(Chapter.Id, Chapter.Source);
@@ -121,7 +122,8 @@ public partial class ChapterItemViewModel : ObservableObject
         bool isComicFavorite,
         string comicTitle,
         IRelayCommand<ContentKey> navigateToReaderCommand,
-        IRelayCommand<ChapterItemViewModel> markPreviousChaptersAsReadCommand
+        IRelayCommand<ChapterItemViewModel> markPreviousChaptersAsReadCommand,
+        IRelayCommand<ChapterItemViewModel> exportChapterCommand
     )
     {
         _comicService = comicService;
@@ -149,6 +151,7 @@ public partial class ChapterItemViewModel : ObservableObject
 
         NavigateToReaderCommand = navigateToReaderCommand;
         MarkPreviousChaptersAsReadCommand = markPreviousChaptersAsReadCommand;
+        ExportChapterCommand = exportChapterCommand;
     }
 
     public async Task RefreshUserDataAsync(int? totalPages)

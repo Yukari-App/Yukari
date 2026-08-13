@@ -188,6 +188,11 @@
                                                     Command="{x:Bind MarkPreviousChaptersAsReadCommand}"
                                                     CommandParameter="{x:Bind}"
                                                     Icon="{ui:FontIcon Glyph=&#xE890;}" />
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem x:Uid="ExportChapterMNItem"
+                                                    Command="{x:Bind ExportChapterCommand}"
+                                                    CommandParameter="{x:Bind}"
+                                                    Icon="{ui:FontIcon Glyph=&#xEDE1;}" />
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>

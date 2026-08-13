@@ -1292,6 +1292,7 @@ public class ComicPageViewModelTests
             false,
             ComicTitle,
             new RelayCommand<ContentKey>(_ => { }),
+            new RelayCommand<ChapterItemViewModel>(_ => { }),
             new RelayCommand<ChapterItemViewModel>(_ => { })
         );
 }

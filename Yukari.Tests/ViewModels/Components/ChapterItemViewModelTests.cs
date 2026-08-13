@@ -476,6 +476,7 @@ public class ChapterItemViewModelTests
             isComicFavorite,
             "Test Comic",
             new Mock<IRelayCommand<ContentKey>>().Object,
+            new Mock<IRelayCommand<ChapterItemViewModel>>().Object,
             new Mock<IRelayCommand<ChapterItemViewModel>>().Object
         );
     }
@@ -495,6 +496,7 @@ public class ChapterItemViewModelTests
             isComicFavorite,
             "Test Comic",
             new Mock<IRelayCommand<ContentKey>>().Object,
+            new Mock<IRelayCommand<ChapterItemViewModel>>().Object,
             new Mock<IRelayCommand<ChapterItemViewModel>>().Object
         );
     }
@@ -520,6 +522,7 @@ public class ChapterItemViewModelTests
             false,
             "Test Comic",
             new Mock<IRelayCommand<ContentKey>>().Object,
+            new Mock<IRelayCommand<ChapterItemViewModel>>().Object,
             new Mock<IRelayCommand<ChapterItemViewModel>>().Object
         );
     }
