@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentDialog x:Class="Yukari.Views.Dialogs.ChapterExportDialog"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:converters="using:Yukari.Helpers.UI.Converters"
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:enums="using:Yukari.Enums"
+               xmlns:helpers="using:Yukari.Helpers.UI"
+               xmlns:local="using:Yukari.Views.Dialogs"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               xmlns:selectors="using:Yukari.Helpers.UI.Selectors"
+               xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+               xmlns:ui="using:CommunityToolkit.WinUI"
+               xmlns:vmc="using:Yukari.ViewModels.Components"
+               x:Uid="ChapterExportDialog"
+               CloseButtonCommand="{x:Bind ViewModel.CancelExportCommand}"
+               CloseButtonText="{x:Bind ViewModel.CloseButtonText, Mode=OneWay}"
+               DefaultButton="Primary"
+               IsPrimaryButtonEnabled="{x:Bind ViewModel.IsExportAvailable, Mode=OneWay}"
+               PrimaryButtonClick="ChapterExportDialog_PrimaryButtonClick"
+               Style="{StaticResource DefaultContentDialogStyle}"
+               mc:Ignorable="d">
+
+    <ContentDialog.Title>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <FontIcon FontSize="24" Glyph="&#xEDE1;" />
+            <TextBlock x:Uid="ChapterExportHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
+        </StackPanel>
+    </ContentDialog.Title>
+
+    <ContentDialog.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </ContentDialog.Resources>
+
+    <Grid Width="320">
+        <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.IsFormVisible, Mode=OneWay}">
+            <TextBox x:Uid="ExportNameTXBox" Text="{x:Bind ViewModel.ExportName, Mode=TwoWay}" ToolTipService.ToolTip="{x:Bind ViewModel.ExportName, Mode=OneWay}" />
+
+            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="2">
+                <TextBox x:Uid="ExportDestinationTXBox"
+                         Grid.Column="0"
+                         Text="{x:Bind ViewModel.DestinationPath, Mode=TwoWay}"
+                         ToolTipService.ToolTip="{x:Bind ViewModel.DestinationPath, Mode=OneWay}" />
+                <Button Grid.Column="1"
+                        Width="32"
+                        Height="32"
+                        Padding="0"
+                        VerticalAlignment="Bottom"
+                        Command="{x:Bind ViewModel.OpenDestinationPathPickerCommand}"
+                        Content="{ui:FontIcon Glyph=&#xF89A;}" />
+                <ComboBox x:Uid="ChapterExportFormatCBBox"
+                          Grid.Column="2"
+                          Width="108"
+                          Margin="2,0,0,0"
+                          ItemsSource="{x:Bind ViewModel.AvailableExportFormats}"
+                          SelectedItem="{x:Bind ViewModel.SelectedExportFormat, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="enums:ExportFormat">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon VerticalAlignment="Center" FontSize="14" Glyph="{x:Bind helpers:ExportFormatHelper.ToGlyph((enums:ExportFormat))}" />
+                                <TextBlock VerticalAlignment="Center" Text="{x:Bind helpers:ExportFormatHelper.ToDisplayName((enums:ExportFormat))}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+
+            <MenuFlyoutSeparator Grid.Row="2" Margin="0,2,0,0" />
+            <InfoBar x:Uid="ChapterExportInfoBar"
+                     Grid.Row="3"
+                     IsClosable="False"
+                     IsOpen="True"
+                     Severity="Informational" />
+        </StackPanel>
+
+        <Grid HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              RowDefinitions="Auto, Auto, Auto"
+              RowSpacing="8"
+              Visibility="{x:Bind ViewModel.IsExporting, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <ProgressBar Width="240"
+                         IsIndeterminate="{x:Bind ViewModel.IsProgressIndeterminate, Mode=OneWay}"
+                         Maximum="{x:Bind ViewModel.ExportTotal, Mode=OneWay}"
+                         Value="{x:Bind ViewModel.ExportProgress, Mode=OneWay}" />
+            <TextBlock Grid.Row="1" HorizontalAlignment="Center" Text="{x:Bind ViewModel.ProgressText, Mode=OneWay}" />
+        </Grid>
+
+        <Grid HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              RowDefinitions="Auto, Auto, Auto"
+              RowSpacing="8"
+              Visibility="{x:Bind ViewModel.IsExported, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <FontIcon FontSize="48" Foreground="{ThemeResource SystemFillColorSuccessBrush}" Glyph="&#xEC61;" />
+            <TextBlock x:Uid="ExportSuccessTXB"
+                       Grid.Row="1"
+                       HorizontalAlignment="Center"
+                       Style="{StaticResource BodyLargeStrongTextBlockStyle}" />
+        </Grid>
+
+        <Grid HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              RowDefinitions="Auto, Auto, Auto"
+              RowSpacing="8"
+              Visibility="{x:Bind ViewModel.IsError, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <FontIcon FontSize="48" Foreground="{ThemeResource SystemFillColorCriticalBrush}" Glyph="&#xEB90;" />
+            <TextBlock x:Uid="ExportErrorTXB"
+                       Grid.Row="1"
+                       HorizontalAlignment="Center"
+                       Style="{StaticResource BodyLargeStrongTextBlockStyle}" />
+            <ScrollViewer Grid.Row="2"
+                          MaxWidth="320"
+                          MaxHeight="200"
+                          Padding="8"
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                          BorderThickness="1"
+                          CornerRadius="8"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <TextBlock FontFamily="Consolas"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           IsTextSelectionEnabled="True"
+                           Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                           TextWrapping="Wrap" />
+            </ScrollViewer>
+
+        </Grid>
+    </Grid>
+</ContentDialog>
