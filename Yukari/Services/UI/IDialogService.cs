@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
@@ -17,6 +18,12 @@ public interface IDialogService
         IReadOnlyDictionary<string, IReadOnlyList<string>> appliedFilters
     );
     Task ShowLocalComicDialogAsync(ContentKey? comicKey = null);
+    Task ShowExportDialogAsync(
+        ContentKey comicKey,
+        ContentKey chapterKey,
+        string comicTitle,
+        string chapterTitle
+    );
     Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null);
     Task<string?> OpenFolderPickerAsync();
     Task<string?> OpenFileSavePicker(

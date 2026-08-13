@@ -74,6 +74,24 @@ internal class DialogService : IDialogService
         await dialog.ShowAsync();
     }
 
+    public async Task ShowExportDialogAsync(
+        ContentKey comicKey,
+        ContentKey chapterKey,
+        string comicTitle,
+        string chapterTitle
+    )
+    {
+        ThrowIfXamlRootNotInitialized();
+
+        var dialog = new ChapterExportDialog(comicKey, chapterKey, comicTitle, chapterTitle)
+        {
+            XamlRoot = _xamlRoot,
+            RequestedTheme = AppTheme,
+        };
+
+        await dialog.ShowAsync();
+    }
+
     public async Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null)
     {
         ThrowIfXamlRootNotInitialized();
