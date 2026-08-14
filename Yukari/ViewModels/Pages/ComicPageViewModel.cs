@@ -599,10 +599,8 @@ public partial class ComicPageViewModel
 
     async partial void OnSelectedLangChanged(string? value)
     {
-        if (!IsComicLoaded)
-            return;
-
-        await RefreshChaptersAsync();
+        if (IsComicLoaded)
+            await RefreshChaptersAsync();
 
         if (string.IsNullOrEmpty(value))
             return;
