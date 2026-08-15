@@ -47,6 +47,11 @@ public class ComicPageViewModelTests
         _localizationServiceMock = new Mock<ILocalizationService>();
 
         _mockSettingsService.Setup(s => s.Current).Returns(new AppSettings());
+        _mockComicService
+            .Setup(s =>
+                s.UpsertComicUserDataAsync(It.IsAny<ContentKey>(), It.IsAny<ComicUserData>())
+            )
+            .ReturnsAsync(Result.Success());
 
         _sut = new ComicPageViewModel(
             _mockComicService.Object,
