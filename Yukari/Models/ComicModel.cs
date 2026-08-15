@@ -18,6 +18,10 @@ public class ComicModel
     public LanguageModel[] Langs { get; set; } = Array.Empty<LanguageModel>();
 
     public bool IsAvailable { get; set; } = true;
+    public DateTime? LastUpdate { get; set; }
+
+    public bool RecentlyUpdated =>
+        LastUpdate.HasValue && (DateTime.UtcNow - LastUpdate.Value) <= TimeSpan.FromDays(1);
 
     // Dapper does not invoke type handlers for enum properties.
     // This property provides the string representation used for database persistence.
