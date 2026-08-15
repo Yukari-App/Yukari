@@ -1,5 +1,5 @@
--- Current schema: Version 5
--- Last updated: Migration_005
+-- Current schema: Version 6
+-- Last updated: Migration_006
 -- To understand how we got here, read Migrations/ in order.
 
 -- Comics definition
@@ -16,6 +16,7 @@ CREATE TABLE Comics (
     Year INTEGER,
     CoverImageUrl TEXT,
     Langs TEXT,
+    LastUpdate TEXT,
     IsAvailable INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY (Id, Source)
 );
