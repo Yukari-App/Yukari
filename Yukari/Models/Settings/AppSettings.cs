@@ -1,3 +1,4 @@
+using System;
 using Yukari.Enums;
 
 namespace Yukari.Models.Settings;
@@ -12,6 +13,10 @@ public class AppSettings
     public SortDirection FavoritesSortDirection { get; set; } = SortDirection.Ascending;
 
     public bool ReversedChaptersOrder { get; set; } = false;
+
+    public UpdateCheckSchedule AutoComicUpdates { get; set; } = UpdateCheckSchedule.Never;
+    public int AutoComicUpdateRecentCount { get; set; } = 0;
+    public DateTime? LastAutoComicUpdate { get; set; }
 
     public bool AutoFullscreen { get; set; } = false;
     public ReadingMode ReadingMode { get; set; } = ReadingMode.RightToLeft;
