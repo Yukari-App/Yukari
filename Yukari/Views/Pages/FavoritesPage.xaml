@@ -21,6 +21,19 @@
             <Grid Width="200" Height="280" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
                 <Image Source="{x:Bind Comic.CoverImageUrl, Converter={StaticResource UrlToImageConverter}, Mode=OneTime}" Stretch="UniformToFill" />
 
+                <Border Margin="4"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                        CornerRadius="2"
+                        Visibility="{x:Bind Comic.RecentlyUpdated, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock x:Uid="NewChaptersBadge"
+                               Padding="4,2"
+                               FontSize="12"
+                               Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                </Border>
+
                 <Grid Height="30"
                       Margin="2"
                       Padding="8,0,4,0"
