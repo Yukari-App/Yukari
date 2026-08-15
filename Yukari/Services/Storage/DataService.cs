@@ -59,7 +59,7 @@ internal class DataService : IDataService
         var direction = descending ? "DESC" : "ASC";
         var nulls = sortBy == "lastread" ? "NULLS LAST" : "";
         string sql = $"""
-            SELECT c.Id, c.Source, c.Title, c.CoverImageUrl
+            SELECT c.Id, c.Source, c.Title, c.CoverImageUrl, c.LastUpdate
             FROM Comics c
             INNER JOIN ComicUserData u ON c.Id = u.ComicId AND c.Source = u.Source
             WHERE u.IsFavorite = 1
@@ -100,12 +100,9 @@ internal class DataService : IDataService
 
         const string sql = """
             SELECT 
-                c.Id, c.Source, c.ComicUrl, c.Title, c.Author, c.Description, 
-                c.Status, c.Tags, c.Year, c.CoverImageUrl, c.Langs, c.IsAvailable,
-                u.IsFavorite, u.LastSelectedLang
+                c.Id, c.Source, c.ComicUrl, c.Title, c.Author, c.Description, c.Status,
+                c.Tags, c.Year, c.CoverImageUrl, c.Langs, c.IsAvailable, c.LastUpdate
             FROM Comics c
-            INNER JOIN ComicUserData u 
-                ON c.Id = u.ComicId AND c.Source = u.Source
             WHERE c.Id = @Id AND c.Source = @Source;
             """;
 
@@ -568,6 +565,46 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
         using var transaction = await connection.BeginTransactionAsync();
 
+        var hadExistingChapters =
+            await connection.ExecuteScalarAsync<int>(
+                """
+                SELECT COUNT(1) FROM Chapters
+                WHERE ComicId = @ComicId AND Source = @Source
+                  AND Language = @Language LIMIT 1;
+                """,
+                new
+                {
+                    ComicId = comicKey.Id,
+                    Source = comicKey.Source,
+                    Language = language,
+                },
+                transaction
+            ) > 0;
+
+        var incomingIds = chapters.Select(c => c.Id).ToArray();
+        int existingMatchingCount = 0;
+
+        if (incomingIds.Length > 0)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("ComicId", comicKey.Id);
+            parameters.Add("Source", comicKey.Source);
+            parameters.Add("Language", language);
+
+            var inClause = BuildInClause(parameters, incomingIds);
+
+            existingMatchingCount = await connection.ExecuteScalarAsync<int>(
+                $"""
+                SELECT COUNT(1) FROM Chapters
+                WHERE ComicId = @ComicId AND Source = @Source
+                  AND Language = @Language AND Id IN ({inClause});
+                """,
+                parameters,
+                transaction
+            );
+        }
+        var hasNewChapters = existingMatchingCount < incomingIds.Length;
+
         string sqlReset = keepOldChapters
             ? """
                 UPDATE Chapters
@@ -624,6 +661,13 @@ internal class DataService : IDataService
             ),
             transaction
         );
+
+        if (hadExistingChapters && hasNewChapters)
+            await connection.ExecuteAsync(
+                "UPDATE Comics SET LastUpdate = datetime('now') WHERE Id = @Id AND Source = @Source;",
+                new { Id = comicKey.Id, Source = comicKey.Source },
+                transaction
+            );
 
         await transaction.CommitAsync();
     }
@@ -1049,6 +1093,26 @@ internal class DataService : IDataService
 
         return unfavoriteComics.ToList();
     }
+
+    #endregion
+
+    #region Helpers
+
+    private static string BuildInClause(
+        DynamicParameters parameters,
+        IEnumerable<string> values,
+        string prefix = "Id"
+    ) =>
+        string.Join(
+            ", ",
+            values.Select(
+                (value, i) =>
+                {
+                    parameters.Add($"{prefix}{i}", value);
+                    return $"@{prefix}{i}";
+                }
+            )
+        );
 
     #endregion
 }
