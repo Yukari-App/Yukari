@@ -27,16 +27,17 @@
                        Text="Yukari" />
             <Border x:Name="DebugBadge"
                     Grid.Column="2"
-                    Height="20"
                     Margin="8,0,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-                    Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
+                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                    CornerRadius="2"
                     Visibility="Collapsed">
-                <TextBlock Margin="4,0" Style="{StaticResource CaptionTextBlockStyle}" Text="Debug" />
+                <TextBlock Padding="4,2"
+                           FontSize="12"
+                           Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                           Text="DEBUG" />
             </Border>
             <AutoSuggestBox x:Uid="SearchBox"
                             Grid.Column="3"
