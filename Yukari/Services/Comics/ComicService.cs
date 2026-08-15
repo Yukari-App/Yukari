@@ -373,7 +373,7 @@ internal class ComicService : IComicService
 
                 await _dbService.UpsertFavoriteComicAsync(comicDetails);
 
-                _logger.LogInformation("Comic {ComicKey} added to favorites", comicKey);
+                _logger.LogInformation("Comic {ComicKey} added/updated in favorites", comicKey);
                 return Result.Success();
             },
             _localizationService.GetString("FailedAddingToFavorites")
