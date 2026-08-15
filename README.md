@@ -20,8 +20,6 @@ Built with **WinUI 3** and **.NET 10**, it delivers a clean Fluent Design interf
 
 Enjoy **offline reading** of your downloaded/local collection, with optional online discovery and scraping via community plugins (e.g., MangaDex, etc.).
 
-**Now stable** — ready for daily use, with active development ongoing.
-
 <img height="480" alt="image" src="./Yukari/Assets/Screenshots/Discover.png" />
 
 [More Screenshots](/Yukari/Assets/Screenshots/)
@@ -75,7 +73,6 @@ Enjoy **offline reading** of your downloaded/local collection, with optional onl
     <h2>🗒️ Notes</h2>
 </div>
 
-- This is a **stable release**: the core experience is solid, and updates will continue to add features and improvements.
 - A **Wiki/Documentation** will be created soon.
 - For the latest updates and known issues, check the [Releases](https://github.com/Yukari-App/Yukari/releases) page.
 
