@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +11,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
 using Serilog;
 using Windows.ApplicationModel.Activation;
+using Yukari.Enums;
 using Yukari.Helpers;
+using Yukari.Models.DTO;
 using Yukari.Services;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
@@ -92,6 +96,8 @@ public partial class App : Application
         {
             _mainWindow.SetMicaBackdrop();
         }
+
+        _ = AutoUpdateComicsAsync();
     }
 
     public static T GetService<T>()
@@ -219,6 +225,112 @@ public partial class App : Application
             }
             await dbService.UpdateComicSourcePendingUpdateAsync(source.Name, null);
         }
+    }
+
+    private static async Task AutoUpdateComicsAsync()
+    {
+        var comicService = GetService<IComicService>();
+        var settingsService = GetService<ISettingsService>();
+
+        var schedule = settingsService.Current.AutoComicUpdates;
+        if (schedule == UpdateCheckSchedule.Never)
+            return;
+
+        var lastUpdate = settingsService.Current.LastAutoComicUpdate ?? DateTime.MinValue;
+        var elapsed = DateTime.UtcNow - lastUpdate;
+
+        var isUpdateDue = schedule switch
+        {
+            UpdateCheckSchedule.ThreeHours => elapsed >= TimeSpan.FromHours(3),
+            UpdateCheckSchedule.SixHours => elapsed >= TimeSpan.FromHours(6),
+            UpdateCheckSchedule.Daily => elapsed >= TimeSpan.FromDays(1),
+            UpdateCheckSchedule.Weekly => elapsed >= TimeSpan.FromDays(7),
+            _ => false,
+        };
+
+        if (!isUpdateDue)
+            return;
+
+        Log.Information("Starting auto-update of comics");
+
+        var comicsResult = await comicService.GetFavoriteComicsAsync(
+            queryText: null,
+            collectionName: null,
+            sortBy: FavoritesSortBy.LastRead,
+            sortDirection: SortDirection.Descending
+        );
+
+        if (!comicsResult.IsSuccess)
+        {
+            Log.Warning(
+                "Failed to retrieve favorite comics for auto-update: {Error}",
+                comicsResult.Error
+            );
+            return;
+        }
+
+        var comics = comicsResult.Value!;
+        var recentCount = settingsService.Current.AutoComicUpdateRecentCount;
+        var candidates = recentCount > 0 ? comics.Take(recentCount).ToArray() : comics.ToArray();
+
+        using var semaphore = new SemaphoreSlim(4);
+
+        var tasks = candidates.Select(async comic =>
+        {
+            await semaphore.WaitAsync();
+            try
+            {
+                var key = new ContentKey(comic.Id, comic.Source);
+
+                var upsertComicResult = await comicService.UpsertFavoriteComicAsync(key);
+                if (!upsertComicResult.IsSuccess)
+                    return false;
+
+                var userDataResult = await comicService.GetComicUserDataAsync(key);
+                if (!userDataResult.IsSuccess)
+                    return false;
+
+                var userData = userDataResult.Value!;
+                if (userData.LastSelectedLang != null)
+                {
+                    var upsertChaptersResult = await comicService.UpsertChaptersAsync(
+                        key,
+                        userData.LastSelectedLang
+                    );
+
+                    if (!upsertChaptersResult.IsSuccess)
+                        return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unexpected error while auto-updating comic {ComicId}", comic.Id);
+                return false;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        });
+
+        var results = await Task.WhenAll(tasks);
+        var updatedCount = results.Count(r => r);
+        var failedCount = results.Count(r => !r);
+
+        if (failedCount < candidates.Length || candidates.Length == 0)
+        {
+            settingsService.Current.LastAutoComicUpdate = DateTime.UtcNow;
+            await settingsService.SaveAsync();
+        }
+
+        Log.Information(
+            "Auto-update completed. Updated: {Updated}, Failed: {Failed}, Total: {Total}",
+            updatedCount,
+            failedCount,
+            candidates.Length
+        );
     }
 
     // --- Activation Handling ---
