@@ -238,11 +238,11 @@
   <data name="PreferencesSection.Text" xml:space="preserve">
     <value>Preferencias</value>
   </data>
-  <data name="AutoComicUpdateCard.Header" xml:space="preserve">
-    <value>Actualizar Cómics al Inicio</value>
+  <data name="AutoComicUpdateExpander.Header" xml:space="preserve">
+    <value>Actualizar cómics al iniciar</value>
   </data>
-  <data name="AutoComicUpdateCard.Description" xml:space="preserve">
-    <value>Sincroniza los datos y capítulos de los cómics favoritos al iniciar</value>
+  <data name="AutoComicUpdateExpander.Description" xml:space="preserve">
+    <value>Busca nuevos capítulos de tus cómics favoritos al iniciar</value>
   </data>
   <data name="ReaderSection.Text" xml:space="preserve">
     <value>Lector</value>
@@ -893,5 +893,32 @@
   </data>
   <data name="ChapterExportInfoBar.Message" xml:space="preserve">
     <value>La exportación es más rápida si el capítulo ya está descargado.</value>
+  </data>
+  <data name="UpdateCheckSchedule/Never" xml:space="preserve">
+    <value>Nunca</value>
+  </data>
+  <data name="UpdateCheckSchedule/ThreeHours" xml:space="preserve">
+    <value>Cada 3 horas</value>
+  </data>
+  <data name="UpdateCheckSchedule/SixHours" xml:space="preserve">
+    <value>Cada 6 horas</value>
+  </data>
+  <data name="UpdateCheckSchedule/Daily" xml:space="preserve">
+    <value>Diariamente</value>
+  </data>
+  <data name="UpdateCheckSchedule/Weekly" xml:space="preserve">
+    <value>Semanalmente</value>
+  </data>
+  <data name="AutoComicUpdateRecentCountCard.Header" xml:space="preserve">
+    <value>Limitar actualizaciones a cómics leídos recientemente</value>
+  </data>
+  <data name="AutoComicUpdateRecentCountCard.Description" xml:space="preserve">
+    <value>Solo los cómics leídos más recientemente serán actualizados. Usa 0 para actualizar todos.</value>
+  </data>
+  <data name="NewChaptersBadge.Text" xml:space="preserve">
+    <value>Nuevos Capítulos</value>
+  </data>
+  <data name="AutoComicUpdateBadgeInfoBar.Message" xml:space="preserve">
+    <value>Los cómics con nuevos capítulos mostrarán una insignia durante 24 horas.</value>
   </data>
 </root>

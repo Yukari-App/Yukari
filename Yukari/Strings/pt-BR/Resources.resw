@@ -238,11 +238,11 @@
   <data name="PreferencesSection.Text" xml:space="preserve">
     <value>Preferências</value>
   </data>
-  <data name="AutoComicUpdateCard.Header" xml:space="preserve">
+  <data name="AutoComicUpdateExpander.Header" xml:space="preserve">
     <value>Atualizar Quadrinhos na Inicialização</value>
   </data>
-  <data name="AutoComicUpdateCard.Description" xml:space="preserve">
-    <value>Sincronize os dados dos quadrinhos favoritos durante a inicialização</value>
+  <data name="AutoComicUpdateExpander.Description" xml:space="preserve">
+    <value>Verifica se há novos capítulos dos quadrinhos favoritos durante a inicialização</value>
   </data>
   <data name="ReaderSection.Text" xml:space="preserve">
     <value>Leitor</value>
@@ -893,5 +893,32 @@
   </data>
   <data name="ChapterExportInfoBar.Message" xml:space="preserve">
     <value>A exportação é mais rápida se o capítulo já estiver baixado.</value>
+  </data>
+  <data name="UpdateCheckSchedule/Never" xml:space="preserve">
+    <value>Nunca</value>
+  </data>
+  <data name="UpdateCheckSchedule/ThreeHours" xml:space="preserve">
+    <value>A cada 3 horas</value>
+  </data>
+  <data name="UpdateCheckSchedule/SixHours" xml:space="preserve">
+    <value>A cada 6 horas</value>
+  </data>
+  <data name="UpdateCheckSchedule/Daily" xml:space="preserve">
+    <value>Diariamente</value>
+  </data>
+  <data name="UpdateCheckSchedule/Weekly" xml:space="preserve">
+    <value>Semanalmente</value>
+  </data>
+  <data name="AutoComicUpdateRecentCountCard.Header" xml:space="preserve">
+    <value>Limitar atualização aos quadrinhos lidos recentemente</value>
+  </data>
+  <data name="AutoComicUpdateRecentCountCard.Description" xml:space="preserve">
+    <value>Somente os quadrinhos lidos mais recentemente serão atualizados. Use 0 para atualizar todos.</value>
+  </data>
+  <data name="NewChaptersBadge.Text" xml:space="preserve">
+    <value>Novos Capítulos</value>
+  </data>
+  <data name="AutoComicUpdateBadgeInfoBar.Message" xml:space="preserve">
+    <value>Quadrinhos com novos capítulos exibirão um badge por 24 horas.</value>
   </data>
 </root>

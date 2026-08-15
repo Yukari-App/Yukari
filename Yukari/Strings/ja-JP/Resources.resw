@@ -238,11 +238,11 @@
   <data name="PreferencesSection.Text" xml:space="preserve">
     <value>環境設定</value>
   </data>
-  <data name="AutoComicUpdateCard.Header" xml:space="preserve">
+  <data name="AutoComicUpdateExpander.Header" xml:space="preserve">
     <value>起動時に漫画を更新</value>
   </data>
-  <data name="AutoComicUpdateCard.Description" xml:space="preserve">
-    <value>起動時にお気に入りの漫画データとチャプターを同期</value>
+  <data name="AutoComicUpdateExpander.Description" xml:space="preserve">
+    <value>起動時にお気に入りのコミックの新章を確認します</value>
   </data>
   <data name="ReaderSection.Text" xml:space="preserve">
     <value>リーダー</value>
@@ -893,5 +893,32 @@
   </data>
   <data name="ChapterExportInfoBar.Message" xml:space="preserve">
     <value>チャプターがダウンロード済みの場合、エクスポートはより速くなります。</value>
+  </data>
+  <data name="UpdateCheckSchedule/Never" xml:space="preserve">
+    <value>しない</value>
+  </data>
+  <data name="UpdateCheckSchedule/ThreeHours" xml:space="preserve">
+    <value>3時間ごと</value>
+  </data>
+  <data name="UpdateCheckSchedule/SixHours" xml:space="preserve">
+    <value>6時間ごと</value>
+  </data>
+  <data name="UpdateCheckSchedule/Daily" xml:space="preserve">
+    <value>毎日</value>
+  </data>
+  <data name="UpdateCheckSchedule/Weekly" xml:space="preserve">
+    <value>毎週</value>
+  </data>
+  <data name="AutoComicUpdateRecentCountCard.Header" xml:space="preserve">
+    <value>最近読んだコミックのみ更新</value>
+  </data>
+  <data name="AutoComicUpdateRecentCountCard.Description" xml:space="preserve">
+    <value>最近読んだコミックのみ更新されます。0にするとすべて更新します。</value>
+  </data>
+  <data name="NewChaptersBadge.Text" xml:space="preserve">
+    <value>新チャプター</value>
+  </data>
+  <data name="AutoComicUpdateBadgeInfoBar.Message" xml:space="preserve">
+    <value>新しいチャプターがあるコミックには24時間バッジが表示されます</value>
   </data>
 </root>

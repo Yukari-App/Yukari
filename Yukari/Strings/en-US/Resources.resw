@@ -238,11 +238,11 @@
   <data name="PreferencesSection.Text" xml:space="preserve">
     <value>Preferences</value>
   </data>
-  <data name="AutoComicUpdateCard.Header" xml:space="preserve">
+  <data name="AutoComicUpdateExpander.Header" xml:space="preserve">
     <value>Update Comics on Startup</value>
   </data>
-  <data name="AutoComicUpdateCard.Description" xml:space="preserve">
-    <value>Synchronizes favorite comic data and chapters on startup</value>
+  <data name="AutoComicUpdateExpander.Description" xml:space="preserve">
+    <value>Check for new chapters of your favorite comics on startup</value>
   </data>
   <data name="ReaderSection.Text" xml:space="preserve">
     <value>Reader</value>
@@ -893,5 +893,32 @@
   </data>
   <data name="ChapterExportInfoBar.Message" xml:space="preserve">
     <value>Exporting is faster if the chapter has already been downloaded.</value>
+  </data>
+  <data name="UpdateCheckSchedule/Never" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="UpdateCheckSchedule/ThreeHours" xml:space="preserve">
+    <value>Every 3 hours</value>
+  </data>
+  <data name="UpdateCheckSchedule/SixHours" xml:space="preserve">
+    <value>Every 6 hours</value>
+  </data>
+  <data name="UpdateCheckSchedule/Daily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="UpdateCheckSchedule/Weekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="AutoComicUpdateRecentCountCard.Header" xml:space="preserve">
+    <value>Limit updates to recently read comics</value>
+  </data>
+  <data name="AutoComicUpdateRecentCountCard.Description" xml:space="preserve">
+    <value>Only the most recently read comics will be updated. Use 0 to update all.</value>
+  </data>
+  <data name="NewChaptersBadge.Text" xml:space="preserve">
+    <value>New Chapters</value>
+  </data>
+  <data name="AutoComicUpdateBadgeInfoBar.Message" xml:space="preserve">
+    <value>Comics with new chapters will display a badge for 24 hours.</value>
   </data>
 </root>
