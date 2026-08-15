@@ -33,11 +33,19 @@ public partial class SettingsPageViewModel : ObservableObject
     public string CoreVersion { get; } = AppInfoHelper.CoreVersionString;
 
     public ThemeMode[] AvailableThemeModes { get; } = Enum.GetValues<ThemeMode>();
+    public UpdateCheckSchedule[] AvailableUpdateCheckSchedules { get; } =
+        Enum.GetValues<UpdateCheckSchedule>();
     public ReadingMode[] AvailableReadingModes { get; } = Enum.GetValues<ReadingMode>();
     public ScalingMode[] AvailableScalingModes { get; } = Enum.GetValues<ScalingMode>();
 
     [ObservableProperty]
     public partial ThemeMode SelectedThemeMode { get; set; }
+
+    [ObservableProperty]
+    public partial UpdateCheckSchedule SelectedUpdateCheckSchedule { get; set; }
+
+    [ObservableProperty]
+    public partial int AutoComicUpdateRecentCount { get; set; }
 
     [ObservableProperty]
     public partial bool IsAutoFullscreen { get; set; }
@@ -86,6 +94,8 @@ public partial class SettingsPageViewModel : ObservableObject
     private async Task LoadSettingsAsync()
     {
         SelectedThemeMode = _settingsService.Current.Theme;
+        SelectedUpdateCheckSchedule = _settingsService.Current.AutoComicUpdates;
+        AutoComicUpdateRecentCount = _settingsService.Current.AutoComicUpdateRecentCount;
         IsAutoFullscreen = _settingsService.Current.AutoFullscreen;
         SelectedReadingMode = _settingsService.Current.ReadingMode;
         SelectedScalingMode = _settingsService.Current.ScalingMode;
@@ -228,6 +238,12 @@ public partial class SettingsPageViewModel : ObservableObject
     }
 
     partial void OnSelectedThemeModeChanged(ThemeMode value) => ApplySetting(s => s.Theme, value);
+
+    partial void OnSelectedUpdateCheckScheduleChanged(UpdateCheckSchedule value) =>
+        ApplySetting(s => s.AutoComicUpdates, value);
+
+    partial void OnAutoComicUpdateRecentCountChanged(int value) =>
+        ApplySetting(s => s.AutoComicUpdateRecentCount, value);
 
     partial void OnIsAutoFullscreenChanged(bool value) =>
         ApplySetting(s => s.AutoFullscreen, value);

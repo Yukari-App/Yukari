@@ -70,13 +70,30 @@
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Run x:Uid="PreferencesSection" FontWeight="Bold" />
                     </TextBlock>
-                    <toolkit:SettingsCard x:Uid="AutoComicUpdateCard"
-                                          HorizontalAlignment="Stretch"
-                                          HorizontalContentAlignment="Stretch"
-                                          HeaderIcon="{ui:FontIcon Glyph=&#xE895;}"
-                                          IsEnabled="False">
-                        <ToggleSwitch />
-                    </toolkit:SettingsCard>
+                    <toolkit:SettingsExpander x:Uid="AutoComicUpdateExpander"
+                                              HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">
+                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableUpdateCheckSchedules}" SelectedItem="{x:Bind ViewModel.SelectedUpdateCheckSchedule, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="enums:UpdateCheckSchedule">
+                                    <TextBlock Text="{x:Bind helpers:UpdateCheckScheduleHelper.ToDisplayName((enums:UpdateCheckSchedule))}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <toolkit:SettingsExpander.ItemsHeader>
+                            <InfoBar x:Uid="AutoComicUpdateBadgeInfoBar"
+                                     BorderThickness="0"
+                                     CornerRadius="0"
+                                     IsClosable="False"
+                                     IsOpen="True" />
+                        </toolkit:SettingsExpander.ItemsHeader>
+                        <toolkit:SettingsExpander.Items>
+                            <toolkit:SettingsCard x:Uid="AutoComicUpdateRecentCountCard" HeaderIcon="{ui:FontIcon Glyph=&#xE71C;}">
+                                <NumberBox Minimum="0" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.AutoComicUpdateRecentCount, Mode=TwoWay}" />
+                            </toolkit:SettingsCard>
+                        </toolkit:SettingsExpander.Items>
+                    </toolkit:SettingsExpander>
 
                     <!--  Reader Section  -->
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
