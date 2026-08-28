@@ -3,6 +3,27 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="using:Yukari"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" />
+        xmlns:vp="using:Yukari.Views.Pages"
+        mc:Ignorable="d">
+    <Grid x:Name="RootElement">
+        <Frame x:Name="RootFrame" SourcePageType="vp:SplashPage" />
+
+        <Grid x:Name="BrowserContainer"
+              Width="100"
+              Height="100"
+              Margin="-125,-125,0,0"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Top"
+              IsHitTestVisible="False"
+              Visibility="Visible" />
+        <Button x:Name="CancelBrowserInteractionBT"
+                Height="34"
+                Margin="4,4,0,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Click="CancelBrowserInteractionBT_Click"
+                Content="Cancel"
+                Visibility="Collapsed" />
+    </Grid>
+</Window>

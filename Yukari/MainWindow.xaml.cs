@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI;
@@ -12,6 +13,7 @@ using Serilog;
 using Windows.Graphics;
 using Windows.System;
 using Windows.UI;
+using Yukari.Core.Sources.Browser;
 using Yukari.Enums;
 using Yukari.Messages;
 using Yukari.Messages.Shortcuts;
@@ -22,7 +24,7 @@ using Yukari.Views.Pages;
 
 namespace Yukari;
 
-public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage>
+public sealed partial class MainWindow : Window, IBrowserHost, IRecipient<SetFullscreenMessage>
 {
     private const string WindowTitle = "Yukari";
     private const string WindowIconPath = "Assets/AppIcon.ico";
@@ -36,7 +38,9 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
     private readonly double _scaleFactor;
     private readonly OverlappedPresenter _presenter;
 
-    private readonly Frame _rootFrame = new() { Content = new SplashPage() };
+    private Storyboard? _currentStoryboard;
+
+    public event Action? UserCancelledInteraction;
 
     public MainWindow()
     {
@@ -49,7 +53,6 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
         ExtendsContentIntoTitleBar = true;
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
 
-        Content = _rootFrame;
         SetTheme(_settingsService.Current.Theme);
 
         _presenter = OverlappedPresenter.Create();
@@ -82,14 +85,104 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
     public void SetMicaBackdrop() => SystemBackdrop = new MicaBackdrop();
 
     public void NavigateToShell() =>
-        _rootFrame.Navigate(typeof(ShellPage), null, new DrillInNavigationTransitionInfo());
+        RootFrame.Navigate(typeof(ShellPage), null, new DrillInNavigationTransitionInfo());
 
     public void NavigateToError(Exception ex) =>
-        _rootFrame.Navigate(
+        RootFrame.Navigate(
             typeof(InitializationErrorPage),
             ex,
             new DrillInNavigationTransitionInfo()
         );
+
+    public void AttachBrowser(object browser)
+    {
+        if (browser is WebView2 wv)
+            BrowserContainer.Children.Add(wv);
+    }
+
+    public void DetachBrowser(object browser)
+    {
+        if (browser is WebView2 wv)
+            BrowserContainer.Children.Remove(wv);
+    }
+
+    public void ShowBrowser()
+    {
+        _currentStoryboard?.Stop();
+
+        if (BrowserContainer.Children.FirstOrDefault() is not WebView2)
+        {
+            Log.Warning("ShowBrowser called but WebView2 not found");
+            return;
+        }
+
+        SizeChanged += OnWindowSizeChangedWhileBrowserVisible;
+        CancelBrowserInteractionBT.Visibility = Visibility.Visible;
+
+        BrowserContainer.Margin = new Thickness(0);
+        BrowserContainer.Width = AppWindow.Size.Width;
+        BrowserContainer.Height = AppWindow.Size.Height;
+        BrowserContainer.IsHitTestVisible = true;
+
+        BrowserContainer.RenderTransform = new TranslateTransform { Y = 100 };
+        BrowserContainer.Opacity = 0;
+
+        _currentStoryboard = new Storyboard();
+        var slideAnimation = new DoubleAnimation
+        {
+            To = 0,
+            Duration = new Duration(TimeSpan.FromMilliseconds(250)),
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+        };
+        Storyboard.SetTarget(slideAnimation, BrowserContainer.RenderTransform);
+        Storyboard.SetTargetProperty(slideAnimation, "Y");
+        _currentStoryboard.Children.Add(slideAnimation);
+
+        var fadeAnimation = new DoubleAnimation
+        {
+            To = 1,
+            Duration = new Duration(TimeSpan.FromMilliseconds(250)),
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+        };
+        Storyboard.SetTarget(fadeAnimation, BrowserContainer);
+        Storyboard.SetTargetProperty(fadeAnimation, "Opacity");
+        _currentStoryboard.Children.Add(fadeAnimation);
+
+        _currentStoryboard.Begin();
+    }
+
+    public void HideBrowser()
+    {
+        CancelBrowserInteractionBT.Visibility = Visibility.Collapsed;
+
+        _currentStoryboard?.Stop();
+        _currentStoryboard = new Storyboard();
+
+        var fadeAnimation = new DoubleAnimation
+        {
+            To = 0,
+            Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn },
+        };
+        Storyboard.SetTarget(fadeAnimation, BrowserContainer);
+        Storyboard.SetTargetProperty(fadeAnimation, "Opacity");
+        _currentStoryboard.Children.Add(fadeAnimation);
+
+        _currentStoryboard.Completed += (s, e) =>
+        {
+            SizeChanged -= OnWindowSizeChangedWhileBrowserVisible;
+
+            BrowserContainer.Margin = new Thickness(-125, -125, 0, 0);
+            BrowserContainer.Width = 100;
+            BrowserContainer.Height = 100;
+            BrowserContainer.Opacity = 1;
+            BrowserContainer.IsHitTestVisible = false;
+
+            BrowserContainer.RenderTransform = null;
+        };
+
+        _currentStoryboard.Begin();
+    }
 
     private void SetFullscreenState(bool isFullscreen)
     {
@@ -107,7 +200,7 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
             ThemeMode.Dark => ElementTheme.Dark,
             _ => ElementTheme.Default,
         };
-        _rootFrame.RequestedTheme = newTheme;
+        RootElement.RequestedTheme = newTheme;
 
         if (newTheme == ElementTheme.Default)
             newTheme =
@@ -170,8 +263,10 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
         }
 
         await _settingsService.SaveAsync();
+        await App.GetService<IBrowserService>().DisposeAsync();
 
         _settingsService.SettingChanged -= Settings_Changed;
+        Content.KeyDown -= OnKeyDown;
         Closed -= MainWindow_Closed;
 
 #if DEBUG || DEBUG_UNPACKAGED
@@ -181,6 +276,15 @@ public sealed partial class MainWindow : Window, IRecipient<SetFullscreenMessage
 #endif
         await Log.CloseAndFlushAsync();
         Close();
+    }
+
+    private void CancelBrowserInteractionBT_Click(object sender, RoutedEventArgs e) =>
+        UserCancelledInteraction?.Invoke();
+
+    private void OnWindowSizeChangedWhileBrowserVisible(object sender, WindowSizeChangedEventArgs e)
+    {
+        BrowserContainer.Width = AppWindow.Size.Width;
+        BrowserContainer.Height = AppWindow.Size.Height;
     }
 
     [DllImport("user32.dll")]
