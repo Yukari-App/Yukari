@@ -87,7 +87,7 @@
                         <TextBlock Grid.Row="2"
                                    VerticalAlignment="Bottom"
                                    FontSize="14"
-                                   Text="{x:Bind Chapter.LastUpdate}" />
+                                   Text="{x:Bind Chapter.LastUpdate, FallbackValue=''}" />
                     </Grid>
                     <StackPanel Grid.Column="1"
                                 HorizontalAlignment="Right"

@@ -11,7 +11,7 @@ public class ChapterModel
     public string? Volume { get; set; }
     public string? Language { get; set; }
     public string[] Groups { get; set; } = Array.Empty<string>();
-    public DateOnly LastUpdate { get; set; }
+    public DateOnly? LastUpdate { get; set; }
     public int? Pages { get; set; }
 
     public bool IsAvailable { get; set; } = true;
