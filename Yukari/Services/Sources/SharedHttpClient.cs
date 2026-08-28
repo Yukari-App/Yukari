@@ -1,7 +1,7 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Yukari.Core.Sources;
+using Yukari.Core.Sources.Http;
 
 namespace Yukari.Services.Sources;
 
