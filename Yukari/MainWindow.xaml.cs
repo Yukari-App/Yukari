@@ -148,6 +148,12 @@ public sealed partial class MainWindow : Window, IBrowserHost, IRecipient<SetFul
         Storyboard.SetTargetProperty(fadeAnimation, "Opacity");
         _currentStoryboard.Children.Add(fadeAnimation);
 
+        _currentStoryboard.Completed += (s, e) =>
+        {
+            BrowserContainer.Opacity = 1;
+            BrowserContainer.RenderTransform = new TranslateTransform { Y = 0 };
+        };
+
         _currentStoryboard.Begin();
     }
 
