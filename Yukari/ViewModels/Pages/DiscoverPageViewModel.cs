@@ -213,10 +213,14 @@ public partial class DiscoverPageViewModel
         FilterCommand.NotifyCanExecuteChanged();
     }
 
+    private int _ongoingSearchCount;
+
     private async Task UpdateDisplayedComicsAsync(bool append = false)
     {
         if (SelectedComicSource == null)
             return;
+
+        _ongoingSearchCount++;
 
         _searchCts.Cancel();
         _searchCts.Dispose();
@@ -241,9 +245,6 @@ public partial class DiscoverPageViewModel
             _currentPage,
             _searchCts.Token
         );
-
-        if (result.IsCancelled)
-            return;
 
         if (result.IsSuccess)
         {
@@ -272,15 +273,19 @@ public partial class DiscoverPageViewModel
                 }
             }
         }
-        else
+        else if (!result.IsCancelled)
         {
             if (append)
                 _currentPage--;
             _notificationService.ShowError(result.Error!, result.ErrorTitle!);
         }
 
-        IsContentLoading = false;
-        IsLoadingMore = false;
+        _ongoingSearchCount--;
+        if (_ongoingSearchCount == 0)
+        {
+            IsContentLoading = false;
+            IsLoadingMore = false;
+        }
     }
 
     async partial void OnSelectedComicSourceChanged(ComicSourceModel? value)
