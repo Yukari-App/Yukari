@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Yukari.Core.Models;
 using Yukari.Core.Sources;
+using Yukari.Core.Sources.Browser;
 using Yukari.Core.Sources.Http;
 using Yukari.Exceptions;
 using Yukari.Helpers;
@@ -25,6 +26,7 @@ internal class SourceService : ISourceService
     private readonly ILogger<SourceService> _logger;
 
     private readonly ISharedHttpClient _sharedHttpClient;
+    private readonly IBrowserService _browserService;
 
     private readonly ConcurrentDictionary<string, Type> _sourceTypeCache = new();
     private readonly ConcurrentDictionary<string, IComicSource> _sourceInstances = new();
@@ -32,12 +34,14 @@ internal class SourceService : ISourceService
     public SourceService(
         IDataService dataService,
         ILogger<SourceService> logger,
-        HttpClient httpClient
+        HttpClient httpClient,
+        IBrowserService browserService
     )
     {
         _dataService = dataService;
         _logger = logger;
         _sharedHttpClient = new SharedHttpClient(httpClient);
+        _browserService = browserService;
     }
 
     public async Task LoadSourceAsync(ComicSourceModel comicSource)
@@ -66,6 +70,8 @@ internal class SourceService : ISourceService
 
             if (instance is IRequiresHttpClient requiresHttpClient)
                 requiresHttpClient.SetHttpClient(_sharedHttpClient);
+            if (instance is IRequiresBrowser requiresBrowser)
+                requiresBrowser.SetBrowser(_browserService);
 
             if (!_sourceInstances.TryAdd(comicSource.Name, instance))
                 await instance.DisposeAsync();
