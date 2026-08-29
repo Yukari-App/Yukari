@@ -1,0 +1,5 @@
+<Project>
+   <PropertyGroup>
+      <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner> 
+   </PropertyGroup>
+</Project>
