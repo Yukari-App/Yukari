@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
 using Serilog;
 using Windows.ApplicationModel.Activation;
+using Yukari.Core.Sources.Browser;
 using Yukari.Enums;
 using Yukari.Helpers;
 using Yukari.Models.DTO;
@@ -77,6 +78,7 @@ public partial class App : Application
 
         _mainWindow = new MainWindow();
         _mainWindow.Activate();
+        GetService<IBrowserService>().SetHost(_mainWindow);
 
         try
         {
@@ -135,6 +137,7 @@ public partial class App : Application
         services.AddSingleton<IExportService, ExportService>();
         services.AddSingleton<ISourceService, SourceService>();
         services.AddSingleton<ILocalSourceService, LocalSourceService>();
+        services.AddSingleton<IBrowserService, BrowserService>();
         services.AddSingleton<IComicService, ComicService>();
 
         services.AddSingleton(sp =>
