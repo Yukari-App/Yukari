@@ -1098,6 +1098,10 @@ internal class DataService : IDataService
 
     #region Helpers
 
+    // Dapper's automatic expansion of IEnumerable into IN clause parameters
+    // has known quirks across providers (parentheses, empty lists, certain types).
+    // We build the parameter list manually for full control and predictability.
+    // See: https://github.com/DapperLib/Dapper/issues/1871
     private static string BuildInClause(
         DynamicParameters parameters,
         IEnumerable<string> values,
