@@ -4,45 +4,56 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - '**'
+      - "**"
 
 jobs:
   build:
     runs-on: windows-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            rid: win-x64
+            profile: win-x64.pubxml
+          - arch: arm64
+            rid: win-arm64
+            profile: win-ARM64.pubxml
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup .NET SDK 10.0
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.0.x
+      - name: Setup .NET SDK 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
 
-    - name: Publish Minimal
-      run: dotnet publish Yukari/Yukari.csproj -c Release -r win-x64 --self-contained false -p:PublishProfile=win-x64.pubxml
+      - name: Publish Minimal (${{ matrix.arch }})
+        run: dotnet publish Yukari/Yukari.csproj -c Release -r ${{ matrix.rid }} --self-contained false -p:PublishProfile=${{ matrix.profile }} -o publish/minimal
 
-    - name: Create Minimal Zip
-      shell: pwsh
-      run: |
-        Compress-Archive -Path Yukari/bin/Release/net10.0-windows*/win-x64/publish/* -DestinationPath Yukari.Minimal.x64.zip
+      - name: Publish Full for Setup (${{ matrix.arch }})
+        run: dotnet publish Yukari/Yukari.csproj -c Release -r ${{ matrix.rid }} --self-contained true -p:PublishProfile=${{ matrix.profile }} -o publish/full
 
-    - name: Publish Full for Setup
-      run: dotnet publish Yukari/Yukari.csproj -c Release -r win-x64 --self-contained true -p:PublishProfile=win-x64.pubxml
+      - name: Create Minimal Zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path publish/minimal/* -DestinationPath Yukari.Minimal.${{ matrix.arch }}.zip
 
-    - name: Compile Inno Setup
-      shell: pwsh
-      run: |
-        & "iscc.exe" Packaging/yukari.iss
+      - name: Compile Inno Setup
+        shell: pwsh
+        run: |
+          & "iscc.exe" "/DMyArch=${{ matrix.arch }}" "/DAppPublishPath=${{ github.workspace }}\publish\full" Packaging/yukari.iss
 
-    - name: Upload Minimal Zip
-      uses: actions/upload-artifact@v4
-      with:
-        name: Yukari.Minimal.x64
-        path: Yukari.Minimal.x64.zip
+      - name: Upload Minimal Zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: Yukari.Minimal.${{ matrix.arch }}
+          path: Yukari.Minimal.${{ matrix.arch }}.zip
 
-    - name: Upload Setup Exe
-      uses: actions/upload-artifact@v4
-      with:
-        name: Yukari.Setup.x64
-        path: Packaging/Yukari.Setup.x64*.exe
+      - name: Upload Setup Exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: Yukari.Setup.${{ matrix.arch }}
+          path: Packaging/Yukari.Setup.${{ matrix.arch }}*.exe

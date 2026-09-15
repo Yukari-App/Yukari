@@ -126,8 +126,8 @@ internal class DialogService : IDialogService
             ViewMode = PickerViewMode.List,
         };
 
-        var file = await picker.PickSingleFolderAsync();
-        return file?.Path;
+        var folder = await picker.PickSingleFolderAsync();
+        return folder?.Path;
     }
 
     public async Task<string?> OpenFileSavePicker(

@@ -2,18 +2,32 @@
 #define MyAppPublisher "TXG0Fk3"
 #define MyAppURL "https://github.com/Yukari-App/Yukari"
 #define MyAppExeName "Yukari.exe"
-#define MyArch "x64"
 
-#define AppPublishPath "..\Yukari\bin\Release\net10.0-windows10.0.22621.0\win-" + MyArch + "\publish\"
-#define FullExePath AppPublishPath + MyAppExeName
+#ifndef MyArch
+  #define MyArch "x64"
+#endif
 
-#ifExist FullExePath
-  #define MyAppVersion GetStringFileInfo(FullExePath, "ProductVersion")
-  #if MyAppVersion == ""
-    #define MyAppVersion GetFileVersion(FullExePath)
-  #endif
+#ifndef AppPublishPath
+  #define AppPublishPath "..\Yukari\bin\Release\net10.0-windows10.0.22621.0\win-" + MyArch + "\publish"
+#endif
+
+#if MyArch == "arm64"
+  #define MyArchAllowed "arm64"
 #else
-  #define MyAppVersion "0.0.0-BuildError"
+  #define MyArchAllowed "x64compatible"
+#endif
+
+#define FullExePath AppPublishPath + "\" + MyAppExeName
+
+#ifndef MyAppVersion
+  #ifexist FullExePath
+    #define MyAppVersion GetStringFileInfo(FullExePath, "ProductVersion")
+    #if MyAppVersion == ""
+      #define MyAppVersion GetFileVersion(FullExePath)
+    #endif
+  #else
+    #define MyAppVersion "0.0.0-BuildError"
+  #endif
 #endif
 
 [Setup]
@@ -28,8 +42,8 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed={#MyArchAllowed}
+ArchitecturesInstallIn64BitMode={#MyArchAllowed}
 
 DisableProgramGroupPage=yes
 LicenseFile=..\LICENSE.txt
@@ -51,7 +65,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#AppPublishPath}*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#AppPublishPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
