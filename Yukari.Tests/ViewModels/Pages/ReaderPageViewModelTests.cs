@@ -618,6 +618,43 @@ public class ReaderPageViewModelTests
             .Be(!currentFullscreenValue);
     }
 
+    [Fact]
+    public async Task SaveCurrentPageImageAsync_ShouldSanitizeSuggestedFileName()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+
+        await ChangeSutAsync("ch-001", false, chapters);
+        _sut.ComicTitle = "Comic: Special / Title?";
+        _sut.ChapterTitle = "Chapter: 1 <Final> *Draft*";
+
+        string? capturedSuggestedFileName = null;
+        _mockDialogService
+            .Setup(d =>
+                d.OpenFileSavePicker(It.IsAny<string?>(), It.IsAny<Dictionary<string, string[]>?>())
+            )
+            .Callback<string?, Dictionary<string, string[]>?>(
+                (fileName, _) => capturedSuggestedFileName = fileName
+            )
+            .ReturnsAsync((string?)null);
+
+        // Act
+        await _sut.SaveCurrentPageImageCommand.ExecuteAsync(null);
+
+        // Assert
+        capturedSuggestedFileName.Should().NotBeNull();
+        capturedSuggestedFileName
+            .Should()
+            .Be("Comic Special  Title - Chapter 1 Final Draft - Page 1");
+        capturedSuggestedFileName!.IndexOfAny(Path.GetInvalidFileNameChars()).Should().Be(-1);
+    }
+
     // ────────────────────────────────────────────────────────────────
     // PROPERTY CHANGE EVENTS
     // ────────────────────────────────────────────────────────────────

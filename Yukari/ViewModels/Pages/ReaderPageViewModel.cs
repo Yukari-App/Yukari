@@ -419,7 +419,9 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
             ext = ".jpg";
 
         var filePath = await _dialogService.OpenFileSavePicker(
-            $"{ComicTitle} - {ChapterTitle} - Page {CurrentPageForDisplay}",
+            FileHelper.SanitizeFileName(
+                $"{ComicTitle} - {ChapterTitle} - Page {CurrentPageForDisplay}"
+            ),
             new Dictionary<string, string[]> { { ext, new[] { ext } } }
         );
 
