@@ -1,11 +1,11 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Yukari.Enums;
+using Yukari.Helpers;
 using Yukari.Models.DTO;
 using Yukari.Services.Storage;
 using Yukari.Services.UI;
@@ -23,7 +23,8 @@ public partial class ChapterExportDialogViewModel : ObservableObject
 
     private string ComicTitle = string.Empty;
     private string ChapterTitle = string.Empty;
-    private string DefaultExportName => SanitizeFileName($"{ComicTitle} - {ChapterTitle}");
+    private string DefaultExportName =>
+        FileHelper.SanitizeFileName($"{ComicTitle} - {ChapterTitle}");
 
     private CancellationTokenSource? _exportCTS;
 
@@ -122,7 +123,9 @@ public partial class ChapterExportDialogViewModel : ObservableObject
         _exportCTS = new();
         IsExporting = true;
 
-        var exportName = string.IsNullOrWhiteSpace(ExportName) ? DefaultExportName : ExportName;
+        var exportName = string.IsNullOrWhiteSpace(ExportName)
+            ? DefaultExportName
+            : FileHelper.SanitizeFileName(ExportName);
         var finalPath = Path.Combine(DestinationPath, exportName);
         finalPath += SelectedExportFormat switch
         {
@@ -165,11 +168,5 @@ public partial class ChapterExportDialogViewModel : ObservableObject
     {
         ExportProgress = progress.current;
         ExportTotal = progress.total;
-    }
-
-    private static string SanitizeFileName(string name)
-    {
-        var invalidChars = Path.GetInvalidFileNameChars();
-        return string.Concat(name.Where(c => !invalidChars.Contains(c)));
     }
 }
