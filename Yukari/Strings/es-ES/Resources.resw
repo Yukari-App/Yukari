@@ -852,6 +852,9 @@
   <data name="ReverseChapterOrderMNItem.Text" xml:space="preserve">
     <value>Invertir Orden de los Capítulos</value>
   </data>
+  <data name="HideDuplicateChaptersMNItem.Text" xml:space="preserve">
+    <value>Ocultar Capítulos Duplicados</value>
+  </data>
   <data name="SavePageMNItem.Text" xml:space="preserve">
     <value>Guardar página...</value>
   </data>

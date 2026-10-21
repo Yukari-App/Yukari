@@ -852,6 +852,9 @@
   <data name="ReverseChapterOrderMNItem.Text" xml:space="preserve">
     <value>Reverse Chapter Order</value>
   </data>
+  <data name="HideDuplicateChaptersMNItem.Text" xml:space="preserve">
+    <value>Hide Duplicate Chapters</value>
+  </data>
   <data name="SavePageMNItem.Text" xml:space="preserve">
     <value>Save Page...</value>
   </data>
