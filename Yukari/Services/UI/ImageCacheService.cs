@@ -17,7 +17,6 @@ internal class ImageCacheService : IImageCacheService
     private readonly IDownloadService _downloadService;
 
     private readonly ConcurrentDictionary<string, ImageSource> _cache = new();
-    private readonly ConcurrentDictionary<string, byte[]> _bytesCache = new();
     private readonly ConcurrentDictionary<string, Task> _loadTasks = new();
     private readonly ConcurrentQueue<string> _insertionQueue = new();
 
@@ -81,10 +80,7 @@ internal class ImageCacheService : IImageCacheService
         if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(filePath))
             return null;
 
-        byte[]? bytes = _bytesCache.TryGetValue(url, out var cachedBytes)
-            ? cachedBytes
-            : await GetImageBytesAsync(url);
-
+        byte[]? bytes = await GetImageBytesAsync(url);
         if (bytes == null)
             return null;
 
@@ -107,7 +103,6 @@ internal class ImageCacheService : IImageCacheService
         )
         {
             _cache.TryRemove(oldest, out _);
-            _bytesCache.TryRemove(oldest, out _);
             _loadTasks.TryRemove(oldest, out _);
         }
     }
@@ -172,8 +167,6 @@ internal class ImageCacheService : IImageCacheService
             return;
         }
 
-        _bytesCache[url] = bytes;
-
         using var stream = new MemoryStream(bytes);
         var randomAccessStream = stream.AsRandomAccessStream();
 
@@ -187,7 +180,6 @@ internal class ImageCacheService : IImageCacheService
                 break;
             default:
                 _cache.TryRemove(url, out _);
-                _bytesCache.TryRemove(url, out _);
                 _loadTasks.TryRemove(url, out _);
                 break;
         }
