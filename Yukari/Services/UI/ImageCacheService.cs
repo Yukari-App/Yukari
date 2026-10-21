@@ -93,7 +93,7 @@ internal class ImageCacheService : IImageCacheService
     }
 
     public async Task<byte[]?> GetImageBytesAsync(string url) =>
-        IsZipEntry(url) ? ReadZipEntryBytes(url)
+        IsZipEntry(url) ? await ReadZipEntryBytesAsync(url)
         : IsLocalPath(url) ? await ReadLocalFileBytesAsync(url)
         : await _downloadService.GetImageBytesAsync(url);
 
@@ -130,26 +130,27 @@ internal class ImageCacheService : IImageCacheService
         }
     }
 
-    private static byte[]? ReadZipEntryBytes(string url)
-    {
-        try
+    private static Task<byte[]?> ReadZipEntryBytesAsync(string url) =>
+        Task.Run(() =>
         {
-            PageUriHelper.TryDecodeZipEntry(url, out var zipPath, out var entryName);
-            using var archive = ZipFile.OpenRead(zipPath);
-            var entry = archive.GetEntry(entryName);
-            if (entry == null)
-                return null;
+            try
+            {
+                PageUriHelper.TryDecodeZipEntry(url, out var zipPath, out var entryName);
+                using var archive = ZipFile.OpenRead(zipPath);
+                var entry = archive.GetEntry(entryName);
+                if (entry == null)
+                    return null;
 
-            using var entryStream = entry.Open();
-            using var memStream = new MemoryStream();
-            entryStream.CopyTo(memStream);
-            return memStream.ToArray();
-        }
-        catch
-        {
-            return null;
-        }
-    }
+                using var entryStream = entry.Open();
+                using var memStream = new MemoryStream();
+                entryStream.CopyTo(memStream);
+                return memStream.ToArray();
+            }
+            catch
+            {
+                return null;
+            }
+        });
 
     private async Task ApplyBytesToImageSourceAsync(
         string url,
