@@ -15,6 +15,8 @@ public static class AppDataHelper
 
     public static string GetDataPath() => EnsureDirectory(Path.Combine(GetAppDataPath(), "Data"));
 
+    public static string GetDatabasePath() => Path.Combine(GetDataPath(), "yukari.db");
+
     public static string GetPluginsPath() =>
         EnsureDirectory(Path.Combine(GetAppDataPath(), "Plugins"));
 

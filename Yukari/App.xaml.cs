@@ -156,7 +156,7 @@ public partial class App : Application
     {
         var migrator = new DatabaseMigrator(
             GetService<ILogger<DatabaseMigrator>>(),
-            $"Data Source={Path.Combine(AppDataHelper.GetDataPath(), "yukari.db")}"
+            $"Data Source={AppDataHelper.GetDatabasePath()}"
         );
 
         await migrator.MigrateAsync();

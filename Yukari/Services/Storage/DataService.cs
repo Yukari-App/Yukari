@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,8 +16,7 @@ namespace Yukari.Services.Storage;
 
 internal class DataService : IDataService
 {
-    private readonly string _connectionString =
-        $"Data Source={Path.Combine(AppDataHelper.GetDataPath(), "yukari.db")}";
+    private readonly string _connectionString = $"Data Source={AppDataHelper.GetDatabasePath()}";
 
     static DataService()
     {
