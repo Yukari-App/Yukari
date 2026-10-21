@@ -13,6 +13,7 @@ public class AppSettings
     public SortDirection FavoritesSortDirection { get; set; } = SortDirection.Ascending;
 
     public bool ReversedChaptersOrder { get; set; } = false;
+    public bool HideDuplicateChapters { get; set; } = false;
 
     public UpdateCheckSchedule AutoComicUpdates { get; set; } = UpdateCheckSchedule.Never;
     public int AutoComicUpdateRecentCount { get; set; } = 0;
