@@ -7,6 +7,7 @@ using Yukari.Models.Common;
 using Yukari.Models.Settings;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
+using Yukari.Services.Sources;
 using Yukari.Services.UI;
 using Yukari.Tests.TestUtils;
 using Yukari.ViewModels.Components;
@@ -18,6 +19,7 @@ public class SettingsPageViewModelTests
 {
     private readonly Mock<ISettingsService> _settingsServiceMock;
     private readonly Mock<IComicService> _comicServiceMock;
+    private readonly Mock<ISourceManager> _sourceManagerMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
     private readonly Mock<IDialogService> _dialogServiceMock;
     private readonly IMessenger _messenger;
@@ -29,13 +31,14 @@ public class SettingsPageViewModelTests
     {
         _settingsServiceMock = new Mock<ISettingsService>();
         _comicServiceMock = new Mock<IComicService>();
+        _sourceManagerMock = new Mock<ISourceManager>();
         _notificationServiceMock = new Mock<INotificationService>();
         _dialogServiceMock = new Mock<IDialogService>();
         _messenger = new FakeMessenger();
         _localizationServiceMock = new Mock<ILocalizationService>();
 
         _settingsServiceMock.Setup(s => s.Current).Returns(new AppSettings());
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.GetComicSourcesAsync())
             .ReturnsAsync(
                 Result<IReadOnlyList<ComicSourceModel>>.Success(new List<ComicSourceModel>())
@@ -44,6 +47,7 @@ public class SettingsPageViewModelTests
         _sut = new SettingsPageViewModel(
             _settingsServiceMock.Object,
             _comicServiceMock.Object,
+            _sourceManagerMock.Object,
             _notificationServiceMock.Object,
             _dialogServiceMock.Object,
             _messenger,
@@ -160,10 +164,10 @@ public class SettingsPageViewModelTests
         _dialogServiceMock
             .Setup(d => d.OpenFilePickerAsync(It.IsAny<string[]>()))
             .ReturnsAsync(pluginPath);
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.UpsertComicSourceAsync(pluginPath))
             .ReturnsAsync(Result.Success());
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.GetComicSourcesAsync())
             .ReturnsAsync(
                 Result<IReadOnlyList<ComicSourceModel>>.Success(
@@ -184,7 +188,7 @@ public class SettingsPageViewModelTests
         await _sut.AddComicSourceCommand.ExecuteAsync(null);
 
         // Assert
-        _comicServiceMock.Verify(s => s.UpsertComicSourceAsync(pluginPath), Times.Once);
+        _sourceManagerMock.Verify(s => s.UpsertComicSourceAsync(pluginPath), Times.Once);
         _notificationServiceMock.Verify(
             n => n.ShowSuccess(It.IsAny<string>(), It.IsAny<string>()),
             Times.Once
@@ -202,7 +206,7 @@ public class SettingsPageViewModelTests
         _dialogServiceMock
             .Setup(d => d.OpenFilePickerAsync(It.IsAny<string[]>()))
             .ReturnsAsync(pluginPath);
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.UpsertComicSourceAsync(pluginPath))
             .ReturnsAsync(Result.PendingRestart());
 
@@ -224,7 +228,7 @@ public class SettingsPageViewModelTests
         _dialogServiceMock
             .Setup(d => d.OpenFilePickerAsync(It.IsAny<string[]>()))
             .ReturnsAsync(pluginPath);
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.UpsertComicSourceAsync(pluginPath))
             .ReturnsAsync(Result.Failure("Error", "Title"));
 
@@ -249,10 +253,10 @@ public class SettingsPageViewModelTests
             null!,
             null!
         );
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.RemoveComicSourceAsync("Test"))
             .ReturnsAsync(Result.Success());
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.GetComicSourcesAsync())
             .ReturnsAsync(
                 Result<IReadOnlyList<ComicSourceModel>>.Success(new List<ComicSourceModel>())
@@ -262,7 +266,7 @@ public class SettingsPageViewModelTests
         await _sut.RemoveComicSourceCommand.ExecuteAsync(itemVm);
 
         // Assert
-        _comicServiceMock.Verify(s => s.RemoveComicSourceAsync("Test"), Times.Once);
+        _sourceManagerMock.Verify(s => s.RemoveComicSourceAsync("Test"), Times.Once);
         _sut.ComicSourceItems.Should().BeEmpty();
     }
 
@@ -281,7 +285,7 @@ public class SettingsPageViewModelTests
             IsEnabled = true,
         };
         _sut.ComicSourceItems = new() { new ComicSourceItemViewModel(source, null!, null!) };
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.UpdateComicSourceIsEnabledAsync("Test", true))
             .ReturnsAsync(Result.Success());
 
@@ -289,7 +293,7 @@ public class SettingsPageViewModelTests
         await _sut.ComicSourceIsEnabledChangedCommand.ExecuteAsync(("Test", true));
 
         // Assert
-        _comicServiceMock.Verify(s => s.UpdateComicSourceIsEnabledAsync("Test", true), Times.Once);
+        _sourceManagerMock.Verify(s => s.UpdateComicSourceIsEnabledAsync("Test", true), Times.Once);
         _sut.AvailableComicSources.Should().ContainSingle(c => c.Name == "Test");
         _sut.DefaultComicSource.Should().NotBeNull();
     }

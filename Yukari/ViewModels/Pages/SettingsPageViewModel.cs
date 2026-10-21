@@ -13,6 +13,7 @@ using Yukari.Models;
 using Yukari.Models.Settings;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
+using Yukari.Services.Sources;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
@@ -22,6 +23,7 @@ public partial class SettingsPageViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService;
     private readonly IComicService _comicService;
+    private readonly ISourceManager _sourceManager;
     private readonly INotificationService _notificationService;
     private readonly IDialogService _dialogService;
     private readonly IMessenger _messenger;
@@ -73,6 +75,7 @@ public partial class SettingsPageViewModel : ObservableObject
     public SettingsPageViewModel(
         ISettingsService settingsService,
         IComicService comicService,
+        ISourceManager sourceManager,
         INotificationService notificationService,
         IDialogService dialogService,
         IMessenger messenger,
@@ -81,6 +84,7 @@ public partial class SettingsPageViewModel : ObservableObject
     {
         _settingsService = settingsService;
         _comicService = comicService;
+        _sourceManager = sourceManager;
         _notificationService = notificationService;
         _dialogService = dialogService;
         _messenger = messenger;
@@ -119,7 +123,7 @@ public partial class SettingsPageViewModel : ObservableObject
         if (pluginPath == null)
             return;
 
-        var result = await _comicService.UpsertComicSourceAsync(pluginPath);
+        var result = await _sourceManager.UpsertComicSourceAsync(pluginPath);
         if (result.Kind == ResultKind.PendingRestart)
         {
             _notificationService.ShowWarning(
@@ -149,7 +153,7 @@ public partial class SettingsPageViewModel : ObservableObject
     [RelayCommand]
     private async Task RemoveComicSourceAsync(ComicSourceItemViewModel comicSourceItem)
     {
-        var result = await _comicService.RemoveComicSourceAsync(comicSourceItem.ComicSource.Name);
+        var result = await _sourceManager.RemoveComicSourceAsync(comicSourceItem.ComicSource.Name);
 
         if (result.Kind == ResultKind.PendingRestart)
         {
@@ -176,7 +180,10 @@ public partial class SettingsPageViewModel : ObservableObject
     [RelayCommand]
     private async Task OnComicSourceIsEnabledChanged((string Name, bool IsEnabled) args)
     {
-        var result = await _comicService.UpdateComicSourceIsEnabledAsync(args.Name, args.IsEnabled);
+        var result = await _sourceManager.UpdateComicSourceIsEnabledAsync(
+            args.Name,
+            args.IsEnabled
+        );
         if (!result.IsSuccess)
         {
             _notificationService.ShowError(result.Error!, result.ErrorTitle!);
@@ -211,7 +218,7 @@ public partial class SettingsPageViewModel : ObservableObject
 
     private async Task LoadComicSourcesAsync()
     {
-        var result = await _comicService.GetComicSourcesAsync();
+        var result = await _sourceManager.GetComicSourcesAsync();
         if (!result.IsSuccess)
         {
             _notificationService.ShowError(result.Error!, result.ErrorTitle!);

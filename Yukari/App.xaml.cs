@@ -136,6 +136,7 @@ public partial class App : Application
         services.AddSingleton<IDownloadService, DownloadService>();
         services.AddSingleton<IExportService, ExportService>();
         services.AddSingleton<ISourceService, SourceService>();
+        services.AddSingleton<ISourceManager, SourceManager>();
         services.AddSingleton<ILocalSourceService, LocalSourceService>();
         services.AddSingleton<IBrowserService, BrowserService>();
         services.AddSingleton<IComicService, ComicService>();
@@ -166,18 +167,22 @@ public partial class App : Application
     private static async Task ProcessPendingComicSourcesAsync()
     {
         var dbService = GetService<IDataService>();
-        var comicService = GetService<IComicService>();
+        var sourceManager = GetService<ISourceManager>();
         var notificationService = GetService<INotificationService>();
 
         // Removals must be processed before updates: a source could be removed and
         // re-added with the same name in the same startup cycle.
-        await ProcessPendingComicSourcesRemovalsAsync(dbService, comicService, notificationService);
-        await ProcessPendingComicSourcesUpdatesAsync(dbService, comicService, notificationService);
+        await ProcessPendingComicSourcesRemovalsAsync(
+            dbService,
+            sourceManager,
+            notificationService
+        );
+        await ProcessPendingComicSourcesUpdatesAsync(dbService, sourceManager, notificationService);
     }
 
     private static async Task ProcessPendingComicSourcesRemovalsAsync(
         IDataService dbService,
-        IComicService comicService,
+        ISourceManager sourceManager,
         INotificationService notificationService
     )
     {
@@ -186,7 +191,7 @@ public partial class App : Application
 
         foreach (var source in pending)
         {
-            var result = await comicService.RemoveComicSourceAsync(source.Name);
+            var result = await sourceManager.RemoveComicSourceAsync(source.Name);
             if (!result.IsSuccess)
             {
                 Log.Warning(
@@ -204,7 +209,7 @@ public partial class App : Application
 
     private static async Task ProcessPendingComicSourcesUpdatesAsync(
         IDataService dbService,
-        IComicService comicService,
+        ISourceManager sourceManager,
         INotificationService notificationService
     )
     {
@@ -213,7 +218,7 @@ public partial class App : Application
 
         foreach (var source in pending)
         {
-            var result = await comicService.UpsertComicSourceAsync(source.PendingUpdatePath!);
+            var result = await sourceManager.UpsertComicSourceAsync(source.PendingUpdatePath!);
             if (!result.IsSuccess)
             {
                 Log.Warning(

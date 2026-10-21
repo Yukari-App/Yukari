@@ -7,6 +7,7 @@ using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
+using Yukari.Services.Sources;
 using Yukari.Services.UI;
 using Yukari.Tests.TestUtils;
 using Yukari.ViewModels.Components;
@@ -25,6 +26,7 @@ public class DiscoverPageViewModelTests
     };
 
     private readonly Mock<IComicService> _comicServiceMock;
+    private readonly Mock<ISourceManager> _sourceManagerMock;
     private readonly Mock<ISettingsService> _settingsServiceMock;
     private readonly Mock<IDialogService> _dialogServiceMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
@@ -36,6 +38,7 @@ public class DiscoverPageViewModelTests
     public DiscoverPageViewModelTests()
     {
         _comicServiceMock = new Mock<IComicService>();
+        _sourceManagerMock = new Mock<ISourceManager>();
         _settingsServiceMock = new Mock<ISettingsService>();
         _dialogServiceMock = new Mock<IDialogService>();
         _notificationServiceMock = new Mock<INotificationService>();
@@ -46,6 +49,7 @@ public class DiscoverPageViewModelTests
 
         _sut = new DiscoverPageViewModel(
             _comicServiceMock.Object,
+            _sourceManagerMock.Object,
             _settingsServiceMock.Object,
             _dialogServiceMock.Object,
             _notificationServiceMock.Object,
@@ -56,7 +60,7 @@ public class DiscoverPageViewModelTests
 
     private void SetupSafeDefaultReturns()
     {
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.GetComicSourcesAsync())
             .ReturnsAsync(
                 Result<IReadOnlyList<ComicSourceModel>>.Success(new List<ComicSourceModel>())
@@ -195,7 +199,7 @@ public class DiscoverPageViewModelTests
         _sut.OnNavigatedFrom();
         _sut.Receive(new ComicSourcesUpdatedMessage());
 
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.GetComicSourcesAsync())
             .ReturnsAsync(
                 Result<IReadOnlyList<ComicSourceModel>>.Success(
@@ -209,7 +213,7 @@ public class DiscoverPageViewModelTests
         await Task.Delay(100, TestContext.Current.CancellationToken);
 
         // Assert
-        _comicServiceMock.Verify(s => s.GetComicSourcesAsync(), Times.Once);
+        _sourceManagerMock.Verify(s => s.GetComicSourcesAsync(), Times.Once);
         _sut.ComicSources.Should().NotBeNullOrEmpty();
     }
 
@@ -653,7 +657,7 @@ public class DiscoverPageViewModelTests
             },
         };
 
-        _comicServiceMock
+        _sourceManagerMock
             .Setup(s => s.GetComicSourcesAsync())
             .ReturnsAsync(Result<IReadOnlyList<ComicSourceModel>>.Success(Sources));
 

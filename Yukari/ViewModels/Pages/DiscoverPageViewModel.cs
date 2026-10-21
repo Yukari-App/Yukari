@@ -13,6 +13,7 @@ using Yukari.Models;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
+using Yukari.Services.Sources;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components;
 
@@ -24,6 +25,7 @@ public partial class DiscoverPageViewModel
         IRecipient<ComicSourcesUpdatedMessage>
 {
     private readonly IComicService _comicService;
+    private readonly ISourceManager _sourceManager;
     private readonly ISettingsService _settingsService;
     private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
@@ -71,6 +73,7 @@ public partial class DiscoverPageViewModel
 
     public DiscoverPageViewModel(
         IComicService comicService,
+        ISourceManager sourceManager,
         ISettingsService settingsService,
         IDialogService dialogService,
         INotificationService notificationService,
@@ -79,6 +82,7 @@ public partial class DiscoverPageViewModel
     )
     {
         _comicService = comicService;
+        _sourceManager = sourceManager;
         _settingsService = settingsService;
         _dialogService = dialogService;
         _notificationService = notificationService;
@@ -154,7 +158,7 @@ public partial class DiscoverPageViewModel
 
     private async Task UpdateAvailableComicSources()
     {
-        var result = await _comicService.GetComicSourcesAsync();
+        var result = await _sourceManager.GetComicSourcesAsync();
         if (result.IsSuccess)
         {
             ComicSources = result.Value?.Where(s => s.IsEnabled).ToList();

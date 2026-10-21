@@ -64,9 +64,6 @@ public interface IComicService
         bool forceWeb = false,
         CancellationToken ct = default
     );
-    Task<Result<IReadOnlyList<ComicSourceModel>>> GetComicSourcesAsync(
-        CancellationToken ct = default
-    );
 
     Task<Result> UpsertFavoriteComicAsync(ContentKey comic);
     Task<Result<ContentKey>> UpsertLocalComicAsync(
@@ -99,12 +96,9 @@ public interface IComicService
         ContentKey chapterKey,
         int? count
     );
-    Task<Result> UpsertComicSourceAsync(string pluginPath);
-    Task<Result> UpdateComicSourceIsEnabledAsync(string sourceName, bool isEnabled);
 
     Task<Result> RemoveFavoriteComicAsync(ContentKey comicKey);
     Task<Result> RemoveCollectionAsync(string collectionName);
     Task<Result> RemoveComicFromCollectionAsync(ContentKey comicKey, string collectionName);
-    Task<Result> RemoveComicSourceAsync(string sourceName);
     Task<Result> CleanupUnfavoriteComicsDataAsync();
 }
