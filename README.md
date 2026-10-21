@@ -32,7 +32,7 @@ Enjoy **offline reading** of your downloaded/local collection, with optional onl
 
 - 📚 **Local Library** — Save your favorites, with automatic progress tracking per chapter and language
 - 📥 **Offline Downloads** — Download chapters for offline reading, with full download management
-- 📂 Local Comics — Read comics stored on your device (folders or CBZ files)
+- 📂 **Local Comics** — Read comics stored on your device (folders, CBZ, or EPUB files)
 - 📋 **Collections** — Organize favorites into custom collections
 - 🔍 **Advanced Search** — Full filtering support (tags, status, etc.) in the Discover section
 - 📖 **Powerful Reader** — RTL / LTR / Vertical / Webtoon modes, Fit Width / Fit Height / Fit Screen / Original Size scaling, double-tap to zoom, and a page slider to jump anywhere in the chapter
@@ -104,4 +104,3 @@ Contributions are welcome! You can help improve **Yukari** in several ways:
 
 This project is licensed under the **GPL-3.0**. See the [LICENSE](LICENSE) file for details.
 </div>
-
