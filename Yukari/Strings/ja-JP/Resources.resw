@@ -657,9 +657,6 @@
   <data name="ErrorGettingSourceFilters" xml:space="preserve">
     <value>ソースフィルター取得エラー</value>
   </data>
-  <data name="ErrorGettingSourceLanguages" xml:space="preserve">
-    <value>ソース言語取得エラー</value>
-  </data>
   <data name="ErrorFetchingComics" xml:space="preserve">
     <value>漫画取得エラー</value>
   </data>
