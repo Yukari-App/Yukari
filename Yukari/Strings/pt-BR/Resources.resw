@@ -473,7 +473,7 @@
     <value>Lendo sua coleção pessoal de quadrinhos</value>
   </data>
   <data name="LocalComicsHelp1" xml:space="preserve">
-    <value>Yukari suporta dois formatos de capítulos locais: **pastas com imagens** (uma pasta por capítulo) e arquivos **.cbz**. Páginas são lidas diretamente sem extração.</value>
+    <value>Yukari suporta três formatos de capítulos locais: **pastas com imagens** (uma pasta por capítulo), arquivos **.cbz** e **.epub**. Páginas são lidas diretamente sem extração.</value>
   </data>
   <data name="LocalComicsHelp2" xml:space="preserve">
     <value>Para adicionar um quadrinho local: vá até **Favoritos** → ⋯ menu → **Adicionar Quadrinho Local**. Preencha as informações e defina a localização da pasta com os capítulos.</value>

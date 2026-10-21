@@ -473,7 +473,7 @@
     <value>Leyendo tu colección personal de cómics</value>
   </data>
   <data name="LocalComicsHelp1" xml:space="preserve">
-    <value>Yukari soporta dos formatos locales: **carpetas con imágenes** (una carpeta por capítulo) y archivos **.cbz**. Las páginas se leen directamente sin extracción.</value>
+    <value>Yukari soporta tres formatos locales: **carpetas con imágenes** (una carpeta por capítulo), archivos **.cbz** y **.epub**. Las páginas se leen directamente sin extracción.</value>
   </data>
   <data name="LocalComicsHelp2" xml:space="preserve">
     <value>Para añadir un cómic local: abre **Favoritos** → menú ⋯ → **Añadir cómic local**. Rellena los datos y apunta a la carpeta que contiene tus capítulos.</value>

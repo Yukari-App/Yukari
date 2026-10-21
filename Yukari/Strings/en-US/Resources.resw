@@ -473,7 +473,7 @@
     <value>Reading your personal comic collection</value>
   </data>
   <data name="LocalComicsHelp1" xml:space="preserve">
-    <value>Yukari supports two local formats: **folders containing images** (one folder per chapter) and **.cbz** archives. Pages are read directly without extraction.</value>
+    <value>Yukari supports three local formats: **folders containing images** (one folder per chapter), **.cbz**, and **.epub** archives. Pages are read directly without extraction.</value>
   </data>
   <data name="LocalComicsHelp2" xml:space="preserve">
     <value>To add a local comic: open **Favorites** → ⋯ menu → **Add Local Comic**. Fill in the details and point to the folder containing your chapters.</value>

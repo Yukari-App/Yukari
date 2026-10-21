@@ -473,7 +473,7 @@
     <value>個人の漫画コレクションを読む</value>
   </data>
   <data name="LocalComicsHelp1" xml:space="preserve">
-    <value>Yukariは2つのローカル形式に対応しています：**画像を含むフォルダ**（1チャプター1フォルダ）と **.cbz** アーカイブ。ページは展開せずに直接読み取られます。</value>
+    <value>Yukariは3つのローカル形式に対応しています：**画像を含むフォルダ**（1チャプター1フォルダ）、**.cbz**、および **.epub** アーカイブ。ページは展開せずに直接読み取られます。</value>
   </data>
   <data name="LocalComicsHelp2" xml:space="preserve">
     <value>ローカル漫画を追加するには：**お気に入り** → ⋯ メニュー → **ローカル漫画を追加**。詳細を入力し、チャプターが含まれるフォルダを指定します。</value>
