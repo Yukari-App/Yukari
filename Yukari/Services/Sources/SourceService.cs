@@ -99,15 +99,6 @@ internal class SourceService : ISourceService
         return GetLoadedSource(sourceName).Filters;
     }
 
-    public async Task<IReadOnlyDictionary<string, string>> GetLanguagesAsync(
-        string sourceName,
-        CancellationToken ct = default
-    )
-    {
-        await EnsureLoadedAsync(sourceName, ct);
-        return GetLoadedSource(sourceName).Languages;
-    }
-
     public async Task<IReadOnlyList<ComicModel>> SearchComicsAsync(
         string sourceName,
         string query,

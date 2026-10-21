@@ -12,10 +12,6 @@ public interface ISourceService
     Task UnloadSourceAsync(string sourceName);
 
     Task<IReadOnlyList<Filter>> GetFiltersAsync(string sourceName, CancellationToken ct = default);
-    Task<IReadOnlyDictionary<string, string>> GetLanguagesAsync(
-        string sourceName,
-        CancellationToken ct = default
-    );
 
     Task<IReadOnlyList<ComicModel>> SearchComicsAsync(
         string sourceName,

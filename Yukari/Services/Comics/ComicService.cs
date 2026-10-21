@@ -62,21 +62,6 @@ internal class ComicService : IComicService
         );
     }
 
-    public async Task<Result<IReadOnlyDictionary<string, string>>> GetSourceLanguagesAsync(
-        string sourceName,
-        CancellationToken ct = default
-    )
-    {
-        return await ExecuteAsync(
-            async (ct) =>
-                Result<IReadOnlyDictionary<string, string>>.Success(
-                    await _srcService.GetLanguagesAsync(sourceName, ct)
-                ),
-            _localizationService.GetString("ErrorGettingSourceLanguages"),
-            ct
-        );
-    }
-
     public async Task<Result<IReadOnlyList<ComicModel>>> SearchComicsAsync(
         string sourceName,
         string? queryText,

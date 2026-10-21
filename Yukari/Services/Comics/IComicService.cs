@@ -16,10 +16,6 @@ public interface IComicService
         string sourceName,
         CancellationToken ct = default
     );
-    Task<Result<IReadOnlyDictionary<string, string>>> GetSourceLanguagesAsync(
-        string sourceName,
-        CancellationToken ct = default
-    );
 
     Task<Result<IReadOnlyList<ComicModel>>> SearchComicsAsync(
         string sourceName,

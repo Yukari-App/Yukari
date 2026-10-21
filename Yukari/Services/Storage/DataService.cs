@@ -890,36 +890,6 @@ internal class DataService : IDataService
         );
     }
 
-    public async Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey)
-    {
-        using var connection = await GetOpenConnectionAsync();
-        using var transaction = await connection.BeginTransactionAsync();
-
-        await connection.ExecuteAsync(
-            @"DELETE FROM ChapterUserData WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
-            new
-            {
-                Id = chapterKey.Id,
-                ComicId = comicKey.Id,
-                Source = chapterKey.Source,
-            },
-            transaction
-        );
-
-        await connection.ExecuteAsync(
-            @"DELETE FROM Chapters WHERE Id = @Id AND ComicId = @ComicId AND Source = @Source;",
-            new
-            {
-                Id = chapterKey.Id,
-                ComicId = comicKey.Id,
-                Source = chapterKey.Source,
-            },
-            transaction
-        );
-
-        await transaction.CommitAsync();
-    }
-
     public async Task RemoveChapterPagesAsync(ContentKey comicKey, ContentKey chapterKey)
     {
         using var connection = await GetOpenConnectionAsync();

@@ -88,7 +88,6 @@ public interface IDataService
     Task RemoveFavoriteComicAsync(ContentKey comicKey);
     Task RemoveCollectionAsync(string collectionName);
     Task RemoveComicFromCollectionAsync(ContentKey comicKey, string collectionName);
-    Task RemoveChapterAsync(ContentKey comicKey, ContentKey chapterKey);
     Task RemoveChapterPagesAsync(ContentKey comicKey, ContentKey chapterKey);
     Task RemoveAllChapterPagesAsync(ContentKey comicKey);
     Task RemoveComicSourceAsync(string sourceName);
