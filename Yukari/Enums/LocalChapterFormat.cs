@@ -4,4 +4,5 @@ public enum LocalChapterFormat
 {
     FolderWithImages,
     Cbz,
+    Epub,
 }
