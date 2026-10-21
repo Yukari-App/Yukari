@@ -15,5 +15,4 @@ public class ChapterModel
     public int? Pages { get; set; }
 
     public bool IsAvailable { get; set; } = true;
-    public string? LocalPath { get; set; }
 }
