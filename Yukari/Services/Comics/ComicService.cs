@@ -120,8 +120,8 @@ internal class ComicService : IComicService
                     await _dbService.GetFavoriteComicsAsync(
                         queryText,
                         collectionName,
-                        sortBy == FavoritesSortBy.LastRead ? "lastread" : "title",
-                        sortDirection == SortDirection.Descending,
+                        sortBy,
+                        sortDirection,
                         ct
                     )
                 ),

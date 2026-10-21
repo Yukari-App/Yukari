@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.Sqlite;
+using Yukari.Enums;
 using Yukari.Helpers;
 using Yukari.Helpers.Database;
 using Yukari.Models;
@@ -44,8 +45,8 @@ internal class DataService : IDataService
     public async Task<IReadOnlyList<ComicModel>> GetFavoriteComicsAsync(
         string? queryText = null,
         string? collectionName = null,
-        string sortBy = "title",
-        bool descending = false,
+        FavoritesSortBy sortBy = FavoritesSortBy.Alphabetical,
+        SortDirection sortDirection = SortDirection.Ascending,
         CancellationToken ct = default
     )
     {
@@ -53,11 +54,12 @@ internal class DataService : IDataService
 
         var orderByColumn = sortBy switch
         {
-            "lastread" => "u.LastReadAt",
-            _ => "c.Title COLLATE NOCASE",
+            FavoritesSortBy.Alphabetical => "c.Title COLLATE NOCASE",
+            FavoritesSortBy.LastRead => "u.LastReadAt",
+            _ => throw new ArgumentOutOfRangeException(nameof(sortBy), sortBy, null),
         };
-        var direction = descending ? "DESC" : "ASC";
-        var nulls = sortBy == "lastread" ? "NULLS LAST" : "";
+        var direction = sortDirection == SortDirection.Descending ? "DESC" : "ASC";
+        var nulls = sortBy == FavoritesSortBy.LastRead ? "NULLS LAST" : "";
         string sql = $"""
             SELECT c.Id, c.Source, c.Title, c.CoverImageUrl, c.LastUpdate
             FROM Comics c
