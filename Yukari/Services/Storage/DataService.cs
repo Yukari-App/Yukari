@@ -565,12 +565,11 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
         using var transaction = await connection.BeginTransactionAsync();
 
-        var hadExistingChapters =
-            await connection.ExecuteScalarAsync<int>(
+        var existing = (
+            await connection.QueryAsync<string>(
                 """
-                SELECT COUNT(1) FROM Chapters
-                WHERE ComicId = @ComicId AND Source = @Source
-                  AND Language = @Language LIMIT 1;
+                SELECT Id FROM Chapters
+                WHERE ComicId = @ComicId AND Source = @Source AND Language = @Language;
                 """,
                 new
                 {
@@ -579,31 +578,12 @@ internal class DataService : IDataService
                     Language = language,
                 },
                 transaction
-            ) > 0;
+            )
+        ).ToHashSet();
 
-        var incomingIds = chapters.Select(c => c.Id).ToArray();
-        int existingMatchingCount = 0;
-
-        if (incomingIds.Length > 0)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("ComicId", comicKey.Id);
-            parameters.Add("Source", comicKey.Source);
-            parameters.Add("Language", language);
-
-            var inClause = BuildInClause(parameters, incomingIds);
-
-            existingMatchingCount = await connection.ExecuteScalarAsync<int>(
-                $"""
-                SELECT COUNT(1) FROM Chapters
-                WHERE ComicId = @ComicId AND Source = @Source
-                  AND Language = @Language AND Id IN ({inClause});
-                """,
-                parameters,
-                transaction
-            );
-        }
-        var hasNewChapters = existingMatchingCount < incomingIds.Length;
+        var hadExistingChapters = existing.Count > 0;
+        var incomingIds = chapters.Select(c => c.Id);
+        var hasNewChapters = incomingIds.Any(id => !existing.Contains(id));
 
         string sqlReset = keepOldChapters
             ? """
@@ -1093,30 +1073,6 @@ internal class DataService : IDataService
 
         return unfavoriteComics.ToList();
     }
-
-    #endregion
-
-    #region Helpers
-
-    // Dapper's automatic expansion of IEnumerable into IN clause parameters
-    // has known quirks across providers (parentheses, empty lists, certain types).
-    // We build the parameter list manually for full control and predictability.
-    // See: https://github.com/DapperLib/Dapper/issues/1871
-    private static string BuildInClause(
-        DynamicParameters parameters,
-        IEnumerable<string> values,
-        string prefix = "Id"
-    ) =>
-        string.Join(
-            ", ",
-            values.Select(
-                (value, i) =>
-                {
-                    parameters.Add($"{prefix}{i}", value);
-                    return $"@{prefix}{i}";
-                }
-            )
-        );
 
     #endregion
 }
