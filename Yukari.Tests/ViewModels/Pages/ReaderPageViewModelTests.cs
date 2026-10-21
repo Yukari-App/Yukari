@@ -795,7 +795,13 @@ public class ReaderPageViewModelTests
 
         _mockComicService
             .Setup(c =>
-                c.GetAllChaptersAsync(ComicKey, ChaptersLang, false, It.IsAny<CancellationToken>())
+                c.GetAllChaptersAsync(
+                    ComicKey,
+                    ChaptersLang,
+                    false,
+                    false,
+                    It.IsAny<CancellationToken>()
+                )
             )
             .ReturnsAsync(Result<IReadOnlyList<ChapterAggregate>>.Success(chaptersList));
 

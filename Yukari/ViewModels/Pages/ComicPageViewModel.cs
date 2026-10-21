@@ -94,6 +94,9 @@ public partial class ComicPageViewModel
     public partial bool ReversedChapterOrder { get; set; } = false;
 
     [ObservableProperty]
+    public partial bool HideDuplicateChapters { get; set; } = false;
+
+    [ObservableProperty]
     public partial string? SelectedLang { get; set; }
 
     [ObservableProperty]
@@ -184,6 +187,7 @@ public partial class ComicPageViewModel
         _messenger.RegisterAll(this);
 
         ReversedChapterOrder = _settingsService.Current.ReversedChaptersOrder;
+        HideDuplicateChapters = _settingsService.Current.HideDuplicateChapters;
     }
 
     public void Receive(ChapterUserDataUpdatedMessage message) =>
@@ -499,6 +503,7 @@ public partial class ComicPageViewModel
         var result = await _comicService.GetAllChaptersAsync(
             _comicKey,
             SelectedLang,
+            HideDuplicateChapters,
             ct: linkedCts.Token
         );
 
@@ -586,6 +591,15 @@ public partial class ComicPageViewModel
         {
             UpdateIsAllChaptersDownloaded();
         }
+    }
+
+    async partial void OnHideDuplicateChaptersChanged(bool value)
+    {
+        if (!IsComicLoaded)
+            return;
+        await RefreshChaptersAsync();
+        _settingsService.Set(s => s.HideDuplicateChapters, value);
+        await _settingsService.SaveAsync();
     }
 
     async partial void OnReversedChapterOrderChanged(bool value)

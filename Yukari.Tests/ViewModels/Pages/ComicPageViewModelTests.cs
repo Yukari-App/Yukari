@@ -357,6 +357,7 @@ public class ComicPageViewModelTests
                     It.IsAny<ContentKey>(),
                     It.IsAny<string>(),
                     false,
+                    false,
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -385,6 +386,7 @@ public class ComicPageViewModelTests
                 s.GetAllChaptersAsync(
                     It.IsAny<ContentKey>(),
                     It.IsAny<string>(),
+                    false,
                     false,
                     It.IsAny<CancellationToken>()
                 )
@@ -594,7 +596,9 @@ public class ComicPageViewModelTests
             .Setup(s => s.UpsertChaptersAsync(It.IsAny<ContentKey>(), It.IsAny<string>()))
             .ReturnsAsync(Result.Success());
         _mockComicService
-            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
+            .Setup(s =>
+                s.GetAllChaptersAsync(ComicKey, "en", false, false, It.IsAny<CancellationToken>())
+            )
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
                     new ChapterAggregate(
@@ -627,7 +631,9 @@ public class ComicPageViewModelTests
             .Setup(s => s.RemoveFavoriteComicAsync(It.IsAny<ContentKey>()))
             .ReturnsAsync(Result.Success());
         _mockComicService
-            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
+            .Setup(s =>
+                s.GetAllChaptersAsync(ComicKey, "en", false, false, It.IsAny<CancellationToken>())
+            )
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
                     new ChapterAggregate(
@@ -707,7 +713,9 @@ public class ComicPageViewModelTests
                 )
             );
         _mockComicService
-            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
+            .Setup(s =>
+                s.GetAllChaptersAsync(ComicKey, "en", false, false, It.IsAny<CancellationToken>())
+            )
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
                     new ChapterAggregate(
@@ -820,6 +828,7 @@ public class ComicPageViewModelTests
                     ComicKey,
                     It.IsAny<string>(),
                     false,
+                    false,
                     It.IsAny<CancellationToken>()
                 ),
             Times.AtLeastOnce
@@ -873,6 +882,7 @@ public class ComicPageViewModelTests
                     ComicKey,
                     It.IsAny<string>(),
                     false,
+                    false,
                     It.IsAny<CancellationToken>()
                 ),
             Times.AtLeastOnce
@@ -911,7 +921,9 @@ public class ComicPageViewModelTests
             .Setup(s => s.UpsertChaptersIsReadAsync(ComicKey, new string[] { "ch-001" }, true))
             .ReturnsAsync(Result.Success());
         _mockComicService
-            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
+            .Setup(s =>
+                s.GetAllChaptersAsync(ComicKey, "en", false, false, It.IsAny<CancellationToken>())
+            )
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
                     new ChapterAggregate(
@@ -990,7 +1002,9 @@ public class ComicPageViewModelTests
             .Setup(s => s.UpsertChaptersIsReadAsync(ComicKey, new[] { "ch-002", "ch-001" }, true))
             .ReturnsAsync(Result.Success());
         _mockComicService
-            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
+            .Setup(s =>
+                s.GetAllChaptersAsync(ComicKey, "en", false, false, It.IsAny<CancellationToken>())
+            )
             .ReturnsAsync(Result<IReadOnlyList<ChapterAggregate>>.Success([]));
 
         // Act
@@ -1039,7 +1053,9 @@ public class ComicPageViewModelTests
             )
             .ReturnsAsync(Result.Success());
         _mockComicService
-            .Setup(s => s.GetAllChaptersAsync(ComicKey, "en", false, It.IsAny<CancellationToken>()))
+            .Setup(s =>
+                s.GetAllChaptersAsync(ComicKey, "en", false, false, It.IsAny<CancellationToken>())
+            )
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
                     new ChapterAggregate(
@@ -1155,6 +1171,53 @@ public class ComicPageViewModelTests
     }
 
     [Fact]
+    public async Task OnHideDuplicateChaptersChanged_RefreshesChapters_AndPersistsPreference()
+    {
+        // Arrange
+        await ChangeSutComic();
+
+        _mockComicService
+            .Setup(s =>
+                s.GetAllChaptersAsync(ComicKey, "en", true, false, It.IsAny<CancellationToken>())
+            )
+            .ReturnsAsync(
+                Result<IReadOnlyList<ChapterAggregate>>.Success([
+                    new ChapterAggregate(
+                        new ChapterModel { Id = "ch-001", Source = SourceName },
+                        new()
+                    ),
+                ])
+            );
+
+        // Act
+        _sut.HideDuplicateChapters = true;
+        await Task.Delay(50, TestContext.Current.CancellationToken);
+
+        // Assert
+        _sut.Chapters.Should().HaveCount(1);
+        _mockComicService.Verify(
+            s => s.GetAllChaptersAsync(ComicKey, "en", true, false, It.IsAny<CancellationToken>()),
+            Times.Once
+        );
+        _mockSettingsService.Verify(s => s.Set(s => s.HideDuplicateChapters, true), Times.Once);
+        _mockSettingsService.Verify(s => s.SaveAsync(), Times.Once);
+    }
+
+    [Fact]
+    public void OnHideDuplicateChaptersChanged_DoesNothing_WhenComicNotYetLoaded()
+    {
+        // Act
+        _sut.HideDuplicateChapters = true;
+
+        // Assert
+        _mockSettingsService.Verify(
+            s => s.Set(s => s.HideDuplicateChapters, It.IsAny<bool>()),
+            Times.Never
+        );
+        _mockSettingsService.Verify(s => s.SaveAsync(), Times.Never);
+    }
+
+    [Fact]
     public void OnReversedChapterOrderChanged_DoesNothing_WhenComicNotYetLoaded()
     {
         // Act
@@ -1176,7 +1239,13 @@ public class ComicPageViewModelTests
 
         _mockComicService
             .Setup(s =>
-                s.GetAllChaptersAsync(ComicKey, "pt-BR", false, It.IsAny<CancellationToken>())
+                s.GetAllChaptersAsync(
+                    ComicKey,
+                    "pt-BR",
+                    false,
+                    false,
+                    It.IsAny<CancellationToken>()
+                )
             )
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success([
@@ -1221,7 +1290,13 @@ public class ComicPageViewModelTests
 
         _mockComicService
             .Setup(s =>
-                s.GetAllChaptersAsync(ComicKey, "pt-BR", false, It.IsAny<CancellationToken>())
+                s.GetAllChaptersAsync(
+                    ComicKey,
+                    "pt-BR",
+                    false,
+                    false,
+                    It.IsAny<CancellationToken>()
+                )
             )
             .ReturnsAsync(
                 Result<IReadOnlyList<ChapterAggregate>>.Success(Array.Empty<ChapterAggregate>())
@@ -1272,6 +1347,7 @@ public class ComicPageViewModelTests
                 s.GetAllChaptersAsync(
                     It.IsAny<ContentKey>(),
                     It.IsAny<string>(),
+                    false,
                     false,
                     It.IsAny<CancellationToken>()
                 )

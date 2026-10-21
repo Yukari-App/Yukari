@@ -205,6 +205,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         var result = await _comicService.GetAllChaptersAsync(
             comicKey,
             selectedLang,
+            _settingsService.Current.HideDuplicateChapters,
             ct: _navigationCts.Token
         );
 
