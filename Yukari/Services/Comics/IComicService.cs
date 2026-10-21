@@ -53,6 +53,7 @@ public interface IComicService
     Task<Result<IReadOnlyList<ChapterAggregate>>> GetAllChaptersAsync(
         ContentKey ComicKey,
         string language,
+        bool hideDuplicateChapters = false,
         bool forceWeb = false,
         CancellationToken ct = default
     );
