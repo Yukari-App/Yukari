@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Yukari.Core.Models;
 using Yukari.Enums;
-using Yukari.Exceptions;
 using Yukari.Helpers;
 using Yukari.Models;
 using Yukari.Models.Common;
@@ -19,7 +18,7 @@ using Yukari.Services.UI;
 
 namespace Yukari.Services.Comics;
 
-internal class ComicService : IComicService
+internal class ComicService : ResultServiceBase, IComicService
 {
     private readonly IDataService _dbService;
     private readonly ISourceService _srcService;
@@ -36,6 +35,7 @@ internal class ComicService : IComicService
         ILocalizationService localizationService,
         ILogger<ComicService> logger
     )
+        : base(logger, localizationService)
     {
         _dbService = dbService;
         _srcService = srcService;
@@ -850,76 +850,6 @@ internal class ComicService : IComicService
             await _dbService.UpsertChaptersAsync(comicKey, language, chapters);
 
         return chapters;
-    }
-
-    // Wraps all public operations: catches OperationCanceledException, ComicSourceDisabledException,
-    // network errors, and generic exceptions — converting them into Result<T>.
-    // No public method in this service needs its own try/catch.
-    private async Task<Result<T>> ExecuteAsync<T>(
-        Func<CancellationToken, Task<Result<T>>> action,
-        string errorTitle,
-        CancellationToken ct = default
-    )
-    {
-        try
-        {
-            return await action(ct);
-        }
-        catch (OperationCanceledException)
-        {
-            return Result<T>.Cancelled();
-        }
-        catch (ComicSourceDisabledException ex)
-        {
-            return Result<T>.ComicSourceDisabled(ex.Message, errorTitle);
-        }
-        catch (Exception ex) when (IsNetworkError(ex))
-        {
-            _logger.LogWarning(ex, "Network error in {Operation}", errorTitle);
-            return Result<T>.Failure(
-                _localizationService.GetString("NoInternetConnectionOrSourceIsOffline"),
-                errorTitle
-            );
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unhandled error in ComicService — {ErrorTitle}", errorTitle);
-            var message = ex.InnerException?.Message ?? ex.Message;
-            return Result<T>.Failure(message, errorTitle);
-        }
-    }
-
-    private async Task<Result> ExecuteAsync(Func<Task<Result>> action, string errorTitle)
-    {
-        try
-        {
-            return await action();
-        }
-        catch (ComicSourceDisabledException ex)
-        {
-            return Result.ComicSourceDisabled(ex.Message, errorTitle);
-        }
-        catch (Exception ex) when (IsNetworkError(ex))
-        {
-            _logger.LogWarning(ex, "Network error in {Operation}", errorTitle);
-            return Result.Failure(
-                _localizationService.GetString("NoInternetConnectionOrSourceIsOffline"),
-                errorTitle
-            );
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unhandled error in ComicService — {ErrorTitle}", errorTitle);
-            var message = ex.InnerException?.Message ?? ex.Message;
-            return Result.Failure(message, errorTitle);
-        }
-    }
-
-    private bool IsNetworkError(Exception ex)
-    {
-        return ex is System.Net.Http.HttpRequestException
-            || ex is System.Net.Sockets.SocketException
-            || ex.InnerException is System.Net.Http.HttpRequestException;
     }
 
     #endregion
