@@ -513,7 +513,12 @@ internal class ComicService : ResultServiceBase, IComicService
                 if (!comicKey.IsLocal())
                     throw new InvalidOperationException($"Comic {comicKey} isn't a Local Comic");
 
-                var chapters = await _localService.ScanChaptersAsync(chaptersPath, chaptersFormat);
+                var scanResults = await _localService.ScanChaptersAsync(
+                    chaptersPath,
+                    chaptersFormat
+                );
+
+                var chapters = scanResults.Select(r => r.Chapter).ToList();
 
                 await _dbService.UpsertChaptersAsync(
                     comicKey,
@@ -522,21 +527,14 @@ internal class ComicService : ResultServiceBase, IComicService
                     false
                 );
 
-                foreach (var chapter in chapters)
+                foreach (var result in scanResults)
                 {
-                    if (chapter.LocalPath == null)
-                        continue;
-
-                    var pages = await _localService.GetPagesAsync(
-                        chapter.LocalPath,
-                        chaptersFormat
-                    );
-                    if (pages.Count > 0)
+                    if (result.Pages.Count > 0)
                     {
                         await _dbService.UpsertChapterPagesAsync(
                             comicKey,
-                            new ContentKey(chapter.Id, chapter.Source),
-                            pages
+                            new ContentKey(result.Chapter.Id, result.Chapter.Source),
+                            result.Pages
                         );
                     }
                 }

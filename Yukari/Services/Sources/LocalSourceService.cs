@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Yukari.Enums;
 using Yukari.Helpers;
 using Yukari.Models;
+using Yukari.Models.DTO;
 
 namespace Yukari.Services.Sources;
 
@@ -21,7 +22,7 @@ internal class LocalSourceService : ILocalSourceService
         _logger = logger;
     }
 
-    public async Task<IReadOnlyList<ChapterModel>> ScanChaptersAsync(
+    public async Task<IReadOnlyList<LocalChapterScanResult>> ScanChaptersAsync(
         string comicDirectory,
         LocalChapterFormat format,
         CancellationToken ct = default
@@ -30,7 +31,7 @@ internal class LocalSourceService : ILocalSourceService
         if (!Directory.Exists(comicDirectory))
         {
             _logger.LogWarning("Comic directory not found: {Directory}", comicDirectory);
-            return Array.Empty<ChapterModel>();
+            return Array.Empty<LocalChapterScanResult>();
         }
 
         return await Task.Run(
@@ -38,152 +39,146 @@ internal class LocalSourceService : ILocalSourceService
                 format switch
                 {
                     LocalChapterFormat.FolderWithImages => ScanFolderChapters(comicDirectory),
-                    LocalChapterFormat.Cbz => ScanCbzChapters(comicDirectory),
-                    _ => Array.Empty<ChapterModel>(),
+                    LocalChapterFormat.Cbz => ScanArchiveChapters(
+                        comicDirectory,
+                        "*.cbz",
+                        ReadCbzArchive
+                    ),
+                    LocalChapterFormat.Epub => ScanArchiveChapters(
+                        comicDirectory,
+                        "*.epub",
+                        ReadEpubArchive
+                    ),
+                    _ => Array.Empty<LocalChapterScanResult>(),
                 },
             ct
         );
     }
 
-    public async Task<IReadOnlyList<ChapterPageModel>> GetPagesAsync(
-        string chapterPath,
-        LocalChapterFormat format,
-        CancellationToken ct = default
-    ) =>
-        await Task.Run(
-            () =>
-                format switch
-                {
-                    LocalChapterFormat.FolderWithImages => GetFolderPages(chapterPath),
-                    LocalChapterFormat.Cbz => GetCbzPages(chapterPath),
-                    _ => Array.Empty<ChapterPageModel>(),
-                },
-            ct
-        );
-
-    private ChapterModel[] ScanFolderChapters(string comicDirectory)
+    private static LocalChapterScanResult[] ScanFolderChapters(string comicDirectory)
     {
         var chapterDirs = Directory
             .GetDirectories(comicDirectory)
             .OrderBy(d => d, Comparer<string>.Create(NaturalCompare));
 
         return chapterDirs
-            .Select(
-                (dir, index) =>
+            .Select(dir =>
+            {
+                var dirName = Path.GetFileName(dir);
+                var pages = GetImageFiles(dir)
+                    .Select(
+                        (imagePath, index) =>
+                            new ChapterPageModel { Number = index + 1, ImageUrl = imagePath }
+                    )
+                    .ToArray();
+
+                var chapter = new ChapterModel
                 {
-                    var dirName = Path.GetFileName(dir);
-                    var images = GetImageFiles(dir);
+                    Id = dirName,
+                    Source = LocalComicHelper.SourceName,
+                    Title = dirName,
+                    Language = LocalComicHelper.SourceName,
+                    Pages = pages.Length,
+                    LastUpdate = DateOnly.FromDateTime(Directory.GetLastWriteTime(dir)),
+                };
 
-                    return new ChapterModel
-                    {
-                        Id = dirName,
-                        Source = LocalComicHelper.SourceName,
-                        Title = dirName,
-                        Language = LocalComicHelper.SourceName,
-                        Pages = images.Count,
-                        LastUpdate = DateOnly.FromDateTime(Directory.GetLastWriteTime(dir)),
-                        LocalPath = dir,
-                    };
-                }
-            )
+                return new LocalChapterScanResult(chapter, pages);
+            })
             .ToArray();
     }
 
-    private ChapterPageModel[] GetFolderPages(string chapterPath)
+    private LocalChapterScanResult[] ScanArchiveChapters(
+        string comicDirectory,
+        string searchPattern,
+        Func<ZipArchive, (string? Title, IReadOnlyList<string> PageEntries)> archiveReader
+    )
     {
-        if (!Directory.Exists(chapterPath))
-            return Array.Empty<ChapterPageModel>();
-
-        var images = GetImageFiles(chapterPath);
-
-        return images
-            .Select(
-                (imagePath, index) =>
-                    new ChapterPageModel { Number = index + 1, ImageUrl = imagePath }
-            )
-            .ToArray();
-    }
-
-    private ChapterModel[] ScanCbzChapters(string comicDirectory)
-    {
-        var cbzFiles = Directory
-            .GetFiles(comicDirectory, "*.cbz")
+        var archiveFiles = Directory
+            .GetFiles(comicDirectory, searchPattern)
             .OrderBy(f => f, Comparer<string>.Create(NaturalCompare));
 
-        return cbzFiles
-            .Select(
-                (file, index) =>
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(file);
-                    var pageCount = CountCbzEntries(file);
+        return archiveFiles
+            .Select(file =>
+            {
+                var fileName = Path.GetFileNameWithoutExtension(file);
+                var (extractedTitle, pages) = ReadArchive(file, archiveReader);
 
-                    return new ChapterModel
-                    {
-                        Id = fileName,
-                        Source = LocalComicHelper.SourceName,
-                        Title = fileName,
-                        Language = LocalComicHelper.SourceName,
-                        Pages = pageCount,
-                        LastUpdate = DateOnly.FromDateTime(File.GetLastWriteTime(file)),
-                        LocalPath = file,
-                    };
-                }
-            )
+                var chapter = new ChapterModel
+                {
+                    Id = fileName,
+                    Source = LocalComicHelper.SourceName,
+                    Title = !string.IsNullOrWhiteSpace(extractedTitle) ? extractedTitle : fileName,
+                    Language = LocalComicHelper.SourceName,
+                    Pages = pages.Length,
+                    LastUpdate = DateOnly.FromDateTime(File.GetLastWriteTime(file)),
+                };
+
+                return new LocalChapterScanResult(chapter, pages);
+            })
             .ToArray();
     }
 
-    private ChapterPageModel[] GetCbzPages(string chapterPath)
+    private (string? Title, ChapterPageModel[] Pages) ReadArchive(
+        string archivePath,
+        Func<ZipArchive, (string? Title, IReadOnlyList<string> PageEntries)> archiveReader
+    )
     {
-        if (!File.Exists(chapterPath))
-            return Array.Empty<ChapterPageModel>();
+        if (!File.Exists(archivePath))
+            return (null, Array.Empty<ChapterPageModel>());
 
         try
         {
-            using var archive = ZipFile.OpenRead(chapterPath);
-            var images = archive
-                .Entries.Where(e => LocalComicHelper.IsPageImageFile(e.Name))
-                .OrderBy(e => e.FullName, Comparer<string>.Create(NaturalCompare))
-                .ToList();
+            using var archive = ZipFile.OpenRead(archivePath);
+            var (title, pageEntries) = archiveReader(archive);
 
-            return images
+            var pages = pageEntries
                 .Select(
-                    (entry, index) =>
+                    (entryFullName, index) =>
                         new ChapterPageModel
                         {
                             Number = index + 1,
-                            ImageUrl = PageUriHelper.EncodeZipEntry(chapterPath, entry.FullName),
+                            ImageUrl = PageUriHelper.EncodeZipEntry(archivePath, entryFullName),
                         }
                 )
                 .ToArray();
+
+            return (title, pages);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to read CBZ: {CbzPath}", chapterPath);
-            return Array.Empty<ChapterPageModel>();
+            _logger.LogError(ex, "Failed to read archive: {ArchivePath}", archivePath);
+            return (null, Array.Empty<ChapterPageModel>());
         }
     }
 
-    private static List<string> GetImageFiles(string directory)
+    private static (string? Title, IReadOnlyList<string> PageEntries) ReadCbzArchive(
+        ZipArchive archive
+    ) => (null, GetNaturalSortedImageEntries(archive));
+
+    private static (string? Title, IReadOnlyList<string> PageEntries) ReadEpubArchive(
+        ZipArchive archive
+    )
     {
-        return Directory
+        var (title, pages) = EpubHelper.ExtractContent(archive);
+        if (pages.Count == 0)
+            pages = GetNaturalSortedImageEntries(archive);
+
+        return (title, pages);
+    }
+
+    private static List<string> GetNaturalSortedImageEntries(ZipArchive archive) =>
+        archive
+            .Entries.Where(e => LocalComicHelper.IsPageImageFile(e.Name))
+            .OrderBy(e => e.FullName, Comparer<string>.Create(NaturalCompare))
+            .Select(e => e.FullName)
+            .ToList();
+
+    private static List<string> GetImageFiles(string directory) =>
+        Directory
             .GetFiles(directory)
             .Where(LocalComicHelper.IsPageImageFile)
             .OrderBy(f => f, Comparer<string>.Create(NaturalCompare))
             .ToList();
-    }
-
-    private static int CountCbzEntries(string cbzPath)
-    {
-        try
-        {
-            using var archive = ZipFile.OpenRead(cbzPath);
-            return archive.Entries.Count(e => LocalComicHelper.IsPageImageFile(e.Name));
-        }
-        catch
-        {
-            return 0;
-        }
-    }
 
     private static int NaturalCompare(string? a, string? b)
     {
