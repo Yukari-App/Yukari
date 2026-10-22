@@ -332,7 +332,7 @@ public static partial class EpubHelper
     }
 
     [GeneratedRegex(
-        @"<(?:img|image)\b[^>]*(?:src|href)\s*=\s*[""']([^""']+)[""']",
+        @"<(?:img|image)\b[^>]*?\s(?:src|href|xlink:href)\s*=\s*[""']([^""']+)[""']",
         RegexOptions.IgnoreCase
     )]
     private static partial Regex ImgOrSvgImageRegex();

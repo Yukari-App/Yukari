@@ -230,6 +230,56 @@ public class EpubHelperTests
         pages.Should().Equal("001.jpg");
     }
 
+    [Fact]
+    public void ExtractContent_FallbackRegexIgnoresDataSrc_AndExtractsRealSrc()
+    {
+        // Arrange
+        using var stream = new MemoryStream();
+        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            AddTextEntry(
+                archive,
+                "content.opf",
+                """
+                <package>
+                  <manifest>
+                    <item id="p1" href="page1.html" media-type="text/html"/>
+                  </manifest>
+                  <spine>
+                    <itemref idref="p1"/>
+                  </spine>
+                </package>
+                """
+            );
+
+            AddTextEntry(
+                archive,
+                "page1.html",
+                """
+                <html>
+                  <head><meta charset="utf-8"></head>
+                  <body>
+                    <br>
+                    <img data-src="lazy.jpg" src="real.jpg">
+                  </body>
+                </html>
+                """
+            );
+
+            AddTextEntry(archive, "lazy.jpg", "fake-image-bytes");
+            AddTextEntry(archive, "real.jpg", "fake-image-bytes");
+        }
+
+        stream.Position = 0;
+        using var readArchive = new ZipArchive(stream, ZipArchiveMode.Read);
+
+        // Act
+        var (_, pages) = EpubHelper.ExtractContent(readArchive);
+
+        // Assert
+        pages.Should().Equal("real.jpg");
+    }
+
     private static void AddTextEntry(ZipArchive archive, string entryName, string content)
     {
         var entry = archive.CreateEntry(entryName);
