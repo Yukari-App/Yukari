@@ -97,7 +97,7 @@ internal class LocalSourceService : ILocalSourceService
             .GetFiles(comicDirectory, searchPattern)
             .OrderBy(f => f, Comparer<string>.Create(NaturalCompare));
 
-        return archiveFiles
+        var results = archiveFiles
             .Select(file =>
             {
                 var fileName = Path.GetFileNameWithoutExtension(file);
@@ -116,6 +116,18 @@ internal class LocalSourceService : ILocalSourceService
                 return new LocalChapterScanResult(chapter, pages);
             })
             .ToArray();
+
+        foreach (
+            var duplicateGroup in results
+                .GroupBy(r => r.Chapter.Title?.Trim(), StringComparer.OrdinalIgnoreCase)
+                .Where(g => g.Count() > 1)
+        )
+        {
+            foreach (var item in duplicateGroup)
+                item.Chapter.Title = item.Chapter.Id;
+        }
+
+        return results;
     }
 
     private (string? Title, ChapterPageModel[] Pages) ReadArchive(
