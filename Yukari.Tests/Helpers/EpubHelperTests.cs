@@ -173,6 +173,63 @@ public class EpubHelperTests
         pages.Should().Equal("img/page 1.webp");
     }
 
+    [Fact]
+    public void ExtractContent_DeduplicatesPages_WhenTwoSpineItemsReferenceSameImage()
+    {
+        // Arrange
+        using var stream = new MemoryStream();
+        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            AddTextEntry(
+                archive,
+                "content.opf",
+                """
+                <package>
+                  <manifest>
+                    <item id="p1" href="page1.xhtml" media-type="application/xhtml+xml"/>
+                    <item id="p2" href="page2.xhtml" media-type="application/xhtml+xml"/>
+                  </manifest>
+                  <spine>
+                    <itemref idref="p1"/>
+                    <itemref idref="p2"/>
+                  </spine>
+                </package>
+                """
+            );
+
+            AddTextEntry(
+                archive,
+                "page1.xhtml",
+                """
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                  <body><img src="001.jpg"/></body>
+                </html>
+                """
+            );
+
+            AddTextEntry(
+                archive,
+                "page2.xhtml",
+                """
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                  <body><img src="001.jpg"/></body>
+                </html>
+                """
+            );
+
+            AddTextEntry(archive, "001.jpg", "fake-image-bytes");
+        }
+
+        stream.Position = 0;
+        using var readArchive = new ZipArchive(stream, ZipArchiveMode.Read);
+
+        // Act
+        var (_, pages) = EpubHelper.ExtractContent(readArchive);
+
+        // Assert
+        pages.Should().Equal("001.jpg");
+    }
+
     private static void AddTextEntry(ZipArchive archive, string entryName, string content)
     {
         var entry = archive.CreateEntry(entryName);

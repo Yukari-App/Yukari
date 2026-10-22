@@ -57,6 +57,7 @@ public static partial class EpubHelper
 
         var opfDir = GetDirectoryPath(NormalizeZipPath(opfEntry.FullName));
         var pages = new List<string>();
+        var seenPages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var idRef in spineIdRefs)
         {
@@ -69,7 +70,8 @@ public static partial class EpubHelper
 
             if (LocalComicHelper.IsPageImageFile(itemEntry.Name))
             {
-                pages.Add(itemEntry.FullName);
+                if (seenPages.Add(itemEntry.FullName))
+                    pages.Add(itemEntry.FullName);
             }
             else if (IsWrapperDocument(itemEntry.Name, item.MediaType))
             {
@@ -80,6 +82,7 @@ public static partial class EpubHelper
                     if (
                         entryLookup.TryGetValue(imgPath, out var imgEntry)
                         && LocalComicHelper.IsPageImageFile(imgEntry.Name)
+                        && seenPages.Add(imgEntry.FullName)
                     )
                     {
                         pages.Add(imgEntry.FullName);
