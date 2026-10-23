@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -10,8 +9,8 @@ using Yukari.Services.UI;
 namespace Yukari.Helpers.UI;
 
 // Provides an attached property that binds a list of RichBlock instances,
-// a localization resource key, or a markdown string to a WinUI 3 RichTextBlock
-// or SettingsCard, rendering them as native XAML text elements.
+// a localization resource key, or a markdown string to a WinUI 3 RichTextBlock,
+// rendering them as native XAML text elements.
 public static class RichTextHelper
 {
     #region Attached Property
@@ -30,14 +29,7 @@ public static class RichTextHelper
 
     private static void OnSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        RichTextBlock? target = d switch
-        {
-            RichTextBlock rtb => rtb,
-            SettingsCard card => GetOrCreateCardHeader(card),
-            _ => null,
-        };
-
-        if (target is null)
+        if (d is not RichTextBlock target)
             return;
 
         if (e.NewValue is IReadOnlyList<RichBlock> blocks)
@@ -64,17 +56,6 @@ public static class RichTextHelper
         }
 
         Render(target, null);
-    }
-
-    private static RichTextBlock GetOrCreateCardHeader(SettingsCard card)
-    {
-        if (card.Header is RichTextBlock existing)
-            return existing;
-
-        card.Padding = new Thickness(24, 8, 0, 8);
-        var rtb = new RichTextBlock { HorizontalAlignment = HorizontalAlignment.Left };
-        card.Header = rtb;
-        return rtb;
     }
     #endregion
 
