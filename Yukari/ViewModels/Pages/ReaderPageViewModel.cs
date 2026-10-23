@@ -420,6 +420,8 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
             ),
             new Dictionary<string, string[]> { { ext, new[] { ext } } }
         );
+        if (filePath == null)
+            return;
 
         filePath = await _imageCacheService.SaveCachedImageAsync(currentPageImageUrl, filePath);
         if (filePath != null)
