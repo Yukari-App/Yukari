@@ -3,6 +3,7 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:helpers="using:Yukari.Helpers.UI"
       xmlns:local="using:Yukari.Views.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
@@ -16,6 +17,11 @@
             <Style.Setters>
                 <Setter Property="Margin" Value="1,30,0,6" />
             </Style.Setters>
+        </Style>
+
+        <Style TargetType="toolkit:SettingsExpander">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         </Style>
     </Page.Resources>
 
@@ -43,34 +49,12 @@
                     <TextBlock Margin="1,0,0,6" Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Run x:Uid="FirstStepsSection" FontWeight="Bold" />
                     </TextBlock>
-                    <toolkit:SettingsExpander x:Uid="ComicSourcesHelpExpander"
-                                              HorizontalAlignment="Stretch"
-                                              HorizontalContentAlignment="Stretch"
-                                              HeaderIcon="{ui:FontIcon Glyph=&#xE753;}">
+                    <toolkit:SettingsExpander x:Uid="ComicSourcesHelpExpander" HeaderIcon="{ui:FontIcon Glyph=&#xE753;}">
                         <toolkit:SettingsExpander.Items>
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="ComicSourcesHelp1" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="ComicSourcesHelp2" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="ComicSourcesHelp3" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="ComicSourcesHelp4" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="ComicSourcesHelp1" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="ComicSourcesHelp2" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="ComicSourcesHelp3" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="ComicSourcesHelp4" />
                         </toolkit:SettingsExpander.Items>
                     </toolkit:SettingsExpander>
 
@@ -78,78 +62,27 @@
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Run x:Uid="ComicsSection" FontWeight="Bold" />
                     </TextBlock>
-                    <toolkit:SettingsExpander x:Uid="OnlineComicsHelpExpander"
-                                              HorizontalAlignment="Stretch"
-                                              HorizontalContentAlignment="Stretch"
-                                              HeaderIcon="{ui:FontIcon Glyph=&#xE774;}">
+                    <toolkit:SettingsExpander x:Uid="OnlineComicsHelpExpander" HeaderIcon="{ui:FontIcon Glyph=&#xE774;}">
                         <toolkit:SettingsExpander.Items>
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="OnlineComicsHelp1" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="OnlineComicsHelp2" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="OnlineComicsHelp3" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="OnlineComicsHelp1" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="OnlineComicsHelp2" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="OnlineComicsHelp3" />
                         </toolkit:SettingsExpander.Items>
                     </toolkit:SettingsExpander>
 
-                    <toolkit:SettingsExpander x:Uid="LocalComicsHelpExpander"
-                                              HorizontalAlignment="Stretch"
-                                              HorizontalContentAlignment="Stretch"
-                                              HeaderIcon="{ui:FontIcon Glyph=&#xEDA2;}">
+                    <toolkit:SettingsExpander x:Uid="LocalComicsHelpExpander" HeaderIcon="{ui:FontIcon Glyph=&#xEDA2;}">
                         <toolkit:SettingsExpander.Items>
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="LocalComicsHelp1" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="LocalComicsHelp2" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="LocalComicsHelp3" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="LocalComicsHelp1" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="LocalComicsHelp2" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="LocalComicsHelp3" />
                         </toolkit:SettingsExpander.Items>
                     </toolkit:SettingsExpander>
 
-                    <toolkit:SettingsExpander x:Uid="ReaderHelpExpander"
-                                              HorizontalAlignment="Stretch"
-                                              HorizontalContentAlignment="Stretch"
-                                              HeaderIcon="{ui:FontIcon Glyph=&#xE736;}">
+                    <toolkit:SettingsExpander x:Uid="ReaderHelpExpander" HeaderIcon="{ui:FontIcon Glyph=&#xE736;}">
                         <toolkit:SettingsExpander.Items>
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="ReaderHelp1" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="ReaderHelp2" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="ReaderHelp3" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="ReaderHelp1" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="ReaderHelp2" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="ReaderHelp3" />
                         </toolkit:SettingsExpander.Items>
                     </toolkit:SettingsExpander>
 
@@ -157,28 +90,11 @@
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Run x:Uid="PersistenceSection" FontWeight="Bold" />
                     </TextBlock>
-                    <toolkit:SettingsExpander x:Uid="DownloadsHelpExpander"
-                                              HorizontalAlignment="Stretch"
-                                              HorizontalContentAlignment="Stretch"
-                                              HeaderIcon="{ui:FontIcon Glyph=&#xE896;}">
+                    <toolkit:SettingsExpander x:Uid="DownloadsHelpExpander" HeaderIcon="{ui:FontIcon Glyph=&#xE896;}">
                         <toolkit:SettingsExpander.Items>
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="DownloadsHelp1" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="DownloadsHelp2" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
-
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="DownloadsHelp3" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="DownloadsHelp1" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="DownloadsHelp2" />
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="DownloadsHelp3" />
                         </toolkit:SettingsExpander.Items>
                     </toolkit:SettingsExpander>
 
@@ -186,16 +102,9 @@
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Run x:Uid="SupportSection" FontWeight="Bold" />
                     </TextBlock>
-                    <toolkit:SettingsExpander x:Uid="SupportHelpExpander"
-                                              HorizontalAlignment="Stretch"
-                                              HorizontalContentAlignment="Stretch"
-                                              HeaderIcon="{ui:FontIcon Glyph=&#xE897;}">
+                    <toolkit:SettingsExpander x:Uid="SupportHelpExpander" HeaderIcon="{ui:FontIcon Glyph=&#xE897;}">
                         <toolkit:SettingsExpander.Items>
-                            <toolkit:SettingsCard Padding="24,8,0,8">
-                                <toolkit:SettingsCard.Header>
-                                    <RichTextBlock x:Name="SupportHelp1" HorizontalAlignment="Left" />
-                                </toolkit:SettingsCard.Header>
-                            </toolkit:SettingsCard>
+                            <toolkit:SettingsCard helpers:RichTextHelper.Source="SupportHelp1" />
                         </toolkit:SettingsExpander.Items>
                     </toolkit:SettingsExpander>
                 </StackPanel>
