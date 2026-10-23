@@ -286,6 +286,9 @@
                                     </MenuFlyoutItem.Icon>
                                 </MenuFlyoutItem>
                                 <MenuFlyoutSeparator Visibility="{x:Bind ViewModel.IsOnlineFeaturesVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                                <MenuFlyoutItem x:Uid="SaveCoverMNItem"
+                                                Command="{x:Bind ViewModel.SaveCoverCommand}"
+                                                Icon="{ui:FontIcon Glyph=&#xE74E;}" />
                                 <MenuFlyoutItem x:Uid="OpenInBrowserMNItem"
                                                 Command="{x:Bind ViewModel.OpenInBrowserCommand}"
                                                 Icon="Globe"

@@ -37,6 +37,7 @@ public partial class ComicPageViewModel
     private readonly INotificationService _notificationService;
     private readonly IMessenger _messenger;
     private readonly ILocalizationService _localizationService;
+    private readonly IImageCacheService _imageCacheService;
 
     private ContentKey? _comicKey;
 
@@ -58,6 +59,7 @@ public partial class ComicPageViewModel
         nameof(IsDescriptionVisible),
         nameof(DescriptionBlocks)
     )]
+    [NotifyCanExecuteChangedFor(nameof(SaveCoverCommand))]
     public partial ComicModel? Comic { get; set; }
 
     public string AuthorDisplay => Comic?.Author ?? _localizationService.GetString("Unknown");
@@ -177,7 +179,8 @@ public partial class ComicPageViewModel
         IDialogService dialogService,
         INotificationService notificationService,
         IMessenger messenger,
-        ILocalizationService localizationService
+        ILocalizationService localizationService,
+        IImageCacheService imageCacheService
     )
     {
         _comicService = comicService;
@@ -187,6 +190,7 @@ public partial class ComicPageViewModel
         _notificationService = notificationService;
         _messenger = messenger;
         _localizationService = localizationService;
+        _imageCacheService = imageCacheService;
 
         _messenger.RegisterAll(this);
 
@@ -334,6 +338,36 @@ public partial class ComicPageViewModel
     [RelayCommand(CanExecute = nameof(CanOpenInBrowser))]
     private async Task OpenInBrowserAsync() =>
         await Windows.System.Launcher.LaunchUriAsync(new Uri(Comic!.ComicUrl!));
+
+    private bool CanSaveCover() => !string.IsNullOrWhiteSpace(Comic?.CoverImageUrl);
+
+    [RelayCommand(CanExecute = nameof(CanSaveCover))]
+    private async Task SaveCoverAsync()
+    {
+        if (Comic?.CoverImageUrl == null)
+            return;
+
+        var ext = PageUriHelper.GetFileExtension(Comic.CoverImageUrl);
+        if (string.IsNullOrWhiteSpace(ext))
+            ext = ".jpg";
+
+        var filePath = await _dialogService.OpenFileSavePicker(
+            FileHelper.SanitizeFileName($"{Comic.Title} - Cover"),
+            new Dictionary<string, string[]> { { ext, new[] { ext } } }
+        );
+        if (filePath == null)
+            return;
+
+        filePath = await _imageCacheService.SaveCachedImageAsync(Comic.CoverImageUrl, filePath);
+        if (filePath != null)
+            _notificationService.ShowSuccess(
+                _localizationService.GetString("SuccessSavingComicCover")
+            );
+        else
+            _notificationService.ShowError(
+                _localizationService.GetString("ErrorSavingComicCoverMessage")
+            );
+    }
 
     private bool CanToggleDownloadAllChapters() => IsFavorite && IsInterfaceReady && !IsLocalComic;
 
