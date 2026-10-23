@@ -5,7 +5,7 @@ using Yukari.Models.Rich;
 
 namespace Yukari.Tests.Helpers;
 
-public class DescriptionParserTests
+public class MarkdownParserTests
 {
     [Theory]
     [InlineData(null)]
@@ -14,7 +14,7 @@ public class DescriptionParserTests
     public void Parse_ReturnsEmpty_WhenNothingRenderable(string? raw)
     {
         // Act
-        var result = DescriptionParser.Parse(raw);
+        var result = MarkdownParser.Parse(raw);
 
         // Assert
         result.Should().BeEmpty();
@@ -27,7 +27,7 @@ public class DescriptionParserTests
         var raw = "**bold** and [site](https://example.com)";
 
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().ContainSingle();
@@ -47,7 +47,7 @@ public class DescriptionParserTests
         var raw = "<p>One</p><p>Two <b>bold</b><br>line</p>";
 
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().HaveCount(2);
@@ -60,7 +60,7 @@ public class DescriptionParserTests
     public void Parse_DropsUnsafeLinkSchemes_KeepsText(string raw)
     {
         // Act
-        var inlines = DescriptionParser.Parse(raw)[0].Inlines;
+        var inlines = MarkdownParser.Parse(raw)[0].Inlines;
 
         // Assert
         inlines.Should().NotContain(i => i is RichLink);
@@ -74,7 +74,7 @@ public class DescriptionParserTests
         var raw = "Line1\nLine2";
 
         // Act
-        var inlines = DescriptionParser.Parse(raw)[0].Inlines;
+        var inlines = MarkdownParser.Parse(raw)[0].Inlines;
 
         // Assert
         inlines.Should().HaveCount(3);
@@ -88,7 +88,7 @@ public class DescriptionParserTests
         var raw = "# Heading 1\n\n## Heading 2";
 
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().HaveCount(2);
@@ -108,7 +108,7 @@ public class DescriptionParserTests
         var raw = "<h3>Heading 3</h3>";
 
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().ContainSingle();
@@ -124,7 +124,7 @@ public class DescriptionParserTests
         var raw = "- Item A\n- Item B";
 
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().HaveCount(2);
@@ -144,7 +144,7 @@ public class DescriptionParserTests
         var raw = "<ul><li>a</li><li>b</li></ul>";
 
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().HaveCount(2);
@@ -164,7 +164,7 @@ public class DescriptionParserTests
         var raw = "1. First\n2. Second";
 
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().HaveCount(2);
@@ -184,7 +184,7 @@ public class DescriptionParserTests
         var raw = "> Quoted message";
 
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().ContainSingle();
@@ -198,7 +198,7 @@ public class DescriptionParserTests
     public void Parse_ThematicBreak_CreatesRuleBlock(string raw)
     {
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().ContainSingle();
@@ -212,7 +212,7 @@ public class DescriptionParserTests
         var raw = "*italic* <u>underline</u> <s>strike</s> <del>del</del>";
 
         // Act
-        var inlines = DescriptionParser.Parse(raw)[0].Inlines;
+        var inlines = MarkdownParser.Parse(raw)[0].Inlines;
 
         // Assert
         var styles = inlines.OfType<RichStyled>().Select(s => s.Style).ToList();
@@ -228,7 +228,7 @@ public class DescriptionParserTests
     public void Parse_UnclosedHtmlTags_RecoversGracefullyWithoutThrowing(string raw)
     {
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().ContainSingle();
@@ -242,7 +242,7 @@ public class DescriptionParserTests
         var raw = "_italic text_ and __bold text__";
 
         // Act
-        var inlines = DescriptionParser.Parse(raw)[0].Inlines;
+        var inlines = MarkdownParser.Parse(raw)[0].Inlines;
 
         // Assert
         var styles = inlines.OfType<RichStyled>().Select(s => s.Style).ToList();
@@ -257,7 +257,7 @@ public class DescriptionParserTests
         var raw = "chapter_01_final and local_comic_title";
 
         // Act
-        var inlines = DescriptionParser.Parse(raw)[0].Inlines;
+        var inlines = MarkdownParser.Parse(raw)[0].Inlines;
 
         // Assert
         inlines.Should().NotContain(i => i is RichStyled);
@@ -275,7 +275,7 @@ public class DescriptionParserTests
         var raw = "![Cover Image](https://example.com/cover.jpg)";
 
         // Act
-        var blocks = DescriptionParser.Parse(raw);
+        var blocks = MarkdownParser.Parse(raw);
 
         // Assert
         blocks.Should().BeEmpty();

@@ -10,10 +10,10 @@ using Yukari.Models.Rich;
 
 namespace Yukari.Helpers;
 
-public static partial class DescriptionParser
+public static partial class MarkdownParser
 {
     // Plain AutoLinks only: no advanced extensions (tables etc.), so plain-text
-    // descriptions are mangled as little as possible.
+    // content is mangled as little as possible.
     private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
         .UseAutoLinks()
         .Build();

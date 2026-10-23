@@ -582,7 +582,7 @@ public partial class ComicPageViewModel
 
     partial void OnComicChanged(ComicModel? value)
     {
-        DescriptionBlocks = DescriptionParser.Parse(value?.Description);
+        DescriptionBlocks = MarkdownParser.Parse(value?.Description);
     }
 
     private void OnChapterDownloadStatusChanged(object? sender, PropertyChangedEventArgs e)

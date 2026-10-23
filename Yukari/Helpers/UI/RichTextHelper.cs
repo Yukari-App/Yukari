@@ -1,22 +1,26 @@
 using System.Collections.Generic;
+using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Yukari.Models.Rich;
+using Yukari.Services.UI;
 
 namespace Yukari.Helpers.UI;
 
-// Provides an attached property that binds a list of RichBlock instances
-// to a WinUI 3 RichTextBlock, rendering them as native XAML text elements.
-public static class RichDescription
+// Provides an attached property that binds a list of RichBlock instances,
+// a localization resource key, or a markdown string to a WinUI 3 RichTextBlock
+// or SettingsCard, rendering them as native XAML text elements.
+public static class RichTextHelper
 {
+    #region Attached Property
     // Typed as object on purpose: a DP typed as IReadOnlyList<ManagedRecord> is not a
     // valid WinRT type and tends to blow up in the XAML compiler / x:Bind.
     public static readonly DependencyProperty SourceProperty = DependencyProperty.RegisterAttached(
         "Source",
         typeof(object),
-        typeof(RichDescription),
+        typeof(RichTextHelper),
         new PropertyMetadata(null, OnSourceChanged)
     );
 
@@ -26,9 +30,53 @@ public static class RichDescription
 
     private static void OnSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is RichTextBlock target)
-            Render(target, e.NewValue as IReadOnlyList<RichBlock>);
+        RichTextBlock? target = d switch
+        {
+            RichTextBlock rtb => rtb,
+            SettingsCard card => GetOrCreateCardHeader(card),
+            _ => null,
+        };
+
+        if (target is null)
+            return;
+
+        if (e.NewValue is IReadOnlyList<RichBlock> blocks)
+        {
+            Render(target, blocks);
+            return;
+        }
+
+        if (e.NewValue is string text)
+        {
+            string? localized = null;
+            try
+            {
+                localized = App.GetService<ILocalizationService>()?.GetString(text);
+            }
+            catch
+            {
+                // Fallback to text directly if text is not a valid resource key
+            }
+
+            var markdown = string.IsNullOrEmpty(localized) ? text : localized;
+            Render(target, MarkdownParser.Parse(markdown));
+            return;
+        }
+
+        Render(target, null);
     }
+
+    private static RichTextBlock GetOrCreateCardHeader(SettingsCard card)
+    {
+        if (card.Header is RichTextBlock existing)
+            return existing;
+
+        card.Padding = new Thickness(24, 8, 0, 8);
+        var rtb = new RichTextBlock { HorizontalAlignment = HorizontalAlignment.Left };
+        card.Header = rtb;
+        return rtb;
+    }
+    #endregion
 
     #region Rendering
     private static void Render(RichTextBlock target, IReadOnlyList<RichBlock>? blocks)
@@ -102,6 +150,5 @@ public static class RichDescription
             }
         }
     }
-
     #endregion
 }

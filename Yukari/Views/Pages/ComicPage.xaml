@@ -394,7 +394,7 @@
                                               BorderThickness="1"
                                               CornerRadius="8">
                                     <RichTextBlock Margin="0,0,0,2"
-                                                   helpers:RichDescription.Source="{x:Bind ViewModel.DescriptionBlocks, Mode=OneWay}"
+                                                   helpers:RichTextHelper.Source="{x:Bind ViewModel.DescriptionBlocks, Mode=OneWay}"
                                                    FontSize="16"
                                                    TextAlignment="Justify"
                                                    TextWrapping="WrapWholeWords" />
