@@ -33,6 +33,7 @@ public class ComicPageViewModelTests
     private readonly Mock<INotificationService> _mockNotificationService;
     private readonly FakeMessenger _messenger;
     private readonly Mock<ILocalizationService> _localizationServiceMock;
+    private readonly Mock<IImageCacheService> _imageCacheServiceMock;
 
     private readonly ComicPageViewModel _sut;
 
@@ -45,6 +46,7 @@ public class ComicPageViewModelTests
         _mockNotificationService = new Mock<INotificationService>();
         _messenger = new FakeMessenger();
         _localizationServiceMock = new Mock<ILocalizationService>();
+        _imageCacheServiceMock = new Mock<IImageCacheService>();
 
         _mockSettingsService.Setup(s => s.Current).Returns(new AppSettings());
         _mockComicService
@@ -60,7 +62,8 @@ public class ComicPageViewModelTests
             _mockDialogService.Object,
             _mockNotificationService.Object,
             _messenger,
-            _localizationServiceMock.Object
+            _localizationServiceMock.Object,
+            _imageCacheServiceMock.Object
         );
     }
 
