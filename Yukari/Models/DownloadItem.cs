@@ -22,7 +22,7 @@ public partial class DownloadItem : ObservableObject
     > PageProvider { get; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanCancel), nameof(CanRetry))]
+    [NotifyPropertyChangedFor(nameof(CanCancel), nameof(CanRetry), nameof(IsFinished))]
     public partial DownloadStatus Status { get; set; } = DownloadStatus.Queued;
 
     [ObservableProperty]
@@ -33,6 +33,8 @@ public partial class DownloadItem : ObservableObject
 
     public bool CanCancel => Status is DownloadStatus.Queued or DownloadStatus.Downloading;
     public bool CanRetry => Status is DownloadStatus.Failed or DownloadStatus.Cancelled;
+    public bool IsFinished =>
+        Status is DownloadStatus.Completed or DownloadStatus.Failed or DownloadStatus.Cancelled;
 
     internal CancellationTokenSource Cts { get; } = new();
 

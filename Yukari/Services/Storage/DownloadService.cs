@@ -49,7 +49,7 @@ internal class DownloadService : IDownloadService
     {
         var existing = GetDownload(comicKey, chapterKey);
         if (existing != null)
-            if (existing.Status is DownloadStatus.Failed or DownloadStatus.Cancelled)
+            if (existing.CanRetry)
                 _downloads.Remove(existing);
             else
                 return existing;
@@ -71,13 +71,7 @@ internal class DownloadService : IDownloadService
 
     public void ClearFinishedDownloads()
     {
-        var statuses = new[]
-        {
-            DownloadStatus.Completed,
-            DownloadStatus.Cancelled,
-            DownloadStatus.Failed,
-        };
-        var toRemove = _downloads.Where(d => statuses.Contains(d.Status)).ToList();
+        var toRemove = _downloads.Where(d => d.IsFinished).ToList();
 
         if (toRemove.Count == 0)
             return;
@@ -93,8 +87,7 @@ internal class DownloadService : IDownloadService
         var itemsToDelete = _downloads.Where(d => d.ComicKey.Equals(comicKey)).ToList();
         foreach (var item in itemsToDelete)
         {
-            if (item.Status is DownloadStatus.Queued or DownloadStatus.Downloading)
-                item.Cancel();
+            item.Cancel();
             _downloads.Remove(item);
         }
 
@@ -106,10 +99,7 @@ internal class DownloadService : IDownloadService
     public async Task DeleteChapterDownloadAsync(ContentKey comicKey, ContentKey chapterKey)
     {
         var existing = GetDownload(comicKey, chapterKey);
-        if (existing?.Status is DownloadStatus.Downloading or DownloadStatus.Queued)
-        {
-            existing.Cancel();
-        }
+        existing?.Cancel();
 
         await Task.Run(() => DeleteChapterFolder(comicKey, chapterKey));
         await _dataService.RemoveChapterPagesAsync(comicKey, chapterKey);

@@ -104,6 +104,7 @@ public partial class ChapterItemViewModel : ObservableObject
     public bool IsLocalChapter => Chapter?.IsLocal() ?? false;
     public bool IsChapterAvailable => Chapter.IsReadable(IsDownloaded);
     public bool IsDownloadAvailable => !IsLocalChapter && _isComicFavorite && IsChapterAvailable;
+    public bool NeedsDownload => !IsDownloaded && !IsDownloading && !IsDownloadQueued;
 
     public bool DownloadButtonValue => IsDownloaded || IsDownloadQueued || IsDownloading; // The download ToggleButton is checked when the chapter is either downloaded or currently downloading
     public string DownloadIcon =>
@@ -237,12 +238,7 @@ public partial class ChapterItemViewModel : ObservableObject
             || e.PropertyName == nameof(DownloadItem.Progress)
         )
         {
-            if (
-                DownloadItem?.Status
-                is DownloadStatus.Completed
-                    or DownloadStatus.Failed
-                    or DownloadStatus.Cancelled
-            )
+            if (DownloadItem is { IsFinished: true })
             {
                 _ = RefreshUserDataAsync(TotalPages);
                 DownloadItem.PropertyChanged -= OnDownloadItemPropertyChanged;

@@ -341,17 +341,13 @@ public partial class ComicPageViewModel
 
         if (IsAllChaptersDownloaded)
         {
-            var chaptersToDelete = Chapters!.Where(c =>
-                c.IsDownloaded || c.IsDownloading || c.IsDownloadQueued
-            );
+            var chaptersToDelete = Chapters!.Where(c => !c.NeedsDownload);
             foreach (var chapterVm in chaptersToDelete)
                 await _downloadService.DeleteChapterDownloadAsync(_comicKey, chapterVm.Key);
         }
         else
         {
-            var chaptersToDownload = Chapters!.Where(c =>
-                !c.IsDownloaded && !c.IsDownloading && !c.IsDownloadQueued
-            );
+            var chaptersToDownload = Chapters!.Where(c => c.NeedsDownload);
             foreach (var chapterVm in chaptersToDownload)
                 _downloadService.EnqueueChapterDownload(
                     _comicKey,
@@ -577,9 +573,7 @@ public partial class ComicPageViewModel
 
     private void UpdateIsAllChaptersDownloaded()
     {
-        IsAllChaptersDownloaded =
-            Chapters is { Count: > 0 }
-            && !Chapters.Any(c => !c.IsDownloaded && !c.IsDownloading && !c.IsDownloadQueued);
+        IsAllChaptersDownloaded = Chapters is { Count: > 0 } && !Chapters.Any(c => c.NeedsDownload);
     }
 
     private void OnChapterDownloadStatusChanged(object? sender, PropertyChangedEventArgs e)

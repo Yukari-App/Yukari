@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Yukari.Enums;
 using Yukari.Models;
 using Yukari.Services.Storage;
 
@@ -35,40 +34,28 @@ public partial class DownloadsPageViewModel : ObservableObject
     {
         foreach (var item in Downloads)
         {
-            if (item.Status is DownloadStatus.Downloading or DownloadStatus.Queued)
-                item.Cancel();
+            item.Cancel();
         }
     }
 
     [RelayCommand]
     private void OnCancelOrRetryItemClick(DownloadItem item)
     {
-        switch (item.Status)
-        {
-            case DownloadStatus.Downloading:
-            case DownloadStatus.Queued:
-                CancelDownload(item);
-                break;
-            case DownloadStatus.Failed:
-            case DownloadStatus.Cancelled:
-                RetryDownload(item);
-                break;
-        }
+        if (item.CanCancel)
+            CancelDownload(item);
+        else if (item.CanRetry)
+            RetryDownload(item);
     }
 
     [RelayCommand]
     private async Task OnDeleteItemClickAsync(DownloadItem item) =>
         await _downloadService.DeleteChapterDownloadAsync(item.ComicKey, item.ChapterKey);
 
-    private void CancelDownload(DownloadItem item)
-    {
-        if (item.Status is DownloadStatus.Downloading or DownloadStatus.Queued)
-            item.Cancel();
-    }
+    private void CancelDownload(DownloadItem item) => item.Cancel();
 
     private void RetryDownload(DownloadItem item)
     {
-        if (item.Status is DownloadStatus.Failed or DownloadStatus.Cancelled)
+        if (item.CanRetry)
             _downloadService.EnqueueChapterDownload(
                 item.ComicKey,
                 item.ChapterKey,
