@@ -1,3 +1,5 @@
+using Yukari.Helpers;
+
 namespace Yukari.Models;
 
 public class ComicSourceModel
@@ -11,4 +13,6 @@ public class ComicSourceModel
     public bool IsEnabled { get; set; } = true;
 
     public string? PendingUpdatePath { get; set; }
+
+    public bool IsCoreOutdated => Version.IsCoreOutdated();
 }
