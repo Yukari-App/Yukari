@@ -46,7 +46,7 @@ public partial class ChapterItemViewModel : ObservableObject
     public IRelayCommand<ChapterItemViewModel> ExportChapterCommand { get; }
 
     public ChapterModel Chapter { get; }
-    public ContentKey Key => new(Chapter.Id, Chapter.Source);
+    public ContentKey Key => Chapter.Key;
 
     public string? DisplayTitle { get; }
 

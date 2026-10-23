@@ -1,4 +1,5 @@
 using System;
+using Yukari.Models.DTO;
 
 namespace Yukari.Models;
 
@@ -15,4 +16,6 @@ public class ChapterModel
     public int? Pages { get; set; }
 
     public bool IsAvailable { get; set; } = true;
+
+    public ContentKey Key => new(Id, Source);
 }

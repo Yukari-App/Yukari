@@ -14,7 +14,6 @@ using Windows.ApplicationModel.Activation;
 using Yukari.Core.Sources.Browser;
 using Yukari.Enums;
 using Yukari.Helpers;
-using Yukari.Models.DTO;
 using Yukari.Services;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
@@ -288,7 +287,7 @@ public partial class App : Application
             await semaphore.WaitAsync();
             try
             {
-                var key = new ContentKey(comic.Id, comic.Source);
+                var key = comic.Key;
 
                 var upsertComicResult = await comicService.UpsertFavoriteComicAsync(key);
                 if (!upsertComicResult.IsSuccess)

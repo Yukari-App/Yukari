@@ -492,7 +492,7 @@ public class ChapterItemViewModelTests
             _downloadServiceMock.Object,
             _notificationServiceMock.Object,
             aggregate,
-            new ContentKey(chapter.Id, chapter.Source),
+            chapter.Key,
             isComicFavorite,
             "Test Comic",
             new Mock<IRelayCommand<ContentKey>>().Object,

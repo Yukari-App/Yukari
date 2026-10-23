@@ -384,11 +384,8 @@ internal class ComicService : ResultServiceBase, IComicService
 
                 await _dbService.UpsertFavoriteComicAsync(comic);
 
-                _logger.LogInformation(
-                    "Comic {ComicKey} added to favorites",
-                    new ContentKey(comic.Id, comic.Source)
-                );
-                return Result<ContentKey>.Success(new(comic.Id, comic.Source));
+                _logger.LogInformation("Comic {ComicKey} added to favorites", comic.Key);
+                return Result<ContentKey>.Success(comic.Key);
             },
             _localizationService.GetString("FailedToAddLocalComic")
         );
@@ -533,7 +530,7 @@ internal class ComicService : ResultServiceBase, IComicService
                     {
                         await _dbService.UpsertChapterPagesAsync(
                             comicKey,
-                            new ContentKey(result.Chapter.Id, result.Chapter.Source),
+                            result.Chapter.Key,
                             result.Pages
                         );
                     }

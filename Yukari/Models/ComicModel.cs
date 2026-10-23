@@ -1,5 +1,6 @@
 using System;
 using Yukari.Core.Models;
+using Yukari.Models.DTO;
 
 namespace Yukari.Models;
 
@@ -19,6 +20,8 @@ public class ComicModel
 
     public bool IsAvailable { get; set; } = true;
     public DateTime? LastUpdate { get; set; }
+
+    public ContentKey Key => new(Id, Source);
 
     public bool RecentlyUpdated =>
         LastUpdate.HasValue && (DateTime.UtcNow - LastUpdate.Value) <= TimeSpan.FromDays(1);

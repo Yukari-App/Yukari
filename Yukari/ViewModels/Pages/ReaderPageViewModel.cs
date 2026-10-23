@@ -282,7 +282,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
 
         var pagesResult = await _comicService.GetChapterPagesAsync(
             _comicKey,
-            new(CurrentChapter.Id, CurrentChapter.Source),
+            CurrentChapter.Key,
             ct: linkedCts.Token
         );
 
@@ -320,7 +320,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
             CurrentChapter.Pages = ChapterPages.Count;
             _ = _comicService.UpdateChapterPageCountAsync(
                 _comicKey,
-                new ContentKey(CurrentChapter.Id, CurrentChapter.Source),
+                CurrentChapter.Key,
                 ChapterPages.Count
             );
         }
@@ -472,7 +472,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
 
             var chapterProgressResult = await _comicService.UpsertChapterUserDataAsync(
                 _comicKey,
-                new ContentKey(CurrentChapter.Id, CurrentChapter.Source),
+                CurrentChapter.Key,
                 chapterUserData
             );
 
@@ -480,12 +480,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
                 _notificationService.ShowError(chapterProgressResult.Error!);
         }
 
-        _messenger.Send(
-            new ChapterUserDataUpdatedMessage(
-                new ContentKey(CurrentChapter.Id, CurrentChapter.Source),
-                ChapterPages?.Count
-            )
-        );
+        _messenger.Send(new ChapterUserDataUpdatedMessage(CurrentChapter.Key, ChapterPages?.Count));
 
         var comicProgressResult = await _comicService.UpsertComicReadingProgressAsync(
             _comicKey,

@@ -9,7 +9,7 @@ namespace Yukari.ViewModels.Components;
 public partial class ComicItemViewModel : ObservableObject
 {
     public ComicModel Comic { get; }
-    public ContentKey Key => new(Comic.Id, Comic.Source);
+    public ContentKey Key => Comic.Key;
 
     public IRelayCommand<ContentKey>? RemoveFavoriteComicCommand { get; }
     public IRelayCommand<(ContentKey, string)>? OpenComicCollectionsManagerCommand { get; }

@@ -783,7 +783,7 @@ public class ComicPageViewModelTests
             d =>
                 d.EnqueueChapterDownload(
                     ComicKey,
-                    new ContentKey(chapter1.Id, SourceName),
+                    chapter1.Key,
                     ComicTitle,
                     chapter1.ToDisplayTitle(),
                     It.IsAny<
@@ -796,7 +796,7 @@ public class ComicPageViewModelTests
             d =>
                 d.EnqueueChapterDownload(
                     ComicKey,
-                    new ContentKey(chapter2.Id, SourceName),
+                    chapter2.Key,
                     ComicTitle,
                     chapter2.ToDisplayTitle(),
                     It.IsAny<
@@ -809,7 +809,7 @@ public class ComicPageViewModelTests
             d =>
                 d.EnqueueChapterDownload(
                     ComicKey,
-                    new ContentKey(chapter3.Id, SourceName),
+                    chapter3.Key,
                     ComicTitle,
                     chapter3.ToDisplayTitle(),
                     It.IsAny<
@@ -856,11 +856,11 @@ public class ComicPageViewModelTests
 
         // Assert
         _mockDownloadService.Verify(
-            d => d.DeleteChapterDownloadAsync(ComicKey, new ContentKey(chapter1.Id, SourceName)),
+            d => d.DeleteChapterDownloadAsync(ComicKey, chapter1.Key),
             Times.Once
         );
         _mockDownloadService.Verify(
-            d => d.DeleteChapterDownloadAsync(ComicKey, new ContentKey(chapter2.Id, SourceName)),
+            d => d.DeleteChapterDownloadAsync(ComicKey, chapter2.Key),
             Times.Once
         );
         _mockDownloadService.Verify(
@@ -1354,7 +1354,7 @@ public class ComicPageViewModelTests
             )
             .ReturnsAsync(Result<IReadOnlyList<ChapterAggregate>>.Success(chapters ?? []));
 
-        await _sut.InitializeAsync(new ContentKey(comicModel.Id, comicModel.Source));
+        await _sut.InitializeAsync(comicModel.Key);
     }
 
     private ChapterItemViewModel CreateChapterItemViewModel(
