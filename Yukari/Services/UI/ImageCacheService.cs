@@ -130,7 +130,7 @@ internal class ImageCacheService : IImageCacheService
         {
             try
             {
-                PageUriHelper.TryDecodeZipEntry(url, out var zipPath, out var entryName);
+                ImageUriHelper.TryDecodeZipEntry(url, out var zipPath, out var entryName);
                 using var archive = ZipFile.OpenRead(zipPath);
                 var entry = archive.GetEntry(entryName);
                 if (entry == null)
@@ -189,7 +189,7 @@ internal class ImageCacheService : IImageCacheService
         url.EndsWith(".svg", StringComparison.OrdinalIgnoreCase)
         || url.EndsWith(".svgz", StringComparison.OrdinalIgnoreCase);
 
-    private static bool IsZipEntry(string url) => url.StartsWith(PageUriHelper.ZipScheme);
+    private static bool IsZipEntry(string url) => url.StartsWith(ImageUriHelper.ZipScheme);
 
     private static bool IsLocalPath(string path) =>
         Path.IsPathRooted(path) && !path.StartsWith("http", StringComparison.OrdinalIgnoreCase);

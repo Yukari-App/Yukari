@@ -161,7 +161,7 @@ internal class DownloadService : IDownloadService
     {
         try
         {
-            if (!PageUriHelper.TryDecodeSourceImage(encodedUrl, out var sourceName, out var url))
+            if (!ImageUriHelper.TryDecodeSourceImage(encodedUrl, out var sourceName, out var url))
                 return null;
             return await _sourceService.GetImageBytesAsync(sourceName, url);
         }
@@ -250,7 +250,7 @@ internal class DownloadService : IDownloadService
         CancellationToken ct = default
     )
     {
-        if (!PageUriHelper.TryDecodeSourceImage(encodedUrl, out var sourceName, out var url))
+        if (!ImageUriHelper.TryDecodeSourceImage(encodedUrl, out var sourceName, out var url))
             throw new InvalidOperationException("Invalid Encoded Url");
 
         byte[]? imageBytes =
@@ -291,7 +291,7 @@ internal class DownloadService : IDownloadService
 
     private static string GetImageExtension(string url)
     {
-        var ext = PageUriHelper.GetFileExtension(url);
+        var ext = ImageUriHelper.GetFileExtension(url);
         if (string.IsNullOrWhiteSpace(ext))
             ext = ".jpg";
         return ext;

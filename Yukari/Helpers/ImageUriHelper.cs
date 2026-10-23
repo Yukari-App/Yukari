@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Yukari.Helpers;
 
-internal static class PageUriHelper
+internal static class ImageUriHelper
 {
     public const string SourceScheme = "source:///";
     public const string ZipScheme = "zip:///";

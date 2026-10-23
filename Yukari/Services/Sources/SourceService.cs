@@ -180,7 +180,7 @@ internal class SourceService : ISourceService
             .Select(p => new ChapterPageModel
             {
                 Number = p.Number,
-                ImageUrl = PageUriHelper.EncodeSourceImage(sourceName, p.ImageUrl),
+                ImageUrl = ImageUriHelper.EncodeSourceImage(sourceName, p.ImageUrl),
             })
             .ToList();
     }
@@ -229,7 +229,7 @@ internal class SourceService : ISourceService
     }
 
     private string? TryEncodeImageUrl(string sourceName, string? imageUrl) =>
-        imageUrl != null ? PageUriHelper.EncodeSourceImage(sourceName, imageUrl) : null;
+        imageUrl != null ? ImageUriHelper.EncodeSourceImage(sourceName, imageUrl) : null;
 
     private ComicModel MapToModel(Comic coreComic, string sourceName) =>
         new()

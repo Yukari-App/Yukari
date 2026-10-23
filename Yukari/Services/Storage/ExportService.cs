@@ -57,7 +57,7 @@ internal class ExportService : IExportService
                 if (bytes == null)
                     return Result.Failure($"Failed to retrieve image for page {i + 1}.");
 
-                var ext = PageUriHelper.GetFileExtension(pages[i].ImageUrl) ?? ".jpg";
+                var ext = ImageUriHelper.GetFileExtension(pages[i].ImageUrl) ?? ".jpg";
                 var fileName = $"{i + 1:D3}{ext}";
 
                 if (archive != null)

@@ -410,7 +410,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
             return;
         var currentPageImageUrl = ChapterPages[GetCurrentPageIndex()].ImageUrl;
 
-        var ext = PageUriHelper.GetFileExtension(currentPageImageUrl);
+        var ext = ImageUriHelper.GetFileExtension(currentPageImageUrl);
         if (string.IsNullOrWhiteSpace(ext))
             ext = ".jpg";
 

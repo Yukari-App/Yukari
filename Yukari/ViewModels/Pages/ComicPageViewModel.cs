@@ -347,7 +347,7 @@ public partial class ComicPageViewModel
         if (Comic?.CoverImageUrl == null)
             return;
 
-        var ext = PageUriHelper.GetFileExtension(Comic.CoverImageUrl);
+        var ext = ImageUriHelper.GetFileExtension(Comic.CoverImageUrl);
         if (string.IsNullOrWhiteSpace(ext))
             ext = ".jpg";
 
