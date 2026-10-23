@@ -307,10 +307,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
             .ToList();
 
         var chapterUserData = _chapters[_currentChapterIndex].UserData;
-        CurrentPageIndex = WebtoonPageIndex =
-            chapterUserData.LastPageRead > 0 && (!chapterUserData.IsRead && !forceFirstPage)
-                ? chapterUserData.LastPageRead.Value - 1
-                : 0;
+        CurrentPageIndex = WebtoonPageIndex = chapterUserData.ResumePageIndex(forceFirstPage);
 
         // Ensure a page count for chapters, even when the Source does not provide it.
         if (CurrentChapter.Pages != ChapterPages.Count)
@@ -463,10 +460,8 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
 
         if (!chapterUserData.IsRead)
         {
-            var hasPages = ChapterPages?.Count > 0;
-            chapterUserData.LastPageRead = hasPages ? GetCurrentPageIndex() + 1 : 0;
-            chapterUserData.IsRead =
-                hasPages && CurrentChapter.Pages == chapterUserData.LastPageRead;
+            var currentPage = ChapterPages?.Count > 0 ? GetCurrentPageIndex() + 1 : 0;
+            chapterUserData.RecordProgress(currentPage, CurrentChapter.Pages);
 
             var chapterProgressResult = await _comicService.UpsertChapterUserDataAsync(
                 _comicKey,

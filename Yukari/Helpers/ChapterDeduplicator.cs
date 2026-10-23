@@ -45,9 +45,7 @@ public static class ChapterDeduplicator
                 chapterGroup
                     .OrderByDescending(x => x.Aggregate.IsReadable)
                     .ThenByDescending(x => x.Aggregate.UserData.IsDownloaded)
-                    .ThenByDescending(x =>
-                        x.Aggregate.UserData.IsRead || x.Aggregate.UserData.LastPageRead > 0
-                    )
+                    .ThenByDescending(x => x.Aggregate.UserData.HasProgress)
                     .ThenByDescending(x =>
                         GetMaxGroupFrequency(x.Aggregate.Chapter.Groups, groupFrequency)
                     )

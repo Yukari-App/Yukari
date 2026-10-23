@@ -142,7 +142,7 @@ public partial class ChapterItemViewModel : ObservableObject
         var chapterUserData = chapterAggregate.UserData;
         IsDownloaded = chapterUserData.IsDownloaded;
         IsRead = chapterUserData.IsRead;
-        LastPageRead = LastPageReadValue(chapterUserData);
+        LastPageRead = chapterUserData.DisplayLastPage(TotalPages);
 
         if (_isComicFavorite && !IsDownloaded)
         {
@@ -170,7 +170,7 @@ public partial class ChapterItemViewModel : ObservableObject
         var chapterUserData = result.Value!;
         IsDownloaded = chapterUserData.IsDownloaded;
         IsRead = chapterUserData.IsRead;
-        LastPageRead = LastPageReadValue(chapterUserData);
+        LastPageRead = chapterUserData.DisplayLastPage(TotalPages);
     }
 
     private bool CanToggleDownload() => IsDownloadAvailable;
@@ -225,11 +225,8 @@ public partial class ChapterItemViewModel : ObservableObject
             IsRead = !IsRead;
         }
 
-        LastPageRead = LastPageReadValue(chapterUserData);
+        LastPageRead = chapterUserData.DisplayLastPage(TotalPages);
     }
-
-    private int LastPageReadValue(ChapterUserData chapterUserData) =>
-        chapterUserData.IsRead ? TotalPages ?? 0 : chapterUserData.LastPageRead ?? 0;
 
     private void OnDownloadItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
