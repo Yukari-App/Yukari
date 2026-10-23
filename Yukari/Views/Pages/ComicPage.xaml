@@ -4,6 +4,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:converters="using:Yukari.Helpers.UI.Converters"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:helpers="using:Yukari.Helpers.UI"
       xmlns:local="using:Yukari.Views.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:system="using:System"
@@ -386,18 +387,17 @@
                                                FontSize="20"
                                                Style="{StaticResource TitleTextBlockStyle}" />
                                 </StackPanel>
-                                <ScrollViewer MaxHeight="120"
+                                <ScrollViewer MaxHeight="180"
                                               Padding="6,0,16,0"
                                               Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                               BorderThickness="1"
                                               CornerRadius="8">
-                                    <TextBlock Margin="0,0,0,2"
-                                               FontSize="16"
-                                               Style="{StaticResource BodyTextBlockStyle}"
-                                               Text="{x:Bind ViewModel.Comic.Description, Mode=OneWay}"
-                                               TextAlignment="Justify"
-                                               TextWrapping="WrapWholeWords" />
+                                    <RichTextBlock Margin="0,0,0,2"
+                                                   helpers:RichDescription.Source="{x:Bind ViewModel.DescriptionBlocks, Mode=OneWay}"
+                                                   FontSize="16"
+                                                   TextAlignment="Justify"
+                                                   TextWrapping="WrapWholeWords" />
                                 </ScrollViewer>
                             </StackPanel>
 

@@ -14,6 +14,7 @@ using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Models.DTO;
+using Yukari.Models.Rich;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
 using Yukari.Services.Storage;
@@ -54,7 +55,8 @@ public partial class ComicPageViewModel
         nameof(DisplayTags),
         nameof(HasHiddenTags),
         nameof(HiddenTagsText),
-        nameof(IsDescriptionVisible)
+        nameof(IsDescriptionVisible),
+        nameof(DescriptionBlocks)
     )]
     public partial ComicModel? Comic { get; set; }
 
@@ -85,7 +87,9 @@ public partial class ComicPageViewModel
             )
             : string.Empty;
 
-    public bool IsDescriptionVisible => !string.IsNullOrWhiteSpace(Comic?.Description);
+    public IReadOnlyList<RichBlock> DescriptionBlocks { get; private set; } = [];
+
+    public bool IsDescriptionVisible => DescriptionBlocks.Count > 0;
 
     [ObservableProperty]
     public partial List<ChapterItemViewModel>? Chapters { get; set; }
@@ -574,6 +578,11 @@ public partial class ComicPageViewModel
     private void UpdateIsAllChaptersDownloaded()
     {
         IsAllChaptersDownloaded = Chapters is { Count: > 0 } && !Chapters.Any(c => c.NeedsDownload);
+    }
+
+    partial void OnComicChanged(ComicModel? value)
+    {
+        DescriptionBlocks = DescriptionParser.Parse(value?.Description);
     }
 
     private void OnChapterDownloadStatusChanged(object? sender, PropertyChangedEventArgs e)
