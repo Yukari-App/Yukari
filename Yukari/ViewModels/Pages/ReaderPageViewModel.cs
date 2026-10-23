@@ -423,7 +423,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         if (filePath == null)
             return;
 
-        filePath = await _imageCacheService.SaveCachedImageAsync(currentPageImageUrl, filePath);
+        filePath = await _imageCacheService.SaveImageAsync(currentPageImageUrl, filePath);
         if (filePath != null)
             _notificationService.ShowSuccess(
                 _localizationService.GetString("SuccessSavingCurrentPageImage")

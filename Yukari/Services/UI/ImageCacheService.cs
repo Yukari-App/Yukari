@@ -75,7 +75,7 @@ internal class ImageCacheService : IImageCacheService
             : null;
     }
 
-    public async Task<string?> SaveCachedImageAsync(string? url, string? filePath)
+    public async Task<string?> SaveImageAsync(string? url, string? filePath)
     {
         if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(filePath))
             return null;

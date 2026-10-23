@@ -358,7 +358,7 @@ public partial class ComicPageViewModel
         if (filePath == null)
             return;
 
-        filePath = await _imageCacheService.SaveCachedImageAsync(Comic.CoverImageUrl, filePath);
+        filePath = await _imageCacheService.SaveImageAsync(Comic.CoverImageUrl, filePath);
         if (filePath != null)
             _notificationService.ShowSuccess(
                 _localizationService.GetString("SuccessSavingComicCover")
