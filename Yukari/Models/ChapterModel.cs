@@ -18,4 +18,6 @@ public class ChapterModel
     public bool IsAvailable { get; set; } = true;
 
     public ContentKey Key => new(Id, Source);
+
+    public bool IsReadable(bool isDownloaded) => IsAvailable || isDownloaded;
 }

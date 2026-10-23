@@ -43,9 +43,7 @@ public static class ChapterDeduplicator
         return groupedChapters
             .Select(chapterGroup =>
                 chapterGroup
-                    .OrderByDescending(x =>
-                        x.Aggregate.Chapter.IsAvailable || x.Aggregate.UserData.IsDownloaded
-                    )
+                    .OrderByDescending(x => x.Aggregate.IsReadable)
                     .ThenByDescending(x => x.Aggregate.UserData.IsDownloaded)
                     .ThenByDescending(x =>
                         x.Aggregate.UserData.IsRead || x.Aggregate.UserData.LastPageRead > 0

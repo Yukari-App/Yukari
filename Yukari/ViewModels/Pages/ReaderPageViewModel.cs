@@ -223,9 +223,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
             return;
         }
 
-        _chapters = result
-            .Value!.Where(c => c.Chapter.IsAvailable || c.UserData.IsDownloaded)
-            .ToArray();
+        _chapters = result.Value!.Where(c => c.IsReadable).ToArray();
 
         if (_chapters.Length == 0)
         {

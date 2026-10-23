@@ -102,7 +102,7 @@ public partial class ChapterItemViewModel : ObservableObject
     public string FormattedDownloadProgress => DownloadItem?.FormattedProgress ?? "00%";
 
     public bool IsLocalChapter => Chapter?.IsLocal() ?? false;
-    public bool IsChapterAvailable => Chapter.IsAvailable || IsDownloaded;
+    public bool IsChapterAvailable => Chapter.IsReadable(IsDownloaded);
     public bool IsDownloadAvailable => !IsLocalChapter && _isComicFavorite && IsChapterAvailable;
 
     public bool DownloadButtonValue => IsDownloaded || IsDownloadQueued || IsDownloading; // The download ToggleButton is checked when the chapter is either downloaded or currently downloading
