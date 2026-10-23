@@ -72,7 +72,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     [ObservableProperty]
     public partial bool IsPositioningWebtoonScroll { get; set; }
 
-    public int CurrentPageForDisplay => GetCurrentChapterIndex() + 1;
+    public int CurrentPageForDisplay => GetCurrentPageIndex() + 1;
 
     public string PageIndicatorText =>
         ChapterPages?.Count > 0 ? $"{CurrentPageForDisplay} / {ChapterPages.Count}" : "0 / 0";
@@ -411,7 +411,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     {
         if (_comicKey == null || ChapterPages == null)
             return;
-        var currentPageImageUrl = ChapterPages[GetCurrentChapterIndex()].ImageUrl;
+        var currentPageImageUrl = ChapterPages[GetCurrentPageIndex()].ImageUrl;
 
         var ext = PageUriHelper.GetFileExtension(currentPageImageUrl);
         if (string.IsNullOrWhiteSpace(ext))
@@ -464,7 +464,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         if (!chapterUserData.IsRead)
         {
             var hasPages = ChapterPages?.Count > 0;
-            chapterUserData.LastPageRead = hasPages ? GetCurrentChapterIndex() + 1 : 0;
+            chapterUserData.LastPageRead = hasPages ? GetCurrentPageIndex() + 1 : 0;
             chapterUserData.IsRead =
                 hasPages && CurrentChapter.Pages == chapterUserData.LastPageRead;
 
@@ -491,7 +491,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         }
     }
 
-    private int GetCurrentChapterIndex() =>
+    private int GetCurrentPageIndex() =>
         ReadingMode == ReadingMode.Webtoon ? WebtoonPageIndex : CurrentPageIndex;
 
     partial void OnReadingModeChanged(ReadingMode oldValue, ReadingMode newValue)
