@@ -861,6 +861,15 @@
   <data name="ErrorSavingCurrentPageImageMessage" xml:space="preserve">
     <value>画像の保存中にエラーが発生しました。</value>
   </data>
+  <data name="SaveCoverMNItem.Text" xml:space="preserve">
+    <value>カバーを保存...</value>
+  </data>
+  <data name="SuccessSavingComicCover" xml:space="preserve">
+    <value>カバー画像を正常に保存しました!</value>
+  </data>
+  <data name="ErrorSavingComicCoverMessage" xml:space="preserve">
+    <value>カバー画像の保存中にエラーが発生しました。</value>
+  </data>
   <data name="ChapterExportHeader.Text" xml:space="preserve">
     <value>チャプターをエクスポート</value>
   </data>

@@ -861,6 +861,15 @@
   <data name="ErrorSavingCurrentPageImageMessage" xml:space="preserve">
     <value>Ocurrió un error al guardar la imagen.</value>
   </data>
+  <data name="SaveCoverMNItem.Text" xml:space="preserve">
+    <value>Guardar portada...</value>
+  </data>
+  <data name="SuccessSavingComicCover" xml:space="preserve">
+    <value>¡Imagen de portada guardada con éxito!</value>
+  </data>
+  <data name="ErrorSavingComicCoverMessage" xml:space="preserve">
+    <value>Ocurrió un error al guardar la imagen de portada.</value>
+  </data>
   <data name="ChapterExportHeader.Text" xml:space="preserve">
     <value>Exportar Capítulo</value>
   </data>
