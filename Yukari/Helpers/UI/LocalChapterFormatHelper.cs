@@ -16,14 +16,15 @@ public static class LocalChapterFormatHelper
 
     public static string ToDisplayName(LocalChapterFormat format)
     {
+        if (LocalComicHelper.GetFileExtension(format) is string ext)
+            return ext;
+
         var localization = App.GetService<ILocalizationService>();
         return format switch
         {
             LocalChapterFormat.FolderWithImages => localization.GetString(
                 "LocalChapterFormat/FolderWithImages"
             ),
-            LocalChapterFormat.Cbz => ".cbz",
-            LocalChapterFormat.Epub => ".epub",
             _ => string.Empty,
         };
     }
