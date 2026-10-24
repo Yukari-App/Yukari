@@ -210,6 +210,7 @@
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutItem x:Uid="AddLocalComicMNItem" Command="{x:Bind ViewModel.OpenLocalComicManagerCommand}" Icon="{ui:FontIcon Glyph=&#xE8F4;}" />
+                            <MenuFlyoutItem x:Uid="OpenLocalChapterFileMNItem" Command="{x:Bind ViewModel.OpenLocalChapterFileCommand}" Icon="{ui:FontIcon Glyph=&#xE8E5;}" />
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>

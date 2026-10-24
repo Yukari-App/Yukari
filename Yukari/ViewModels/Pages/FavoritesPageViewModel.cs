@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Yukari.Enums;
+using Yukari.Helpers;
 using Yukari.Messages;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
@@ -150,6 +151,16 @@ public partial class FavoritesPageViewModel : ObservableObject, IRecipient<Searc
     {
         await _dialogService.ShowLocalComicDialogAsync();
         await UpdateDisplayedComicsAsync();
+    }
+
+    [RelayCommand]
+    private async Task OpenLocalChapterFileAsync()
+    {
+        var filePath = await _dialogService.OpenFilePickerAsync(
+            LocalComicHelper.ChapterFileExtensions
+        );
+        if (filePath != null)
+            _messenger.Send(new SwitchAppModeMessage(AppMode.Reader, filePath));
     }
 
     private async Task UpdateDisplayedComicsAsync(string? searchText = null)
