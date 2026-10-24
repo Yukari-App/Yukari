@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -14,6 +15,7 @@ using Windows.ApplicationModel.Activation;
 using Yukari.Core.Sources.Browser;
 using Yukari.Enums;
 using Yukari.Helpers;
+using Yukari.Messages;
 using Yukari.Services;
 using Yukari.Services.Comics;
 using Yukari.Services.Settings;
@@ -29,6 +31,8 @@ public partial class App : Application
 {
     private const string AppInstanceKey = "Yukari.MainApp";
     private static MainWindow? _mainWindow;
+    private static string? _pendingFileToOpen;
+    private static bool _isShellReady;
 
     private readonly ServiceProvider _services;
 
@@ -60,17 +64,20 @@ public partial class App : Application
 
     protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
+        var activatedArgs = AppInstance.GetCurrent().GetActivatedEventArgs();
         var currentInstance = AppInstance.FindOrRegisterForKey(AppInstanceKey);
         if (!currentInstance.IsCurrent)
         {
-            await currentInstance.RedirectActivationToAsync(
-                AppInstance.GetCurrent().GetActivatedEventArgs()
-            );
+            await currentInstance.RedirectActivationToAsync(activatedArgs);
 
             Environment.Exit(0);
             return;
         }
         currentInstance.Activated += OnAppInstanceActivated;
+
+        _pendingFileToOpen =
+            ExtractChapterFilePath(activatedArgs)
+            ?? Environment.GetCommandLineArgs().Skip(1).FirstOrDefault(IsValidChapterFilePath);
 
         var settings = GetService<ISettingsService>();
         await settings.LoadAsync();
@@ -87,6 +94,14 @@ public partial class App : Application
             await Task.Delay(400); // Small delay to ensure the main window is fully ready before navigating
 
             _mainWindow.NavigateToShell();
+            _isShellReady = true;
+
+            if (_pendingFileToOpen != null)
+            {
+                var fileToOpen = _pendingFileToOpen;
+                _pendingFileToOpen = null;
+                OpenStandaloneChapterFile(fileToOpen);
+            }
         }
         catch (Exception ex)
         {
@@ -348,11 +363,100 @@ public partial class App : Application
         {
             WindowHelper.BringToFront(_mainWindow);
 
+            var filePath = ExtractChapterFilePath(e);
+            if (filePath != null)
+            {
+                if (_isShellReady)
+                    OpenStandaloneChapterFile(filePath);
+                else
+                    _pendingFileToOpen = filePath;
+                return;
+            }
+
             if (e.Kind == ExtendedActivationKind.Protocol)
             {
                 var uri = (e.Data as ProtocolActivatedEventArgs)?.Uri;
                 // Handle deep links in the future if necessary
             }
         });
+    }
+
+    private static void OpenStandaloneChapterFile(string filePath)
+    {
+        GetService<IMessenger>().Send(new SwitchAppModeMessage(AppMode.Reader, filePath));
+    }
+
+    private static string? ExtractChapterFilePath(AppActivationArguments e)
+    {
+        if (e.Kind == ExtendedActivationKind.File && e.Data is IFileActivatedEventArgs fileArgs)
+        {
+            var path = fileArgs.Files.FirstOrDefault()?.Path;
+            if (IsValidChapterFilePath(path))
+                return path;
+        }
+        else if (
+            e.Kind == ExtendedActivationKind.Launch
+            && e.Data is ILaunchActivatedEventArgs launchArgs
+            && !string.IsNullOrWhiteSpace(launchArgs.Arguments)
+        )
+        {
+            foreach (var arg in ParseCommandLineArgs(launchArgs.Arguments))
+            {
+                if (IsValidChapterFilePath(arg))
+                    return arg;
+            }
+
+            var trimmed = launchArgs.Arguments.Trim().Trim('"');
+            if (IsValidChapterFilePath(trimmed))
+                return trimmed;
+        }
+
+        return null;
+    }
+
+    private static bool IsValidChapterFilePath(string? path) =>
+        !string.IsNullOrWhiteSpace(path)
+        && LocalComicHelper.IsSupportedChapterFile(path)
+        && File.Exists(path);
+
+    private static IEnumerable<string> ParseCommandLineArgs(string commandLine)
+    {
+        var inQuotes = false;
+        var tokenStart = -1;
+
+        for (var i = 0; i < commandLine.Length; i++)
+        {
+            var c = commandLine[i];
+            if (c == '"')
+            {
+                if (inQuotes)
+                {
+                    if (tokenStart >= 0)
+                        yield return commandLine[tokenStart..i];
+                    tokenStart = -1;
+                    inQuotes = false;
+                }
+                else
+                {
+                    inQuotes = true;
+                    tokenStart = i + 1;
+                }
+            }
+            else if (!inQuotes && char.IsWhiteSpace(c))
+            {
+                if (tokenStart >= 0)
+                {
+                    yield return commandLine[tokenStart..i];
+                    tokenStart = -1;
+                }
+            }
+            else if (tokenStart < 0)
+            {
+                tokenStart = i;
+            }
+        }
+
+        if (tokenStart >= 0 && tokenStart < commandLine.Length)
+            yield return commandLine[tokenStart..];
     }
 }
