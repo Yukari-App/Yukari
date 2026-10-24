@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Yukari.Helpers;
@@ -19,6 +20,7 @@ internal class SettingsService : ISettingsService
     private readonly string _filePath;
     private readonly JsonSerializerOptions _jsonOptions;
     private AppSettings _current = new();
+    private readonly SemaphoreSlim _saveLock = new(1, 1);
 
     public AppSettings Current => _current;
     public event EventHandler<SettingsChangedEventArgs>? SettingChanged;
@@ -58,17 +60,22 @@ internal class SettingsService : ISettingsService
 
     public async Task SaveAsync()
     {
-        var json = JsonSerializer.Serialize(_current, _jsonOptions);
-        var tmpPath = _filePath + ".tmp";
-
+        await _saveLock.WaitAsync();
         try
         {
+            var json = JsonSerializer.Serialize(_current, _jsonOptions);
+            var tmpPath = _filePath + ".tmp";
+
             await File.WriteAllTextAsync(tmpPath, json);
             File.Move(tmpPath, _filePath, overwrite: true);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to save settings");
+        }
+        finally
+        {
+            _saveLock.Release();
         }
     }
 
