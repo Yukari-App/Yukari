@@ -385,6 +385,40 @@ public class FavoritesPageViewModelTests
     }
 
     [Fact]
+    public async Task OpenLocalChapterFile_WhenFileSelected_SendsSwitchAppModeMessage()
+    {
+        // Arrange
+        const string selectedFile = @"C:\Manga\Chapter 01.cbz";
+        _dialogServiceMock
+            .Setup(d => d.OpenFilePickerAsync(It.IsAny<string[]>()))
+            .ReturnsAsync(selectedFile);
+
+        // Act
+        await _sut.OpenLocalChapterFileCommand.ExecuteAsync(null);
+
+        // Assert
+        var message = _messenger.GetSingleSentMessage<SwitchAppModeMessage>();
+        message.Should().NotBeNull();
+        message.appMode.Should().Be(AppMode.Reader);
+        message.Parameter.Should().Be(selectedFile);
+    }
+
+    [Fact]
+    public async Task OpenLocalChapterFile_WhenCancelled_DoesNotSendSwitchAppModeMessage()
+    {
+        // Arrange
+        _dialogServiceMock
+            .Setup(d => d.OpenFilePickerAsync(It.IsAny<string[]>()))
+            .ReturnsAsync((string?)null);
+
+        // Act
+        await _sut.OpenLocalChapterFileCommand.ExecuteAsync(null);
+
+        // Assert
+        _messenger.SentMessages.OfType<SwitchAppModeMessage>().Should().BeEmpty();
+    }
+
+    [Fact]
     public void NavigateToComic_SendsNavigateMessage()
     {
         var comicKey = new ContentKey("1", "Src");
