@@ -307,6 +307,21 @@ internal class ComicService : ResultServiceBase, IComicService
         );
     }
 
+    public async Task<Result<LocalChapterScanResult?>> GetStandaloneChapterAsync(
+        string filePath,
+        CancellationToken ct = default
+    )
+    {
+        return await ExecuteAsync(
+            async (ct) =>
+                Result<LocalChapterScanResult?>.Success(
+                    await _localService.ScanSingleChapterAsync(filePath, ct)
+                ),
+            _localizationService.GetString("ErrorFetchingChapterPages"),
+            ct
+        );
+    }
+
     #endregion
 
     #region Write Methods

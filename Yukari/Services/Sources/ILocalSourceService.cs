@@ -13,4 +13,9 @@ public interface ILocalSourceService
         LocalChapterFormat format,
         CancellationToken ct = default
     );
+
+    Task<LocalChapterScanResult?> ScanSingleChapterAsync(
+        string filePath,
+        CancellationToken ct = default
+    );
 }

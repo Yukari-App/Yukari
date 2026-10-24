@@ -64,6 +64,10 @@ public interface IComicService
         bool forceWeb = false,
         CancellationToken ct = default
     );
+    Task<Result<LocalChapterScanResult?>> GetStandaloneChapterAsync(
+        string filePath,
+        CancellationToken ct = default
+    );
 
     Task<Result> UpsertFavoriteComicAsync(ContentKey comic);
     Task<Result<ContentKey>> UpsertLocalComicAsync(

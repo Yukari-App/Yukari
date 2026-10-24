@@ -36,24 +36,55 @@ internal class LocalSourceService : ILocalSourceService
 
         return await Task.Run(
             () =>
-                format switch
-                {
-                    LocalChapterFormat.FolderWithImages => ScanFolderChapters(comicDirectory),
-                    LocalChapterFormat.Cbz => ScanArchiveChapters(
-                        comicDirectory,
-                        "*.cbz",
-                        ReadCbzArchive
-                    ),
-                    LocalChapterFormat.Epub => ScanArchiveChapters(
-                        comicDirectory,
-                        "*.epub",
-                        ReadEpubArchive
-                    ),
-                    _ => Array.Empty<LocalChapterScanResult>(),
-                },
+            {
+                if (format == LocalChapterFormat.FolderWithImages)
+                    return ScanFolderChapters(comicDirectory);
+
+                var ext = LocalComicHelper.GetFileExtension(format);
+                var archiveReader = GetArchiveReader(format);
+                if (ext != null && archiveReader != null)
+                    return ScanArchiveChapters(comicDirectory, $"*{ext}", archiveReader);
+
+                return Array.Empty<LocalChapterScanResult>();
+            },
             ct
         );
     }
+
+    public async Task<LocalChapterScanResult?> ScanSingleChapterAsync(
+        string filePath,
+        CancellationToken ct = default
+    )
+    {
+        if (!File.Exists(filePath))
+        {
+            _logger.LogWarning("Chapter file not found: {FilePath}", filePath);
+            return null;
+        }
+
+        if (!LocalComicHelper.TryGetChapterFormatFromFile(filePath, out var format))
+        {
+            _logger.LogWarning("Unsupported chapter file format: {FilePath}", filePath);
+            return null;
+        }
+
+        var archiveReader = GetArchiveReader(format);
+        if (archiveReader == null)
+            return null;
+
+        return await Task.Run(() => ScanArchiveFile(filePath, archiveReader), ct);
+    }
+
+    private static Func<
+        ZipArchive,
+        (string? Title, IReadOnlyList<string> PageEntries)
+    >? GetArchiveReader(LocalChapterFormat format) =>
+        format switch
+        {
+            LocalChapterFormat.Cbz => ReadCbzArchive,
+            LocalChapterFormat.Epub => ReadEpubArchive,
+            _ => null,
+        };
 
     private static LocalChapterScanResult[] ScanFolderChapters(string comicDirectory)
     {
@@ -97,25 +128,7 @@ internal class LocalSourceService : ILocalSourceService
             .GetFiles(comicDirectory, searchPattern)
             .OrderBy(f => f, Comparer<string>.Create(NaturalCompare));
 
-        var results = archiveFiles
-            .Select(file =>
-            {
-                var fileName = Path.GetFileNameWithoutExtension(file);
-                var (extractedTitle, pages) = ReadArchive(file, archiveReader);
-
-                var chapter = new ChapterModel
-                {
-                    Id = fileName,
-                    Source = LocalComicHelper.SourceName,
-                    Title = !string.IsNullOrWhiteSpace(extractedTitle) ? extractedTitle : fileName,
-                    Language = LocalComicHelper.SourceName,
-                    Pages = pages.Length,
-                    LastUpdate = DateOnly.FromDateTime(File.GetLastWriteTime(file)),
-                };
-
-                return new LocalChapterScanResult(chapter, pages);
-            })
-            .ToArray();
+        var results = archiveFiles.Select(file => ScanArchiveFile(file, archiveReader)).ToArray();
 
         foreach (
             var duplicateGroup in results
@@ -128,6 +141,27 @@ internal class LocalSourceService : ILocalSourceService
         }
 
         return results;
+    }
+
+    private LocalChapterScanResult ScanArchiveFile(
+        string file,
+        Func<ZipArchive, (string? Title, IReadOnlyList<string> PageEntries)> archiveReader
+    )
+    {
+        var fileName = Path.GetFileNameWithoutExtension(file);
+        var (extractedTitle, pages) = ReadArchive(file, archiveReader);
+
+        var chapter = new ChapterModel
+        {
+            Id = fileName,
+            Source = LocalComicHelper.SourceName,
+            Title = !string.IsNullOrWhiteSpace(extractedTitle) ? extractedTitle : fileName,
+            Language = LocalComicHelper.SourceName,
+            Pages = pages.Length,
+            LastUpdate = DateOnly.FromDateTime(File.GetLastWriteTime(file)),
+        };
+
+        return new LocalChapterScanResult(chapter, pages);
     }
 
     private (string? Title, ChapterPageModel[] Pages) ReadArchive(
