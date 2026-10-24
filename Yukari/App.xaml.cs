@@ -290,9 +290,13 @@ public partial class App : Application
             return;
         }
 
-        var comics = comicsResult.Value!;
+        var comics = comicsResult.Value!.Where(c => !c.IsLocal());
         var recentCount = settingsService.Current.AutoComicUpdateRecentCount;
-        var candidates = recentCount > 0 ? comics.Take(recentCount).ToArray() : comics.ToArray();
+
+        if (recentCount > 0)
+            comics = comics.Take(recentCount);
+
+        var candidates = comics.ToArray();
 
         using var semaphore = new SemaphoreSlim(4);
 
