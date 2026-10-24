@@ -45,6 +45,7 @@ UninstallDisplayIcon={app}\{#MyAppExeName}
 ArchitecturesAllowed={#MyArchAllowed}
 ArchitecturesInstallIn64BitMode={#MyArchAllowed}
 
+ChangesAssociations=yes
 DisableProgramGroupPage=yes
 LicenseFile=..\LICENSE.txt
 PrivilegesRequired=lowest
@@ -63,9 +64,30 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "associatecbz"; Description: "Associate .cbz files with {#MyAppName}"; GroupDescription: "File associations:"
+Name: "associateepub"; Description: "Associate .epub files with {#MyAppName}"; GroupDescription: "File associations:"; Flags: unchecked
 
 [Files]
 Source: "{#AppPublishPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+[Registry]
+; Register Yukari.exe metadata for "Open with" menu
+Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "{#MyAppName}"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".cbz"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".epub"; ValueData: ""
+
+; File association and ProgID for .cbz
+Root: HKA; Subkey: "Software\Classes\.cbz\OpenWithProgids"; ValueType: string; ValueName: "Yukari.cbz"; ValueData: ""; Flags: uninsdeletevalue; Tasks: associatecbz
+Root: HKA; Subkey: "Software\Classes\Yukari.cbz"; ValueType: string; ValueName: ""; ValueData: "{#MyAppName} CBZ Archive"; Flags: uninsdeletekey; Tasks: associatecbz
+Root: HKA; Subkey: "Software\Classes\Yukari.cbz\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: associatecbz
+Root: HKA; Subkey: "Software\Classes\Yukari.cbz\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: associatecbz
+
+; File association and ProgID for .epub
+Root: HKA; Subkey: "Software\Classes\.epub\OpenWithProgids"; ValueType: string; ValueName: "Yukari.epub"; ValueData: ""; Flags: uninsdeletevalue; Tasks: associateepub
+Root: HKA; Subkey: "Software\Classes\Yukari.epub"; ValueType: string; ValueName: ""; ValueData: "{#MyAppName} EPUB Document"; Flags: uninsdeletekey; Tasks: associateepub
+Root: HKA; Subkey: "Software\Classes\Yukari.epub\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: associateepub
+Root: HKA; Subkey: "Software\Classes\Yukari.epub\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: associateepub
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
