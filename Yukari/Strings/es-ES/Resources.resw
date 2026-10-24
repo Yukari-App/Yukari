@@ -930,4 +930,7 @@
   <data name="AutoComicUpdateBadgeInfoBar.Message" xml:space="preserve">
     <value>Los cómics con nuevos capítulos mostrarán una insignia durante 24 horas.</value>
   </data>
+  <data name="OpenLocalChapterFileMNItem.Text" xml:space="preserve">
+    <value>Abrir Archivo de Capítulo...</value>
+  </data>
 </root>

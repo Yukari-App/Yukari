@@ -930,4 +930,7 @@
   <data name="AutoComicUpdateBadgeInfoBar.Message" xml:space="preserve">
     <value>新しいチャプターがあるコミックには24時間バッジが表示されます</value>
   </data>
+  <data name="OpenLocalChapterFileMNItem.Text" xml:space="preserve">
+    <value>チャプターファイルを開く...</value>
+  </data>
 </root>
