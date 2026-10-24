@@ -263,6 +263,81 @@ public class ReaderPageViewModelTests
         _sut.CurrentPageIndex.Should().Be(0);
     }
 
+    [Fact]
+    public async Task InitializeAsync_WithFilePath_ShouldLoadStandaloneChapter_AndSetTitle()
+    {
+        // Arrange
+        const string filePath = @"C:\Manga\One-Shot Chapter.cbz";
+        var chapter = new ChapterModel
+        {
+            Id = "One-Shot Chapter.cbz",
+            Source = "Local",
+            Title = "One-Shot Chapter",
+        };
+        var pages = Enumerable
+            .Range(1, 5)
+            .Select(i => new ChapterPageModel
+            {
+                Number = i,
+                ImageUrl = $"cbz://{filePath}|{i}.png",
+            })
+            .ToArray();
+
+        _mockComicService
+            .Setup(c => c.GetStandaloneChapterAsync(filePath, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                Result<LocalChapterScanResult?>.Success(new LocalChapterScanResult(chapter, pages))
+            );
+
+        // Act
+        await _sut.InitializeAsync(filePath);
+
+        // Assert
+        _sut.ComicTitle.Should().Be("One-Shot Chapter");
+        _sut.ChapterTitle.Should().BeNull();
+        _sut.CurrentChapter.Should().Be(chapter);
+        _sut.ChapterPages.Should().HaveCount(5);
+        _sut.CurrentPageIndex.Should().Be(0);
+        _sut.ChapterState.Should().Be(LoadState.Loaded);
+        _sut.NextChapterCommand.CanExecute(null).Should().BeFalse();
+        _sut.PreviousChapterCommand.CanExecute(null).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task InitializeAsync_WithFilePath_WhenNullScanResult_ShouldSetErrorState()
+    {
+        // Arrange
+        const string filePath = @"C:\Manga\Empty.cbz";
+        _mockComicService
+            .Setup(c => c.GetStandaloneChapterAsync(filePath, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<LocalChapterScanResult?>.Success(null));
+
+        // Act
+        await _sut.InitializeAsync(filePath);
+
+        // Assert
+        _sut.ChapterState.Should().Be(LoadState.Error);
+        _sut.IsWarning.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task InitializeAsync_WithFilePath_WhenServiceFails_ShouldSetErrorState()
+    {
+        // Arrange
+        const string filePath = @"C:\Manga\Corrupted.cbz";
+        _mockComicService
+            .Setup(c => c.GetStandaloneChapterAsync(filePath, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<LocalChapterScanResult?>.Failure("Bad archive", "Error"));
+
+        // Act
+        await _sut.InitializeAsync(filePath);
+
+        // Assert
+        _sut.ChapterState.Should().Be(LoadState.Error);
+        _sut.ChapterErrorMessage.Should().Be("Bad archive");
+        _sut.ChapterErrorTitle.Should().Be("Error");
+    }
+
     // ────────────────────────────────────────────────────────────────
     // COMMANDS CanExecute
     // ────────────────────────────────────────────────────────────────
@@ -435,6 +510,65 @@ public class ReaderPageViewModelTests
         _mockComicService.Verify(
             c => c.UpsertComicReadingProgressAsync(ComicKey, It.IsAny<ComicReadingProgress>()),
             Times.Once
+        );
+        _mockSettingsService.Verify(
+            s => s.Set(s => s.ReadingMode, ReadingMode.LeftToRight),
+            Times.Once
+        );
+        _mockSettingsService.Verify(
+            s => s.Set(s => s.ScalingMode, ScalingMode.FitScreen),
+            Times.Once
+        );
+        _mockMessenger.GetSingleSentMessage<SetFullscreenMessage>().IsFullscreen.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GoBack_WhenStandaloneChapter_ShouldNotSaveProgress_ButShouldSaveSettings_AndExitFullscreen()
+    {
+        // Arrange
+        const string filePath = @"C:\Manga\Standalone.cbz";
+        var chapter = new ChapterModel
+        {
+            Id = "Standalone.cbz",
+            Source = "Local",
+            Title = "Standalone",
+        };
+        var pages = new[]
+        {
+            new ChapterPageModel { Number = 1, ImageUrl = $"cbz://{filePath}|1.png" },
+        };
+
+        _mockComicService
+            .Setup(c => c.GetStandaloneChapterAsync(filePath, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                Result<LocalChapterScanResult?>.Success(new LocalChapterScanResult(chapter, pages))
+            );
+
+        await _sut.InitializeAsync(filePath);
+        _mockMessenger.Reset();
+        _sut.ReadingMode = ReadingMode.LeftToRight;
+        _sut.ScalingMode = ScalingMode.FitScreen;
+
+        // Act
+        await _sut.GoBackCommand.ExecuteAsync(null);
+
+        // Assert
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ChapterUserData>()
+                ),
+            Times.Never
+        );
+        _mockComicService.Verify(
+            c =>
+                c.UpsertComicReadingProgressAsync(
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ComicReadingProgress>()
+                ),
+            Times.Never
         );
         _mockSettingsService.Verify(
             s => s.Set(s => s.ReadingMode, ReadingMode.LeftToRight),
@@ -653,6 +787,47 @@ public class ReaderPageViewModelTests
             .Should()
             .Be("Comic Special  Title - Chapter 1 Final Draft - Page 1");
         capturedSuggestedFileName!.IndexOfAny(Path.GetInvalidFileNameChars()).Should().Be(-1);
+    }
+
+    [Fact]
+    public async Task SaveCurrentPageImageAsync_WhenStandaloneChapter_ShouldFormatFileNameWithoutChapterTitle()
+    {
+        // Arrange
+        const string filePath = @"C:\Manga\Standalone: One-Shot?.cbz";
+        var chapter = new ChapterModel
+        {
+            Id = "Standalone: One-Shot?.cbz",
+            Source = "Local",
+            Title = "Standalone: One-Shot?",
+        };
+        var pages = new[]
+        {
+            new ChapterPageModel { Number = 1, ImageUrl = $"cbz://{filePath}|1.png" },
+        };
+
+        _mockComicService
+            .Setup(c => c.GetStandaloneChapterAsync(filePath, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                Result<LocalChapterScanResult?>.Success(new LocalChapterScanResult(chapter, pages))
+            );
+
+        await _sut.InitializeAsync(filePath);
+
+        string? capturedSuggestedFileName = null;
+        _mockDialogService
+            .Setup(d =>
+                d.OpenFileSavePicker(It.IsAny<string?>(), It.IsAny<Dictionary<string, string[]>?>())
+            )
+            .Callback<string?, Dictionary<string, string[]>?>(
+                (fileName, _) => capturedSuggestedFileName = fileName
+            )
+            .ReturnsAsync((string?)null);
+
+        // Act
+        await _sut.SaveCurrentPageImageCommand.ExecuteAsync(null);
+
+        // Assert
+        capturedSuggestedFileName.Should().Be("Standalone One-Shot - Page 1");
     }
 
     // ────────────────────────────────────────────────────────────────
