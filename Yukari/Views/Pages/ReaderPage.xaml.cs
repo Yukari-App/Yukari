@@ -65,12 +65,17 @@ public sealed partial class ReaderPage : Page
                 args.NavigationFromContinueButton
             );
         }
+        else if (e.Parameter is string filePath)
+        {
+            await ViewModel.InitializeAsync(filePath);
+        }
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         base.OnNavigatedFrom(e);
         ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+        ViewModel.OnNavigatedFrom();
 
         _sliderDebounceCts?.Cancel();
         _sliderDebounceCts?.Dispose();

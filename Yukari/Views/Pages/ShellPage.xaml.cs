@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Yukari.Enums;
 using Yukari.Messages;
+using Yukari.Services.UI;
 using Yukari.ViewModels.Pages;
 
 namespace Yukari.Views.Pages;
@@ -16,6 +17,8 @@ public sealed partial class ShellPage : Page
         InitializeComponent();
         ViewModel = App.GetService<ShellPageViewModel>();
         DataContext = ViewModel;
+
+        Loaded += (_, _) => App.GetService<IDialogService>().Initialize(XamlRoot);
 
         var messenger = App.GetService<IMessenger>();
 

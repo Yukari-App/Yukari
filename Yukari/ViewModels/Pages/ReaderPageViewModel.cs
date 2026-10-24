@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     private ChapterAggregate[]? _chapters;
 
     private int _currentChapterIndex = -1;
+    private bool _isDisposed;
 
     private CancellationTokenSource _navigationCts = new();
     private CancellationTokenSource _chapterLoadCts = new();
@@ -254,6 +256,75 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         await UpdateCurrentChapter(forceFirstPage);
     }
 
+    public async Task InitializeAsync(string filePath)
+    {
+        _comicKey = null;
+        _language = null;
+        _chapters = null;
+        _currentChapterIndex = -1;
+
+        ComicTitle = Path.GetFileNameWithoutExtension(filePath);
+        ChapterTitle = null;
+        ChapterState = LoadState.Loading;
+
+        var result = await _comicService.GetStandaloneChapterAsync(filePath, _navigationCts.Token);
+
+        if (result.IsCancelled)
+            return;
+
+        if (!result.IsSuccess)
+        {
+            ChapterState = LoadState.Error;
+            IsWarning = false;
+            ChapterErrorTitle = result.ErrorTitle;
+            ChapterErrorMessage = result.Error;
+            return;
+        }
+
+        var scanResult = result.Value;
+        if (scanResult == null)
+        {
+            ChapterState = LoadState.Error;
+            IsWarning = false;
+            ChapterErrorTitle = _localizationService.GetString("ErrorNoChaptersFoundTitle");
+            ChapterErrorMessage = _localizationService.GetString("ErrorNoChaptersFoundMessage");
+            return;
+        }
+
+        CurrentChapter = scanResult.Chapter;
+        ComicTitle = CurrentChapter.ToDisplayTitle();
+
+        ChapterPages = scanResult
+            .Pages.Select(p => new ChapterPageItemViewModel(_imageCacheService, p, _displayContext))
+            .ToList();
+
+        CurrentPageIndex = WebtoonPageIndex = 0;
+
+        if (ChapterPages.Count == 0)
+        {
+            ChapterState = LoadState.Error;
+            IsWarning = true;
+            ChapterErrorTitle = _localizationService.GetString("ErrorEmptyChapterPagesTitle");
+            ChapterErrorMessage = _localizationService.GetString("ErrorEmptyChapterPagesMessage");
+            return;
+        }
+
+        ChapterState = LoadState.Loaded;
+    }
+
+    public void OnNavigatedFrom()
+    {
+        if (_isDisposed)
+            return;
+
+        _isDisposed = true;
+        _chapterLoadCts.Cancel();
+        _chapterLoadCts.Dispose();
+        _navigationCts.Cancel();
+        _navigationCts.Dispose();
+        _messenger.UnregisterAll(this);
+    }
+
     private async Task UpdateCurrentChapter(bool forceFirstPage = false)
     {
         if (
@@ -337,10 +408,8 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     {
         await SaveReadingProgressAsync();
         await SaveReaderSettingsAsync();
-        _navigationCts.Cancel();
-        _navigationCts.Dispose();
+        OnNavigatedFrom();
 
-        _messenger.UnregisterAll(this);
         _messenger.Send(new SetFullscreenMessage(false));
         _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
     }
@@ -406,7 +475,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     [RelayCommand(CanExecute = nameof(CanSaveCurrentPageImage))]
     private async Task SaveCurrentPageImageAsync()
     {
-        if (_comicKey == null || ChapterPages == null)
+        if (ChapterPages == null)
             return;
         var currentPageImageUrl = ChapterPages[GetCurrentPageIndex()].ImageUrl;
 
@@ -414,10 +483,12 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         if (string.IsNullOrWhiteSpace(ext))
             ext = ".jpg";
 
+        var titlePrefix = string.IsNullOrWhiteSpace(ChapterTitle)
+            ? ComicTitle
+            : $"{ComicTitle} - {ChapterTitle}";
+
         var filePath = await _dialogService.OpenFileSavePicker(
-            FileHelper.SanitizeFileName(
-                $"{ComicTitle} - {ChapterTitle} - Page {CurrentPageForDisplay}"
-            ),
+            FileHelper.SanitizeFileName($"{titlePrefix} - Page {CurrentPageForDisplay}"),
             new Dictionary<string, string[]> { { ext, new[] { ext } } }
         );
         if (filePath == null)

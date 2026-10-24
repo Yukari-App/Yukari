@@ -29,7 +29,6 @@ public sealed partial class NavigationPage : Page
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         App.GetService<INavigationService>().Initialize(ContentFrame);
-        App.GetService<IDialogService>().Initialize(XamlRoot);
 
         if (ContentFrame.Content == null)
             ViewModel.NavigateCommand.Execute(new NavigateMessage(typeof(FavoritesPage), null));
