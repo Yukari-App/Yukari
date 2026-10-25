@@ -210,9 +210,20 @@ public sealed partial class ReaderPage : Page
             return;
 
         var backupIndex = ViewModel.CurrentPageIndex;
-        PagesFlipView.SelectedIndex = 0;
-        await Task.Yield();
-        PagesFlipView.SelectedIndex = backupIndex;
+        if (backupIndex == 0)
+            return;
+
+        ViewModel.IsSyncingPageIndex = true;
+        try
+        {
+            PagesFlipView.SelectedIndex = 0;
+            await Task.Yield();
+            PagesFlipView.SelectedIndex = backupIndex;
+        }
+        finally
+        {
+            ViewModel.IsSyncingPageIndex = false;
+        }
     }
 
     private void ScrollViewer_Loaded(object sender, RoutedEventArgs e)

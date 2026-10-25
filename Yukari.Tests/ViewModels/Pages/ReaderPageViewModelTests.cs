@@ -338,6 +338,96 @@ public class ReaderPageViewModelTests
         _sut.ChapterErrorTitle.Should().Be("Error");
     }
 
+    [Fact]
+    public async Task OnNavigatedFrom_WhenPageChangedWithinDebounceWindow_ShouldSavePendingProgressOnce()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+
+        await ChangeSutAsync("ch-001", false, chapters);
+        _mockComicService.Invocations.Clear();
+        _mockMessenger.Reset();
+
+        _sut.NextPageCommand.Execute(null);
+
+        // Act
+        _sut.OnNavigatedFrom();
+        await WaitForDebounceAsync();
+
+        // Assert
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    ComicKey,
+                    new("ch-001", SourceName),
+                    It.Is<ChapterUserData>(u => u.LastPageRead == 2)
+                ),
+            Times.Once
+        );
+        _mockMessenger
+            .GetSingleSentMessage<ChapterUserDataUpdatedMessage>()
+            .ChapterKey.Should()
+            .Be(new ContentKey("ch-001", SourceName));
+    }
+
+    [Fact]
+    public async Task OnNavigatedFrom_WhenStandaloneChapter_ShouldNotSaveProgress()
+    {
+        // Arrange
+        const string filePath = @"C:\Manga\Standalone.cbz";
+        var chapter = new ChapterModel
+        {
+            Id = "Standalone.cbz",
+            Source = "Local",
+            Title = "Standalone",
+        };
+        var pages = new[]
+        {
+            new ChapterPageModel { Number = 1, ImageUrl = $"cbz://{filePath}|1.png" },
+            new ChapterPageModel { Number = 2, ImageUrl = $"cbz://{filePath}|2.png" },
+        };
+
+        _mockComicService
+            .Setup(c => c.GetStandaloneChapterAsync(filePath, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                Result<LocalChapterScanResult?>.Success(new LocalChapterScanResult(chapter, pages))
+            );
+
+        await _sut.InitializeAsync(filePath);
+
+        // Act
+        _sut.NextPageCommand.Execute(null);
+        await WaitForDebounceAsync();
+
+        _sut.OnNavigatedFrom();
+        await WaitForDebounceAsync();
+
+        // Assert
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ChapterUserData>()
+                ),
+            Times.Never
+        );
+        _mockComicService.Verify(
+            c =>
+                c.UpsertComicReadingProgressAsync(
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ComicReadingProgress>()
+                ),
+            Times.Never
+        );
+    }
+
     // ────────────────────────────────────────────────────────────────
     // COMMANDS CanExecute
     // ────────────────────────────────────────────────────────────────
@@ -477,7 +567,7 @@ public class ReaderPageViewModelTests
     // ────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task GoBack_ShouldSaveProgress_AndSaveSettings_AndExitFullscreen()
+    public async Task GoBack_ShouldSaveSettings_AndExitFullscreen_AndNavigateToNavigation()
     {
         // Arrange
         _mockMessenger.Reset();
@@ -498,19 +588,6 @@ public class ReaderPageViewModelTests
         await _sut.GoBackCommand.ExecuteAsync(null);
 
         // Assert
-        _mockComicService.Verify(
-            c =>
-                c.UpsertChapterUserDataAsync(
-                    ComicKey,
-                    new("ch-001", SourceName),
-                    It.IsAny<ChapterUserData>()
-                ),
-            Times.Once
-        );
-        _mockComicService.Verify(
-            c => c.UpsertComicReadingProgressAsync(ComicKey, It.IsAny<ComicReadingProgress>()),
-            Times.Once
-        );
         _mockSettingsService.Verify(
             s => s.Set(s => s.ReadingMode, ReadingMode.LeftToRight),
             Times.Once
@@ -520,65 +597,10 @@ public class ReaderPageViewModelTests
             Times.Once
         );
         _mockMessenger.GetSingleSentMessage<SetFullscreenMessage>().IsFullscreen.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task GoBack_WhenStandaloneChapter_ShouldNotSaveProgress_ButShouldSaveSettings_AndExitFullscreen()
-    {
-        // Arrange
-        const string filePath = @"C:\Manga\Standalone.cbz";
-        var chapter = new ChapterModel
-        {
-            Id = "Standalone.cbz",
-            Source = "Local",
-            Title = "Standalone",
-        };
-        var pages = new[]
-        {
-            new ChapterPageModel { Number = 1, ImageUrl = $"cbz://{filePath}|1.png" },
-        };
-
-        _mockComicService
-            .Setup(c => c.GetStandaloneChapterAsync(filePath, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                Result<LocalChapterScanResult?>.Success(new LocalChapterScanResult(chapter, pages))
-            );
-
-        await _sut.InitializeAsync(filePath);
-        _mockMessenger.Reset();
-        _sut.ReadingMode = ReadingMode.LeftToRight;
-        _sut.ScalingMode = ScalingMode.FitScreen;
-
-        // Act
-        await _sut.GoBackCommand.ExecuteAsync(null);
-
-        // Assert
-        _mockComicService.Verify(
-            c =>
-                c.UpsertChapterUserDataAsync(
-                    It.IsAny<ContentKey>(),
-                    It.IsAny<ContentKey>(),
-                    It.IsAny<ChapterUserData>()
-                ),
-            Times.Never
-        );
-        _mockComicService.Verify(
-            c =>
-                c.UpsertComicReadingProgressAsync(
-                    It.IsAny<ContentKey>(),
-                    It.IsAny<ComicReadingProgress>()
-                ),
-            Times.Never
-        );
-        _mockSettingsService.Verify(
-            s => s.Set(s => s.ReadingMode, ReadingMode.LeftToRight),
-            Times.Once
-        );
-        _mockSettingsService.Verify(
-            s => s.Set(s => s.ScalingMode, ScalingMode.FitScreen),
-            Times.Once
-        );
-        _mockMessenger.GetSingleSentMessage<SetFullscreenMessage>().IsFullscreen.Should().BeFalse();
+        _mockMessenger
+            .GetSingleSentMessage<SwitchAppModeMessage>()
+            .appMode.Should()
+            .Be(AppMode.Navigation);
     }
 
     [Fact]
@@ -600,6 +622,7 @@ public class ReaderPageViewModelTests
         };
 
         await ChangeSutAsync("ch-001", false, chapters);
+        _mockComicService.Invocations.Clear();
 
         // Act
         await _sut.NextChapterCommand.ExecuteAsync(null);
@@ -616,8 +639,58 @@ public class ReaderPageViewModelTests
             Times.Once
         );
         _mockComicService.Verify(
-            c => c.UpsertComicReadingProgressAsync(ComicKey, It.IsAny<ComicReadingProgress>()),
+            c =>
+                c.UpsertComicReadingProgressAsync(
+                    ComicKey,
+                    It.Is<ComicReadingProgress>(p => p.LastChapterId == "ch-002")
+                ),
             Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task NextChapter_WhenPageChangedWithinDebounceWindow_ShouldSavePendingProgressOnce()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-002", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+
+        await ChangeSutAsync("ch-001", false, chapters);
+        _mockComicService.Invocations.Clear();
+
+        _sut.NextPageCommand.Execute(null);
+
+        // Act
+        await _sut.NextChapterCommand.ExecuteAsync(null);
+        await WaitForDebounceAsync();
+
+        // Assert
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    ComicKey,
+                    new("ch-001", SourceName),
+                    It.Is<ChapterUserData>(u => u.LastPageRead == 2)
+                ),
+            Times.Once
+        );
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    ComicKey,
+                    new("ch-002", SourceName),
+                    It.IsAny<ChapterUserData>()
+                ),
+            Times.Never
         );
     }
 
@@ -640,6 +713,7 @@ public class ReaderPageViewModelTests
         };
 
         await ChangeSutAsync("ch-002", false, chapters);
+        _mockComicService.Invocations.Clear();
 
         // Act
         await _sut.PreviousChapterCommand.ExecuteAsync(null);
@@ -656,7 +730,11 @@ public class ReaderPageViewModelTests
             Times.Once
         );
         _mockComicService.Verify(
-            c => c.UpsertComicReadingProgressAsync(ComicKey, It.IsAny<ComicReadingProgress>()),
+            c =>
+                c.UpsertComicReadingProgressAsync(
+                    ComicKey,
+                    It.Is<ComicReadingProgress>(p => p.LastChapterId == "ch-001")
+                ),
             Times.Once
         );
     }
@@ -879,12 +957,257 @@ public class ReaderPageViewModelTests
         _sut.CurrentPageIndex.Should().Be(6);
     }
 
+    [Fact]
+    public async Task OnCurrentPageIndexChanged_WhenPageChanges_ShouldDebounceAndSavePageProgress()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+
+        await ChangeSutAsync("ch-001", false, chapters);
+        _mockComicService.Invocations.Clear();
+
+        // Act
+        _sut.NextPageCommand.Execute(null);
+
+        // Assert
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    ComicKey,
+                    new("ch-001", SourceName),
+                    It.IsAny<ChapterUserData>()
+                ),
+            Times.Never
+        );
+
+        await WaitForDebounceAsync();
+
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    ComicKey,
+                    new("ch-001", SourceName),
+                    It.Is<ChapterUserData>(u => u.LastPageRead == 2 && !u.IsRead)
+                ),
+            Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task OnCurrentPageIndexChanged_WhenChangingPagesRapidly_ShouldSaveOnlyLastPage()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+
+        await ChangeSutAsync("ch-001", false, chapters);
+        _mockComicService.Invocations.Clear();
+
+        // Act
+        _sut.NextPageCommand.Execute(null);
+        _sut.NextPageCommand.Execute(null);
+        _sut.NextPageCommand.Execute(null);
+        await WaitForDebounceAsync();
+
+        // Assert
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    ComicKey,
+                    new("ch-001", SourceName),
+                    It.IsAny<ChapterUserData>()
+                ),
+            Times.Once
+        );
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    ComicKey,
+                    new("ch-001", SourceName),
+                    It.Is<ChapterUserData>(u => u.LastPageRead == 4)
+                ),
+            Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task OnCurrentPageIndexChanged_WhenChapterIsRead_ShouldNotSavePageProgress()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData() { IsRead = true }
+            ),
+        };
+
+        await ChangeSutAsync("ch-001", false, chapters);
+        _mockComicService.Invocations.Clear();
+
+        // Act
+        _sut.NextPageCommand.Execute(null);
+        await WaitForDebounceAsync();
+
+        // Assert
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ChapterUserData>()
+                ),
+            Times.Never
+        );
+    }
+
+    [Fact]
+    public async Task OnCurrentPageIndexChanged_WhenSyncingPageIndex_ShouldNotSavePageProgress()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+
+        await ChangeSutAsync("ch-001", false, chapters);
+        _mockComicService.Invocations.Clear();
+
+        // Act
+        _sut.IsSyncingPageIndex = true;
+        _sut.NextPageCommand.Execute(null);
+        await WaitForDebounceAsync();
+
+        // Assert
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ChapterUserData>()
+                ),
+            Times.Never
+        );
+    }
+
+    [Fact]
+    public async Task OnWebtoonPageIndexChanged_WhenInWebtoonMode_ShouldDebounceAndSavePageProgress()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+
+        await ChangeSutAsync("ch-001", false, chapters);
+        _sut.ReadingMode = ReadingMode.Webtoon;
+        _mockComicService.Invocations.Clear();
+
+        // Act
+        _sut.WebtoonPageIndex = 3;
+        await WaitForDebounceAsync();
+
+        // Assert
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    ComicKey,
+                    new("ch-001", SourceName),
+                    It.Is<ChapterUserData>(u => u.LastPageRead == 4 && !u.IsRead)
+                ),
+            Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task OnReadingModeChanged_FromWebtoon_ShouldNotSavePageProgress()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+
+        await ChangeSutAsync("ch-001", false, chapters);
+        _sut.ReadingMode = ReadingMode.Webtoon;
+        _sut.WebtoonPageIndex = 6;
+        await WaitForDebounceAsync();
+        _mockComicService.Invocations.Clear();
+
+        // Act
+        _sut.ReadingMode = ReadingMode.Vertical;
+        await WaitForDebounceAsync();
+
+        // Assert
+        _sut.CurrentPageIndex.Should().Be(6);
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ContentKey>(),
+                    It.IsAny<ChapterUserData>()
+                ),
+            Times.Never
+        );
+    }
+
+    [Fact]
+    public async Task OnCurrentPageIndexChanged_WhenReachingLastPage_ShouldMarkChapterAsRead()
+    {
+        // Arrange
+        var chapters = new ChapterAggregate[]
+        {
+            new ChapterAggregate(
+                new ChapterModel() { Id = "ch-001", Source = SourceName },
+                new ChapterUserData()
+            ),
+        };
+
+        await ChangeSutAsync("ch-001", false, chapters);
+        _mockComicService.Invocations.Clear();
+
+        // Act
+        _sut.JumpToPageCommand.Execute(9);
+        await WaitForDebounceAsync();
+
+        // Assert
+        _mockComicService.Verify(
+            c =>
+                c.UpsertChapterUserDataAsync(
+                    ComicKey,
+                    new("ch-001", SourceName),
+                    It.Is<ChapterUserData>(u => u.LastPageRead == 10 && u.IsRead)
+                ),
+            Times.Once
+        );
+    }
+
     // ────────────────────────────────────────────────────────────────
     // OTHER
     // ────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task SaveReadingProgressAsync_ShouldNotUpdateChapterUserData_WhenChapterIsRead()
+    public async Task SaveChapterProgressAsync_ShouldNotUpdateChapterUserData_WhenChapterIsRead()
     {
         // Arrange
         var chapters = new ChapterAggregate[]
@@ -900,6 +1223,7 @@ public class ReaderPageViewModelTests
         };
 
         await ChangeSutAsync("ch-001", false, chapters);
+        _mockComicService.Invocations.Clear();
 
         // Act
         await _sut.NextChapterCommand.ExecuteAsync(null);
@@ -915,7 +1239,11 @@ public class ReaderPageViewModelTests
             Times.Never
         );
         _mockComicService.Verify(
-            c => c.UpsertComicReadingProgressAsync(ComicKey, It.IsAny<ComicReadingProgress>()),
+            c =>
+                c.UpsertComicReadingProgressAsync(
+                    ComicKey,
+                    It.Is<ComicReadingProgress>(p => p.LastChapterId == "ch-002")
+                ),
             Times.Once
         );
     }
@@ -959,6 +1287,12 @@ public class ReaderPageViewModelTests
     // ────────────────────────────────────────────────────────────────
     // UTILITIES
     // ────────────────────────────────────────────────────────────────
+
+    private static Task WaitForDebounceAsync() =>
+        Task.Delay(
+            ReaderPageViewModel.PageProgressDebounceMs + 100,
+            TestContext.Current.CancellationToken
+        );
 
     private async Task ChangeSutAsync(
         string? selectedChapterId = null,

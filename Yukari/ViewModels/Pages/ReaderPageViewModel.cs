@@ -23,6 +23,8 @@ namespace Yukari.ViewModels.Pages;
 
 public partial class ReaderPageViewModel : ObservableObject, IRecipient<FullscreenShortcutMessage>
 {
+    public const int PageProgressDebounceMs = 600;
+
     private readonly IComicService _comicService;
     private readonly ISettingsService _settingsService;
     private readonly INotificationService _notificationService;
@@ -42,6 +44,10 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
 
     private CancellationTokenSource _navigationCts = new();
     private CancellationTokenSource _chapterLoadCts = new();
+    private CancellationTokenSource? _pageProgressDebounceCts;
+    private readonly SemaphoreSlim _saveProgressLock = new(1, 1);
+
+    public bool IsSyncingPageIndex { get; set; }
 
     [ObservableProperty]
     public partial string? ComicTitle { get; set; }
@@ -318,6 +324,13 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
             return;
 
         _isDisposed = true;
+
+        _pageProgressDebounceCts?.Cancel();
+        _pageProgressDebounceCts?.Dispose();
+        _pageProgressDebounceCts = null;
+
+        _ = SaveChapterProgressAsync();
+
         _chapterLoadCts.Cancel();
         _chapterLoadCts.Dispose();
         _navigationCts.Cancel();
@@ -401,14 +414,13 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         }
 
         ChapterState = LoadState.Loaded;
+        await SaveComicProgressAsync();
     }
 
     [RelayCommand]
     private async Task GoBack()
     {
-        await SaveReadingProgressAsync();
         await SaveReaderSettingsAsync();
-        OnNavigatedFrom();
 
         _messenger.Send(new SetFullscreenMessage(false));
         _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
@@ -420,7 +432,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     [RelayCommand(CanExecute = nameof(CanGoToNextChapter))]
     private async Task NextChapter()
     {
-        await SaveReadingProgressAsync();
+        await SaveChapterProgressAsync();
 
         _currentChapterIndex++;
         await UpdateCurrentChapter();
@@ -432,7 +444,7 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     [RelayCommand(CanExecute = nameof(CanGoToPreviousChapter))]
     private async Task PreviousChapter()
     {
-        await SaveReadingProgressAsync();
+        await SaveChapterProgressAsync();
 
         _currentChapterIndex--;
         await UpdateCurrentChapter();
@@ -524,29 +536,10 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         await _settingsService.SaveAsync();
     }
 
-    private async Task SaveReadingProgressAsync()
+    private async Task SaveComicProgressAsync()
     {
-        if (_comicKey == null || CurrentChapter == null || _chapters == null)
+        if (_comicKey == null || CurrentChapter == null)
             return;
-
-        var chapterUserData = _chapters[_currentChapterIndex].UserData;
-
-        if (!chapterUserData.IsRead)
-        {
-            var currentPage = ChapterPages?.Count > 0 ? GetCurrentPageIndex() + 1 : 0;
-            chapterUserData.RecordProgress(currentPage, CurrentChapter.Pages);
-
-            var chapterProgressResult = await _comicService.UpsertChapterUserDataAsync(
-                _comicKey,
-                CurrentChapter.Key,
-                chapterUserData
-            );
-
-            if (!chapterProgressResult.IsSuccess)
-                _notificationService.ShowError(chapterProgressResult.Error!);
-        }
-
-        _messenger.Send(new ChapterUserDataUpdatedMessage(CurrentChapter.Key, ChapterPages?.Count));
 
         var comicProgressResult = await _comicService.UpsertComicReadingProgressAsync(
             _comicKey,
@@ -554,23 +547,96 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
         );
 
         if (!comicProgressResult.IsSuccess)
-        {
             _notificationService.ShowError(comicProgressResult.Error!);
+    }
+
+    private async Task SaveChapterProgressAsync()
+    {
+        if (!IsLoaded || _comicKey == null || CurrentChapter == null || _chapters == null)
+            return;
+        _pageProgressDebounceCts?.Cancel();
+
+        var chapter = CurrentChapter;
+        var userData = _chapters[_currentChapterIndex].UserData;
+        var page = ChapterPages?.Count > 0 ? GetCurrentPageIndex() + 1 : 0;
+        var totalPages = ChapterPages?.Count;
+
+        await _saveProgressLock.WaitAsync();
+        try
+        {
+            if (!userData.IsRead)
+            {
+                userData.RecordProgress(page, chapter.Pages);
+
+                var chapterProgressResult = await _comicService.UpsertChapterUserDataAsync(
+                    _comicKey,
+                    chapter.Key,
+                    userData
+                );
+
+                if (!chapterProgressResult.IsSuccess)
+                    _notificationService.ShowError(chapterProgressResult.Error!);
+            }
+
+            _messenger.Send(new ChapterUserDataUpdatedMessage(chapter.Key, totalPages));
         }
+        finally
+        {
+            _saveProgressLock.Release();
+        }
+    }
+
+    private async Task SavePageProgressDebouncedAsync()
+    {
+        if (_comicKey == null || CurrentChapter == null || _chapters == null)
+            return;
+
+        if (_chapters[_currentChapterIndex].UserData.IsRead)
+            return;
+
+        _pageProgressDebounceCts?.Cancel();
+        _pageProgressDebounceCts?.Dispose();
+        _pageProgressDebounceCts = new CancellationTokenSource();
+
+        var ct = _pageProgressDebounceCts.Token;
+        try
+        {
+            await Task.Delay(PageProgressDebounceMs, ct);
+            await SaveChapterProgressAsync();
+        }
+        catch (TaskCanceledException) { }
     }
 
     private int GetCurrentPageIndex() =>
         ReadingMode == ReadingMode.Webtoon ? WebtoonPageIndex : CurrentPageIndex;
+
+    partial void OnCurrentPageIndexChanged(int value)
+    {
+        if (!IsLoaded || IsSyncingPageIndex || ReadingMode == ReadingMode.Webtoon)
+            return;
+        _ = SavePageProgressDebouncedAsync();
+    }
+
+    partial void OnWebtoonPageIndexChanged(int value)
+    {
+        if (!IsLoaded || IsSyncingPageIndex || ReadingMode != ReadingMode.Webtoon)
+            return;
+        _ = SavePageProgressDebouncedAsync();
+    }
 
     partial void OnReadingModeChanged(ReadingMode oldValue, ReadingMode newValue)
     {
         if (!IsLoaded)
             return;
 
+        IsSyncingPageIndex = true;
+
         if (oldValue == ReadingMode.Webtoon)
             CurrentPageIndex = WebtoonPageIndex;
         else
             WebtoonPageIndex = CurrentPageIndex;
+
+        IsSyncingPageIndex = false;
     }
 
     partial void OnScalingModeChanged(ScalingMode value) => _displayContext.ScalingMode = value;
