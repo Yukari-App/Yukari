@@ -567,40 +567,53 @@ public class ReaderPageViewModelTests
     // ────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task GoBack_ShouldSaveSettings_AndExitFullscreen_AndNavigateToNavigation()
+    public void GoBack_ShouldExitFullscreen_AndNavigateToNavigation()
     {
         // Arrange
         _mockMessenger.Reset();
-        _sut.ReadingMode = ReadingMode.LeftToRight;
-        _sut.ScalingMode = ScalingMode.FitScreen;
-
-        var chapters = new ChapterAggregate[]
-        {
-            new ChapterAggregate(
-                new ChapterModel() { Id = "ch-001", Source = SourceName },
-                new ChapterUserData()
-            ),
-        };
-
-        await ChangeSutAsync("ch-001", false, chapters);
 
         // Act
-        await _sut.GoBackCommand.ExecuteAsync(null);
+        _sut.GoBackCommand.Execute(null);
 
         // Assert
-        _mockSettingsService.Verify(
-            s => s.Set(s => s.ReadingMode, ReadingMode.LeftToRight),
-            Times.Once
-        );
-        _mockSettingsService.Verify(
-            s => s.Set(s => s.ScalingMode, ScalingMode.FitScreen),
-            Times.Once
-        );
-        _mockMessenger.GetSingleSentMessage<SetFullscreenMessage>().IsFullscreen.Should().BeFalse();
+        _mockMessenger
+            .GetSingleSentMessage<SetFullscreenMessage>()
+            .IsFullscreen.Should()
+            .BeFalse();
         _mockMessenger
             .GetSingleSentMessage<SwitchAppModeMessage>()
             .appMode.Should()
             .Be(AppMode.Navigation);
+    }
+
+    [Fact]
+    public async Task SetReadingMode_ShouldUpdateReadingMode_AndSaveSettingsImmediately()
+    {
+        // Act
+        await _sut.SetReadingModeCommand.ExecuteAsync(ReadingMode.LeftToRight.ToString());
+
+        // Assert
+        _sut.ReadingMode.Should().Be(ReadingMode.LeftToRight);
+        _mockSettingsService.Verify(
+            s => s.Set(s => s.ReadingMode, ReadingMode.LeftToRight),
+            Times.Once
+        );
+        _mockSettingsService.Verify(s => s.SaveAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task SetScalingMode_ShouldUpdateScalingMode_AndSaveSettingsImmediately()
+    {
+        // Act
+        await _sut.SetScalingModeCommand.ExecuteAsync(ScalingMode.FitScreen.ToString());
+
+        // Assert
+        _sut.ScalingMode.Should().Be(ScalingMode.FitScreen);
+        _mockSettingsService.Verify(
+            s => s.Set(s => s.ScalingMode, ScalingMode.FitScreen),
+            Times.Once
+        );
+        _mockSettingsService.Verify(s => s.SaveAsync(), Times.Once);
     }
 
     [Fact]

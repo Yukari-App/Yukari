@@ -418,10 +418,8 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     }
 
     [RelayCommand]
-    private async Task GoBack()
+    private void GoBack()
     {
-        await SaveReaderSettingsAsync();
-
         _messenger.Send(new SetFullscreenMessage(false));
         _messenger.Send(new SwitchAppModeMessage(AppMode.Navigation));
     }
@@ -473,10 +471,20 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
     private void ToggleFullscreen() => _messenger.Send(new SetFullscreenMessage(IsFullscreen));
 
     [RelayCommand]
-    private void SetReadingMode(string mode) => ReadingMode = Enum.Parse<ReadingMode>(mode);
+    private async Task SetReadingMode(string mode)
+    {
+        ReadingMode = Enum.Parse<ReadingMode>(mode);
+        _settingsService.Set(s => s.ReadingMode, ReadingMode);
+        await _settingsService.SaveAsync();
+    }
 
     [RelayCommand]
-    private void SetScalingMode(string mode) => ScalingMode = Enum.Parse<ScalingMode>(mode);
+    private async Task SetScalingMode(string mode)
+    {
+        ScalingMode = Enum.Parse<ScalingMode>(mode);
+        _settingsService.Set(s => s.ScalingMode, ScalingMode);
+        await _settingsService.SaveAsync();
+    }
 
     [RelayCommand]
     private void SetScreenSize((double width, double height) size) =>
@@ -527,13 +535,6 @@ public partial class ReaderPageViewModel : ObservableObject, IRecipient<Fullscre
 
         ReadingMode = _settingsService.Current.ReadingMode;
         ScalingMode = _settingsService.Current.ScalingMode;
-    }
-
-    private async Task SaveReaderSettingsAsync()
-    {
-        _settingsService.Set(s => s.ReadingMode, ReadingMode);
-        _settingsService.Set(s => s.ScalingMode, ScalingMode);
-        await _settingsService.SaveAsync();
     }
 
     private async Task SaveComicProgressAsync()
