@@ -89,4 +89,66 @@ internal class ExportService : IExportService
             return Result.Failure(ex.Message);
         }
     }
+
+    public async Task<Result> ExportLibraryAsync(
+        string destinationPath,
+        bool includeDownloads,
+        bool includePlugins,
+        IProgress<(int Current, int Total)>? progress = null,
+        CancellationToken ct = default
+    )
+    {
+        try
+        {
+            await LibraryBackupHelper.ExportArchiveAsync(
+                AppDataHelper.GetAppDataPath(),
+                destinationPath,
+                includeDownloads,
+                includePlugins,
+                progress,
+                ct
+            );
+
+            return Result.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Cancelled();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(ex.Message);
+        }
+    }
+
+    public async Task<Result> ImportLibraryAsync(
+        string archivePath,
+        LibraryImportMode mode,
+        IProgress<(int Current, int Total)>? progress = null,
+        CancellationToken ct = default
+    )
+    {
+        try
+        {
+            var pendingRestart = await LibraryBackupHelper.ImportArchiveAsync(
+                AppDataHelper.GetAppDataPath(),
+                archivePath,
+                mode,
+                progress,
+                ct
+            );
+
+            _imageCacheService.ClearCache();
+
+            return pendingRestart ? Result.PendingRestart() : Result.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Cancelled();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(ex.Message);
+        }
+    }
 }
