@@ -135,6 +135,8 @@ public partial class App : Application
         services.AddTransient<ComicCollectionsDialogViewModel>();
         services.AddTransient<LocalComicDialogViewModel>();
         services.AddTransient<ChapterExportDialogViewModel>();
+        services.AddTransient<LibraryExportDialogViewModel>();
+        services.AddTransient<LibraryImportDialogViewModel>();
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<INotificationService, NotificationService>();
