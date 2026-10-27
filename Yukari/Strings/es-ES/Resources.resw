@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -977,5 +977,86 @@
   </data>
   <data name="ErrorPendingSourceUpdateFailedTitle" xml:space="preserve">
     <value>Error al Actualizar la Fuente</value>
+  </data>
+  <data name="LibraryBackupCard.Header" xml:space="preserve">
+    <value>Copia de Seguridad de la Biblioteca</value>
+  </data>
+  <data name="LibraryBackupCard.Description" xml:space="preserve">
+    <value>Exporta tu biblioteca a un archivo de respaldo o restáurala desde uno existente</value>
+  </data>
+  <data name="ExportLibraryBT.Content" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="ImportLibraryBT.Content" xml:space="preserve">
+    <value>Importar</value>
+  </data>
+  <data name="LibraryExportHeader.Text" xml:space="preserve">
+    <value>Exportar Biblioteca</value>
+  </data>
+  <data name="LibraryExportDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="IncludeDownloadsCHK.Content" xml:space="preserve">
+    <value>Incluir capítulos descargados</value>
+  </data>
+  <data name="IncludePluginsCHK.Content" xml:space="preserve">
+    <value>Incluir plugins (ComicSources)</value>
+  </data>
+  <data name="LibraryExportLocalComicsInfoBar.Message" xml:space="preserve">
+    <value>Los cómics locales no se incluyen al exportar la biblioteca.</value>
+  </data>
+  <data name="LibraryExportProgressText" xml:space="preserve">
+    <value>Exportados {0} de {1} elementos</value>
+  </data>
+  <data name="LibraryImportHeader.Text" xml:space="preserve">
+    <value>Importar Biblioteca</value>
+  </data>
+  <data name="LibraryImportDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Importar</value>
+  </data>
+  <data name="ImportArchivePathTXBox.Header" xml:space="preserve">
+    <value>Archivo de Respaldo</value>
+  </data>
+  <data name="LibraryImportModeCBBox.Header" xml:space="preserve">
+    <value>Modo de Importación</value>
+  </data>
+  <data name="LibraryImportMode/Merge" xml:space="preserve">
+    <value>Combinar</value>
+  </data>
+  <data name="LibraryImportMode/Replace" xml:space="preserve">
+    <value>Reemplazar</value>
+  </data>
+  <data name="LibraryImportMergeInfoBar.Message" xml:space="preserve">
+    <value>Combina los elementos del respaldo con tu biblioteca actual sin eliminar los cómics existentes.</value>
+  </data>
+  <data name="LibraryImportReplaceInfoBar.Message" xml:space="preserve">
+    <value>Reemplaza tu biblioteca en línea actual con el respaldo. Los cómics locales se conservan.</value>
+  </data>
+  <data name="LibraryImportProgressText" xml:space="preserve">
+    <value>Importados {0} de {1} elementos</value>
+  </data>
+  <data name="ImportSuccessTXB.Text" xml:space="preserve">
+    <value>¡Importado con Éxito!</value>
+  </data>
+  <data name="ImportErrorTXB.Text" xml:space="preserve">
+    <value>Ocurrió Un Error Durante la Importación</value>
+  </data>
+  <data name="LibraryImportPendingRestartInfoBar.Message" xml:space="preserve">
+    <value>Algunos plugins estaban en uso durante la importación. Reinicia Yukari para terminar de aplicarlos.</value>
+  </data>
+  <data name="LibraryBackupHelpExpander.Header" xml:space="preserve">
+    <value>Exportación e Importación de la Biblioteca</value>
+  </data>
+  <data name="LibraryBackupHelpExpander.Description" xml:space="preserve">
+    <value>Copia de seguridad y restauración de tu biblioteca entre dispositivos</value>
+  </data>
+  <data name="LibraryBackupHelp1" xml:space="preserve">
+    <value>Ve a **Configuración → Almacenamiento → Copia de Seguridad de la Biblioteca** para exportar tus cómics favoritos, progreso de lectura, colecciones y, opcionalmente, tus **capítulos descargados** y **plugins (ComicSources)** en un archivo .zip.</value>
+  </data>
+  <data name="LibraryBackupHelp2" xml:space="preserve">
+    <value>**Los cómics locales no se exportan.** Solo los cómics en línea en tus favoritos se incluyen en el respaldo.</value>
+  </data>
+  <data name="LibraryBackupHelp3" xml:space="preserve">
+    <value>Al importar un respaldo, elige **Combinar** para unirlo con tu biblioteca actual o **Reemplazar** para sobrescribir tu biblioteca en línea (conservando los cómics locales). Las rutas de los archivos se ajustan automáticamente incluso en una nueva cuenta de usuario de Windows.</value>
   </data>
 </root>

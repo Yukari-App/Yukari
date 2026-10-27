@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -977,5 +977,86 @@
   </data>
   <data name="ErrorPendingSourceUpdateFailedTitle" xml:space="preserve">
     <value>コミックソース更新失敗</value>
+  </data>
+  <data name="LibraryBackupCard.Header" xml:space="preserve">
+    <value>ライブラリのバックアップ</value>
+  </data>
+  <data name="LibraryBackupCard.Description" xml:space="preserve">
+    <value>ライブラリをバックアップファイルにエクスポートするか、既存のファイルから復元します</value>
+  </data>
+  <data name="ExportLibraryBT.Content" xml:space="preserve">
+    <value>エクスポート</value>
+  </data>
+  <data name="ImportLibraryBT.Content" xml:space="preserve">
+    <value>インポート</value>
+  </data>
+  <data name="LibraryExportHeader.Text" xml:space="preserve">
+    <value>ライブラリをエクスポート</value>
+  </data>
+  <data name="LibraryExportDialog.PrimaryButtonText" xml:space="preserve">
+    <value>エクスポート</value>
+  </data>
+  <data name="IncludeDownloadsCHK.Content" xml:space="preserve">
+    <value>ダウンロード済みチャプターを含める</value>
+  </data>
+  <data name="IncludePluginsCHK.Content" xml:space="preserve">
+    <value>プラグイン（ComicSources）を含める</value>
+  </data>
+  <data name="LibraryExportLocalComicsInfoBar.Message" xml:space="preserve">
+    <value>ローカル漫画はライブラリのエクスポートに含まれません。</value>
+  </data>
+  <data name="LibraryExportProgressText" xml:space="preserve">
+    <value>{1}件中{0}件をエクスポート済み</value>
+  </data>
+  <data name="LibraryImportHeader.Text" xml:space="preserve">
+    <value>ライブラリをインポート</value>
+  </data>
+  <data name="LibraryImportDialog.PrimaryButtonText" xml:space="preserve">
+    <value>インポート</value>
+  </data>
+  <data name="ImportArchivePathTXBox.Header" xml:space="preserve">
+    <value>バックアップファイル</value>
+  </data>
+  <data name="LibraryImportModeCBBox.Header" xml:space="preserve">
+    <value>インポートモード</value>
+  </data>
+  <data name="LibraryImportMode/Merge" xml:space="preserve">
+    <value>マージ</value>
+  </data>
+  <data name="LibraryImportMode/Replace" xml:space="preserve">
+    <value>置換</value>
+  </data>
+  <data name="LibraryImportMergeInfoBar.Message" xml:space="preserve">
+    <value>既存の漫画を削除せずに、バックアップの項目を現在のライブラリと統合します。</value>
+  </data>
+  <data name="LibraryImportReplaceInfoBar.Message" xml:space="preserve">
+    <value>現在のオンラインライブラリをバックアップで置き換えます。ローカル漫画は保持されます。</value>
+  </data>
+  <data name="LibraryImportProgressText" xml:space="preserve">
+    <value>{1}件中{0}件をインポート済み</value>
+  </data>
+  <data name="ImportSuccessTXB.Text" xml:space="preserve">
+    <value>インポートが完了しました</value>
+  </data>
+  <data name="ImportErrorTXB.Text" xml:space="preserve">
+    <value>インポート中にエラーが発生しました</value>
+  </data>
+  <data name="LibraryImportPendingRestartInfoBar.Message" xml:space="preserve">
+    <value>インポート中に一部のプラグインが使用中でした。適用を完了するにはYukariを再起動してください。</value>
+  </data>
+  <data name="LibraryBackupHelpExpander.Header" xml:space="preserve">
+    <value>ライブラリのエクスポートとインポート</value>
+  </data>
+  <data name="LibraryBackupHelpExpander.Description" xml:space="preserve">
+    <value>デバイス間でのライブラリのバックアップと復元</value>
+  </data>
+  <data name="LibraryBackupHelp1" xml:space="preserve">
+    <value>**設定 → ストレージ → ライブラリのバックアップ** から、お気に入りの漫画、読書履歴、コレクション、およびオプションで **ダウンロード済みチャプター** や **プラグイン（ComicSources）** を .zip ファイルにエクスポートできます。</value>
+  </data>
+  <data name="LibraryBackupHelp2" xml:space="preserve">
+    <value>**ローカル漫画はエクスポートされません。** お気に入りに登録されているオンライン漫画のみがバックアップに含まれます。</value>
+  </data>
+  <data name="LibraryBackupHelp3" xml:space="preserve">
+    <value>バックアップをインポートする際、既存のライブラリと統合する **マージ** か、オンラインライブラリを上書きする **置換**（ローカル漫画は保持されます）を選択できます。新しいWindowsユーザー環境でもファイルパスは自動的に調整されます。</value>
   </data>
 </root>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -977,5 +977,86 @@
   </data>
   <data name="ErrorPendingSourceUpdateFailedTitle" xml:space="preserve">
     <value>Falha ao Atualizar Fonte</value>
+  </data>
+  <data name="LibraryBackupCard.Header" xml:space="preserve">
+    <value>Backup da Biblioteca</value>
+  </data>
+  <data name="LibraryBackupCard.Description" xml:space="preserve">
+    <value>Exporte sua biblioteca para um arquivo de backup ou restaure a partir de um existente</value>
+  </data>
+  <data name="ExportLibraryBT.Content" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="ImportLibraryBT.Content" xml:space="preserve">
+    <value>Importar</value>
+  </data>
+  <data name="LibraryExportHeader.Text" xml:space="preserve">
+    <value>Exportar Biblioteca</value>
+  </data>
+  <data name="LibraryExportDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="IncludeDownloadsCHK.Content" xml:space="preserve">
+    <value>Incluir capítulos baixados</value>
+  </data>
+  <data name="IncludePluginsCHK.Content" xml:space="preserve">
+    <value>Incluir plugins (ComicSources)</value>
+  </data>
+  <data name="LibraryExportLocalComicsInfoBar.Message" xml:space="preserve">
+    <value>Quadrinhos locais não são incluídos ao exportar a biblioteca.</value>
+  </data>
+  <data name="LibraryExportProgressText" xml:space="preserve">
+    <value>Exportados {0} de {1} itens</value>
+  </data>
+  <data name="LibraryImportHeader.Text" xml:space="preserve">
+    <value>Importar Biblioteca</value>
+  </data>
+  <data name="LibraryImportDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Importar</value>
+  </data>
+  <data name="ImportArchivePathTXBox.Header" xml:space="preserve">
+    <value>Arquivo de Backup</value>
+  </data>
+  <data name="LibraryImportModeCBBox.Header" xml:space="preserve">
+    <value>Modo de Importação</value>
+  </data>
+  <data name="LibraryImportMode/Merge" xml:space="preserve">
+    <value>Mesclar</value>
+  </data>
+  <data name="LibraryImportMode/Replace" xml:space="preserve">
+    <value>Substituir</value>
+  </data>
+  <data name="LibraryImportMergeInfoBar.Message" xml:space="preserve">
+    <value>Combina os itens do backup com sua biblioteca atual sem apagar os quadrinhos existentes.</value>
+  </data>
+  <data name="LibraryImportReplaceInfoBar.Message" xml:space="preserve">
+    <value>Substitui sua biblioteca online atual pelo backup. Quadrinhos locais são preservados.</value>
+  </data>
+  <data name="LibraryImportProgressText" xml:space="preserve">
+    <value>Importados {0} de {1} itens</value>
+  </data>
+  <data name="ImportSuccessTXB.Text" xml:space="preserve">
+    <value>Importado com Sucesso</value>
+  </data>
+  <data name="ImportErrorTXB.Text" xml:space="preserve">
+    <value>Um Erro Ocorreu Durante a Importação</value>
+  </data>
+  <data name="LibraryImportPendingRestartInfoBar.Message" xml:space="preserve">
+    <value>Alguns plugins estavam em uso durante a importação. Reinicie o Yukari para concluir a aplicação.</value>
+  </data>
+  <data name="LibraryBackupHelpExpander.Header" xml:space="preserve">
+    <value>Exportação e Importação da Biblioteca</value>
+  </data>
+  <data name="LibraryBackupHelpExpander.Description" xml:space="preserve">
+    <value>Fazendo backup e restaurando sua biblioteca entre dispositivos</value>
+  </data>
+  <data name="LibraryBackupHelp1" xml:space="preserve">
+    <value>Vá em **Configurações → Armazenamento → Backup da Biblioteca** para exportar seus quadrinhos favoritos, progresso de leitura, coleções e, opcionalmente, seus **capítulos baixados** e **plugins (ComicSources)** em um arquivo .zip.</value>
+  </data>
+  <data name="LibraryBackupHelp2" xml:space="preserve">
+    <value>**Quadrinhos locais não são exportados.** Apenas quadrinhos online salvos nos seus favoritos são incluídos no backup.</value>
+  </data>
+  <data name="LibraryBackupHelp3" xml:space="preserve">
+    <value>Ao importar um backup, escolha **Mesclar** para combiná-lo com sua biblioteca atual ou **Substituir** para sobrescrever sua biblioteca online (preservando quadrinhos locais). Os caminhos dos arquivos são ajustados automaticamente mesmo em um novo usuário do Windows.</value>
   </data>
 </root>

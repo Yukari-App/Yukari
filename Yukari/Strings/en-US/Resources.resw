@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -977,5 +977,86 @@
   </data>
   <data name="ErrorPendingSourceUpdateFailedTitle" xml:space="preserve">
     <value>Failed to Update Comic Source</value>
+  </data>
+  <data name="LibraryBackupCard.Header" xml:space="preserve">
+    <value>Library Backup</value>
+  </data>
+  <data name="LibraryBackupCard.Description" xml:space="preserve">
+    <value>Export your library to a backup file or restore from an existing one</value>
+  </data>
+  <data name="ExportLibraryBT.Content" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ImportLibraryBT.Content" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="LibraryExportHeader.Text" xml:space="preserve">
+    <value>Export Library</value>
+  </data>
+  <data name="LibraryExportDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="IncludeDownloadsCHK.Content" xml:space="preserve">
+    <value>Include downloaded chapters</value>
+  </data>
+  <data name="IncludePluginsCHK.Content" xml:space="preserve">
+    <value>Include plugins (ComicSources)</value>
+  </data>
+  <data name="LibraryExportLocalComicsInfoBar.Message" xml:space="preserve">
+    <value>Local comics are not included when exporting the library.</value>
+  </data>
+  <data name="LibraryExportProgressText" xml:space="preserve">
+    <value>Exported {0} of {1} items</value>
+  </data>
+  <data name="LibraryImportHeader.Text" xml:space="preserve">
+    <value>Import Library</value>
+  </data>
+  <data name="LibraryImportDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="ImportArchivePathTXBox.Header" xml:space="preserve">
+    <value>Backup File</value>
+  </data>
+  <data name="LibraryImportModeCBBox.Header" xml:space="preserve">
+    <value>Import Mode</value>
+  </data>
+  <data name="LibraryImportMode/Merge" xml:space="preserve">
+    <value>Merge</value>
+  </data>
+  <data name="LibraryImportMode/Replace" xml:space="preserve">
+    <value>Replace</value>
+  </data>
+  <data name="LibraryImportMergeInfoBar.Message" xml:space="preserve">
+    <value>Combines backup items with your current library without deleting existing comics.</value>
+  </data>
+  <data name="LibraryImportReplaceInfoBar.Message" xml:space="preserve">
+    <value>Replaces your current online library with the backup. Local comics are preserved.</value>
+  </data>
+  <data name="LibraryImportProgressText" xml:space="preserve">
+    <value>Imported {0} of {1} items</value>
+  </data>
+  <data name="ImportSuccessTXB.Text" xml:space="preserve">
+    <value>Successfully Imported</value>
+  </data>
+  <data name="ImportErrorTXB.Text" xml:space="preserve">
+    <value>An Error Occurred During Import</value>
+  </data>
+  <data name="LibraryImportPendingRestartInfoBar.Message" xml:space="preserve">
+    <value>Some plugins were in use during import. Restart Yukari to finish applying them.</value>
+  </data>
+  <data name="LibraryBackupHelpExpander.Header" xml:space="preserve">
+    <value>Library Export &amp; Import</value>
+  </data>
+  <data name="LibraryBackupHelpExpander.Description" xml:space="preserve">
+    <value>Backing up and restoring your library across devices</value>
+  </data>
+  <data name="LibraryBackupHelp1" xml:space="preserve">
+    <value>Go to **Settings → Storage → Library Backup** to export your favorite comics, reading progress, collections, and optionally your **downloaded chapters** and **plugins (ComicSources)** into a .zip file.</value>
+  </data>
+  <data name="LibraryBackupHelp2" xml:space="preserve">
+    <value>**Local comics are not exported.** Only online comics in your favorites are included in the backup.</value>
+  </data>
+  <data name="LibraryBackupHelp3" xml:space="preserve">
+    <value>When importing a backup, choose **Merge** to combine it with your existing library or **Replace** to overwrite your online library (preserving local comics). File paths are automatically adjusted even on a new Windows user account.</value>
   </data>
 </root>
