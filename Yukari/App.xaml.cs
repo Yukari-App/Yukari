@@ -202,6 +202,8 @@ public partial class App : Application
         var pending = await dbService.GetComicSourcesPendingRemovalAsync();
         Log.Information("Processing {Count} pending source removals", pending.Count);
 
+        var locService = GetService<ILocalizationService>();
+
         foreach (var source in pending)
         {
             var result = await sourceManager.RemoveComicSourceAsync(source.Name);
@@ -213,8 +215,8 @@ public partial class App : Application
                     result.Error
                 );
                 notificationService.ShowWarning(
-                    $"The source '{source.Name}' could not be removed. Retrying on next startup",
-                    "Failed to Remove Comic Source"
+                    locService.GetFormattedString("WarningPendingSourceRemovalFailed", source.Name),
+                    locService.GetString("WarningPendingSourceRemovalFailedTitle")
                 );
             }
         }
@@ -229,6 +231,8 @@ public partial class App : Application
         var pending = await dbService.GetComicSourcesPendingUpdateAsync();
         Log.Information("Processing {Count} pending source updates", pending.Count);
 
+        var locService = GetService<ILocalizationService>();
+
         foreach (var source in pending)
         {
             var result = await sourceManager.UpsertComicSourceAsync(source.PendingUpdatePath!);
@@ -240,8 +244,8 @@ public partial class App : Application
                     result.Error
                 );
                 notificationService.ShowError(
-                    $"The source '{source.Name}' could not be updated and will not be updated on next startup. Try updating manually.",
-                    "Failed to Update Comic Source"
+                    locService.GetFormattedString("ErrorPendingSourceUpdateFailed", source.Name),
+                    locService.GetString("ErrorPendingSourceUpdateFailedTitle")
                 );
             }
             await dbService.UpdateComicSourcePendingUpdateAsync(source.Name, null);

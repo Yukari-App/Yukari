@@ -948,4 +948,34 @@
   <data name="CancelBrowserInteractionBT.Content" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="ErrorComicSourceDisabled" xml:space="preserve">
+    <value>The source '{0}' is currently disabled. Please enable it in the settings.</value>
+  </data>
+  <data name="ErrorPluginVersionMismatch" xml:space="preserve">
+    <value>The plugin '{0}' is incompatible with this version of Yukari. Please download a compatible version of the plugin or update Yukari.</value>
+  </data>
+  <data name="ErrorCollectionAlreadyExists" xml:space="preserve">
+    <value>A collection named '{0}' already exists.</value>
+  </data>
+  <data name="ErrorReservedSourceName" xml:space="preserve">
+    <value>You can't add a ComicSource named 'Local'</value>
+  </data>
+  <data name="ErrorComicNotInSource" xml:space="preserve">
+    <value>The comic doesn't exist in the source and cannot be favorited.</value>
+  </data>
+  <data name="ErrorDownloadedChapterMissingPages" xml:space="preserve">
+    <value>Chapter marked as downloaded, but no pages found locally. Try downloading again.</value>
+  </data>
+  <data name="WarningPendingSourceRemovalFailed" xml:space="preserve">
+    <value>The source '{0}' could not be removed. Retrying on next startup</value>
+  </data>
+  <data name="WarningPendingSourceRemovalFailedTitle" xml:space="preserve">
+    <value>Failed to Remove Comic Source</value>
+  </data>
+  <data name="ErrorPendingSourceUpdateFailed" xml:space="preserve">
+    <value>The source '{0}' could not be updated and will not be updated on next startup. Try updating manually.</value>
+  </data>
+  <data name="ErrorPendingSourceUpdateFailedTitle" xml:space="preserve">
+    <value>Failed to Update Comic Source</value>
+  </data>
 </root>

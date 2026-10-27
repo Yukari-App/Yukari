@@ -71,12 +71,49 @@ internal abstract class ResultServiceBase
 
     private Result HandleException(Exception ex, string errorTitle)
     {
-        switch (ex)
+        var unwrapped = ex switch
+        {
+            OperationCanceledException
+            or ComicSourceDisabledException
+            or PluginVersionMismatchException
+            or CollectionAlreadyExistsException => ex,
+            {
+                InnerException: OperationCanceledException
+                    or ComicSourceDisabledException
+                    or PluginVersionMismatchException
+                    or CollectionAlreadyExistsException,
+            } => ex.InnerException,
+            _ => ex,
+        };
+
+        switch (unwrapped)
         {
             case OperationCanceledException:
                 return Result.Cancelled();
             case ComicSourceDisabledException disabledEx:
-                return Result.ComicSourceDisabled(disabledEx.Message, errorTitle);
+                return Result.ComicSourceDisabled(
+                    _localizationService.GetFormattedString(
+                        "ErrorComicSourceDisabled",
+                        disabledEx.SourceName
+                    ),
+                    errorTitle
+                );
+            case PluginVersionMismatchException mismatchEx:
+                return Result.Failure(
+                    _localizationService.GetFormattedString(
+                        "ErrorPluginVersionMismatch",
+                        mismatchEx.PluginName
+                    ),
+                    errorTitle
+                );
+            case CollectionAlreadyExistsException collEx:
+                return Result.Failure(
+                    _localizationService.GetFormattedString(
+                        "ErrorCollectionAlreadyExists",
+                        collEx.CollectionName
+                    ),
+                    errorTitle
+                );
             case var _ when IsNetworkError(ex):
                 _logger.LogWarning(ex, "Network error in {Operation}", errorTitle);
                 return Result.Failure(

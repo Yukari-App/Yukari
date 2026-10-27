@@ -948,4 +948,34 @@
   <data name="CancelBrowserInteractionBT.Content" xml:space="preserve">
     <value>キャンセル</value>
   </data>
+  <data name="ErrorComicSourceDisabled" xml:space="preserve">
+    <value>ソース '{0}' は現在無効です。設定で有効にしてください。</value>
+  </data>
+  <data name="ErrorPluginVersionMismatch" xml:space="preserve">
+    <value>プラグイン '{0}' はこのバージョンのYukariと互換性がありません。互換性のあるバージョンのプラグインをダウンロードするか、Yukariを更新してください。</value>
+  </data>
+  <data name="ErrorCollectionAlreadyExists" xml:space="preserve">
+    <value>'{0}' という名前のコレクションは既に存在します。</value>
+  </data>
+  <data name="ErrorReservedSourceName" xml:space="preserve">
+    <value>'Local' という名前のコミックソースは追加できません</value>
+  </data>
+  <data name="ErrorComicNotInSource" xml:space="preserve">
+    <value>この漫画はソースに存在しないため、お気に入りに追加できません。</value>
+  </data>
+  <data name="ErrorDownloadedChapterMissingPages" xml:space="preserve">
+    <value>チャプターはダウンロード済みとしてマークされていますが、ローカルにページが見つかりません。もう一度ダウンロードしてください。</value>
+  </data>
+  <data name="WarningPendingSourceRemovalFailed" xml:space="preserve">
+    <value>ソース '{0}' を削除できませんでした。次回起動時に再試行します</value>
+  </data>
+  <data name="WarningPendingSourceRemovalFailedTitle" xml:space="preserve">
+    <value>コミックソース削除失敗</value>
+  </data>
+  <data name="ErrorPendingSourceUpdateFailed" xml:space="preserve">
+    <value>ソース '{0}' を更新できませんでした。次回起動時には更新されません。手動で更新を試してください。</value>
+  </data>
+  <data name="ErrorPendingSourceUpdateFailedTitle" xml:space="preserve">
+    <value>コミックソース更新失敗</value>
+  </data>
 </root>

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Yukari.Enums;
+using Yukari.Exceptions;
 using Yukari.Helpers;
 using Yukari.Helpers.Database;
 using Yukari.Models;
@@ -494,7 +495,7 @@ internal class DataService : IDataService
         );
 
         if (exists > 0)
-            throw new InvalidOperationException($"A collection named '{newName}' already exists.");
+            throw new CollectionAlreadyExistsException(newName);
 
         await connection.ExecuteAsync(
             @"UPDATE Collections SET Name = @NewName WHERE Name = @OldName;",

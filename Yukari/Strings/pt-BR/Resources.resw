@@ -948,4 +948,34 @@
   <data name="CancelBrowserInteractionBT.Content" xml:space="preserve">
     <value>Cancelar</value>
   </data>
+  <data name="ErrorComicSourceDisabled" xml:space="preserve">
+    <value>A fonte '{0}' está desabilitada no momento. Por favor, habilite-a nas configurações.</value>
+  </data>
+  <data name="ErrorPluginVersionMismatch" xml:space="preserve">
+    <value>O plugin '{0}' é incompatível com esta versão do Yukari. Por favor, baixe uma versão compatível do plugin ou atualize o Yukari.</value>
+  </data>
+  <data name="ErrorCollectionAlreadyExists" xml:space="preserve">
+    <value>Uma coleção chamada '{0}' já existe.</value>
+  </data>
+  <data name="ErrorReservedSourceName" xml:space="preserve">
+    <value>Você não pode adicionar um ComicSource chamado 'Local'</value>
+  </data>
+  <data name="ErrorComicNotInSource" xml:space="preserve">
+    <value>O quadrinho não existe na fonte e não pode ser favoritado.</value>
+  </data>
+  <data name="ErrorDownloadedChapterMissingPages" xml:space="preserve">
+    <value>Capítulo marcado como baixado, mas nenhuma página foi encontrada localmente. Tente baixar novamente.</value>
+  </data>
+  <data name="WarningPendingSourceRemovalFailed" xml:space="preserve">
+    <value>A fonte '{0}' não pôde ser removida. Tentando novamente na próxima inicialização</value>
+  </data>
+  <data name="WarningPendingSourceRemovalFailedTitle" xml:space="preserve">
+    <value>Falha ao Remover Fonte</value>
+  </data>
+  <data name="ErrorPendingSourceUpdateFailed" xml:space="preserve">
+    <value>A fonte '{0}' não pôde ser atualizada e não será atualizada na próxima inicialização. Tente atualizar manualmente.</value>
+  </data>
+  <data name="ErrorPendingSourceUpdateFailedTitle" xml:space="preserve">
+    <value>Falha ao Atualizar Fonte</value>
+  </data>
 </root>

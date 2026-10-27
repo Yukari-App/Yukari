@@ -65,7 +65,9 @@ internal class SourceManager : ResultServiceBase, ISourceManager
                         StringComparison.OrdinalIgnoreCase
                     )
                 )
-                    return Result.Failure("You can't add a ComicSource named 'Local'");
+                    return Result.Failure(
+                        _localizationService.GetString("ErrorReservedSourceName")
+                    );
 
                 try
                 {

@@ -276,9 +276,7 @@ internal class SourceService : ISourceService
             );
 
         if (!comicSourceModel.IsEnabled)
-            throw new ComicSourceDisabledException(
-                $"The source '{sourceName}' is currently disabled. Please enable it in the settings."
-            );
+            throw new ComicSourceDisabledException(sourceName);
 
         await LoadSourceAsync(comicSourceModel);
     }

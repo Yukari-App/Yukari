@@ -286,8 +286,8 @@ internal class ComicService : ResultServiceBase, IComicService
                 {
                     pages = await _dbService.GetChapterPagesAsync(comicKey, chapterKey, ct);
                     if (pages.Count == 0 && !comicKey.IsLocal())
-                        throw new InvalidOperationException(
-                            "Chapter marked as downloaded, but no pages found locally. Try downloading again."
+                        return Result<IReadOnlyList<ChapterPageModel>>.Failure(
+                            _localizationService.GetString("ErrorDownloadedChapterMissingPages")
                         );
                 }
                 else
@@ -341,7 +341,7 @@ internal class ComicService : ResultServiceBase, IComicService
                     var comicUserData = await _dbService.GetComicUserDataAsync(comicKey);
                     if (!comicUserData.IsFavorite)
                         return Result.Failure(
-                            "The comic doesn't exist in the source and cannot be favorited."
+                            _localizationService.GetString("ErrorComicNotInSource")
                         );
 
                     comicDetails =
