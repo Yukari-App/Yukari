@@ -92,6 +92,24 @@ internal class DialogService : IDialogService
         await dialog.ShowAsync();
     }
 
+    public async Task ShowLibraryExportDialogAsync()
+    {
+        ThrowIfXamlRootNotInitialized();
+
+        var dialog = new LibraryExportDialog() { XamlRoot = _xamlRoot, RequestedTheme = AppTheme };
+
+        await dialog.ShowAsync();
+    }
+
+    public async Task ShowLibraryImportDialogAsync()
+    {
+        ThrowIfXamlRootNotInitialized();
+
+        var dialog = new LibraryImportDialog() { XamlRoot = _xamlRoot, RequestedTheme = AppTheme };
+
+        await dialog.ShowAsync();
+    }
+
     public async Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null)
     {
         ThrowIfXamlRootNotInitialized();

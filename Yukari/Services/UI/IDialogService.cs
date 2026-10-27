@@ -24,6 +24,8 @@ public interface IDialogService
         string comicTitle,
         string chapterTitle
     );
+    Task ShowLibraryExportDialogAsync();
+    Task ShowLibraryImportDialogAsync();
     Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null);
     Task<string?> OpenFolderPickerAsync();
     Task<string?> OpenFileSavePicker(
