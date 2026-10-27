@@ -299,6 +299,46 @@ public class SettingsPageViewModelTests
     }
 
     [Fact]
+    public async Task OpenLibraryExportDialog_ShowsLibraryExportDialog()
+    {
+        // Act
+        await _sut.OpenLibraryExportDialogCommand.ExecuteAsync(null);
+
+        // Assert
+        _dialogServiceMock.Verify(d => d.ShowLibraryExportDialogAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task OpenLibraryImportDialog_ShowsDialog_AndReloadsComicSources()
+    {
+        // Arrange
+        _sourceManagerMock
+            .Setup(s => s.GetComicSourcesAsync())
+            .ReturnsAsync(
+                Result<IReadOnlyList<ComicSourceModel>>.Success(
+                    new List<ComicSourceModel>
+                    {
+                        new ComicSourceModel
+                        {
+                            Name = "ImportedSource",
+                            DllPath = @"C:\Plugins\ImportedSource.dll",
+                            Version = "1.0.0",
+                            IsEnabled = true,
+                        },
+                    }
+                )
+            );
+
+        // Act
+        await _sut.OpenLibraryImportDialogCommand.ExecuteAsync(null);
+
+        // Assert
+        _dialogServiceMock.Verify(d => d.ShowLibraryImportDialogAsync(), Times.Once);
+        _sut.AvailableComicSources.Should().ContainSingle(s => s.Name == "ImportedSource");
+        _sut.DefaultComicSource?.Name.Should().Be("ImportedSource");
+    }
+
+    [Fact]
     public async Task CleanUpStorage_CleansUp_WhenSuccess()
     {
         // Arrange

@@ -204,6 +204,22 @@ public partial class SettingsPageViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task OpenLibraryExportDialogAsync() =>
+        await _dialogService.ShowLibraryExportDialogAsync();
+
+    [RelayCommand]
+    private async Task OpenLibraryImportDialogAsync()
+    {
+        await _dialogService.ShowLibraryImportDialogAsync();
+
+        await LoadComicSourcesAsync();
+        DefaultComicSource =
+            AvailableComicSources.FirstOrDefault(s =>
+                s.Name == _settingsService.Current.DefaultComicSourceName
+            ) ?? AvailableComicSources.FirstOrDefault();
+    }
+
+    [RelayCommand]
     private async Task CleanUpStorageAsync()
     {
         var result = await _comicService.CleanupUnfavoriteComicsDataAsync();
