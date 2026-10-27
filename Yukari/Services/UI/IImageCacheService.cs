@@ -10,4 +10,5 @@ public interface IImageCacheService
     Task<(int Width, int Height)?> TryGetDimensionsAsync(string? url);
     Task<string?> SaveImageAsync(string? url, string? filePath);
     Task<byte[]?> GetImageBytesAsync(string url);
+    void ClearCache();
 }

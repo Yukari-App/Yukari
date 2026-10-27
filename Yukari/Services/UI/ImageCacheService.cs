@@ -93,6 +93,13 @@ internal class ImageCacheService : IImageCacheService
         : IsLocalPath(url) ? await ReadLocalFileBytesAsync(url)
         : await _downloadService.GetImageBytesAsync(url);
 
+    public void ClearCache()
+    {
+        _cache.Clear();
+        _loadTasks.Clear();
+        _insertionQueue.Clear();
+    }
+
     private void AddToCache(string key, ImageSource imageSource)
     {
         _cache[key] = imageSource;
