@@ -157,6 +157,26 @@
                         </toolkit:SettingsExpander.Items>
                     </toolkit:SettingsExpander>
 
+                    <toolkit:SettingsExpander x:Uid="LibraryBackupHelpExpander" HeaderIcon="{ui:FontIcon Glyph=&#xE8F1;}">
+                        <toolkit:SettingsExpander.Items>
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock helpers:RichTextHelper.Source="LibraryBackupHelp1" />
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock helpers:RichTextHelper.Source="LibraryBackupHelp2" />
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+                            <toolkit:SettingsCard Padding="24,8,0,8">
+                                <toolkit:SettingsCard.Header>
+                                    <RichTextBlock helpers:RichTextHelper.Source="LibraryBackupHelp3" />
+                                </toolkit:SettingsCard.Header>
+                            </toolkit:SettingsCard>
+                        </toolkit:SettingsExpander.Items>
+                    </toolkit:SettingsExpander>
+
                     <!--  Support  -->
                     <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}">
                         <Run x:Uid="SupportSection" FontWeight="Bold" />
