@@ -622,14 +622,14 @@ public class ReaderPageViewModelTests
         // Arrange
         var nextChapter = new ChapterAggregate(
             new ChapterModel() { Id = "ch-002", Source = SourceName },
-            new ChapterUserData()
+            new ChapterUserData() { LastPageRead = 3 }
         );
 
         var chapters = new ChapterAggregate[]
         {
             new ChapterAggregate(
                 new ChapterModel() { Id = "ch-001", Source = SourceName },
-                new ChapterUserData()
+                new ChapterUserData() { LastPageRead = 8, IsDownloaded = true }
             ),
             nextChapter,
         };
@@ -647,7 +647,7 @@ public class ReaderPageViewModelTests
                 c.UpsertChapterUserDataAsync(
                     ComicKey,
                     new("ch-001", SourceName),
-                    It.IsAny<ChapterUserData>()
+                    It.Is<ChapterUserData>(u => u.LastPageRead == 8 && u.IsDownloaded == true)
                 ),
             Times.Once
         );
