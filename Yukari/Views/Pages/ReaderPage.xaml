@@ -109,10 +109,10 @@
                               BorderBrush="Transparent"
                               Command="{x:Bind ViewModel.ToggleFullscreenCommand}"
                               IsChecked="{x:Bind ViewModel.IsFullscreen, Mode=TwoWay}"
-                              ToolTipService.ToolTip="Fullscreen">
+                              x:Uid="FullscreenTBT">
                     <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.FullscreenButtonIcon, Mode=OneWay}" />
                 </ToggleButton>
-                <Button Content="{ui:FontIcon Glyph=&#xE712;}" Style="{StaticResource TitleBarButtonStyle}" ToolTipService.ToolTip="Options">
+                <Button Content="{ui:FontIcon Glyph=&#xE712;}" Style="{StaticResource TitleBarButtonStyle}" x:Uid="ReaderOptionsBT">
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutSubItem x:Uid="ReadingModeSBItem" Icon="{ui:FontIcon Glyph=&#xE736;}">

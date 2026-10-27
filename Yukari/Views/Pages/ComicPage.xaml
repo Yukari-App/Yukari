@@ -361,7 +361,7 @@
                                         <TextBlock VerticalAlignment="Center"
                                                    FontSize="20"
                                                    Style="{StaticResource TitleTextBlockStyle}"
-                                                   Text="Tags" />
+                                                   x:Uid="TagsTXB" />
                                         <TextBlock VerticalAlignment="Bottom"
                                                    FontSize="14"
                                                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"

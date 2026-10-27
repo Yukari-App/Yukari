@@ -933,4 +933,19 @@
   <data name="OpenLocalChapterFileMNItem.Text" xml:space="preserve">
     <value>チャプターファイルを開く...</value>
   </data>
+  <data name="NoResultsTXB.Text" xml:space="preserve">
+    <value>結果が見つかりません。</value>
+  </data>
+  <data name="TagsTXB.Text" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="FullscreenTBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>フルスクリーン</value>
+  </data>
+  <data name="ReaderOptionsBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>オプション</value>
+  </data>
+  <data name="CancelBrowserInteractionBT.Content" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
 </root>

@@ -933,4 +933,19 @@
   <data name="OpenLocalChapterFileMNItem.Text" xml:space="preserve">
     <value>Abrir Arquivo de Capítulo...</value>
   </data>
+  <data name="NoResultsTXB.Text" xml:space="preserve">
+    <value>Nenhum resultado encontrado.</value>
+  </data>
+  <data name="TagsTXB.Text" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="FullscreenTBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Tela Cheia</value>
+  </data>
+  <data name="ReaderOptionsBT.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Opções</value>
+  </data>
+  <data name="CancelBrowserInteractionBT.Content" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
 </root>

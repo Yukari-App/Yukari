@@ -109,7 +109,7 @@
         <TextBlock Grid.Row="1"
                    HorizontalAlignment="Center"
                    Style="{StaticResource BodyLargeStrongTextBlockStyle}"
-                   Text="No results found."
+                   x:Uid="NoResultsTXB"
                    Visibility="{x:Bind ViewModel.NoResults, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
         <TextBlock Grid.Row="1"

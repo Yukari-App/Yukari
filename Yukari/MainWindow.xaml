@@ -23,7 +23,7 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Click="CancelBrowserInteractionBT_Click"
-                Content="Cancel"
+                x:Uid="CancelBrowserInteractionBT"
                 Visibility="Collapsed" />
     </Grid>
 </Window>
