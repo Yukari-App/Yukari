@@ -105,13 +105,7 @@ public partial class SettingsPageViewModel : ObservableObject
         SelectedScalingMode = _settingsService.Current.ScalingMode;
 
         await LoadComicSourcesAsync();
-        if (AvailableComicSources.Count > 0)
-        {
-            DefaultComicSource =
-                AvailableComicSources.FirstOrDefault(s =>
-                    s.Name == _settingsService.Current.DefaultComicSourceName
-                ) ?? AvailableComicSources.First();
-        }
+        UpdateDefaultComicSource();
 
         _isInitializing = false;
     }
@@ -138,11 +132,7 @@ public partial class SettingsPageViewModel : ObservableObject
         }
 
         await LoadComicSourcesAsync();
-
-        DefaultComicSource =
-            AvailableComicSources.FirstOrDefault(s =>
-                s.Name == _settingsService.Current.DefaultComicSourceName
-            ) ?? AvailableComicSources.First();
+        UpdateDefaultComicSource();
 
         _notificationService.ShowSuccess(
             _localizationService.GetString("SuccessComicSourceAddedUpdated")
@@ -169,10 +159,7 @@ public partial class SettingsPageViewModel : ObservableObject
         }
 
         await LoadComicSourcesAsync();
-        DefaultComicSource =
-            AvailableComicSources.FirstOrDefault(s =>
-                s.Name == _settingsService.Current.DefaultComicSourceName
-            ) ?? AvailableComicSources.FirstOrDefault();
+        UpdateDefaultComicSource();
 
         _messenger.Send(new ComicSourcesUpdatedMessage());
     }
@@ -195,10 +182,7 @@ public partial class SettingsPageViewModel : ObservableObject
             .Select(cs => cs.ComicSource)
             .ToList();
 
-        DefaultComicSource =
-            AvailableComicSources.FirstOrDefault(s =>
-                s.Name == _settingsService.Current.DefaultComicSourceName
-            ) ?? AvailableComicSources.FirstOrDefault();
+        UpdateDefaultComicSource();
 
         _messenger.Send(new ComicSourcesUpdatedMessage());
     }
@@ -213,10 +197,7 @@ public partial class SettingsPageViewModel : ObservableObject
         await _dialogService.ShowLibraryImportDialogAsync();
 
         await LoadComicSourcesAsync();
-        DefaultComicSource =
-            AvailableComicSources.FirstOrDefault(s =>
-                s.Name == _settingsService.Current.DefaultComicSourceName
-            ) ?? AvailableComicSources.FirstOrDefault();
+        UpdateDefaultComicSource();
     }
 
     [RelayCommand]
@@ -251,6 +232,14 @@ public partial class SettingsPageViewModel : ObservableObject
                 ComicSourceIsEnabledChangedCommand
             ))
             .ToList();
+    }
+
+    private void UpdateDefaultComicSource()
+    {
+        DefaultComicSource =
+            AvailableComicSources.FirstOrDefault(s =>
+                s.Name == _settingsService.Current.DefaultComicSourceName
+            ) ?? AvailableComicSources.FirstOrDefault();
     }
 
     private void ApplySetting<T>(Expression<Func<AppSettings, T>> selector, T value)
