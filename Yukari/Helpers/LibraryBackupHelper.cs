@@ -93,7 +93,8 @@ public static class LibraryBackupHelper
         var tempDir = Path.Combine(Path.GetTempPath(), $"YukariExport_{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempDir);
 
-        var createdZip = false;
+        var tempZip = destinationZipPath + ".tmp";
+
         try
         {
             ct.ThrowIfCancellationRequested();
@@ -131,41 +132,42 @@ public static class LibraryBackupHelper
             if (!string.IsNullOrWhiteSpace(destDir))
                 Directory.CreateDirectory(destDir);
 
-            if (File.Exists(destinationZipPath))
-                File.Delete(destinationZipPath);
+            if (File.Exists(tempZip))
+                File.Delete(tempZip);
 
-            createdZip = true;
-            using var archive = ZipFile.Open(destinationZipPath, ZipArchiveMode.Create);
-
-            ct.ThrowIfCancellationRequested();
-            var manifestEntry = archive.CreateEntry(ManifestEntryName);
-            await using (var manifestStream = manifestEntry.Open())
-            {
-                await JsonSerializer.SerializeAsync(manifestStream, manifest, JsonOptions, ct);
-            }
-            progress?.Report((++currentStep, totalSteps));
-
-            ct.ThrowIfCancellationRequested();
-            archive.CreateEntryFromFile(tempDbPath, DatabaseEntryName);
-            progress?.Report((++currentStep, totalSteps));
-
-            foreach (var (sourceFile, entryName) in filesToPack)
+            using (var archive = ZipFile.Open(tempZip, ZipArchiveMode.Create))
             {
                 ct.ThrowIfCancellationRequested();
-                archive.CreateEntryFromFile(sourceFile, entryName);
+                var manifestEntry = archive.CreateEntry(ManifestEntryName);
+                await using (var manifestStream = manifestEntry.Open())
+                {
+                    await JsonSerializer.SerializeAsync(manifestStream, manifest, JsonOptions, ct);
+                }
                 progress?.Report((++currentStep, totalSteps));
+
+                ct.ThrowIfCancellationRequested();
+                archive.CreateEntryFromFile(tempDbPath, DatabaseEntryName);
+                progress?.Report((++currentStep, totalSteps));
+
+                foreach (var (sourceFile, entryName) in filesToPack)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    archive.CreateEntryFromFile(sourceFile, entryName);
+                    progress?.Report((++currentStep, totalSteps));
+                }
             }
+
+            ct.ThrowIfCancellationRequested();
+            File.Move(tempZip, destinationZipPath, overwrite: true);
         }
         catch
         {
-            if (createdZip && File.Exists(destinationZipPath))
+            try
             {
-                try
-                {
-                    File.Delete(destinationZipPath);
-                }
-                catch { }
+                if (File.Exists(tempZip))
+                    File.Delete(tempZip);
             }
+            catch { }
             throw;
         }
         finally
@@ -547,42 +549,36 @@ public static class LibraryBackupHelper
             var pluginsDir = Path.Combine(appDataPath, "Plugins");
             var pluginImagesDir = Path.Combine(pluginsDir, "Images");
 
+            void AddPluginFile(string? filePath, string fallbackDir, string entryFolder)
+            {
+                if (string.IsNullOrWhiteSpace(filePath))
+                    return;
+
+                var fileName = Path.GetFileName(NormalizePath(filePath));
+                var candidatePath = File.Exists(filePath)
+                    ? filePath
+                    : Path.Combine(fallbackDir, fileName);
+
+                if (File.Exists(candidatePath))
+                {
+                    var entryName = $"{entryFolder}/{fileName}";
+                    if (seenEntries.Add(entryName))
+                        files.Add((candidatePath, entryName));
+                }
+            }
+
             foreach (var source in comicSources)
             {
-                if (!string.IsNullOrWhiteSpace(source.DllPath))
-                {
-                    var dllFileName = Path.GetFileName(NormalizePath(source.DllPath));
-                    var candidateDll = File.Exists(source.DllPath)
-                        ? source.DllPath
-                        : Path.Combine(pluginsDir, dllFileName);
-
-                    if (File.Exists(candidateDll))
-                    {
-                        var entryName = $"Plugins/{dllFileName}";
-                        if (seenEntries.Add(entryName))
-                            files.Add((candidateDll, entryName));
-                    }
-                }
+                AddPluginFile(source.DllPath, pluginsDir, "Plugins");
 
                 if (
-                    !string.IsNullOrWhiteSpace(source.LogoUrl)
-                    && !source.LogoUrl.StartsWith(
+                    source.LogoUrl?.StartsWith(
                         ImageUriHelper.SourceScheme,
                         StringComparison.OrdinalIgnoreCase
-                    )
+                    ) != true
                 )
                 {
-                    var logoFileName = Path.GetFileName(NormalizePath(source.LogoUrl));
-                    var candidateLogo = File.Exists(source.LogoUrl)
-                        ? source.LogoUrl
-                        : Path.Combine(pluginImagesDir, logoFileName);
-
-                    if (File.Exists(candidateLogo))
-                    {
-                        var entryName = $"Plugins/Images/{logoFileName}";
-                        if (seenEntries.Add(entryName))
-                            files.Add((candidateLogo, entryName));
-                    }
+                    AddPluginFile(source.LogoUrl, pluginImagesDir, "Plugins/Images");
                 }
             }
         }
@@ -619,8 +615,8 @@ public static class LibraryBackupHelper
                     new
                     {
                         CoverImageUrl = remapped,
-                        comic.Id,
-                        comic.Source,
+                        Id = comic.Id,
+                        Source = comic.Source,
                     },
                     transaction: transaction
                 );
@@ -657,10 +653,10 @@ public static class LibraryBackupHelper
                     new
                     {
                         ImageUrl = remapped,
-                        page.ChapterId,
-                        page.ComicId,
-                        page.Source,
-                        page.Number,
+                        ChapterId = page.ChapterId,
+                        ComicId = page.ComicId,
+                        Source = page.Source,
+                        Number = page.Number,
                     },
                     transaction: transaction
                 );
@@ -694,7 +690,7 @@ public static class LibraryBackupHelper
                 {
                     DllPath = remappedDll,
                     LogoUrl = remappedLogo,
-                    source.Name,
+                    Name = source.Name,
                 },
                 transaction: transaction
             );
