@@ -70,6 +70,12 @@ public class LibraryBackupHelperTests : IDisposable
         @"C:\Users\NewUser\AppData\Roaming\Yukari",
         null
     )]
+    [InlineData(
+        @"C:\Users\Alice\AppData\Roaming\Yukari\Plugins\MySource.dll",
+        @"C:\Users\Alice\AppData\Roaming\Yukari",
+        @"C:\Users\Bob\AppData\Roaming\Yukari",
+        @"C:\Users\Bob\AppData\Roaming\Yukari\Plugins\MySource.dll"
+    )]
     public void RemapAppDataPath_ShouldRemapPathsCorrectly(
         string? inputPath,
         string? originalAppData,
@@ -84,17 +90,6 @@ public class LibraryBackupHelperTests : IDisposable
         );
 
         result.Should().Be(expected);
-    }
-
-    [Fact]
-    public void RemapPluginDllPath_ShouldCombineWithCurrentPluginsFolder()
-    {
-        var result = LibraryBackupHelper.RemapPluginDllPath(
-            @"C:\Users\Alice\AppData\Roaming\Yukari\Plugins\MySource.dll",
-            @"C:\Users\Bob\AppData\Roaming\Yukari"
-        );
-
-        result.Should().Be(@"C:\Users\Bob\AppData\Roaming\Yukari\Plugins\MySource.dll");
     }
 
     // ────────────────────────────────────────────────────────────────
