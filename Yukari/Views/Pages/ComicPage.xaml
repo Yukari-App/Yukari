@@ -358,10 +358,10 @@
 
                                     <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{x:Bind ViewModel.IsTagsVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                                         <FontIcon VerticalAlignment="Center" FontSize="20" Glyph="&#xE8EC;" />
-                                        <TextBlock VerticalAlignment="Center"
+                                        <TextBlock x:Uid="TagsTXB"
+                                                   VerticalAlignment="Center"
                                                    FontSize="20"
-                                                   Style="{StaticResource TitleTextBlockStyle}"
-                                                   x:Uid="TagsTXB" />
+                                                   Style="{StaticResource TitleTextBlockStyle}" />
                                         <TextBlock VerticalAlignment="Bottom"
                                                    FontSize="14"
                                                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"

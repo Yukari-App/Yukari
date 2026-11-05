@@ -102,17 +102,17 @@
 
                 <AppBarSeparator />
 
-                <ToggleButton Width="40"
+                <ToggleButton x:Uid="FullscreenTBT"
+                              Width="40"
                               Height="36"
                               Padding="0"
                               Background="Transparent"
                               BorderBrush="Transparent"
                               Command="{x:Bind ViewModel.ToggleFullscreenCommand}"
-                              IsChecked="{x:Bind ViewModel.IsFullscreen, Mode=TwoWay}"
-                              x:Uid="FullscreenTBT">
+                              IsChecked="{x:Bind ViewModel.IsFullscreen, Mode=TwoWay}">
                     <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.FullscreenButtonIcon, Mode=OneWay}" />
                 </ToggleButton>
-                <Button Content="{ui:FontIcon Glyph=&#xE712;}" Style="{StaticResource TitleBarButtonStyle}" x:Uid="ReaderOptionsBT">
+                <Button x:Uid="ReaderOptionsBT" Content="{ui:FontIcon Glyph=&#xE712;}" Style="{StaticResource TitleBarButtonStyle}">
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutSubItem x:Uid="ReadingModeSBItem" Icon="{ui:FontIcon Glyph=&#xE736;}">

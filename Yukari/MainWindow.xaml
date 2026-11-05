@@ -18,12 +18,12 @@
               IsHitTestVisible="False"
               Visibility="Visible" />
         <Button x:Name="CancelBrowserInteractionBT"
+                x:Uid="CancelBrowserInteractionBT"
                 Height="34"
                 Margin="4,4,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Click="CancelBrowserInteractionBT_Click"
-                x:Uid="CancelBrowserInteractionBT"
                 Visibility="Collapsed" />
     </Grid>
 </Window>

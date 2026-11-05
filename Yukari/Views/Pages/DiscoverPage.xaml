@@ -106,10 +106,10 @@
                       IsActive="{x:Bind ViewModel.IsContentLoading, Mode=OneWay}"
                       Visibility="{x:Bind ViewModel.IsContentLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
-        <TextBlock Grid.Row="1"
+        <TextBlock x:Uid="NoResultsTXB"
+                   Grid.Row="1"
                    HorizontalAlignment="Center"
                    Style="{StaticResource BodyLargeStrongTextBlockStyle}"
-                   x:Uid="NoResultsTXB"
                    Visibility="{x:Bind ViewModel.NoResults, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
         <TextBlock Grid.Row="1"
