@@ -100,12 +100,16 @@ internal class ExportService : IExportService
     {
         try
         {
-            await LibraryBackupHelper.ExportArchiveAsync(
-                AppDataHelper.GetAppDataPath(),
-                destinationPath,
-                includeDownloads,
-                includePlugins,
-                progress,
+            await Task.Run(
+                () =>
+                    LibraryBackupHelper.ExportArchiveAsync(
+                        AppDataHelper.GetAppDataPath(),
+                        destinationPath,
+                        includeDownloads,
+                        includePlugins,
+                        progress,
+                        ct
+                    ),
                 ct
             );
 
@@ -130,11 +134,15 @@ internal class ExportService : IExportService
     {
         try
         {
-            var pendingRestart = await LibraryBackupHelper.ImportArchiveAsync(
-                AppDataHelper.GetAppDataPath(),
-                archivePath,
-                mode,
-                progress,
+            var pendingRestart = await Task.Run(
+                () =>
+                    LibraryBackupHelper.ImportArchiveAsync(
+                        AppDataHelper.GetAppDataPath(),
+                        archivePath,
+                        mode,
+                        progress,
+                        ct
+                    ),
                 ct
             );
 
