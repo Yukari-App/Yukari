@@ -22,6 +22,18 @@ public static class LibraryBackupHelper
 
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
+    private static readonly HashSet<string> PreCompressedExtensions = new(
+        StringComparer.OrdinalIgnoreCase
+    )
+    {
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp",
+        ".avif",
+        ".gif",
+    };
+
     public static string? RemapAppDataPath(
         string? path,
         string? originalAppDataPath,
@@ -138,7 +150,10 @@ public static class LibraryBackupHelper
             using (var archive = ZipFile.Open(tempZip, ZipArchiveMode.Create))
             {
                 ct.ThrowIfCancellationRequested();
-                var manifestEntry = archive.CreateEntry(ManifestEntryName);
+                var manifestEntry = archive.CreateEntry(
+                    ManifestEntryName,
+                    CompressionLevel.Optimal
+                );
                 await using (var manifestStream = manifestEntry.Open())
                 {
                     await JsonSerializer.SerializeAsync(manifestStream, manifest, JsonOptions, ct);
@@ -146,13 +161,20 @@ public static class LibraryBackupHelper
                 progress?.Report((++currentStep, totalSteps));
 
                 ct.ThrowIfCancellationRequested();
-                archive.CreateEntryFromFile(tempDbPath, DatabaseEntryName);
+                archive.CreateEntryFromFile(
+                    tempDbPath,
+                    DatabaseEntryName,
+                    CompressionLevel.Optimal
+                );
                 progress?.Report((++currentStep, totalSteps));
 
                 foreach (var (sourceFile, entryName) in filesToPack)
                 {
                     ct.ThrowIfCancellationRequested();
-                    archive.CreateEntryFromFile(sourceFile, entryName);
+                    var compressionLevel = IsPreCompressedFile(sourceFile)
+                        ? CompressionLevel.NoCompression
+                        : CompressionLevel.Optimal;
+                    archive.CreateEntryFromFile(sourceFile, entryName, compressionLevel);
                     progress?.Report((++currentStep, totalSteps));
                 }
             }
@@ -220,14 +242,8 @@ public static class LibraryBackupHelper
 
             var fileEntries = archive
                 .Entries.Where(e =>
-                {
-                    if (string.IsNullOrEmpty(e.Name))
-                        return false;
-
-                    var normalized = e.FullName.Replace('\\', '/');
-                    return normalized.StartsWith("Data/", StringComparison.OrdinalIgnoreCase)
-                        || normalized.StartsWith("Plugins/", StringComparison.OrdinalIgnoreCase);
-                })
+                    !string.IsNullOrEmpty(e.Name) && IsAllowedArchiveFileEntry(e.FullName)
+                )
                 .ToList();
 
             int totalSteps = 2 + fileEntries.Count;
@@ -243,29 +259,21 @@ public static class LibraryBackupHelper
                 appDataPath
             );
 
-            progress?.Report((++currentStep, totalSteps));
-
             var targetDbPath = Path.Combine(appDataPath, "Data", DatabaseEntryName);
             await EnsureDatabaseMigratedAsync(targetDbPath);
 
-            var pendingRestart = false;
-            var lockedRemovedSources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            if (mode == LibraryImportMode.Replace)
+            var skippedPluginEntries = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (mode == LibraryImportMode.Merge && manifest.IncludesPlugins)
             {
-                CleanOnlineComicFolders(appDataPath);
-
-                if (manifest.IncludesPlugins)
-                {
-                    var locked = await RemoveReplacedPluginFilesAsync(targetDbPath, importedDbPath);
-                    foreach (var name in locked)
-                        lockedRemovedSources.Add(name);
-
-                    if (lockedRemovedSources.Count > 0)
-                        pendingRestart = true;
-                }
+                skippedPluginEntries = await FilterOutDowngradedPluginsAsync(
+                    targetDbPath,
+                    importedDbPath
+                );
             }
 
+            progress?.Report((++currentStep, totalSteps));
+
+            var pendingRestart = false;
             var pendingPluginUpdates = new Dictionary<string, string>(
                 StringComparer.OrdinalIgnoreCase
             );
@@ -280,8 +288,8 @@ public static class LibraryBackupHelper
                 var normalizedEntry = entry.FullName.Replace('\\', '/');
 
                 if (
-                    !manifest.IncludesPlugins
-                    && normalizedEntry.StartsWith("Plugins/", StringComparison.OrdinalIgnoreCase)
+                    normalizedEntry.StartsWith("Plugins/", StringComparison.OrdinalIgnoreCase)
+                    && (!manifest.IncludesPlugins || skippedPluginEntries.Contains(normalizedEntry))
                 )
                 {
                     progress?.Report((++currentStep, totalSteps));
@@ -352,13 +360,24 @@ public static class LibraryBackupHelper
                 await SetPendingPluginUpdatePathsAsync(importedDbPath, pendingPluginUpdates);
             }
 
-            await ApplyDatabaseImportAsync(
+            var (importedComics, removedPluginLocked) = await ApplyDatabaseImportAsync(
                 targetDbPath,
                 importedDbPath,
                 mode,
-                manifest.IncludesPlugins,
-                lockedRemovedSources
+                manifest.IncludesPlugins
             );
+
+            if (removedPluginLocked)
+                pendingRestart = true;
+
+            if (mode == LibraryImportMode.Replace)
+            {
+                CleanupReplacedOnlineComicFolders(
+                    appDataPath,
+                    importedComics,
+                    manifest.IncludesDownloads
+                );
+            }
 
             progress?.Report((++currentStep, totalSteps));
             return pendingRestart;
@@ -367,6 +386,117 @@ public static class LibraryBackupHelper
         {
             TryDeleteDirectory(tempDir);
         }
+    }
+
+    private static bool IsPreCompressedFile(string filePath)
+    {
+        var ext = Path.GetExtension(filePath);
+        return !string.IsNullOrEmpty(ext) && PreCompressedExtensions.Contains(ext);
+    }
+
+    private static bool IsAllowedArchiveFileEntry(string fullName)
+    {
+        var normalized = fullName.Replace('\\', '/');
+        var segments = normalized.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length == 0)
+            return false;
+
+        if (string.Equals(segments[0], "Data", StringComparison.OrdinalIgnoreCase))
+        {
+            // Must be Data/<Source>/<ComicId>/<file...> and never Local or Data/yukari.db
+            return segments.Length >= 4
+                && !string.Equals(
+                    segments[1],
+                    LocalComicHelper.SourceName,
+                    StringComparison.OrdinalIgnoreCase
+                );
+        }
+
+        if (string.Equals(segments[0], "Plugins", StringComparison.OrdinalIgnoreCase))
+        {
+            if (segments.Length == 2)
+                return segments[1].EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
+
+            if (segments.Length == 3)
+                return string.Equals(segments[1], "Images", StringComparison.OrdinalIgnoreCase);
+        }
+
+        return false;
+    }
+
+    private static async Task<HashSet<string>> FilterOutDowngradedPluginsAsync(
+        string targetDbPath,
+        string importedDbPath
+    )
+    {
+        var skippedEntries = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        using var targetConn = new SqliteConnection($"Data Source={targetDbPath}");
+        await targetConn.OpenAsync();
+        var existingSources = (
+            await targetConn.QueryAsync<(string Name, string Version)>(
+                "SELECT Name, Version FROM ComicSources WHERE PendingRemoval = 0;"
+            )
+        ).ToDictionary(s => s.Name, s => s.Version, StringComparer.OrdinalIgnoreCase);
+
+        if (existingSources.Count == 0)
+            return skippedEntries;
+
+        using var importedConn = new SqliteConnection(
+            $"Data Source={importedDbPath};Pooling=False"
+        );
+        await importedConn.OpenAsync();
+        var importedSources = (
+            await importedConn.QueryAsync<(
+                string Name,
+                string Version,
+                string DllPath,
+                string? LogoUrl
+            )>("SELECT Name, Version, DllPath, LogoUrl FROM ComicSources;")
+        ).ToList();
+
+        foreach (var imported in importedSources)
+        {
+            if (!existingSources.TryGetValue(imported.Name, out var existingVersion))
+                continue;
+
+            if (IsExistingVersionNewer(existingVersion, imported.Version))
+            {
+                await importedConn.ExecuteAsync(
+                    "DELETE FROM ComicSources WHERE Name = @Name;",
+                    new { imported.Name }
+                );
+
+                var dllFileName = Path.GetFileName(NormalizePath(imported.DllPath));
+                if (!string.IsNullOrEmpty(dllFileName))
+                    skippedEntries.Add($"Plugins/{dllFileName}");
+
+                if (!string.IsNullOrWhiteSpace(imported.LogoUrl))
+                {
+                    var logoFileName = Path.GetFileName(NormalizePath(imported.LogoUrl));
+                    if (!string.IsNullOrEmpty(logoFileName))
+                        skippedEntries.Add($"Plugins/Images/{logoFileName}");
+                }
+            }
+        }
+
+        return skippedEntries;
+    }
+
+    private static bool IsExistingVersionNewer(string existingVersion, string importedVersion)
+    {
+        var cleanExisting = existingVersion.Trim().TrimStart('v', 'V');
+        var cleanImported = importedVersion.Trim().TrimStart('v', 'V');
+
+        if (
+            Version.TryParse(cleanExisting, out var existingParsed)
+            && Version.TryParse(cleanImported, out var importedParsed)
+        )
+        {
+            return existingParsed > importedParsed;
+        }
+
+        return false;
     }
 
     private static async Task EnsureDatabaseMigratedAsync(string dbPath)
@@ -724,88 +854,68 @@ public static class LibraryBackupHelper
         }
     }
 
-    private static void CleanOnlineComicFolders(string appDataPath)
+    private static void CleanupReplacedOnlineComicFolders(
+        string appDataPath,
+        IReadOnlySet<ContentKey> importedComics,
+        bool includesDownloads
+    )
     {
         var dataDir = Path.Combine(appDataPath, "Data");
         if (!Directory.Exists(dataDir))
             return;
 
-        foreach (var dir in Directory.GetDirectories(dataDir))
+        var importedSources = importedComics
+            .Select(c => c.Source)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var sourceDir in Directory.GetDirectories(dataDir))
         {
-            var dirName = Path.GetFileName(dir);
+            var sourceName = Path.GetFileName(sourceDir);
             if (
                 string.Equals(
-                    dirName,
+                    sourceName,
                     LocalComicHelper.SourceName,
                     StringComparison.OrdinalIgnoreCase
                 )
             )
-                continue;
-
-            TryDeleteDirectory(dir);
-        }
-    }
-
-    private static async Task<List<string>> RemoveReplacedPluginFilesAsync(
-        string targetDbPath,
-        string importedDbPath
-    )
-    {
-        var lockedSources = new List<string>();
-
-        using var importedConn = new SqliteConnection(
-            $"Data Source={importedDbPath};Pooling=False"
-        );
-        await importedConn.OpenAsync();
-        var importedNames = (
-            await importedConn.QueryAsync<string>("SELECT Name FROM ComicSources;")
-        ).ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        using var targetConn = new SqliteConnection($"Data Source={targetDbPath}");
-        await targetConn.OpenAsync();
-        var existingSources = await targetConn.QueryAsync<(
-            string Name,
-            string DllPath,
-            string? LogoUrl
-        )>("SELECT Name, DllPath, LogoUrl FROM ComicSources;");
-
-        foreach (var source in existingSources)
-        {
-            if (importedNames.Contains(source.Name))
-                continue;
-
-            try
             {
-                if (!string.IsNullOrWhiteSpace(source.DllPath) && File.Exists(source.DllPath))
-                    File.Delete(source.DllPath);
+                continue;
+            }
 
-                if (
-                    !string.IsNullOrWhiteSpace(source.LogoUrl)
-                    && !source.LogoUrl.StartsWith(
-                        ImageUriHelper.SourceScheme,
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                    && File.Exists(source.LogoUrl)
-                )
+            if (!importedSources.Contains(sourceName))
+            {
+                TryDeleteDirectory(sourceDir);
+                continue;
+            }
+
+            foreach (var comicDir in Directory.GetDirectories(sourceDir))
+            {
+                var comicId = Path.GetFileName(comicDir);
+                var key = new ContentKey(comicId, sourceName);
+
+                if (!importedComics.Contains(key))
                 {
-                    File.Delete(source.LogoUrl);
+                    TryDeleteDirectory(comicDir);
+                }
+                else if (!includesDownloads)
+                {
+                    foreach (var chapterDir in Directory.GetDirectories(comicDir))
+                    {
+                        TryDeleteDirectory(chapterDir);
+                    }
                 }
             }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            {
-                lockedSources.Add(source.Name);
-            }
         }
-
-        return lockedSources;
     }
 
-    private static async Task ApplyDatabaseImportAsync(
+    private static async Task<(
+        HashSet<ContentKey> ImportedComics,
+        bool RemovedPluginLocked
+    )> ApplyDatabaseImportAsync(
         string targetDbPath,
         string importedDbPath,
         LibraryImportMode mode,
-        bool includesPlugins,
-        IReadOnlySet<string> lockedRemovedSources
+        bool includesPlugins
     )
     {
         using var connection = new SqliteConnection($"Data Source={targetDbPath}");
@@ -816,221 +926,286 @@ public static class LibraryBackupHelper
             new { ImportedDbPath = importedDbPath }
         );
 
+        var importedComics = new HashSet<ContentKey>();
+        var removedSources = new List<(string Name, string DllPath, string? LogoUrl)>();
+        var removedPluginLocked = false;
+
         try
         {
-            using var transaction = await connection.BeginTransactionAsync();
+            var importedKeys = await connection.QueryAsync<ContentKey>(
+                "SELECT Id, Source FROM imported.Comics WHERE Source != 'Local';"
+            );
+            foreach (var key in importedKeys)
+                importedComics.Add(key);
 
-            if (mode == LibraryImportMode.Replace)
+            using (var transaction = await connection.BeginTransactionAsync())
             {
+                if (mode == LibraryImportMode.Replace)
+                {
+                    await connection.ExecuteAsync(
+                        """
+                        DELETE FROM main.ChapterPages WHERE Source != 'Local';
+                        DELETE FROM main.ChapterUserData WHERE Source != 'Local';
+                        DELETE FROM main.Chapters WHERE Source != 'Local';
+                        DELETE FROM main.ComicReadingProgress WHERE Source != 'Local';
+                        DELETE FROM main.ComicCollections WHERE Source != 'Local';
+                        DELETE FROM main.ComicUserData WHERE Source != 'Local';
+                        DELETE FROM main.Comics WHERE Source != 'Local';
+                        DELETE FROM main.Collections
+                        WHERE NOT EXISTS (
+                            SELECT 1 FROM main.ComicCollections cc
+                            WHERE cc.CollectionId = main.Collections.Id
+                        );
+                        """,
+                        transaction: transaction
+                    );
+
+                    if (includesPlugins)
+                    {
+                        var existingSources = (
+                            await connection.QueryAsync<(
+                                string Name,
+                                string DllPath,
+                                string? LogoUrl
+                            )>(
+                                "SELECT Name, DllPath, LogoUrl FROM main.ComicSources;",
+                                transaction: transaction
+                            )
+                        ).ToList();
+
+                        var importedNames = (
+                            await connection.QueryAsync<string>(
+                                "SELECT Name FROM imported.ComicSources;",
+                                transaction: transaction
+                            )
+                        ).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                        foreach (var source in existingSources)
+                        {
+                            if (!importedNames.Contains(source.Name))
+                                removedSources.Add(source);
+                        }
+                    }
+                }
+
                 await connection.ExecuteAsync(
                     """
-                    DELETE FROM main.ChapterPages WHERE Source != 'Local';
-                    DELETE FROM main.ChapterUserData WHERE Source != 'Local';
-                    DELETE FROM main.Chapters WHERE Source != 'Local';
-                    DELETE FROM main.ComicReadingProgress WHERE Source != 'Local';
-                    DELETE FROM main.ComicCollections WHERE Source != 'Local';
-                    DELETE FROM main.ComicUserData WHERE Source != 'Local';
-                    DELETE FROM main.Comics WHERE Source != 'Local';
-                    DELETE FROM main.Collections
-                    WHERE NOT EXISTS (
-                        SELECT 1 FROM main.ComicCollections cc
-                        WHERE cc.CollectionId = main.Collections.Id
-                    );
+                    INSERT INTO main.Comics
+                        (Id, Source, ComicUrl, Title, Author, Description, Status, Tags, Year, CoverImageUrl, Langs, LastUpdate, IsAvailable)
+                    SELECT
+                        Id, Source, ComicUrl, Title, Author, Description, Status, Tags, Year, CoverImageUrl, Langs, LastUpdate, IsAvailable
+                    FROM imported.Comics
+                    WHERE Source != 'Local'
+                    ON CONFLICT(Id, Source) DO UPDATE SET
+                        ComicUrl = excluded.ComicUrl,
+                        Title = excluded.Title,
+                        Author = excluded.Author,
+                        Description = excluded.Description,
+                        Status = excluded.Status,
+                        Tags = excluded.Tags,
+                        Year = excluded.Year,
+                        CoverImageUrl = COALESCE(excluded.CoverImageUrl, main.Comics.CoverImageUrl),
+                        Langs = excluded.Langs,
+                        LastUpdate = COALESCE(excluded.LastUpdate, main.Comics.LastUpdate),
+                        IsAvailable = excluded.IsAvailable;
+
+                    INSERT INTO main.ComicReadingProgress
+                        (ComicId, Source, Language, LastChapterId)
+                    SELECT
+                        ComicId, Source, Language, LastChapterId
+                    FROM imported.ComicReadingProgress
+                    WHERE Source != 'Local'
+                    ON CONFLICT(ComicId, Source, Language) DO UPDATE SET
+                        LastChapterId = CASE
+                            WHEN excluded.LastChapterId IS NULL THEN main.ComicReadingProgress.LastChapterId
+                            WHEN main.ComicReadingProgress.LastChapterId IS NULL THEN excluded.LastChapterId
+                            WHEN (
+                                SELECT cud.LastReadAt FROM main.ComicUserData cud
+                                WHERE cud.ComicId = excluded.ComicId AND cud.Source = excluded.Source
+                            ) IS NULL THEN excluded.LastChapterId
+                            WHEN (
+                                SELECT icud.LastReadAt FROM imported.ComicUserData icud
+                                WHERE icud.ComicId = excluded.ComicId AND icud.Source = excluded.Source
+                            ) >= (
+                                SELECT cud.LastReadAt FROM main.ComicUserData cud
+                                WHERE cud.ComicId = excluded.ComicId AND cud.Source = excluded.Source
+                            ) THEN excluded.LastChapterId
+                            ELSE main.ComicReadingProgress.LastChapterId
+                        END;
+
+                    INSERT INTO main.ComicUserData
+                        (ComicId, Source, IsFavorite, LastSelectedLang, LastReadAt)
+                    SELECT
+                        ComicId, Source, IsFavorite, LastSelectedLang, LastReadAt
+                    FROM imported.ComicUserData
+                    WHERE Source != 'Local'
+                    ON CONFLICT(ComicId, Source) DO UPDATE SET
+                        IsFavorite = MAX(main.ComicUserData.IsFavorite, excluded.IsFavorite),
+                        LastSelectedLang = COALESCE(excluded.LastSelectedLang, main.ComicUserData.LastSelectedLang),
+                        LastReadAt = CASE
+                            WHEN main.ComicUserData.LastReadAt IS NULL THEN excluded.LastReadAt
+                            WHEN excluded.LastReadAt IS NULL THEN main.ComicUserData.LastReadAt
+                            WHEN excluded.LastReadAt > main.ComicUserData.LastReadAt THEN excluded.LastReadAt
+                            ELSE main.ComicUserData.LastReadAt
+                        END;
+
+                    INSERT INTO main.Chapters
+                        (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages, SortOrder, IsAvailable)
+                    SELECT
+                        ic.Id, ic.ComicId, ic.Source, ic.Title, ic.Number, ic.Volume, ic.Language, ic.Groups, ic.LastUpdate, ic.Pages, ic.SortOrder, ic.IsAvailable
+                    FROM imported.Chapters ic
+                    WHERE ic.Source != 'Local'
+                      AND EXISTS (
+                          SELECT 1 FROM main.Comics mc
+                          WHERE mc.Id = ic.ComicId AND mc.Source = ic.Source
+                      )
+                    ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
+                        Title = excluded.Title,
+                        Number = excluded.Number,
+                        Volume = excluded.Volume,
+                        Language = excluded.Language,
+                        Groups = excluded.Groups,
+                        LastUpdate = excluded.LastUpdate,
+                        Pages = COALESCE(excluded.Pages, main.Chapters.Pages),
+                        SortOrder = excluded.SortOrder,
+                        IsAvailable = excluded.IsAvailable;
+
+                    INSERT INTO main.ChapterUserData
+                        (Id, ComicId, Source, LastPageRead, IsDownloaded, IsRead)
+                    SELECT
+                        Id, ComicId, Source, LastPageRead, IsDownloaded, IsRead
+                    FROM imported.ChapterUserData
+                    WHERE Source != 'Local'
+                    ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
+                        LastPageRead = CASE
+                            WHEN main.ChapterUserData.LastPageRead IS NULL THEN excluded.LastPageRead
+                            WHEN excluded.LastPageRead IS NULL THEN main.ChapterUserData.LastPageRead
+                            ELSE MAX(main.ChapterUserData.LastPageRead, excluded.LastPageRead)
+                        END,
+                        IsDownloaded = MAX(COALESCE(main.ChapterUserData.IsDownloaded, 0), COALESCE(excluded.IsDownloaded, 0)),
+                        IsRead = MAX(COALESCE(main.ChapterUserData.IsRead, 0), COALESCE(excluded.IsRead, 0));
+
+                    INSERT INTO main.ChapterPages
+                        (Number, ChapterId, ComicId, Source, ImageUrl)
+                    SELECT
+                        ip.Number, ip.ChapterId, ip.ComicId, ip.Source, ip.ImageUrl
+                    FROM imported.ChapterPages ip
+                    WHERE ip.Source != 'Local'
+                      AND EXISTS (
+                          SELECT 1 FROM main.Chapters mc
+                          WHERE mc.Id = ip.ChapterId
+                            AND mc.ComicId = ip.ComicId
+                            AND mc.Source = ip.Source
+                      )
+                    ON CONFLICT(ChapterId, ComicId, Source, Number) DO UPDATE SET
+                        ImageUrl = excluded.ImageUrl;
+
+                    INSERT OR IGNORE INTO main.Collections (Name)
+                    SELECT Name FROM imported.Collections;
+
+                    INSERT OR IGNORE INTO main.ComicCollections (ComicId, Source, CollectionId)
+                    SELECT icc.ComicId, icc.Source, mc.Id
+                    FROM imported.ComicCollections icc
+                    INNER JOIN imported.Collections ic ON icc.CollectionId = ic.Id
+                    INNER JOIN main.Collections mc ON mc.Name = ic.Name
+                    WHERE icc.Source != 'Local'
+                      AND EXISTS (
+                          SELECT 1 FROM main.Comics c
+                          WHERE c.Id = icc.ComicId AND c.Source = icc.Source
+                      );
                     """,
                     transaction: transaction
                 );
 
                 if (includesPlugins)
                 {
-                    var existingNames = (
-                        await connection.QueryAsync<string>(
-                            "SELECT Name FROM main.ComicSources;",
-                            transaction: transaction
-                        )
-                    ).ToList();
+                    // SQLite parser requires a WHERE clause before ON CONFLICT in INSERT INTO ... SELECT statements
+                    await connection.ExecuteAsync(
+                        """
+                        INSERT INTO main.ComicSources
+                            (Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled, PendingRemoval, PendingUpdatePath)
+                        SELECT
+                            Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled, PendingRemoval, PendingUpdatePath
+                        FROM imported.ComicSources
+                        WHERE 1 = 1
+                        ON CONFLICT(Name) DO UPDATE SET
+                            Version = excluded.Version,
+                            ReleasesPage = excluded.ReleasesPage,
+                            LogoUrl = COALESCE(excluded.LogoUrl, main.ComicSources.LogoUrl),
+                            Description = excluded.Description,
+                            DllPath = excluded.DllPath,
+                            IsEnabled = excluded.IsEnabled,
+                            PendingRemoval = 0,
+                            PendingUpdatePath = excluded.PendingUpdatePath;
+                        """,
+                        transaction: transaction
+                    );
+                }
 
-                    var importedNames = (
-                        await connection.QueryAsync<string>(
-                            "SELECT Name FROM imported.ComicSources;",
-                            transaction: transaction
-                        )
-                    ).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                await transaction.CommitAsync();
+            }
 
-                    foreach (var name in existingNames)
+            foreach (var source in removedSources)
+            {
+                var isLocked = false;
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(source.DllPath) && File.Exists(source.DllPath))
+                        File.Delete(source.DllPath);
+
+                    if (
+                        !string.IsNullOrWhiteSpace(source.LogoUrl)
+                        && !source.LogoUrl.StartsWith(
+                            ImageUriHelper.SourceScheme,
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                        && File.Exists(source.LogoUrl)
+                    )
                     {
-                        if (importedNames.Contains(name))
-                            continue;
-
-                        if (lockedRemovedSources.Contains(name))
-                        {
-                            await connection.ExecuteAsync(
-                                """
-                                UPDATE main.ComicSources
-                                SET PendingRemoval = 1, IsEnabled = 0
-                                WHERE Name = @Name;
-                                """,
-                                new { Name = name },
-                                transaction: transaction
-                            );
-                        }
-                        else
-                        {
-                            await connection.ExecuteAsync(
-                                "DELETE FROM main.ComicSources WHERE Name = @Name;",
-                                new { Name = name },
-                                transaction: transaction
-                            );
-                        }
+                        File.Delete(source.LogoUrl);
                     }
                 }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    isLocked = true;
+                    removedPluginLocked = true;
+                }
+
+                if (isLocked)
+                {
+                    await connection.ExecuteAsync(
+                        """
+                        UPDATE main.ComicSources
+                        SET PendingRemoval = 1, IsEnabled = 0
+                        WHERE Name = @Name;
+                        """,
+                        new { source.Name }
+                    );
+                }
+                else
+                {
+                    await connection.ExecuteAsync(
+                        "DELETE FROM main.ComicSources WHERE Name = @Name;",
+                        new { source.Name }
+                    );
+                }
             }
-
-            await connection.ExecuteAsync(
-                """
-                INSERT INTO main.Comics
-                    (Id, Source, ComicUrl, Title, Author, Description, Status, Tags, Year, CoverImageUrl, Langs, LastUpdate, IsAvailable)
-                SELECT
-                    Id, Source, ComicUrl, Title, Author, Description, Status, Tags, Year, CoverImageUrl, Langs, LastUpdate, IsAvailable
-                FROM imported.Comics
-                WHERE Source != 'Local'
-                ON CONFLICT(Id, Source) DO UPDATE SET
-                    ComicUrl = excluded.ComicUrl,
-                    Title = excluded.Title,
-                    Author = excluded.Author,
-                    Description = excluded.Description,
-                    Status = excluded.Status,
-                    Tags = excluded.Tags,
-                    Year = excluded.Year,
-                    CoverImageUrl = COALESCE(excluded.CoverImageUrl, main.Comics.CoverImageUrl),
-                    Langs = excluded.Langs,
-                    LastUpdate = COALESCE(excluded.LastUpdate, main.Comics.LastUpdate),
-                    IsAvailable = excluded.IsAvailable;
-
-                INSERT INTO main.ComicUserData
-                    (ComicId, Source, IsFavorite, LastSelectedLang, LastReadAt)
-                SELECT
-                    ComicId, Source, IsFavorite, LastSelectedLang, LastReadAt
-                FROM imported.ComicUserData
-                WHERE Source != 'Local'
-                ON CONFLICT(ComicId, Source) DO UPDATE SET
-                    IsFavorite = MAX(main.ComicUserData.IsFavorite, excluded.IsFavorite),
-                    LastSelectedLang = COALESCE(excluded.LastSelectedLang, main.ComicUserData.LastSelectedLang),
-                    LastReadAt = CASE
-                        WHEN main.ComicUserData.LastReadAt IS NULL THEN excluded.LastReadAt
-                        WHEN excluded.LastReadAt IS NULL THEN main.ComicUserData.LastReadAt
-                        WHEN excluded.LastReadAt > main.ComicUserData.LastReadAt THEN excluded.LastReadAt
-                        ELSE main.ComicUserData.LastReadAt
-                    END;
-
-                INSERT INTO main.ComicReadingProgress
-                    (ComicId, Source, Language, LastChapterId)
-                SELECT
-                    ComicId, Source, Language, LastChapterId
-                FROM imported.ComicReadingProgress
-                WHERE Source != 'Local'
-                ON CONFLICT(ComicId, Source, Language) DO UPDATE SET
-                    LastChapterId = COALESCE(excluded.LastChapterId, main.ComicReadingProgress.LastChapterId);
-
-                INSERT INTO main.Chapters
-                    (Id, ComicId, Source, Title, Number, Volume, Language, Groups, LastUpdate, Pages, SortOrder, IsAvailable)
-                SELECT
-                    ic.Id, ic.ComicId, ic.Source, ic.Title, ic.Number, ic.Volume, ic.Language, ic.Groups, ic.LastUpdate, ic.Pages, ic.SortOrder, ic.IsAvailable
-                FROM imported.Chapters ic
-                WHERE ic.Source != 'Local'
-                  AND EXISTS (
-                      SELECT 1 FROM main.Comics mc
-                      WHERE mc.Id = ic.ComicId AND mc.Source = ic.Source
-                  )
-                ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
-                    Title = excluded.Title,
-                    Number = excluded.Number,
-                    Volume = excluded.Volume,
-                    Language = excluded.Language,
-                    Groups = excluded.Groups,
-                    LastUpdate = excluded.LastUpdate,
-                    Pages = COALESCE(excluded.Pages, main.Chapters.Pages),
-                    SortOrder = excluded.SortOrder,
-                    IsAvailable = excluded.IsAvailable;
-
-                INSERT INTO main.ChapterUserData
-                    (Id, ComicId, Source, LastPageRead, IsDownloaded, IsRead)
-                SELECT
-                    Id, ComicId, Source, LastPageRead, IsDownloaded, IsRead
-                FROM imported.ChapterUserData
-                WHERE Source != 'Local'
-                ON CONFLICT(Id, ComicId, Source) DO UPDATE SET
-                    LastPageRead = CASE
-                        WHEN main.ChapterUserData.LastPageRead IS NULL THEN excluded.LastPageRead
-                        WHEN excluded.LastPageRead IS NULL THEN main.ChapterUserData.LastPageRead
-                        ELSE MAX(main.ChapterUserData.LastPageRead, excluded.LastPageRead)
-                    END,
-                    IsDownloaded = MAX(COALESCE(main.ChapterUserData.IsDownloaded, 0), COALESCE(excluded.IsDownloaded, 0)),
-                    IsRead = MAX(COALESCE(main.ChapterUserData.IsRead, 0), COALESCE(excluded.IsRead, 0));
-
-                INSERT INTO main.ChapterPages
-                    (Number, ChapterId, ComicId, Source, ImageUrl)
-                SELECT
-                    ip.Number, ip.ChapterId, ip.ComicId, ip.Source, ip.ImageUrl
-                FROM imported.ChapterPages ip
-                WHERE ip.Source != 'Local'
-                  AND EXISTS (
-                      SELECT 1 FROM main.Chapters mc
-                      WHERE mc.Id = ip.ChapterId
-                        AND mc.ComicId = ip.ComicId
-                        AND mc.Source = ip.Source
-                  )
-                ON CONFLICT(ChapterId, ComicId, Source, Number) DO UPDATE SET
-                    ImageUrl = excluded.ImageUrl;
-
-                INSERT OR IGNORE INTO main.Collections (Name)
-                SELECT Name FROM imported.Collections;
-
-                INSERT OR IGNORE INTO main.ComicCollections (ComicId, Source, CollectionId)
-                SELECT icc.ComicId, icc.Source, mc.Id
-                FROM imported.ComicCollections icc
-                INNER JOIN imported.Collections ic ON icc.CollectionId = ic.Id
-                INNER JOIN main.Collections mc ON mc.Name = ic.Name
-                WHERE icc.Source != 'Local'
-                  AND EXISTS (
-                      SELECT 1 FROM main.Comics c
-                      WHERE c.Id = icc.ComicId AND c.Source = icc.Source
-                  );
-                """,
-                transaction: transaction
-            );
-
-            if (includesPlugins)
-            {
-                await connection.ExecuteAsync(
-                    """
-                    INSERT INTO main.ComicSources
-                        (Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled, PendingRemoval, PendingUpdatePath)
-                    SELECT
-                        Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled, PendingRemoval, PendingUpdatePath
-                    FROM imported.ComicSources
-                    WHERE 1 = 1
-                    ON CONFLICT(Name) DO UPDATE SET
-                        Version = excluded.Version,
-                        ReleasesPage = excluded.ReleasesPage,
-                        LogoUrl = COALESCE(excluded.LogoUrl, main.ComicSources.LogoUrl),
-                        Description = excluded.Description,
-                        DllPath = excluded.DllPath,
-                        IsEnabled = excluded.IsEnabled,
-                        PendingRemoval = 0,
-                        PendingUpdatePath = excluded.PendingUpdatePath;
-                    """,
-                    transaction: transaction
-                );
-            }
-
-            await transaction.CommitAsync();
         }
         finally
         {
             await connection.ExecuteAsync("DETACH DATABASE imported;");
         }
 
-        await connection.ExecuteAsync("VACUUM;");
+        try
+        {
+            await connection.ExecuteAsync("VACUUM;");
+        }
+        catch
+        {
+            // Best-effort VACUUM on live database; ignore SQLITE_BUSY if another connection is active
+        }
+
+        return (importedComics, removedPluginLocked);
     }
 
     private static string NormalizePath(string path) => path.Replace('/', '\\');
