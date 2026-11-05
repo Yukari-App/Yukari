@@ -315,13 +315,13 @@ public class LibraryBackupHelperTests : IDisposable
     }
 
     [Fact]
-    public async Task Import_MergeMode_DoesNotDowngradeNewerPlugin_AndKeepsMoreRecentLastChapterId()
+    public async Task Import_MergeMode_KeepsExistingCollidingPlugin_AndKeepsMoreRecentLastChapterId()
     {
         // Arrange
         var ct = TestContext.Current.CancellationToken;
-        var sourceAppData = Path.Combine(_tempRoot, "MergeVersionSource");
-        var targetAppData = Path.Combine(_tempRoot, "MergeVersionTarget");
-        var zipPath = Path.Combine(_tempRoot, "backup_merge_version.zip");
+        var sourceAppData = Path.Combine(_tempRoot, "MergeCollideSource");
+        var targetAppData = Path.Combine(_tempRoot, "MergeCollideTarget");
+        var zipPath = Path.Combine(_tempRoot, "backup_merge_collide.zip");
 
         await SeedSampleAppDataAsync(sourceAppData, ct);
         await LibraryBackupHelper.ExportArchiveAsync(
@@ -334,7 +334,7 @@ public class LibraryBackupHelperTests : IDisposable
 
         await LibraryBackupHelper.ExportArchiveAsync(
             targetAppData,
-            Path.Combine(_tempRoot, "init_merge_version.zip"),
+            Path.Combine(_tempRoot, "init_merge_collide.zip"),
             false,
             false,
             ct: ct
@@ -343,7 +343,7 @@ public class LibraryBackupHelperTests : IDisposable
         var targetPluginsDir = Path.Combine(targetAppData, "Plugins");
         Directory.CreateDirectory(targetPluginsDir);
         var targetDllPath = Path.Combine(targetPluginsDir, "MangaDex.dll");
-        await File.WriteAllTextAsync(targetDllPath, "newer-v2-dll-bytes", ct);
+        await File.WriteAllTextAsync(targetDllPath, "existing-plugin-dll-bytes", ct);
 
         var targetDbPath = Path.Combine(targetAppData, "Data", "yukari.db");
         using (var setupConn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False"))
@@ -354,11 +354,11 @@ public class LibraryBackupHelperTests : IDisposable
                 INSERT INTO Comics (Id, Source, Title, Status, IsAvailable)
                 VALUES ('c-fav', 'MangaDex', 'Favorite Manga', 'ongoing', 1);
                 INSERT INTO ComicUserData (ComicId, Source, IsFavorite, LastReadAt)
-                VALUES ('c-fav', 'MangaDex', 1, '2026-10-01T00:00:00Z');
+                VALUES ('c-fav', 'MangaDex', 1, '2026-10-01 12:00:00');
                 INSERT INTO ComicReadingProgress (ComicId, Source, Language, LastChapterId)
                 VALUES ('c-fav', 'MangaDex', 'en', 'ch-2');
                 INSERT INTO ComicSources (Name, Version, DllPath, IsEnabled, PendingRemoval)
-                VALUES ('MangaDex', '2.0.0', @DllPath, 1, 0);
+                VALUES ('MangaDex', '2.2.1+core2.2.0', @DllPath, 1, 0);
                 """,
                 new { DllPath = targetDllPath }
             );
@@ -379,10 +379,10 @@ public class LibraryBackupHelperTests : IDisposable
         var version = await conn.ExecuteScalarAsync<string>(
             "SELECT Version FROM ComicSources WHERE Name = 'MangaDex';"
         );
-        version.Should().Be("2.0.0");
+        version.Should().Be("2.2.1+core2.2.0");
 
         var dllBytes = await File.ReadAllTextAsync(targetDllPath, ct);
-        dllBytes.Should().Be("newer-v2-dll-bytes");
+        dllBytes.Should().Be("existing-plugin-dll-bytes");
 
         var lastChapterId = await conn.ExecuteScalarAsync<string>(
             "SELECT LastChapterId FROM ComicReadingProgress WHERE ComicId = 'c-fav' AND Source = 'MangaDex' AND Language = 'en';"
@@ -539,6 +539,139 @@ public class LibraryBackupHelperTests : IDisposable
     }
 
     [Fact]
+    public async Task ExportArchiveAsync_WhenCancelledMidExport_PreservesExistingDestinationZip()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sourceAppData = Path.Combine(_tempRoot, "CancelExportSource");
+        var zipPath = Path.Combine(_tempRoot, "existing_backup.zip");
+
+        await SeedSampleAppDataAsync(sourceAppData, ct);
+        await File.WriteAllTextAsync(zipPath, "original-backup-content", ct);
+
+        using var cts = new CancellationTokenSource();
+        var progress = new SynchronousProgress<(int Current, int Total)>(p =>
+        {
+            if (p.Current == 1)
+                cts.Cancel();
+        });
+
+        // Act
+        var act = async () =>
+            await LibraryBackupHelper.ExportArchiveAsync(
+                sourceAppData,
+                zipPath,
+                includeDownloads: true,
+                includePlugins: true,
+                progress,
+                cts.Token
+            );
+
+        // Assert
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        (await File.ReadAllTextAsync(zipPath, ct)).Should().Be("original-backup-content");
+        File.Exists(zipPath + ".tmp").Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Import_ReplaceMode_WhenPluginDllIsLocked_StagesInPendingAndReturnsPendingRestart()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sourceAppData = Path.Combine(_tempRoot, "LockedDllSource");
+        var targetAppData = Path.Combine(_tempRoot, "LockedDllTarget");
+        var zipPath = Path.Combine(_tempRoot, "backup_locked_dll.zip");
+
+        await SeedSampleAppDataAsync(sourceAppData, ct);
+        await LibraryBackupHelper.ExportArchiveAsync(
+            sourceAppData,
+            zipPath,
+            includeDownloads: false,
+            includePlugins: true,
+            ct: ct
+        );
+
+        var targetPluginsDir = Path.Combine(targetAppData, "Plugins");
+        Directory.CreateDirectory(targetPluginsDir);
+        var lockedDllPath = Path.Combine(targetPluginsDir, "MangaDex.dll");
+        await File.WriteAllTextAsync(lockedDllPath, "locked-dll-bytes", ct);
+
+        bool pendingRestart;
+        using (
+            var lockStream = new FileStream(
+                lockedDllPath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.None
+            )
+        )
+        {
+            // Act
+            pendingRestart = await LibraryBackupHelper.ImportArchiveAsync(
+                targetAppData,
+                zipPath,
+                LibraryImportMode.Replace,
+                ct: ct
+            );
+        }
+
+        // Assert
+        pendingRestart.Should().BeTrue();
+        var expectedPendingPath = Path.Combine(targetAppData, "Plugins", "Pending", "MangaDex.dll");
+        File.Exists(expectedPendingPath).Should().BeTrue();
+
+        var targetDbPath = Path.Combine(targetAppData, "Data", "yukari.db");
+        using var conn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False");
+        await conn.OpenAsync(ct);
+
+        var pendingUpdatePath = await conn.ExecuteScalarAsync<string?>(
+            "SELECT PendingUpdatePath FROM ComicSources WHERE Name = 'MangaDex';"
+        );
+        pendingUpdatePath.Should().Be(expectedPendingPath);
+    }
+
+    [Fact]
+    public async Task ImportArchiveAsync_IgnoresDotDotTraversalEntryTargetingLiveDatabase()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sourceAppData = Path.Combine(_tempRoot, "TraversalSource");
+        var targetAppData = Path.Combine(_tempRoot, "TraversalTarget");
+        var zipPath = Path.Combine(_tempRoot, "backup_traversal.zip");
+
+        await SeedSampleAppDataAsync(sourceAppData, ct);
+        await LibraryBackupHelper.ExportArchiveAsync(
+            sourceAppData,
+            zipPath,
+            includeDownloads: false,
+            includePlugins: false,
+            ct: ct
+        );
+
+        using (var archive = ZipFile.Open(zipPath, ZipArchiveMode.Update))
+        {
+            var maliciousEntry = archive.CreateEntry("Data/../Data/yukari.db");
+            using var writer = new StreamWriter(maliciousEntry.Open());
+            writer.Write("corrupted-db-bytes");
+        }
+
+        // Act
+        await LibraryBackupHelper.ImportArchiveAsync(
+            targetAppData,
+            zipPath,
+            LibraryImportMode.Replace,
+            ct: ct
+        );
+
+        // Assert
+        var targetDbPath = Path.Combine(targetAppData, "Data", "yukari.db");
+        using var conn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False");
+        await conn.OpenAsync(ct);
+        var comicCount = await conn.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM Comics;");
+        comicCount.Should().Be(1);
+    }
+
+    [Fact]
     public async Task ImportArchiveAsync_ThrowsInvalidDataException_WhenArchiveMissingManifest()
     {
         // Arrange
@@ -613,7 +746,7 @@ public class LibraryBackupHelperTests : IDisposable
 
             INSERT INTO ComicUserData (ComicId, Source, IsFavorite, LastSelectedLang, LastReadAt)
             VALUES
-                ('c-fav', 'MangaDex', 1, 'en', '2026-05-01T00:00:00Z'),
+                ('c-fav', 'MangaDex', 1, 'en', '2026-05-01 00:00:00'),
                 ('c-unfav', 'MangaDex', 0, 'en', NULL),
                 ('c-local', 'Local', 1, 'Local', NULL);
 

@@ -244,7 +244,7 @@ public static class LibraryBackupHelper
 
             var skippedPluginEntries =
                 mode == LibraryImportMode.Merge && manifest.IncludesPlugins
-                    ? await FilterOutDowngradedPluginsAsync(targetDbPath, importedDbPath)
+                    ? await FilterOutExistingPluginsAsync(targetDbPath, importedDbPath)
                     : [];
 
             progress?.Report((++currentStep, totalSteps));
@@ -363,7 +363,7 @@ public static class LibraryBackupHelper
         var segments = fullName
             .Replace('\\', '/')
             .Split('/', StringSplitOptions.RemoveEmptyEntries);
-        if (segments.Length == 0)
+        if (segments.Length == 0 || segments.Any(s => s is "." or ".."))
             return false;
 
         if (string.Equals(segments[0], "Data", StringComparison.OrdinalIgnoreCase))
@@ -391,7 +391,7 @@ public static class LibraryBackupHelper
         return false;
     }
 
-    private static async Task<HashSet<string>> FilterOutDowngradedPluginsAsync(
+    private static async Task<HashSet<string>> FilterOutExistingPluginsAsync(
         string targetDbPath,
         string importedDbPath
     )
@@ -400,13 +400,13 @@ public static class LibraryBackupHelper
 
         using var targetConn = new SqliteConnection($"Data Source={targetDbPath}");
         await targetConn.OpenAsync();
-        var existingSources = (
-            await targetConn.QueryAsync<(string Name, string Version)>(
-                "SELECT Name, Version FROM ComicSources WHERE PendingRemoval = 0;"
+        var existingNames = (
+            await targetConn.QueryAsync<string>(
+                "SELECT Name FROM ComicSources WHERE PendingRemoval = 0;"
             )
-        ).ToDictionary(s => s.Name, s => s.Version, StringComparer.OrdinalIgnoreCase);
+        ).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        if (existingSources.Count == 0)
+        if (existingNames.Count == 0)
             return skippedEntries;
 
         using var importedConn = new SqliteConnection(
@@ -415,25 +415,14 @@ public static class LibraryBackupHelper
         await importedConn.OpenAsync();
         var importedSources = await importedConn.QueryAsync<(
             string Name,
-            string Version,
             string DllPath,
             string? LogoUrl
-        )>("SELECT Name, Version, DllPath, LogoUrl FROM ComicSources;");
+        )>("SELECT Name, DllPath, LogoUrl FROM ComicSources;");
 
         foreach (var imported in importedSources)
         {
-            if (
-                !existingSources.TryGetValue(imported.Name, out var existingVerStr)
-                || !Version.TryParse(existingVerStr.Trim().TrimStart('v', 'V'), out var existingVer)
-                || !Version.TryParse(
-                    imported.Version.Trim().TrimStart('v', 'V'),
-                    out var importedVer
-                )
-                || existingVer <= importedVer
-            )
-            {
+            if (!existingNames.Contains(imported.Name))
                 continue;
-            }
 
             await importedConn.ExecuteAsync(
                 "DELETE FROM ComicSources WHERE Name = @Name;",
@@ -776,6 +765,8 @@ public static class LibraryBackupHelper
                     }
                 }
 
+                // Both main and imported databases are migrated to the same schema version via EnsureDatabaseMigratedAsync,
+                // so positional SELECT * columns match main table column order.
                 await connection.ExecuteAsync(
                     """
                     INSERT INTO main.Comics SELECT * FROM imported.Comics WHERE Source != 'Local'
