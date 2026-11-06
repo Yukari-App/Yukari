@@ -1,5 +1,5 @@
--- Current schema: Version 6
--- Last updated: Migration_006
+-- Current schema: Version 7
+-- Last updated: Migration_007
 -- To understand how we got here, read Migrations/ in order.
 
 -- Comics definition
@@ -127,5 +127,27 @@ CREATE TABLE ComicSources (
     DllPath TEXT NOT NULL,
     IsEnabled INTEGER NOT NULL DEFAULT 1,
     PendingRemoval INTEGER NOT NULL DEFAULT 0,
-    PendingUpdatePath TEXT    
+    PendingUpdatePath TEXT,
+    IsConfigurable INTEGER NOT NULL DEFAULT 0
+);
+
+
+-- ComicSourceSettings definition
+
+CREATE TABLE ComicSourceSettings (
+    SourceName TEXT NOT NULL,
+    SettingKey TEXT NOT NULL,
+    SettingValue TEXT NOT NULL,
+    PRIMARY KEY (SourceName, SettingKey),
+    FOREIGN KEY (SourceName) REFERENCES ComicSources(Name) ON DELETE CASCADE
+);
+
+-- ComicSourceCredentials definition
+
+CREATE TABLE ComicSourceCredentials (
+    SourceName TEXT NOT NULL,
+    SettingKey TEXT NOT NULL,
+    Ciphertext BLOB NOT NULL,
+    PRIMARY KEY (SourceName, SettingKey),
+    FOREIGN KEY (SourceName) REFERENCES ComicSources(Name) ON DELETE CASCADE
 );
