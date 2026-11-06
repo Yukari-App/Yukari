@@ -340,7 +340,7 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
 
         const string sql =
-            @"SELECT Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled FROM ComicSources;";
+            @"SELECT Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled, IsConfigurable FROM ComicSources;";
 
         var result = await connection.QueryAsync<ComicSourceModel>(
             new CommandDefinition(sql, cancellationToken: ct)
@@ -356,7 +356,7 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
 
         const string sql = """
-            SELECT Name, ReleasesPage, Version, LogoUrl, Description, DllPath, IsEnabled
+            SELECT Name, ReleasesPage, Version, LogoUrl, Description, DllPath, IsEnabled, IsConfigurable
             FROM ComicSources 
             WHERE Name = @name;
             """;
@@ -373,7 +373,7 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
 
         const string sql = """
-            SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled
+            SELECT Name, Version, LogoUrl, Description, DllPath, IsEnabled, IsConfigurable
             FROM ComicSources 
             WHERE PendingRemoval = 1;
             """;
@@ -391,7 +391,7 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
 
         const string sql = """
-            SELECT Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled, PendingUpdatePath
+            SELECT Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled, PendingUpdatePath, IsConfigurable
             FROM ComicSources 
             WHERE PendingUpdatePath IS NOT NULL;
             """;
@@ -400,6 +400,64 @@ internal class DataService : IDataService
             new CommandDefinition(sql, cancellationToken: ct)
         );
         return result.ToList();
+    }
+
+    public async Task<IReadOnlyDictionary<string, string>> GetComicSourceSettingsAsync(
+        string sourceName,
+        CancellationToken ct = default
+    )
+    {
+        using var connection = await GetOpenConnectionAsync();
+
+        const string sql = """
+            SELECT SettingKey, SettingValue
+            FROM ComicSourceSettings
+            WHERE SourceName = @SourceName;
+            """;
+
+        var rows = await connection.QueryAsync<(string SettingKey, string SettingValue)>(
+            new CommandDefinition(sql, new { SourceName = sourceName }, cancellationToken: ct)
+        );
+
+        return rows.ToDictionary(r => r.SettingKey, r => r.SettingValue);
+    }
+
+    public async Task<IReadOnlyDictionary<string, byte[]>> GetComicSourceCredentialsAsync(
+        string sourceName,
+        CancellationToken ct = default
+    )
+    {
+        using var connection = await GetOpenConnectionAsync();
+
+        const string sql = """
+            SELECT SettingKey, Ciphertext
+            FROM ComicSourceCredentials
+            WHERE SourceName = @SourceName;
+            """;
+
+        var rows = await connection.QueryAsync<(string SettingKey, byte[] Ciphertext)>(
+            new CommandDefinition(sql, new { SourceName = sourceName }, cancellationToken: ct)
+        );
+
+        return rows.ToDictionary(r => r.SettingKey, r => r.Ciphertext);
+    }
+
+    public async Task<IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>> GetAllComicSourceCredentialsAsync(
+        CancellationToken ct = default
+    )
+    {
+        using var connection = await GetOpenConnectionAsync();
+
+        const string sql = """
+            SELECT SourceName, SettingKey, Ciphertext
+            FROM ComicSourceCredentials;
+            """;
+
+        var rows = await connection.QueryAsync<(string SourceName, string SettingKey, byte[] Ciphertext)>(
+            new CommandDefinition(sql, cancellationToken: ct)
+        );
+
+        return rows.ToList();
     }
 
     #endregion
@@ -800,15 +858,16 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
 
         const string sql = """
-            INSERT INTO ComicSources (Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled)
-            VALUES (@Name, @Version, @ReleasesPage, @LogoUrl, @Description, @DllPath, @IsEnabled)
+            INSERT INTO ComicSources (Name, Version, ReleasesPage, LogoUrl, Description, DllPath, IsEnabled, IsConfigurable)
+            VALUES (@Name, @Version, @ReleasesPage, @LogoUrl, @Description, @DllPath, @IsEnabled, @IsConfigurable)
             ON CONFLICT(Name) DO UPDATE SET
                 Version = excluded.Version,
                 ReleasesPage = excluded.ReleasesPage,
                 LogoUrl = excluded.LogoUrl,
                 Description = excluded.Description,
                 DllPath = excluded.DllPath,
-                IsEnabled = 1;
+                IsEnabled = 1,
+                IsConfigurable = excluded.IsConfigurable;
             """;
 
         await connection.ExecuteAsync(sql, comicSource);
@@ -842,6 +901,97 @@ internal class DataService : IDataService
             @"UPDATE ComicSources SET PendingUpdatePath = @PendingUpdatePath WHERE Name = @Name;",
             new { Name = sourceName, PendingUpdatePath = pendingUpdatePath }
         );
+    }
+
+    public async Task SaveComicSourceSettingsAsync(
+        string sourceName,
+        IReadOnlyDictionary<string, string> settings
+    )
+    {
+        using var connection = await GetOpenConnectionAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        const string deleteSql = "DELETE FROM ComicSourceSettings WHERE SourceName = @SourceName;";
+        await connection.ExecuteAsync(deleteSql, new { SourceName = sourceName }, transaction);
+
+        if (settings.Count > 0)
+        {
+            const string insertSql = """
+                INSERT INTO ComicSourceSettings (SourceName, SettingKey, SettingValue)
+                VALUES (@SourceName, @SettingKey, @SettingValue);
+                """;
+
+            var parameters = settings.Select(kvp => new
+            {
+                SourceName = sourceName,
+                SettingKey = kvp.Key,
+                SettingValue = kvp.Value,
+            });
+
+            await connection.ExecuteAsync(insertSql, parameters, transaction);
+        }
+
+        await transaction.CommitAsync();
+    }
+
+    public async Task SaveComicSourceCredentialsAsync(
+        string sourceName,
+        IReadOnlyDictionary<string, byte[]> credentials
+    )
+    {
+        using var connection = await GetOpenConnectionAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        const string deleteSql = "DELETE FROM ComicSourceCredentials WHERE SourceName = @SourceName;";
+        await connection.ExecuteAsync(deleteSql, new { SourceName = sourceName }, transaction);
+
+        if (credentials.Count > 0)
+        {
+            const string insertSql = """
+                INSERT INTO ComicSourceCredentials (SourceName, SettingKey, Ciphertext)
+                VALUES (@SourceName, @SettingKey, @Ciphertext);
+                """;
+
+            var parameters = credentials.Select(kvp => new
+            {
+                SourceName = sourceName,
+                SettingKey = kvp.Key,
+                Ciphertext = kvp.Value,
+            });
+
+            await connection.ExecuteAsync(insertSql, parameters, transaction);
+        }
+
+        await transaction.CommitAsync();
+    }
+
+    public async Task ReplaceAllComicSourceCredentialsAsync(
+        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)> credentials
+    )
+    {
+        using var connection = await GetOpenConnectionAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        await connection.ExecuteAsync("DELETE FROM ComicSourceCredentials;", transaction: transaction);
+
+        if (credentials.Count > 0)
+        {
+            const string insertSql = """
+                INSERT INTO ComicSourceCredentials (SourceName, SettingKey, Ciphertext)
+                VALUES (@SourceName, @SettingKey, @Ciphertext);
+                """;
+
+            var parameters = credentials.Select(c => new
+            {
+                SourceName = c.SourceName,
+                SettingKey = c.SettingKey,
+                Ciphertext = c.Ciphertext,
+            });
+
+            await connection.ExecuteAsync(insertSql, parameters, transaction);
+        }
+
+        await transaction.CommitAsync();
     }
 
     #endregion

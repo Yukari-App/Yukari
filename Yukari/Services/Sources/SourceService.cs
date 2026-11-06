@@ -225,6 +225,7 @@ internal class SourceService : ISourceService
             Description = comicSourceMetadata.Description,
             DllPath = dllPath,
             IsEnabled = true,
+            IsConfigurable = typeof(IConfigurableSource).IsAssignableFrom(type),
         };
     }
 

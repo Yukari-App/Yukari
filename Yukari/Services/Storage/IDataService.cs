@@ -85,6 +85,29 @@ public interface IDataService
     Task UpdateComicSourcePendingRemovalAsync(string sourceName, bool pendingRemoval);
     Task UpdateComicSourcePendingUpdateAsync(string sourceName, string? pendingUpdatePath);
 
+    Task<IReadOnlyDictionary<string, string>> GetComicSourceSettingsAsync(
+        string sourceName,
+        CancellationToken ct = default
+    );
+    Task SaveComicSourceSettingsAsync(
+        string sourceName,
+        IReadOnlyDictionary<string, string> settings
+    );
+    Task<IReadOnlyDictionary<string, byte[]>> GetComicSourceCredentialsAsync(
+        string sourceName,
+        CancellationToken ct = default
+    );
+    Task SaveComicSourceCredentialsAsync(
+        string sourceName,
+        IReadOnlyDictionary<string, byte[]> credentials
+    );
+    Task<IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>> GetAllComicSourceCredentialsAsync(
+        CancellationToken ct = default
+    );
+    Task ReplaceAllComicSourceCredentialsAsync(
+        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)> credentials
+    );
+
     Task RemoveFavoriteComicAsync(ContentKey comicKey);
     Task RemoveCollectionAsync(string collectionName);
     Task RemoveComicFromCollectionAsync(ContentKey comicKey, string collectionName);

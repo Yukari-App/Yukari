@@ -11,6 +11,7 @@ public class ComicSourceModel
     public string? Description { get; set; }
     public required string DllPath { get; set; }
     public bool IsEnabled { get; set; } = true;
+    public bool IsConfigurable { get; set; }
 
     public string? PendingUpdatePath { get; set; }
 
