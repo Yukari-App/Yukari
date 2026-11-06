@@ -17,6 +17,7 @@ using Yukari.Helpers;
 using Yukari.Messages;
 using Yukari.Services;
 using Yukari.Services.Comics;
+using Yukari.Services.Security;
 using Yukari.Services.Settings;
 using Yukari.Services.Sources;
 using Yukari.Services.Storage;
@@ -148,6 +149,8 @@ public partial class App : Application
         services.AddSingleton<IDataService, DataService>();
         services.AddSingleton<IDownloadService, DownloadService>();
         services.AddSingleton<IExportService, ExportService>();
+        services.AddSingleton<ICredentialProtector, CredentialProtector>();
+        services.AddSingleton<ISourceSettingsStore, SourceSettingsStore>();
         services.AddSingleton<ISourceService, SourceService>();
         services.AddSingleton<ISourceManager, SourceManager>();
         services.AddSingleton<ILocalSourceService, LocalSourceService>();

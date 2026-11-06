@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Yukari.Core.Models.Settings;
 using Yukari.Helpers;
 using Yukari.Models;
 using Yukari.Models.Common;
@@ -16,6 +17,7 @@ internal class SourceManager : ResultServiceBase, ISourceManager
 {
     private readonly IDataService _dbService;
     private readonly ISourceService _srcService;
+    private readonly ISourceSettingsStore _settingsStore;
     private readonly IDownloadService _dloadService;
     private readonly ILocalizationService _localizationService;
     private readonly ILogger<SourceManager> _logger;
@@ -23,6 +25,7 @@ internal class SourceManager : ResultServiceBase, ISourceManager
     public SourceManager(
         IDataService dbService,
         ISourceService srcService,
+        ISourceSettingsStore settingsStore,
         IDownloadService dloadService,
         ILocalizationService localizationService,
         ILogger<SourceManager> logger
@@ -31,6 +34,7 @@ internal class SourceManager : ResultServiceBase, ISourceManager
     {
         _dbService = dbService;
         _srcService = srcService;
+        _settingsStore = settingsStore;
         _dloadService = dloadService;
         _localizationService = localizationService;
         _logger = logger;
@@ -169,6 +173,41 @@ internal class SourceManager : ResultServiceBase, ISourceManager
                 }
             },
             _localizationService.GetString("ErrorRemovingComicSource")
+        );
+    }
+
+    public async Task<Result<(IReadOnlyList<SourceSetting> Schema, IReadOnlyDictionary<string, string> Values)>> GetSourceSettingsAsync(
+        string sourceName,
+        CancellationToken ct = default
+    )
+    {
+        return await ExecuteAsync<(IReadOnlyList<SourceSetting> Schema, IReadOnlyDictionary<string, string> Values)>(
+            async (cancellationToken) =>
+            {
+                var schema = await _srcService.GetSettingsSchemaAsync(sourceName, cancellationToken);
+                var values = await _settingsStore.LoadRawValuesAsync(sourceName, schema, cancellationToken);
+                return Result<(IReadOnlyList<SourceSetting> Schema, IReadOnlyDictionary<string, string> Values)>.Success((schema, values));
+            },
+            _localizationService.GetString("ErrorFetchingComicSources"),
+            ct
+        );
+    }
+
+    public async Task<Result> SaveSettingsAsync(
+        string sourceName,
+        IReadOnlyDictionary<string, string> values,
+        CancellationToken ct = default
+    )
+    {
+        return await ExecuteAsync(
+            async () =>
+            {
+                var schema = await _srcService.GetSettingsSchemaAsync(sourceName, ct);
+                await _settingsStore.SaveSettingsAsync(sourceName, schema, values, ct);
+                await _srcService.ApplySettingsAsync(sourceName, ct);
+                return Result.Success();
+            },
+            _localizationService.GetString("ErrorAddingUpdatingComicSource")
         );
     }
 }

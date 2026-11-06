@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Yukari.Core.Models;
+using Yukari.Core.Models.Settings;
 using Yukari.Core.Sources;
 using Yukari.Core.Sources.Browser;
 using Yukari.Core.Sources.Http;
@@ -23,6 +24,7 @@ namespace Yukari.Services.Sources;
 internal class SourceService : ISourceService
 {
     private readonly IDataService _dataService;
+    private readonly ISourceSettingsStore _settingsStore;
     private readonly ILogger<SourceService> _logger;
 
     private readonly ISharedHttpClient _sharedHttpClient;
@@ -33,12 +35,14 @@ internal class SourceService : ISourceService
 
     public SourceService(
         IDataService dataService,
+        ISourceSettingsStore settingsStore,
         ILogger<SourceService> logger,
         HttpClient httpClient,
         IBrowserService browserService
     )
     {
         _dataService = dataService;
+        _settingsStore = settingsStore;
         _logger = logger;
         _sharedHttpClient = new SharedHttpClient(httpClient);
         _browserService = browserService;
@@ -73,6 +77,26 @@ internal class SourceService : ISourceService
             if (instance is IRequiresBrowser requiresBrowser)
                 requiresBrowser.SetBrowser(_browserService);
 
+            if (instance is IConfigurableSource configurableSource)
+            {
+                try
+                {
+                    var settings = await _settingsStore.LoadSettingsAsync(
+                        comicSource.Name,
+                        configurableSource.Settings
+                    );
+                    configurableSource.ApplySettings(settings);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Failed to apply settings for comic source '{SourceName}'. Continuing with defaults.",
+                        comicSource.Name
+                    );
+                }
+            }
+
             if (!_sourceInstances.TryAdd(comicSource.Name, instance))
                 await instance.DisposeAsync();
         }
@@ -88,6 +112,41 @@ internal class SourceService : ISourceService
             await source.DisposeAsync();
 
         _sourceTypeCache.TryRemove(sourceName, out _);
+    }
+
+    public async Task<IReadOnlyList<SourceSetting>> GetSettingsSchemaAsync(
+        string sourceName,
+        CancellationToken ct = default
+    )
+    {
+        await EnsureLoadedAsync(sourceName, ct);
+        return GetLoadedSource(sourceName) is IConfigurableSource configurable
+            ? configurable.Settings
+            : [];
+    }
+
+    public async Task ApplySettingsAsync(string sourceName, CancellationToken ct = default)
+    {
+        if (!_sourceInstances.TryGetValue(sourceName, out var source) || source is not IConfigurableSource configurable)
+            return;
+
+        try
+        {
+            var settings = await _settingsStore.LoadSettingsAsync(
+                sourceName,
+                configurable.Settings,
+                ct
+            );
+            configurable.ApplySettings(settings);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to re-apply settings for comic source '{SourceName}'.",
+                sourceName
+            );
+        }
     }
 
     public async Task<IReadOnlyList<Filter>> GetFiltersAsync(

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Yukari.Core.Models;
+using Yukari.Core.Models.Settings;
 using Yukari.Models;
 
 namespace Yukari.Services.Sources;
@@ -10,6 +11,12 @@ public interface ISourceService
 {
     Task LoadSourceAsync(ComicSourceModel comicSource);
     Task UnloadSourceAsync(string sourceName);
+
+    Task<IReadOnlyList<SourceSetting>> GetSettingsSchemaAsync(
+        string sourceName,
+        CancellationToken ct = default
+    );
+    Task ApplySettingsAsync(string sourceName, CancellationToken ct = default);
 
     Task<IReadOnlyList<Filter>> GetFiltersAsync(string sourceName, CancellationToken ct = default);
 
