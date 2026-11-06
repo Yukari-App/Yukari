@@ -510,6 +510,11 @@ public static class LibraryBackupHelper
             }
 
             await connection.ExecuteAsync(
+                "DELETE FROM ComicSourceCredentials;",
+                transaction: transaction
+            );
+
+            await connection.ExecuteAsync(
                 includePlugins
                     ? "DELETE FROM ComicSources WHERE PendingRemoval = 1; UPDATE ComicSources SET PendingRemoval = 0, PendingUpdatePath = NULL;"
                     : "DELETE FROM ComicSources;",
@@ -844,10 +849,36 @@ public static class LibraryBackupHelper
                             LogoUrl = COALESCE(excluded.LogoUrl, main.ComicSources.LogoUrl),
                             Description = excluded.Description, DllPath = excluded.DllPath,
                             IsEnabled = excluded.IsEnabled, PendingRemoval = 0,
-                            PendingUpdatePath = excluded.PendingUpdatePath;
+                            PendingUpdatePath = excluded.PendingUpdatePath,
+                            IsConfigurable = excluded.IsConfigurable;
                         """,
                         transaction: transaction
                     );
+
+                    if (mode == LibraryImportMode.Replace)
+                    {
+                        await connection.ExecuteAsync(
+                            """
+                            INSERT INTO main.ComicSourceSettings (SourceName, SettingKey, SettingValue)
+                            SELECT SourceName, SettingKey, SettingValue FROM imported.ComicSourceSettings
+                            WHERE SourceName IN (SELECT Name FROM imported.ComicSources)
+                            ON CONFLICT(SourceName, SettingKey) DO UPDATE SET SettingValue = excluded.SettingValue;
+                            """,
+                            transaction: transaction
+                        );
+                    }
+                    else
+                    {
+                        await connection.ExecuteAsync(
+                            """
+                            INSERT INTO main.ComicSourceSettings (SourceName, SettingKey, SettingValue)
+                            SELECT SourceName, SettingKey, SettingValue FROM imported.ComicSourceSettings
+                            WHERE SourceName IN (SELECT Name FROM imported.ComicSources)
+                            ON CONFLICT(SourceName, SettingKey) DO NOTHING;
+                            """,
+                            transaction: transaction
+                        );
+                    }
                 }
 
                 await transaction.CommitAsync();

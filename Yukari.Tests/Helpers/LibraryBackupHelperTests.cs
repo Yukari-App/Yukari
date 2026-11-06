@@ -699,6 +699,271 @@ public class LibraryBackupHelperTests : IDisposable
         await act.Should().ThrowAsync<InvalidDataException>();
     }
 
+    [Fact]
+    public async Task ExportAndImport_SettingsRoundTrip_RestoresSourceSettings()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sourceAppData = Path.Combine(_tempRoot, "SettingsSource");
+        var targetAppData = Path.Combine(_tempRoot, "SettingsTarget");
+        var zipPath = Path.Combine(_tempRoot, "backup_settings.zip");
+
+        await SeedSampleAppDataAsync(sourceAppData, ct);
+        var sourceDbPath = Path.Combine(sourceAppData, "Data", "yukari.db");
+        using (var setupConn = new SqliteConnection($"Data Source={sourceDbPath};Pooling=False"))
+        {
+            await setupConn.OpenAsync(ct);
+            await setupConn.ExecuteAsync(
+                """
+                INSERT INTO ComicSourceSettings (SourceName, SettingKey, SettingValue)
+                VALUES ('MangaDex', 'data_saver', 'true'), ('MangaDex', 'quality', 'original');
+                """
+            );
+        }
+
+        // Act
+        await LibraryBackupHelper.ExportArchiveAsync(
+            sourceAppData,
+            zipPath,
+            includeDownloads: true,
+            includePlugins: true,
+            ct: ct
+        );
+
+        await LibraryBackupHelper.ImportArchiveAsync(
+            targetAppData,
+            zipPath,
+            LibraryImportMode.Replace,
+            ct: ct
+        );
+
+        // Assert
+        var targetDbPath = Path.Combine(targetAppData, "Data", "yukari.db");
+        using var conn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False");
+        await conn.OpenAsync(ct);
+
+        var settings = (
+            await conn.QueryAsync<(string SettingKey, string SettingValue)>(
+                "SELECT SettingKey, SettingValue FROM ComicSourceSettings WHERE SourceName = 'MangaDex';"
+            )
+        ).ToDictionary(s => s.SettingKey, s => s.SettingValue);
+
+        settings.Should().ContainKey("data_saver").WhoseValue.Should().Be("true");
+        settings.Should().ContainKey("quality").WhoseValue.Should().Be("original");
+    }
+
+    [Fact]
+    public async Task ExportArchive_NeverExportsCredentials_CredentialsTableIsEmptyInArchive()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sourceAppData = Path.Combine(_tempRoot, "CredsSource");
+        var zipPath = Path.Combine(_tempRoot, "backup_creds.zip");
+
+        await SeedSampleAppDataAsync(sourceAppData, ct);
+        var sourceDbPath = Path.Combine(sourceAppData, "Data", "yukari.db");
+        using (var setupConn = new SqliteConnection($"Data Source={sourceDbPath};Pooling=False"))
+        {
+            await setupConn.OpenAsync(ct);
+            await setupConn.ExecuteAsync(
+                """
+                INSERT INTO ComicSourceCredentials (SourceName, SettingKey, Ciphertext)
+                VALUES ('MangaDex', 'api_token', X'DEADBEEF');
+                """
+            );
+        }
+
+        // Act
+        await LibraryBackupHelper.ExportArchiveAsync(
+            sourceAppData,
+            zipPath,
+            includeDownloads: false,
+            includePlugins: true,
+            ct: ct
+        );
+
+        // Assert
+        var extractedDbPath = Path.Combine(_tempRoot, "extracted_creds_check.db");
+        using (var archive = ZipFile.OpenRead(zipPath))
+        {
+            var dbEntry = archive.GetEntry("yukari.db");
+            dbEntry.Should().NotBeNull();
+            dbEntry!.ExtractToFile(extractedDbPath, overwrite: true);
+        }
+
+        using var conn = new SqliteConnection($"Data Source={extractedDbPath};Pooling=False");
+        await conn.OpenAsync(ct);
+        var count = await conn.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM ComicSourceCredentials;");
+        count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Import_MergeMode_KeepsInstalledPluginSettingsUntouched()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sourceAppData = Path.Combine(_tempRoot, "MergeSettingsSource");
+        var targetAppData = Path.Combine(_tempRoot, "MergeSettingsTarget");
+        var zipPath = Path.Combine(_tempRoot, "backup_merge_settings.zip");
+
+        await SeedSampleAppDataAsync(sourceAppData, ct);
+        var sourceDbPath = Path.Combine(sourceAppData, "Data", "yukari.db");
+        using (var setupConn = new SqliteConnection($"Data Source={sourceDbPath};Pooling=False"))
+        {
+            await setupConn.OpenAsync(ct);
+            await setupConn.ExecuteAsync(
+                """
+                INSERT INTO ComicSourceSettings (SourceName, SettingKey, SettingValue)
+                VALUES ('MangaDex', 'data_saver', 'true');
+                """
+            );
+        }
+
+        await LibraryBackupHelper.ExportArchiveAsync(
+            sourceAppData,
+            zipPath,
+            includeDownloads: false,
+            includePlugins: true,
+            ct: ct
+        );
+
+        // Target has MangaDex already installed with data_saver = 'false'
+        await SeedSampleAppDataAsync(targetAppData, ct);
+        var targetDbPath = Path.Combine(targetAppData, "Data", "yukari.db");
+        using (var targetSetupConn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False"))
+        {
+            await targetSetupConn.OpenAsync(ct);
+            await targetSetupConn.ExecuteAsync(
+                """
+                INSERT INTO ComicSourceSettings (SourceName, SettingKey, SettingValue)
+                VALUES ('MangaDex', 'data_saver', 'false');
+                """
+            );
+        }
+
+        // Act
+        await LibraryBackupHelper.ImportArchiveAsync(
+            targetAppData,
+            zipPath,
+            LibraryImportMode.Merge,
+            ct: ct
+        );
+
+        // Assert
+        using var conn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False");
+        await conn.OpenAsync(ct);
+        var value = await conn.ExecuteScalarAsync<string>(
+            "SELECT SettingValue FROM ComicSourceSettings WHERE SourceName = 'MangaDex' AND SettingKey = 'data_saver';"
+        );
+        value.Should().Be("false");
+    }
+
+    [Fact]
+    public async Task Import_ReplaceMode_OverwritesSettings()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sourceAppData = Path.Combine(_tempRoot, "ReplaceSettingsSource");
+        var targetAppData = Path.Combine(_tempRoot, "ReplaceSettingsTarget");
+        var zipPath = Path.Combine(_tempRoot, "backup_replace_settings.zip");
+
+        await SeedSampleAppDataAsync(sourceAppData, ct);
+        var sourceDbPath = Path.Combine(sourceAppData, "Data", "yukari.db");
+        using (var setupConn = new SqliteConnection($"Data Source={sourceDbPath};Pooling=False"))
+        {
+            await setupConn.OpenAsync(ct);
+            await setupConn.ExecuteAsync(
+                """
+                INSERT INTO ComicSourceSettings (SourceName, SettingKey, SettingValue)
+                VALUES ('MangaDex', 'data_saver', 'true');
+                """
+            );
+        }
+
+        await LibraryBackupHelper.ExportArchiveAsync(
+            sourceAppData,
+            zipPath,
+            includeDownloads: false,
+            includePlugins: true,
+            ct: ct
+        );
+
+        // Target has MangaDex already installed with data_saver = 'false'
+        await SeedSampleAppDataAsync(targetAppData, ct);
+        var targetDbPath = Path.Combine(targetAppData, "Data", "yukari.db");
+        using (var targetSetupConn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False"))
+        {
+            await targetSetupConn.OpenAsync(ct);
+            await targetSetupConn.ExecuteAsync(
+                """
+                INSERT INTO ComicSourceSettings (SourceName, SettingKey, SettingValue)
+                VALUES ('MangaDex', 'data_saver', 'false');
+                """
+            );
+        }
+
+        // Act
+        await LibraryBackupHelper.ImportArchiveAsync(
+            targetAppData,
+            zipPath,
+            LibraryImportMode.Replace,
+            ct: ct
+        );
+
+        // Assert
+        using var conn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False");
+        await conn.OpenAsync(ct);
+        var value = await conn.ExecuteScalarAsync<string>(
+            "SELECT SettingValue FROM ComicSourceSettings WHERE SourceName = 'MangaDex' AND SettingKey = 'data_saver';"
+        );
+        value.Should().Be("true");
+    }
+
+    [Fact]
+    public async Task ExportArchive_IncludePluginsFalse_ExportsNoSettings()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sourceAppData = Path.Combine(_tempRoot, "NoPluginsSettingsSource");
+        var zipPath = Path.Combine(_tempRoot, "backup_no_plugins.zip");
+
+        await SeedSampleAppDataAsync(sourceAppData, ct);
+        var sourceDbPath = Path.Combine(sourceAppData, "Data", "yukari.db");
+        using (var setupConn = new SqliteConnection($"Data Source={sourceDbPath};Pooling=False"))
+        {
+            await setupConn.OpenAsync(ct);
+            await setupConn.ExecuteAsync(
+                """
+                INSERT INTO ComicSourceSettings (SourceName, SettingKey, SettingValue)
+                VALUES ('MangaDex', 'data_saver', 'true');
+                """
+            );
+        }
+
+        // Act
+        await LibraryBackupHelper.ExportArchiveAsync(
+            sourceAppData,
+            zipPath,
+            includeDownloads: false,
+            includePlugins: false,
+            ct: ct
+        );
+
+        // Assert
+        var extractedDbPath = Path.Combine(_tempRoot, "extracted_no_plugins.db");
+        using (var archive = ZipFile.OpenRead(zipPath))
+        {
+            var dbEntry = archive.GetEntry("yukari.db");
+            dbEntry.Should().NotBeNull();
+            dbEntry!.ExtractToFile(extractedDbPath, overwrite: true);
+        }
+
+        using var conn = new SqliteConnection($"Data Source={extractedDbPath};Pooling=False");
+        await conn.OpenAsync(ct);
+        var count = await conn.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM ComicSourceSettings;");
+        count.Should().Be(0);
+    }
+
     private sealed class SynchronousProgress<T>(Action<T> handler) : IProgress<T>
     {
         public void Report(T value) => handler(value);
