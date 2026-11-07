@@ -9,6 +9,7 @@ public partial class PasswordSettingViewModel : SourceSettingViewModel
     private readonly bool _hadInitialValue;
 
     public string Placeholder { get; }
+    public bool IsEditable { get; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsModified))]
@@ -26,15 +27,20 @@ public partial class PasswordSettingViewModel : SourceSettingViewModel
 
     public bool IsModified => IsCleared || !string.IsNullOrEmpty(Value);
 
-    public PasswordSettingViewModel(PasswordSetting setting, bool hasStoredValue = false)
+    public PasswordSettingViewModel(
+        PasswordSetting setting,
+        bool hasStoredValue = false,
+        bool isLocked = false
+    )
         : base(setting)
     {
         _hadInitialValue = hasStoredValue;
         HasStoredValue = hasStoredValue;
+        IsEditable = !isLocked;
         Placeholder = setting.Placeholder ?? string.Empty;
     }
 
-    private bool CanClear() => HasStoredValue || !string.IsNullOrEmpty(Value);
+    private bool CanClear() => IsEditable && (HasStoredValue || !string.IsNullOrEmpty(Value));
 
     [RelayCommand(CanExecute = nameof(CanClear))]
     private void Clear()

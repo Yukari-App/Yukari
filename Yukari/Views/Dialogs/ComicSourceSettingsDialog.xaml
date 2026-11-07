@@ -107,7 +107,10 @@
                                Visibility="{x:Bind HasStoredValue, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
                 </StackPanel>
                 <Grid ColumnDefinitions="*, Auto" ColumnSpacing="4">
-                    <PasswordBox Grid.Column="0" Password="{x:Bind Value, Mode=TwoWay}" PlaceholderText="{x:Bind Placeholder}" />
+                    <PasswordBox Grid.Column="0"
+                                 IsEnabled="{x:Bind IsEditable}"
+                                 Password="{x:Bind Value, Mode=TwoWay}"
+                                 PlaceholderText="{x:Bind Placeholder}" />
                     <Button x:Uid="ClearPasswordBT" Grid.Column="1" Command="{x:Bind ClearCommand}" />
                 </Grid>
             </StackPanel>
@@ -223,7 +226,24 @@
                                            ToggleTemplate="{StaticResource ToggleSettingTemplate}" />
     </ContentDialog.Resources>
 
-    <Grid Width="340">
+    <StackPanel Width="340" Spacing="8">
+        <InfoBar x:Uid="LockedCredentialsInfoBar"
+                 IsClosable="False"
+                 IsOpen="True"
+                 Severity="Warning"
+                 Visibility="{x:Bind ViewModel.IsCredentialsLocked, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <InfoBar.Content>
+                <Grid Margin="0,4,0,8" ColumnDefinitions="*, Auto" ColumnSpacing="4">
+                    <PasswordBox x:Uid="UnlockCredentialsInlinePasswordBox"
+                                 Grid.Column="0"
+                                 Password="{x:Bind ViewModel.UnlockPassword, Mode=TwoWay}" />
+                    <Button x:Uid="UnlockCredentialsBT"
+                            Grid.Column="1"
+                            Command="{x:Bind ViewModel.UnlockCredentialsCommand}" />
+                </Grid>
+            </InfoBar.Content>
+        </InfoBar>
+
         <InfoBar x:Uid="EmptyComicSourceSettingsInfoBar"
                  IsClosable="False"
                  IsOpen="True"
@@ -233,5 +253,5 @@
         <ScrollViewer MaxHeight="380" Visibility="{x:Bind ViewModel.CanInteract, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
             <ItemsControl ItemTemplateSelector="{StaticResource SettingTemplateSelector}" ItemsSource="{x:Bind ViewModel.Settings, Mode=OneWay}" />
         </ScrollViewer>
-    </Grid>
+    </StackPanel>
 </ContentDialog>

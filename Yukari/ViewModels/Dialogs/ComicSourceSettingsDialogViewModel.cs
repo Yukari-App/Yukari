@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Yukari.Core.Models.Settings;
+using Yukari.Services.Security;
 using Yukari.Services.Sources;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Components.Settings;
@@ -17,6 +19,8 @@ public partial class ComicSourceSettingsDialogViewModel : ObservableObject
     private readonly INotificationService _notificationService;
     private readonly ILocalizationService _localizationService;
     private readonly ILogger<ComicSourceSettingsDialogViewModel> _logger;
+    private readonly ICredentialProtector? _credentialProtector;
+    private readonly ISourceService? _sourceService;
 
     [ObservableProperty]
     public partial string SourceName { get; set; } = string.Empty;
@@ -24,6 +28,7 @@ public partial class ComicSourceSettingsDialogViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmpty))]
     [NotifyPropertyChangedFor(nameof(CanInteract))]
+    [NotifyPropertyChangedFor(nameof(IsCredentialsLocked))]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     [NotifyCanExecuteChangedFor(nameof(RestoreDefaultsCommand))]
     public partial List<SourceSettingViewModel> Settings { get; set; } = [];
@@ -35,20 +40,31 @@ public partial class ComicSourceSettingsDialogViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(RestoreDefaultsCommand))]
     public partial bool IsLoading { get; set; }
 
+    [ObservableProperty]
+    public partial string UnlockPassword { get; set; } = string.Empty;
+
     public bool IsEmpty => !IsLoading && Settings.Count == 0;
     public bool CanInteract => !IsLoading && Settings.Count > 0;
+    public bool IsCredentialsLocked =>
+        (_credentialProtector?.UsesEntropy ?? false)
+        && !(_credentialProtector?.IsUnlocked ?? true)
+        && Settings.OfType<PasswordSettingViewModel>().Any();
 
     public ComicSourceSettingsDialogViewModel(
         ISourceManager sourceManager,
         INotificationService notificationService,
         ILocalizationService localizationService,
-        ILogger<ComicSourceSettingsDialogViewModel> logger
+        ILogger<ComicSourceSettingsDialogViewModel> logger,
+        ICredentialProtector? credentialProtector = null,
+        ISourceService? sourceService = null
     )
     {
         _sourceManager = sourceManager;
         _notificationService = notificationService;
         _localizationService = localizationService;
         _logger = logger;
+        _credentialProtector = credentialProtector;
+        _sourceService = sourceService;
     }
 
     public async Task InitializeAsync(string sourceName)
@@ -67,6 +83,9 @@ public partial class ComicSourceSettingsDialogViewModel : ObservableObject
 
         var (schema, values) = result.Value;
         var items = new List<SourceSettingViewModel>();
+        var isLocked =
+            (_credentialProtector?.UsesEntropy ?? false)
+            && !(_credentialProtector?.IsUnlocked ?? true);
 
         foreach (var setting in schema)
         {
@@ -78,7 +97,8 @@ public partial class ComicSourceSettingsDialogViewModel : ObservableObject
                 TextSetting text => new TextSettingViewModel(text, storedValue),
                 PasswordSetting password => new PasswordSettingViewModel(
                     password,
-                    !string.IsNullOrEmpty(storedValue)
+                    !string.IsNullOrEmpty(storedValue),
+                    isLocked
                 ),
                 NumberSetting number => new NumberSettingViewModel(number, storedValue),
                 SingleChoiceSetting single => new SingleChoiceSettingViewModel(single, storedValue),
@@ -95,6 +115,31 @@ public partial class ComicSourceSettingsDialogViewModel : ObservableObject
 
         Settings = items;
         IsLoading = false;
+        OnPropertyChanged(nameof(IsCredentialsLocked));
+    }
+
+    [RelayCommand]
+    private async Task UnlockCredentialsAsync()
+    {
+        if (_credentialProtector == null)
+            return;
+
+        if (!_credentialProtector.TryUnlock(UnlockPassword))
+        {
+            _notificationService.ShowError(
+                _localizationService.GetString("ErrorIncorrectCredentialPassword")
+            );
+            return;
+        }
+
+        UnlockPassword = string.Empty;
+        if (_sourceService != null)
+            await _sourceService.ApplySettingsToAllLoadedSourcesAsync();
+
+        _notificationService.ShowSuccess(
+            _localizationService.GetString("SuccessCredentialsUnlocked")
+        );
+        await InitializeAsync(SourceName);
     }
 
     [RelayCommand(CanExecute = nameof(CanInteract))]
