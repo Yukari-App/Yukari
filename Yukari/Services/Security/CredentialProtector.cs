@@ -41,9 +41,15 @@ internal class CredentialProtector : ICredentialProtector
 
     public async Task InitializeAsync(CancellationToken ct = default)
     {
+        if (_state is not null)
+            return;
+
         await _semaphore.WaitAsync(ct);
         try
         {
+            if (_state is not null)
+                return;
+
             var config = await _dataService.GetCredentialProtectionAsync(ct);
             _state = new ProtectionState(config, null);
         }
@@ -135,7 +141,7 @@ internal class CredentialProtector : ICredentialProtector
                 newEntropy,
                 ct
             );
-            await _dataService.ReplaceCredentialProtectionAsync(reEncrypted, newConfig, ct);
+            await ReplaceProtectionOrReloadLockedStateAsync(reEncrypted, newConfig, ct);
 
             _state = new ProtectionState(newConfig, newEntropy);
             return skippedCount;
@@ -178,7 +184,7 @@ internal class CredentialProtector : ICredentialProtector
                 newEntropy,
                 ct
             );
-            await _dataService.ReplaceCredentialProtectionAsync(reEncrypted, newConfig, ct);
+            await ReplaceProtectionOrReloadLockedStateAsync(reEncrypted, newConfig, ct);
 
             _state = new ProtectionState(newConfig, newEntropy);
             return (true, skippedCount);
@@ -213,7 +219,7 @@ internal class CredentialProtector : ICredentialProtector
                 null,
                 ct
             );
-            await _dataService.ReplaceCredentialProtectionAsync(reEncrypted, null, ct);
+            await ReplaceProtectionOrReloadLockedStateAsync(reEncrypted, null, ct);
 
             _state = new ProtectionState(null, null);
             return (true, skippedCount);
@@ -229,12 +235,44 @@ internal class CredentialProtector : ICredentialProtector
         await _semaphore.WaitAsync(ct);
         try
         {
-            await _dataService.ReplaceCredentialProtectionAsync([], null, ct);
+            await ReplaceProtectionOrReloadLockedStateAsync([], null, ct);
             _state = new ProtectionState(null, null);
         }
         finally
         {
             _semaphore.Release();
+        }
+    }
+
+    private async Task ReplaceProtectionOrReloadLockedStateAsync(
+        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)> credentials,
+        CredentialProtectionConfig? config,
+        CancellationToken ct
+    )
+    {
+        try
+        {
+            await _dataService.ReplaceCredentialProtectionAsync(credentials, config, ct);
+        }
+        catch
+        {
+            try
+            {
+                var persisted = await _dataService.GetCredentialProtectionAsync(
+                    CancellationToken.None
+                );
+                _state = new ProtectionState(persisted, null);
+            }
+            catch (Exception reloadEx)
+            {
+                _logger.LogWarning(
+                    reloadEx,
+                    "Failed to reload credential protection state after a failed update; failing closed."
+                );
+                _state = null;
+            }
+
+            throw;
         }
     }
 

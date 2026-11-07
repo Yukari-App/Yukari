@@ -4,7 +4,6 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -84,6 +83,33 @@ public class CredentialProtectorTests
         unprotectAct.Should().Throw<InvalidOperationException>();
         await enableAct.Should().ThrowAsync<InvalidOperationException>();
         unlockResult.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task InitializeAsync_CalledTwiceAfterUnlock_DoesNotRelockOrReload()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var seed = CreateSut();
+        await seed.InitializeAsync(ct);
+        await seed.EnableEntropyAsync("MasterPass!2026", ct);
+
+        var sut = CreateSut();
+        await sut.InitializeAsync(ct);
+        (await sut.UnlockAsync("MasterPass!2026", ct)).Should().BeTrue();
+        sut.IsUnlocked.Should().BeTrue();
+        _dataServiceMock.Invocations.Clear();
+
+        // Act
+        await sut.InitializeAsync(ct);
+
+        // Assert
+        sut.UsesEntropy.Should().BeTrue();
+        sut.IsUnlocked.Should().BeTrue();
+        _dataServiceMock.Verify(
+            d => d.GetCredentialProtectionAsync(It.IsAny<CancellationToken>()),
+            Times.Never
+        );
     }
 
     [Fact]
@@ -290,7 +316,7 @@ public class CredentialProtectorTests
     }
 
     [Fact]
-    public async Task ReplaceCredentialProtectionFailure_LeavesStateAndEntropyUnchanged()
+    public async Task ReplaceCredentialProtectionFailure_ReloadsPersistedConfigAndFailsClosed()
     {
         // Arrange
         var ct = TestContext.Current.CancellationToken;
@@ -312,19 +338,56 @@ public class CredentialProtectorTests
             )
             .ThrowsAsync(new InvalidOperationException("Simulated database write failure"));
 
-        // Act
+        // Act — pre-commit failure: database still has originalConfig, state reloads as locked
         var changeAct = async () =>
             await sut.ChangeEntropyPasswordAsync("InitialPassword", "NewPassword", ct);
-        var disableAct = async () => await sut.DisableEntropyAsync("InitialPassword", ct);
 
         // Assert
         await changeAct.Should().ThrowAsync<InvalidOperationException>();
-        await disableAct.Should().ThrowAsync<InvalidOperationException>();
 
         sut.UsesEntropy.Should().BeTrue();
-        sut.IsUnlocked.Should().BeTrue();
+        sut.IsUnlocked.Should().BeFalse();
         _storedConfig.Should().BeSameAs(originalConfig);
+
+        // Re-unlocking with the persisted password works and decrypts existing ciphertext
+        (await sut.UnlockAsync("InitialPassword", ct))
+            .Should()
+            .BeTrue();
         sut.Unprotect(validCiphertext).Should().Be("my-secret");
+
+        // Simulate post-commit exception (database persisted new config, then threw on dispose/cancel)
+        _dataServiceMock
+            .Setup(d =>
+                d.ReplaceCredentialProtectionAsync(
+                    It.IsAny<
+                        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>
+                    >(),
+                    It.IsAny<CredentialProtectionConfig?>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
+            .Callback<
+                IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>,
+                CredentialProtectionConfig?,
+                CancellationToken
+            >(
+                (creds, config, _) =>
+                {
+                    _storedCredentials = [.. creds];
+                    _storedConfig = config;
+                }
+            )
+            .ThrowsAsync(new IOException("Post-commit connection close error"));
+
+        var postCommitAct = async () =>
+            await sut.ChangeEntropyPasswordAsync("InitialPassword", "CommittedNewPassword", ct);
+        await postCommitAct.Should().ThrowAsync<IOException>();
+
+        // State reloaded the newly committed config in locked state, so unlocking with CommittedNewPassword succeeds
+        sut.UsesEntropy.Should().BeTrue();
+        sut.IsUnlocked.Should().BeFalse();
+        (await sut.UnlockAsync("InitialPassword", ct)).Should().BeFalse();
+        (await sut.UnlockAsync("CommittedNewPassword", ct)).Should().BeTrue();
     }
 
     [Fact]
