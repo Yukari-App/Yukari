@@ -227,23 +227,6 @@
     </ContentDialog.Resources>
 
     <StackPanel Width="340" Spacing="8">
-        <InfoBar x:Uid="LockedCredentialsInfoBar"
-                 IsClosable="False"
-                 IsOpen="True"
-                 Severity="Warning"
-                 Visibility="{x:Bind ViewModel.IsCredentialsLocked, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-            <InfoBar.Content>
-                <Grid Margin="0,4,0,8" ColumnDefinitions="*, Auto" ColumnSpacing="4">
-                    <PasswordBox x:Uid="UnlockCredentialsInlinePasswordBox"
-                                 Grid.Column="0"
-                                 Password="{x:Bind ViewModel.UnlockPassword, Mode=TwoWay}" />
-                    <Button x:Uid="UnlockCredentialsBT"
-                            Grid.Column="1"
-                            Command="{x:Bind ViewModel.UnlockCredentialsCommand}" />
-                </Grid>
-            </InfoBar.Content>
-        </InfoBar>
-
         <InfoBar x:Uid="EmptyComicSourceSettingsInfoBar"
                  IsClosable="False"
                  IsOpen="True"
@@ -251,7 +234,29 @@
                  Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
         <ScrollViewer MaxHeight="380" Visibility="{x:Bind ViewModel.CanInteract, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-            <ItemsControl ItemTemplateSelector="{StaticResource SettingTemplateSelector}" ItemsSource="{x:Bind ViewModel.Settings, Mode=OneWay}" />
+            <StackPanel Spacing="8">
+                <InfoBar x:Uid="LockedCredentialsInfoBar"
+                         IsClosable="False"
+                         IsOpen="True"
+                         Severity="Warning"
+                         Visibility="{x:Bind ViewModel.IsCredentialsLocked, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                    <InfoBar.Content>
+                        <Grid Margin="0,4,8,8" ColumnDefinitions="*, Auto" ColumnSpacing="4">
+                            <PasswordBox x:Uid="UnlockCredentialsInlinePasswordBox" Grid.Column="0" Password="{x:Bind ViewModel.UnlockPassword, Mode=TwoWay}" />
+                            <Button x:Uid="UnlockCredentialsBT"
+                                    Grid.Column="1"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="0"
+                                    Command="{x:Bind ViewModel.UnlockCredentialsCommand}"
+                                    Content="{ui:FontIcon Glyph=&#xE785;}" />
+                        </Grid>
+                    </InfoBar.Content>
+                </InfoBar>
+
+                <ItemsControl ItemTemplateSelector="{StaticResource SettingTemplateSelector}" ItemsSource="{x:Bind ViewModel.Settings, Mode=OneWay}" />
+            </StackPanel>
+
         </ScrollViewer>
     </StackPanel>
 </ContentDialog>

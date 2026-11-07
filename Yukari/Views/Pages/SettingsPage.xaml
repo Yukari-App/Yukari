@@ -246,15 +246,16 @@
                     </toolkit:SettingsCard>
                     <toolkit:SettingsCard x:Uid="CredentialProtectionCard" HeaderIcon="{ui:FontIcon Glyph=&#xE72E;}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button x:Uid="EnableCredentialProtectionBT"
-                                    Command="{x:Bind ViewModel.EnableCredentialProtectionCommand}"
-                                    Visibility="{x:Bind ViewModel.IsCredentialProtectionDisabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                            <Button x:Uid="EnableCredentialProtectionBT" Command="{x:Bind ViewModel.EnableCredentialProtectionCommand}" Visibility="{x:Bind ViewModel.IsCredentialProtectionDisabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
                             <Button x:Uid="UnlockCredentialsBT"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="0"
                                     Command="{x:Bind ViewModel.UnlockCredentialsCommand}"
+                                    Content="{ui:FontIcon Glyph=&#xE785;}"
+                                    Style="{ThemeResource AccentButtonStyle}"
                                     Visibility="{x:Bind ViewModel.IsCredentialProtectionLocked, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
-                            <Button x:Uid="ChangeCredentialPasswordBT"
-                                    Command="{x:Bind ViewModel.ChangeCredentialPasswordCommand}"
-                                    Visibility="{x:Bind ViewModel.IsCredentialProtectionEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                            <Button x:Uid="ChangeCredentialPasswordBT" Command="{x:Bind ViewModel.ChangeCredentialPasswordCommand}" Visibility="{x:Bind ViewModel.IsCredentialProtectionEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
                             <Button x:Uid="DisableCredentialProtectionBT"
                                     Command="{x:Bind ViewModel.DisableCredentialProtectionCommand}"
                                     Foreground="{ThemeResource SystemFillColorCriticalBrush}"

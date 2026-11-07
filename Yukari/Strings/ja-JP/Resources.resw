@@ -1104,7 +1104,7 @@
   <data name="EnableCredentialProtectionBT.Content" xml:space="preserve">
     <value>有効化</value>
   </data>
-  <data name="UnlockCredentialsBT.Content" xml:space="preserve">
+  <data name="UnlockCredentialsBT.ToolTipService.ToolTip" xml:space="preserve">
     <value>ロック解除</value>
   </data>
   <data name="ChangeCredentialPasswordBT.Content" xml:space="preserve">
