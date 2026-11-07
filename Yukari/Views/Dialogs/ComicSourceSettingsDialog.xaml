@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentDialog x:Class="Yukari.Views.Dialogs.ComicSourceSettingsDialog"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:converters="using:Yukari.Helpers.UI.Converters"
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:local="using:Yukari.Views.Dialogs"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               xmlns:selectors="using:Yukari.Helpers.UI.Selectors"
+               xmlns:ui="using:CommunityToolkit.WinUI"
+               xmlns:vmc="using:Yukari.ViewModels.Components"
+               x:Uid="ComicSourceSettingsDialog"
+               DefaultButton="Primary"
+               IsPrimaryButtonEnabled="{x:Bind ViewModel.CanInteract, Mode=OneWay}"
+               IsSecondaryButtonEnabled="{x:Bind ViewModel.CanInteract, Mode=OneWay}"
+               PrimaryButtonCommand="{x:Bind ViewModel.SaveCommand}"
+               SecondaryButtonClick="ComicSourceSettingsDialog_SecondaryButtonClick"
+               Style="{StaticResource DefaultContentDialogStyle}"
+               mc:Ignorable="d">
+
+    <ContentDialog.Title>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <FontIcon FontSize="24" Glyph="&#xE713;" />
+            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{x:Bind ViewModel.DialogTitle, Mode=OneWay}" />
+        </StackPanel>
+    </ContentDialog.Title>
+
+    <ContentDialog.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <DataTemplate x:Key="ToggleSettingTemplate" x:DataType="vmc:ToggleSettingViewModel">
+            <Grid MinHeight="46"
+                  Margin="0,0,0,4"
+                  Padding="16,8,8,8"
+                  HorizontalAlignment="Stretch"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  ColumnDefinitions="*, 40"
+                  ColumnSpacing="8"
+                  CornerRadius="4">
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{x:Bind Header}" TextWrapping="Wrap" />
+                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Text="{x:Bind Description}"
+                               TextWrapping="Wrap"
+                               Visibility="{x:Bind HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1"
+                              VerticalAlignment="Center"
+                              IsOn="{x:Bind Value, Mode=TwoWay}"
+                              OffContent=""
+                              OnContent="" />
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TextSettingTemplate" x:DataType="vmc:TextSettingViewModel">
+            <StackPanel Margin="0,0,0,4"
+                        Padding="16,10"
+                        HorizontalAlignment="Stretch"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Spacing="6">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="{x:Bind Header}" TextWrapping="Wrap" />
+                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Text="{x:Bind Description}"
+                               TextWrapping="Wrap"
+                               Visibility="{x:Bind HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </StackPanel>
+                <TextBox PlaceholderText="{x:Bind Placeholder}" Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="PasswordSettingTemplate" x:DataType="vmc:PasswordSettingViewModel">
+            <StackPanel Margin="0,0,0,4"
+                        Padding="16,10"
+                        HorizontalAlignment="Stretch"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Spacing="6">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="{x:Bind Header}" TextWrapping="Wrap" />
+                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Text="{x:Bind Description}"
+                               TextWrapping="Wrap"
+                               Visibility="{x:Bind HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <TextBlock x:Uid="PasswordValueSetTXB"
+                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               TextWrapping="Wrap"
+                               Visibility="{x:Bind HasStoredValue, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                </StackPanel>
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="4">
+                    <PasswordBox Grid.Column="0"
+                                 Password="{x:Bind Value, Mode=TwoWay}"
+                                 PlaceholderText="{x:Bind Placeholder}" />
+                    <Button x:Uid="ClearPasswordBT"
+                            Grid.Column="1"
+                            Command="{x:Bind ClearCommand}" />
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="NumberSettingTemplate" x:DataType="vmc:NumberSettingViewModel">
+            <Grid MinHeight="46"
+                  Margin="0,0,0,4"
+                  Padding="16,8,8,8"
+                  HorizontalAlignment="Stretch"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  ColumnDefinitions="*, Auto"
+                  ColumnSpacing="8"
+                  CornerRadius="4">
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{x:Bind Header}" TextWrapping="Wrap" />
+                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Text="{x:Bind Description}"
+                               TextWrapping="Wrap"
+                               Visibility="{x:Bind HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </StackPanel>
+                <NumberBox Grid.Column="1"
+                           MinWidth="120"
+                           VerticalAlignment="Center"
+                           Maximum="{x:Bind Maximum}"
+                           Minimum="{x:Bind Minimum}"
+                           PlaceholderText="{x:Bind Placeholder}"
+                           SmallChange="{x:Bind Step}"
+                           SpinButtonPlacementMode="Inline"
+                           Value="{x:Bind Value, Mode=TwoWay}" />
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SingleChoiceSettingTemplate" x:DataType="vmc:SingleChoiceSettingViewModel">
+            <Grid MinHeight="46"
+                  Margin="0,0,0,4"
+                  Padding="16,8,6,8"
+                  HorizontalAlignment="Stretch"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  ColumnDefinitions="*, Auto"
+                  ColumnSpacing="8"
+                  CornerRadius="4">
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{x:Bind Header}" TextWrapping="Wrap" />
+                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Text="{x:Bind Description}"
+                               TextWrapping="Wrap"
+                               Visibility="{x:Bind HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </StackPanel>
+                <ComboBox Grid.Column="1"
+                          VerticalAlignment="Center"
+                          ItemsSource="{x:Bind Options}"
+                          SelectedItem="{x:Bind SelectedOption, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vmc:ToggleOptionViewModel">
+                            <TextBlock VerticalAlignment="Center" Text="{x:Bind DisplayName}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="MultipleChoiceSettingTemplate" x:DataType="vmc:MultipleChoiceSettingViewModel">
+            <Expander Margin="0,0,0,4"
+                      Padding="0"
+                      HorizontalAlignment="Stretch"
+                      HorizontalContentAlignment="Stretch">
+                <Expander.Header>
+                    <StackPanel Margin="0,6" Spacing="2">
+                        <TextBlock Text="{x:Bind Header}" TextWrapping="Wrap" />
+                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Text="{x:Bind Description}"
+                                   TextWrapping="Wrap"
+                                   Visibility="{x:Bind HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </StackPanel>
+                </Expander.Header>
+                <Expander.Content>
+                    <ItemsRepeater ItemsSource="{x:Bind Options}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="vmc:ToggleOptionViewModel">
+                                <Grid Padding="16,0,16,0"
+                                      HorizontalAlignment="Stretch"
+                                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                      BorderThickness="0,0,0,1"
+                                      ColumnDefinitions="*, 40">
+                                    <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="{x:Bind DisplayName}" />
+                                    <ToggleSwitch Grid.Column="1"
+                                                  VerticalAlignment="Center"
+                                                  IsOn="{x:Bind IsSelected, Mode=TwoWay}"
+                                                  OffContent=""
+                                                  OnContent="" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </Expander.Content>
+            </Expander>
+        </DataTemplate>
+
+        <selectors:SettingTemplateSelector x:Key="SettingTemplateSelector"
+                                           MultipleChoiceTemplate="{StaticResource MultipleChoiceSettingTemplate}"
+                                           NumberTemplate="{StaticResource NumberSettingTemplate}"
+                                           PasswordTemplate="{StaticResource PasswordSettingTemplate}"
+                                           SingleChoiceTemplate="{StaticResource SingleChoiceSettingTemplate}"
+                                           TextTemplate="{StaticResource TextSettingTemplate}"
+                                           ToggleTemplate="{StaticResource ToggleSettingTemplate}" />
+    </ContentDialog.Resources>
+
+    <Grid Width="340">
+        <InfoBar x:Uid="EmptyComicSourceSettingsInfoBar"
+                 IsClosable="False"
+                 IsOpen="True"
+                 Severity="Informational"
+                 Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+
+        <ScrollViewer MaxHeight="380" Visibility="{x:Bind ViewModel.CanInteract, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <ItemsControl ItemTemplateSelector="{StaticResource SettingTemplateSelector}" ItemsSource="{x:Bind ViewModel.Settings, Mode=OneWay}" />
+        </ScrollViewer>
+    </Grid>
+</ContentDialog>
