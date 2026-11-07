@@ -1095,4 +1095,109 @@
   <data name="ErrorSavingComicSourceSettings" xml:space="preserve">
     <value>コミックソース設定保存エラー</value>
   </data>
+  <data name="CredentialProtectionCard.Header" xml:space="preserve">
+    <value>資格情報の保護</value>
+  </data>
+  <data name="CredentialProtectionCard.Description" xml:space="preserve">
+    <value>保存されたコミックソースの資格情報を暗号化するためのマスターパスワードを設定します</value>
+  </data>
+  <data name="EnableCredentialProtectionBT.Content" xml:space="preserve">
+    <value>有効化</value>
+  </data>
+  <data name="UnlockCredentialsBT.Content" xml:space="preserve">
+    <value>ロック解除</value>
+  </data>
+  <data name="ChangeCredentialPasswordBT.Content" xml:space="preserve">
+    <value>パスワード変更</value>
+  </data>
+  <data name="DisableCredentialProtectionBT.Content" xml:space="preserve">
+    <value>無効化</value>
+  </data>
+  <data name="CredentialProtectionDialog.CloseButtonText" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="CredentialProtectionUnlockTitle" xml:space="preserve">
+    <value>資格情報のロック解除</value>
+  </data>
+  <data name="CredentialProtectionUnlockDescription" xml:space="preserve">
+    <value>このセッションでプラグインの資格情報のロックを解除するには、パスワードを入力してください。</value>
+  </data>
+  <data name="CredentialProtectionUnlockPrimaryButton" xml:space="preserve">
+    <value>ロック解除</value>
+  </data>
+  <data name="CredentialProtectionEnableTitle" xml:space="preserve">
+    <value>資格情報の保護を有効化</value>
+  </data>
+  <data name="CredentialProtectionEnableDescription" xml:space="preserve">
+    <value>保存されたすべてのプラグイン資格情報を保護するマスターパスワードを設定します。セッションごとに1回入力が求められます。</value>
+  </data>
+  <data name="CredentialProtectionEnablePrimaryButton" xml:space="preserve">
+    <value>有効化</value>
+  </data>
+  <data name="CredentialProtectionChangeTitle" xml:space="preserve">
+    <value>資格情報パスワードの変更</value>
+  </data>
+  <data name="CredentialProtectionChangeDescription" xml:space="preserve">
+    <value>現在のパスワードと新しいパスワードを入力して、保存されたすべての資格情報を再暗号化します。</value>
+  </data>
+  <data name="CredentialProtectionChangePrimaryButton" xml:space="preserve">
+    <value>変更</value>
+  </data>
+  <data name="CredentialProtectionDisableTitle" xml:space="preserve">
+    <value>資格情報の保護を無効化</value>
+  </data>
+  <data name="CredentialProtectionDisableDescription" xml:space="preserve">
+    <value>現在のパスワードを入力してマスターパスワードを解除し、Windowsアカウントのみで資格情報を保護します。</value>
+  </data>
+  <data name="CredentialProtectionDisablePrimaryButton" xml:space="preserve">
+    <value>無効化</value>
+  </data>
+  <data name="CurrentCredentialPasswordBox.Header" xml:space="preserve">
+    <value>現在のパスワード</value>
+  </data>
+  <data name="CurrentCredentialPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>現在のパスワードを入力</value>
+  </data>
+  <data name="NewCredentialPasswordBox.Header" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="NewCredentialPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>新しいパスワードを入力</value>
+  </data>
+  <data name="ConfirmCredentialPasswordBox.Header" xml:space="preserve">
+    <value>パスワードの確認</value>
+  </data>
+  <data name="ConfirmCredentialPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>新しいパスワードを再入力</value>
+  </data>
+  <data name="LockedCredentialsInfoBar.Title" xml:space="preserve">
+    <value>資格情報がロックされています</value>
+  </data>
+  <data name="LockedCredentialsInfoBar.Message" xml:space="preserve">
+    <value>このソースのパスワード設定を表示または編集するには、資格情報のロックを解除してください。</value>
+  </data>
+  <data name="UnlockCredentialsInlinePasswordBox.PlaceholderText" xml:space="preserve">
+    <value>マスターパスワード</value>
+  </data>
+  <data name="ErrorIncorrectCredentialPassword" xml:space="preserve">
+    <value>パスワードが正しくありません。もう一度お試しください。</value>
+  </data>
+  <data name="ErrorCredentialPasswordEmpty" xml:space="preserve">
+    <value>パスワードを入力してください。</value>
+  </data>
+  <data name="ErrorCredentialPasswordMismatch" xml:space="preserve">
+    <value>パスワードが一致しません。</value>
+  </data>
+  <data name="SuccessCredentialsUnlocked" xml:space="preserve">
+    <value>このセッションの資格情報のロックを解除しました。</value>
+  </data>
+  <data name="SuccessCredentialProtectionEnabled" xml:space="preserve">
+    <value>資格情報の保護を有効にしました。</value>
+  </data>
+  <data name="SuccessCredentialPasswordChanged" xml:space="preserve">
+    <value>資格情報パスワードを更新しました。</value>
+  </data>
+  <data name="SuccessCredentialProtectionDisabled" xml:space="preserve">
+    <value>資格情報の保護を無効にしました。</value>
+  </data>
 </root>

@@ -1095,4 +1095,109 @@
   <data name="ErrorSavingComicSourceSettings" xml:space="preserve">
     <value>Error Saving Comic Source Settings</value>
   </data>
+  <data name="CredentialProtectionCard.Header" xml:space="preserve">
+    <value>Credential Protection</value>
+  </data>
+  <data name="CredentialProtectionCard.Description" xml:space="preserve">
+    <value>Add an optional master password to encrypt stored comic source credentials</value>
+  </data>
+  <data name="EnableCredentialProtectionBT.Content" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="UnlockCredentialsBT.Content" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="ChangeCredentialPasswordBT.Content" xml:space="preserve">
+    <value>Change Password</value>
+  </data>
+  <data name="DisableCredentialProtectionBT.Content" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="CredentialProtectionDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CredentialProtectionUnlockTitle" xml:space="preserve">
+    <value>Unlock Credentials</value>
+  </data>
+  <data name="CredentialProtectionUnlockDescription" xml:space="preserve">
+    <value>Enter your credential password to unlock stored plugin credentials for this session.</value>
+  </data>
+  <data name="CredentialProtectionUnlockPrimaryButton" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="CredentialProtectionEnableTitle" xml:space="preserve">
+    <value>Enable Credential Protection</value>
+  </data>
+  <data name="CredentialProtectionEnableDescription" xml:space="preserve">
+    <value>Set a master password to protect all stored plugin credentials. You will be asked for this password once per session.</value>
+  </data>
+  <data name="CredentialProtectionEnablePrimaryButton" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="CredentialProtectionChangeTitle" xml:space="preserve">
+    <value>Change Credential Password</value>
+  </data>
+  <data name="CredentialProtectionChangeDescription" xml:space="preserve">
+    <value>Enter your current password and choose a new password to re-encrypt all stored credentials.</value>
+  </data>
+  <data name="CredentialProtectionChangePrimaryButton" xml:space="preserve">
+    <value>Change</value>
+  </data>
+  <data name="CredentialProtectionDisableTitle" xml:space="preserve">
+    <value>Disable Credential Protection</value>
+  </data>
+  <data name="CredentialProtectionDisableDescription" xml:space="preserve">
+    <value>Enter your current password to remove the master password and keep credentials protected only by your Windows user account.</value>
+  </data>
+  <data name="CredentialProtectionDisablePrimaryButton" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="CurrentCredentialPasswordBox.Header" xml:space="preserve">
+    <value>Current Password</value>
+  </data>
+  <data name="CurrentCredentialPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Enter current password</value>
+  </data>
+  <data name="NewCredentialPasswordBox.Header" xml:space="preserve">
+    <value>New Password</value>
+  </data>
+  <data name="NewCredentialPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Enter new password</value>
+  </data>
+  <data name="ConfirmCredentialPasswordBox.Header" xml:space="preserve">
+    <value>Confirm Password</value>
+  </data>
+  <data name="ConfirmCredentialPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Re-enter new password</value>
+  </data>
+  <data name="LockedCredentialsInfoBar.Title" xml:space="preserve">
+    <value>Credentials are locked</value>
+  </data>
+  <data name="LockedCredentialsInfoBar.Message" xml:space="preserve">
+    <value>Unlock your credentials to view or edit password settings for this source.</value>
+  </data>
+  <data name="UnlockCredentialsInlinePasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Master password</value>
+  </data>
+  <data name="ErrorIncorrectCredentialPassword" xml:space="preserve">
+    <value>Incorrect password. Please try again.</value>
+  </data>
+  <data name="ErrorCredentialPasswordEmpty" xml:space="preserve">
+    <value>Password cannot be empty.</value>
+  </data>
+  <data name="ErrorCredentialPasswordMismatch" xml:space="preserve">
+    <value>Passwords do not match.</value>
+  </data>
+  <data name="SuccessCredentialsUnlocked" xml:space="preserve">
+    <value>Credentials unlocked for this session.</value>
+  </data>
+  <data name="SuccessCredentialProtectionEnabled" xml:space="preserve">
+    <value>Credential protection enabled successfully.</value>
+  </data>
+  <data name="SuccessCredentialPasswordChanged" xml:space="preserve">
+    <value>Credential password updated successfully.</value>
+  </data>
+  <data name="SuccessCredentialProtectionDisabled" xml:space="preserve">
+    <value>Credential protection disabled.</value>
+  </data>
 </root>

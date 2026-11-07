@@ -1095,4 +1095,109 @@
   <data name="ErrorSavingComicSourceSettings" xml:space="preserve">
     <value>Error al Guardar la Configuración de la Fuente</value>
   </data>
+  <data name="CredentialProtectionCard.Header" xml:space="preserve">
+    <value>Protección de Credenciales</value>
+  </data>
+  <data name="CredentialProtectionCard.Description" xml:space="preserve">
+    <value>Añade una contraseña maestra opcional para cifrar las credenciales guardadas de las fuentes</value>
+  </data>
+  <data name="EnableCredentialProtectionBT.Content" xml:space="preserve">
+    <value>Activar</value>
+  </data>
+  <data name="UnlockCredentialsBT.Content" xml:space="preserve">
+    <value>Desbloquear</value>
+  </data>
+  <data name="ChangeCredentialPasswordBT.Content" xml:space="preserve">
+    <value>Cambiar Contraseña</value>
+  </data>
+  <data name="DisableCredentialProtectionBT.Content" xml:space="preserve">
+    <value>Desactivar</value>
+  </data>
+  <data name="CredentialProtectionDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="CredentialProtectionUnlockTitle" xml:space="preserve">
+    <value>Desbloquear Credenciales</value>
+  </data>
+  <data name="CredentialProtectionUnlockDescription" xml:space="preserve">
+    <value>Introduce tu contraseña de credenciales para desbloquear las credenciales de los plugins en esta sesión.</value>
+  </data>
+  <data name="CredentialProtectionUnlockPrimaryButton" xml:space="preserve">
+    <value>Desbloquear</value>
+  </data>
+  <data name="CredentialProtectionEnableTitle" xml:space="preserve">
+    <value>Activar Protección de Credenciales</value>
+  </data>
+  <data name="CredentialProtectionEnableDescription" xml:space="preserve">
+    <value>Establece una contraseña maestra para proteger todas las credenciales guardadas. Se te pedirá una vez por sesión.</value>
+  </data>
+  <data name="CredentialProtectionEnablePrimaryButton" xml:space="preserve">
+    <value>Activar</value>
+  </data>
+  <data name="CredentialProtectionChangeTitle" xml:space="preserve">
+    <value>Cambiar Contraseña de Credenciales</value>
+  </data>
+  <data name="CredentialProtectionChangeDescription" xml:space="preserve">
+    <value>Introduce tu contraseña actual y elige una nueva contraseña para volver a cifrar todas las credenciales guardadas.</value>
+  </data>
+  <data name="CredentialProtectionChangePrimaryButton" xml:space="preserve">
+    <value>Cambiar</value>
+  </data>
+  <data name="CredentialProtectionDisableTitle" xml:space="preserve">
+    <value>Desactivar Protección de Credenciales</value>
+  </data>
+  <data name="CredentialProtectionDisableDescription" xml:space="preserve">
+    <value>Introduce tu contraseña actual para eliminar la contraseña maestra y mantener las credenciales protegidas solo por tu cuenta de Windows.</value>
+  </data>
+  <data name="CredentialProtectionDisablePrimaryButton" xml:space="preserve">
+    <value>Desactivar</value>
+  </data>
+  <data name="CurrentCredentialPasswordBox.Header" xml:space="preserve">
+    <value>Contraseña Actual</value>
+  </data>
+  <data name="CurrentCredentialPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Introduce la contraseña actual</value>
+  </data>
+  <data name="NewCredentialPasswordBox.Header" xml:space="preserve">
+    <value>Nueva Contraseña</value>
+  </data>
+  <data name="NewCredentialPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Introduce la nueva contraseña</value>
+  </data>
+  <data name="ConfirmCredentialPasswordBox.Header" xml:space="preserve">
+    <value>Confirmar Contraseña</value>
+  </data>
+  <data name="ConfirmCredentialPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Vuelve a introducir la nueva contraseña</value>
+  </data>
+  <data name="LockedCredentialsInfoBar.Title" xml:space="preserve">
+    <value>Las credenciales están bloqueadas</value>
+  </data>
+  <data name="LockedCredentialsInfoBar.Message" xml:space="preserve">
+    <value>Desbloquea tus credenciales para ver o editar las opciones de contraseña de esta fuente.</value>
+  </data>
+  <data name="UnlockCredentialsInlinePasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Contraseña maestra</value>
+  </data>
+  <data name="ErrorIncorrectCredentialPassword" xml:space="preserve">
+    <value>Contraseña incorrecta. Inténtalo de nuevo.</value>
+  </data>
+  <data name="ErrorCredentialPasswordEmpty" xml:space="preserve">
+    <value>La contraseña no puede estar vacía.</value>
+  </data>
+  <data name="ErrorCredentialPasswordMismatch" xml:space="preserve">
+    <value>Las contraseñas no coinciden.</value>
+  </data>
+  <data name="SuccessCredentialsUnlocked" xml:space="preserve">
+    <value>Credenciales desbloqueadas para esta sesión.</value>
+  </data>
+  <data name="SuccessCredentialProtectionEnabled" xml:space="preserve">
+    <value>Protección de credenciales activada correctamente.</value>
+  </data>
+  <data name="SuccessCredentialPasswordChanged" xml:space="preserve">
+    <value>Contraseña de credenciales actualizada correctamente.</value>
+  </data>
+  <data name="SuccessCredentialProtectionDisabled" xml:space="preserve">
+    <value>Protección de credenciales desactivada.</value>
+  </data>
 </root>
