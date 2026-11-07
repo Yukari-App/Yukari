@@ -1200,4 +1200,25 @@
   <data name="SuccessCredentialProtectionDisabled" xml:space="preserve">
     <value>Credential protection disabled.</value>
   </data>
+  <data name="CredentialProtectionResetTitle" xml:space="preserve">
+    <value>Reset Credential Protection</value>
+  </data>
+  <data name="CredentialProtectionResetDescription" xml:space="preserve">
+    <value>Resetting credential protection removes the master password and deletes all stored plugin credentials.</value>
+  </data>
+  <data name="CredentialProtectionResetPrimaryButton" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="ForgotCredentialPasswordHLB.Content" xml:space="preserve">
+    <value>Forgot password? Reset protection</value>
+  </data>
+  <data name="ResetCredentialProtectionWarningInfoBar.Title" xml:space="preserve">
+    <value>Saved credentials will be deleted</value>
+  </data>
+  <data name="ResetCredentialProtectionWarningInfoBar.Message" xml:space="preserve">
+    <value>All stored plugin passwords and tokens will be permanently removed. You will need to enter them again in each source.</value>
+  </data>
+  <data name="SuccessCredentialProtectionReset" xml:space="preserve">
+    <value>Credential protection reset and stored credentials cleared.</value>
+  </data>
 </root>

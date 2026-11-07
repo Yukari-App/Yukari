@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Yukari.Enums;
 using Yukari.Services.Security;
 using Yukari.Services.Sources;
@@ -20,6 +21,8 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(PrimaryButtonText))]
     [NotifyPropertyChangedFor(nameof(ShowCurrentPassword))]
     [NotifyPropertyChangedFor(nameof(ShowNewPassword))]
+    [NotifyPropertyChangedFor(nameof(CanSwitchToReset))]
+    [NotifyPropertyChangedFor(nameof(IsResetMode))]
     public partial CredentialProtectionMode Mode { get; set; }
 
     [ObservableProperty]
@@ -46,6 +49,10 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
     public bool ShowNewPassword =>
         Mode is CredentialProtectionMode.Enable or CredentialProtectionMode.ChangePassword;
 
+    public bool CanSwitchToReset => ShowCurrentPassword;
+
+    public bool IsResetMode => Mode == CredentialProtectionMode.Reset;
+
     public string DialogTitle =>
         _localizationService.GetString(
             Mode switch
@@ -54,6 +61,7 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
                 CredentialProtectionMode.Enable => "CredentialProtectionEnableTitle",
                 CredentialProtectionMode.ChangePassword => "CredentialProtectionChangeTitle",
                 CredentialProtectionMode.Disable => "CredentialProtectionDisableTitle",
+                CredentialProtectionMode.Reset => "CredentialProtectionResetTitle",
                 _ => "CredentialProtectionUnlockTitle",
             }
         );
@@ -66,6 +74,7 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
                 CredentialProtectionMode.Enable => "CredentialProtectionEnableDescription",
                 CredentialProtectionMode.ChangePassword => "CredentialProtectionChangeDescription",
                 CredentialProtectionMode.Disable => "CredentialProtectionDisableDescription",
+                CredentialProtectionMode.Reset => "CredentialProtectionResetDescription",
                 _ => "CredentialProtectionUnlockDescription",
             }
         );
@@ -79,6 +88,7 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
                 CredentialProtectionMode.ChangePassword =>
                     "CredentialProtectionChangePrimaryButton",
                 CredentialProtectionMode.Disable => "CredentialProtectionDisablePrimaryButton",
+                CredentialProtectionMode.Reset => "CredentialProtectionResetPrimaryButton",
                 _ => "CredentialProtectionUnlockPrimaryButton",
             }
         );
@@ -102,6 +112,13 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
         CurrentPassword = string.Empty;
         NewPassword = string.Empty;
         ConfirmPassword = string.Empty;
+        ErrorMessage = null;
+    }
+
+    [RelayCommand]
+    private void SwitchToResetMode()
+    {
+        Mode = CredentialProtectionMode.Reset;
         ErrorMessage = null;
     }
 
@@ -198,6 +215,16 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
 
                 _notificationService.ShowSuccess(
                     _localizationService.GetString("SuccessCredentialProtectionDisabled")
+                );
+                return true;
+            }
+
+            case CredentialProtectionMode.Reset:
+            {
+                await _credentialProtector.ResetAsync();
+                await _sourceService.ApplySettingsToAllLoadedSourcesAsync();
+                _notificationService.ShowSuccess(
+                    _localizationService.GetString("SuccessCredentialProtectionReset")
                 );
                 return true;
             }

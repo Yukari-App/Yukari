@@ -1200,4 +1200,25 @@
   <data name="SuccessCredentialProtectionDisabled" xml:space="preserve">
     <value>Proteção de credenciais desativada.</value>
   </data>
+  <data name="CredentialProtectionResetTitle" xml:space="preserve">
+    <value>Redefinir Proteção de Credenciais</value>
+  </data>
+  <data name="CredentialProtectionResetDescription" xml:space="preserve">
+    <value>Redefinir a proteção de credenciais remove a senha mestra e apaga todas as credenciais de plugins salvas.</value>
+  </data>
+  <data name="CredentialProtectionResetPrimaryButton" xml:space="preserve">
+    <value>Redefinir</value>
+  </data>
+  <data name="ForgotCredentialPasswordHLB.Content" xml:space="preserve">
+    <value>Esqueceu a senha? Redefinir proteção</value>
+  </data>
+  <data name="ResetCredentialProtectionWarningInfoBar.Title" xml:space="preserve">
+    <value>As credenciais salvas serão apagadas</value>
+  </data>
+  <data name="ResetCredentialProtectionWarningInfoBar.Message" xml:space="preserve">
+    <value>Todas as senhas e tokens de plugins salvos serão removidos permanentemente. Você precisará inseri-los novamente em cada fonte.</value>
+  </data>
+  <data name="SuccessCredentialProtectionReset" xml:space="preserve">
+    <value>Proteção de credenciais redefinida e credenciais salvas apagadas.</value>
+  </data>
 </root>

@@ -1200,4 +1200,25 @@
   <data name="SuccessCredentialProtectionDisabled" xml:space="preserve">
     <value>Protección de credenciales desactivada.</value>
   </data>
+  <data name="CredentialProtectionResetTitle" xml:space="preserve">
+    <value>Restablecer Protección de Credenciales</value>
+  </data>
+  <data name="CredentialProtectionResetDescription" xml:space="preserve">
+    <value>Restablecer la protección de credenciales elimina la contraseña maestra y borra todas las credenciales guardadas de los plugins.</value>
+  </data>
+  <data name="CredentialProtectionResetPrimaryButton" xml:space="preserve">
+    <value>Restablecer</value>
+  </data>
+  <data name="ForgotCredentialPasswordHLB.Content" xml:space="preserve">
+    <value>¿Olvidaste la contraseña? Restablecer protección</value>
+  </data>
+  <data name="ResetCredentialProtectionWarningInfoBar.Title" xml:space="preserve">
+    <value>Se eliminarán las credenciales guardadas</value>
+  </data>
+  <data name="ResetCredentialProtectionWarningInfoBar.Message" xml:space="preserve">
+    <value>Todas las contraseñas y tokens de plugins guardados se eliminarán permanentemente. Deberás volver a introducirlos en cada fuente.</value>
+  </data>
+  <data name="SuccessCredentialProtectionReset" xml:space="preserve">
+    <value>Protección de credenciales restablecida y credenciales guardadas eliminadas.</value>
+  </data>
 </root>

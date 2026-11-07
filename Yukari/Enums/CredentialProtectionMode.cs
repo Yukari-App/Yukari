@@ -6,4 +6,5 @@ public enum CredentialProtectionMode
     Enable,
     ChangePassword,
     Disable,
+    Reset,
 }

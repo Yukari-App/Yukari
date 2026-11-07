@@ -125,4 +125,44 @@ public class CredentialProtectionDialogViewModelTests
             Times.Once
         );
     }
+
+    [Fact]
+    public async Task SwitchToResetMode_ThenSubmitAsync_ResetsProtectionAndReAppliesSettings()
+    {
+        // Arrange
+        _sut.Initialize(CredentialProtectionMode.Unlock);
+        _sut.CurrentPassword = "wrong";
+        _credentialProtectorMock.Setup(c => c.TryUnlock("wrong")).Returns(false);
+        await _sut.SubmitAsync();
+        _sut.HasError.Should().BeTrue();
+        _sut.CanSwitchToReset.Should().BeTrue();
+
+        // Act
+        _sut.SwitchToResetModeCommand.Execute(null);
+
+        // Assert mode transition
+        _sut.Mode.Should().Be(CredentialProtectionMode.Reset);
+        _sut.IsResetMode.Should().BeTrue();
+        _sut.CanSwitchToReset.Should().BeFalse();
+        _sut.ShowCurrentPassword.Should().BeFalse();
+        _sut.HasError.Should().BeFalse();
+
+        // Act submit reset
+        var result = await _sut.SubmitAsync();
+
+        // Assert reset execution
+        result.Should().BeTrue();
+        _credentialProtectorMock.Verify(
+            c => c.ResetAsync(It.IsAny<CancellationToken>()),
+            Times.Once
+        );
+        _sourceServiceMock.Verify(
+            s => s.ApplySettingsToAllLoadedSourcesAsync(It.IsAny<CancellationToken>()),
+            Times.Once
+        );
+        _notificationServiceMock.Verify(
+            n => n.ShowSuccess("SuccessCredentialProtectionReset", It.IsAny<string>()),
+            Times.Once
+        );
+    }
 }

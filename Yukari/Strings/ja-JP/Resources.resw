@@ -1200,4 +1200,25 @@
   <data name="SuccessCredentialProtectionDisabled" xml:space="preserve">
     <value>資格情報の保護を無効にしました。</value>
   </data>
+  <data name="CredentialProtectionResetTitle" xml:space="preserve">
+    <value>資格情報の保護をリセット</value>
+  </data>
+  <data name="CredentialProtectionResetDescription" xml:space="preserve">
+    <value>資格情報の保護をリセットすると、マスターパスワードが解除され、保存されているすべてのプラグイン資格情報が削除されます。</value>
+  </data>
+  <data name="CredentialProtectionResetPrimaryButton" xml:space="preserve">
+    <value>リセット</value>
+  </data>
+  <data name="ForgotCredentialPasswordHLB.Content" xml:space="preserve">
+    <value>パスワードをお忘れですか？保護をリセット</value>
+  </data>
+  <data name="ResetCredentialProtectionWarningInfoBar.Title" xml:space="preserve">
+    <value>保存された資格情報は削除されます</value>
+  </data>
+  <data name="ResetCredentialProtectionWarningInfoBar.Message" xml:space="preserve">
+    <value>保存されているすべてのプラグインのパスワードとトークンが完全に削除されます。各ソースで再入力する必要があります。</value>
+  </data>
+  <data name="SuccessCredentialProtectionReset" xml:space="preserve">
+    <value>資格情報の保護をリセットし、保存された資格情報を消去しました。</value>
+  </data>
 </root>
