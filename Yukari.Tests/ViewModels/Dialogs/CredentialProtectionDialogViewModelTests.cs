@@ -29,6 +29,9 @@ public class CredentialProtectionDialogViewModelTests
         _localizationServiceMock
             .Setup(l => l.GetString(It.IsAny<string>()))
             .Returns<string>(k => k);
+        _localizationServiceMock
+            .Setup(l => l.GetFormattedString(It.IsAny<string>(), It.IsAny<object[]>()))
+            .Returns<string, object[]>((k, args) => $"{k}:{string.Join(",", args)}");
 
         _sut = new CredentialProtectionDialogViewModel(
             _credentialProtectorMock.Object,
@@ -44,7 +47,9 @@ public class CredentialProtectionDialogViewModelTests
         // Arrange
         _sut.Initialize(CredentialProtectionMode.Unlock);
         _sut.CurrentPassword = "secret";
-        _credentialProtectorMock.Setup(c => c.TryUnlock("secret")).Returns(true);
+        _credentialProtectorMock
+            .Setup(c => c.UnlockAsync("secret", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         // Act
         var result = await _sut.SubmitAsync();
@@ -68,7 +73,9 @@ public class CredentialProtectionDialogViewModelTests
         // Arrange
         _sut.Initialize(CredentialProtectionMode.Unlock);
         _sut.CurrentPassword = "wrong";
-        _credentialProtectorMock.Setup(c => c.TryUnlock("wrong")).Returns(false);
+        _credentialProtectorMock
+            .Setup(c => c.UnlockAsync("wrong", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         // Act
         var result = await _sut.SubmitAsync();
@@ -104,12 +111,15 @@ public class CredentialProtectionDialogViewModelTests
     }
 
     [Fact]
-    public async Task SubmitAsync_WhenEnableSucceeds_CallsEnableEntropyAsync()
+    public async Task SubmitAsync_WhenEnableSucceedsWithSkippedCredentials_ShowsSuccessAndWarning()
     {
         // Arrange
         _sut.Initialize(CredentialProtectionMode.Enable);
         _sut.NewPassword = "pass1";
         _sut.ConfirmPassword = "pass1";
+        _credentialProtectorMock
+            .Setup(c => c.EnableEntropyAsync("pass1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(2);
 
         // Act
         var result = await _sut.SubmitAsync();
@@ -124,6 +134,10 @@ public class CredentialProtectionDialogViewModelTests
             n => n.ShowSuccess("SuccessCredentialProtectionEnabled", It.IsAny<string>()),
             Times.Once
         );
+        _notificationServiceMock.Verify(
+            n => n.ShowWarning("WarningSkippedUndecryptableCredentials:2", It.IsAny<string>()),
+            Times.Once
+        );
     }
 
     [Fact]
@@ -132,7 +146,9 @@ public class CredentialProtectionDialogViewModelTests
         // Arrange
         _sut.Initialize(CredentialProtectionMode.Unlock);
         _sut.CurrentPassword = "wrong";
-        _credentialProtectorMock.Setup(c => c.TryUnlock("wrong")).Returns(false);
+        _credentialProtectorMock
+            .Setup(c => c.UnlockAsync("wrong", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         await _sut.SubmitAsync();
         _sut.HasError.Should().BeTrue();
         _sut.CanSwitchToReset.Should().BeTrue();

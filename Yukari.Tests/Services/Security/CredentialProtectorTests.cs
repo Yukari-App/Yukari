@@ -65,10 +65,34 @@ public class CredentialProtectorTests
         new(_dataServiceMock.Object, NullLogger<CredentialProtector>.Instance);
 
     [Fact]
-    public void ProtectAndUnprotect_WithoutEntropy_RoundTripsPlaintext()
+    public async Task ProtectAndUnprotect_BeforeInitializeAsync_ThrowsInvalidOperationException()
+    {
+        // Arrange — uninitialized instance fails closed
+        var ct = TestContext.Current.CancellationToken;
+        var sut = CreateSut();
+
+        // Act
+        var protectAct = () => sut.Protect("secret");
+        var unprotectAct = () => sut.Unprotect([1, 2, 3]);
+        var enableAct = async () => await sut.EnableEntropyAsync("password", ct);
+        var unlockResult = await sut.UnlockAsync("password", ct);
+
+        // Assert
+        sut.UsesEntropy.Should().BeFalse();
+        sut.IsUnlocked.Should().BeFalse();
+        protectAct.Should().Throw<InvalidOperationException>();
+        unprotectAct.Should().Throw<InvalidOperationException>();
+        await enableAct.Should().ThrowAsync<InvalidOperationException>();
+        unlockResult.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ProtectAndUnprotect_WithoutEntropy_RoundTripsPlaintext()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var sut = CreateSut();
+        await sut.InitializeAsync(ct);
         const string secret = "mangadex-personal-token-123";
 
         // Act
@@ -88,6 +112,7 @@ public class CredentialProtectorTests
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var sut = CreateSut();
+        await sut.InitializeAsync(ct);
         await sut.EnableEntropyAsync("CorrectHorseBatteryStaple", ct);
         var ciphertext = sut.Protect("secret-token-xyz");
 
@@ -99,6 +124,7 @@ public class CredentialProtectorTests
             otherDataService.Object,
             NullLogger<CredentialProtector>.Instance
         );
+        await wrongEntropyProtector.InitializeAsync(ct);
         await wrongEntropyProtector.EnableEntropyAsync("DifferentPassword", ct);
 
         // Act
@@ -111,10 +137,12 @@ public class CredentialProtectorTests
     }
 
     [Fact]
-    public void Unprotect_WhenCiphertextIsTampered_ThrowsCryptographicException()
+    public async Task Unprotect_WhenCiphertextIsTampered_ThrowsCryptographicException()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var sut = CreateSut();
+        await sut.InitializeAsync(ct);
         var ciphertext = sut.Protect("sensitive-api-key");
         ciphertext[^1] ^= 0xFF;
 
@@ -126,11 +154,12 @@ public class CredentialProtectorTests
     }
 
     [Fact]
-    public async Task TryUnlock_VerifiesCanaryAndUnlocksOnlyOnCorrectPassword()
+    public async Task UnlockAsync_VerifiesCanaryAndUnlocksOnlyOnCorrectPassword()
     {
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var initialProtector = CreateSut();
+        await initialProtector.InitializeAsync(ct);
         await initialProtector.EnableEntropyAsync("MasterPass!2026", ct);
 
         var newSessionProtector = CreateSut();
@@ -140,10 +169,10 @@ public class CredentialProtectorTests
         newSessionProtector.UsesEntropy.Should().BeTrue();
         newSessionProtector.IsUnlocked.Should().BeFalse();
 
-        newSessionProtector.TryUnlock("WrongPass").Should().BeFalse();
+        (await newSessionProtector.UnlockAsync("WrongPass", ct)).Should().BeFalse();
         newSessionProtector.IsUnlocked.Should().BeFalse();
 
-        newSessionProtector.TryUnlock("MasterPass!2026").Should().BeTrue();
+        (await newSessionProtector.UnlockAsync("MasterPass!2026", ct)).Should().BeTrue();
         newSessionProtector.IsUnlocked.Should().BeTrue();
     }
 
@@ -153,6 +182,7 @@ public class CredentialProtectorTests
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var sut = CreateSut();
+        await sut.InitializeAsync(ct);
         _storedCredentials =
         [
             ("MangaDex", "api_token", sut.Protect("token-alpha")),
@@ -160,9 +190,10 @@ public class CredentialProtectorTests
         ];
 
         // Act 1: Enable entropy password
-        await sut.EnableEntropyAsync("FirstPassword123", ct);
+        var skippedOnEnable = await sut.EnableEntropyAsync("FirstPassword123", ct);
 
         // Assert 1: All credentials re-encrypted with FirstPassword123 and 600,000 PBKDF2 iterations
+        skippedOnEnable.Should().Be(0);
         sut.UsesEntropy.Should().BeTrue();
         sut.IsUnlocked.Should().BeTrue();
         _storedConfig.Should().NotBeNull();
@@ -172,24 +203,29 @@ public class CredentialProtectorTests
         sut.Unprotect(_storedCredentials[1].Ciphertext).Should().Be("token-beta");
 
         // Act 2: Change entropy password
-        var changed = await sut.ChangeEntropyPasswordAsync(
+        var (changed, skippedOnChange) = await sut.ChangeEntropyPasswordAsync(
             "FirstPassword123",
             "SecondPassword456",
             ct
         );
         changed.Should().BeTrue();
+        skippedOnChange.Should().Be(0);
 
         // Assert 2: Re-encrypted with SecondPassword456 and unlockable in a fresh session
         var freshSession = CreateSut();
         await freshSession.InitializeAsync(ct);
-        freshSession.TryUnlock("FirstPassword123").Should().BeFalse();
-        freshSession.TryUnlock("SecondPassword456").Should().BeTrue();
+        (await freshSession.UnlockAsync("FirstPassword123", ct)).Should().BeFalse();
+        (await freshSession.UnlockAsync("SecondPassword456", ct)).Should().BeTrue();
         freshSession.Unprotect(_storedCredentials[0].Ciphertext).Should().Be("token-alpha");
         freshSession.Unprotect(_storedCredentials[1].Ciphertext).Should().Be("token-beta");
 
         // Act 3: Disable entropy password
-        var disabled = await freshSession.DisableEntropyAsync("SecondPassword456", ct);
+        var (disabled, skippedOnDisable) = await freshSession.DisableEntropyAsync(
+            "SecondPassword456",
+            ct
+        );
         disabled.Should().BeTrue();
+        skippedOnDisable.Should().Be(0);
 
         // Assert 3: Back to DPAPI without custom entropy, all values intact, config cleared
         freshSession.UsesEntropy.Should().BeFalse();
@@ -205,6 +241,7 @@ public class CredentialProtectorTests
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var sut = CreateSut();
+        await sut.InitializeAsync(ct);
         await sut.EnableEntropyAsync("FirstPassword123", ct);
 
         // Act
@@ -220,12 +257,17 @@ public class CredentialProtectorTests
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var sut = CreateSut();
+        await sut.InitializeAsync(ct);
         await sut.EnableEntropyAsync("CorrectPassword", ct);
         _dataServiceMock.Invocations.Clear();
 
         // Act
-        var changeResult = await sut.ChangeEntropyPasswordAsync("WrongPassword", "NewPassword", ct);
-        var disableResult = await sut.DisableEntropyAsync("WrongPassword", ct);
+        var (changeResult, _) = await sut.ChangeEntropyPasswordAsync(
+            "WrongPassword",
+            "NewPassword",
+            ct
+        );
+        var (disableResult, _) = await sut.DisableEntropyAsync("WrongPassword", ct);
 
         // Assert
         changeResult.Should().BeFalse();
@@ -253,6 +295,7 @@ public class CredentialProtectorTests
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var sut = CreateSut();
+        await sut.InitializeAsync(ct);
         await sut.EnableEntropyAsync("InitialPassword", ct);
         var validCiphertext = sut.Protect("my-secret");
         var originalConfig = _storedConfig;
@@ -285,11 +328,12 @@ public class CredentialProtectorTests
     }
 
     [Fact]
-    public async Task EnableEntropyAsync_WithUndecryptableBlob_SkipsCorruptedBlobAndSucceeds()
+    public async Task EnableEntropyAsync_WithUndecryptableBlob_SkipsCorruptedBlobAndReturnsSkippedCount()
     {
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var sut = CreateSut();
+        await sut.InitializeAsync(ct);
         _storedCredentials =
         [
             ("MangaDex", "valid_token", sut.Protect("healthy-secret")),
@@ -297,9 +341,10 @@ public class CredentialProtectorTests
         ];
 
         // Act
-        await sut.EnableEntropyAsync("MasterPass123", ct);
+        var skippedCount = await sut.EnableEntropyAsync("MasterPass123", ct);
 
         // Assert
+        skippedCount.Should().Be(1);
         sut.UsesEntropy.Should().BeTrue();
         sut.IsUnlocked.Should().BeTrue();
         _storedCredentials.Should().ContainSingle();
@@ -313,6 +358,7 @@ public class CredentialProtectorTests
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var sut = CreateSut();
+        await sut.InitializeAsync(ct);
         await sut.EnableEntropyAsync("MasterPass123", ct);
 
         var lockedSession = CreateSut();
@@ -327,6 +373,39 @@ public class CredentialProtectorTests
         lockedSession.IsUnlocked.Should().BeTrue();
         _storedCredentials.Should().BeEmpty();
         _storedConfig.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task UnlockAsync_ConcurrentlyWithChangeEntropyPasswordAsync_SerializesAndKeepsStateConsistent()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sut = CreateSut();
+        await sut.InitializeAsync(ct);
+        await sut.EnableEntropyAsync("OldPass", ct);
+        _storedCredentials = [("MangaDex", "api_token", sut.Protect("secret-value"))];
+
+        // Start a fresh locked session against the same config & credentials
+        var session = CreateSut();
+        await session.InitializeAsync(ct);
+
+        // Act — launch ChangeEntropyPasswordAsync and UnlockAsync(OldPass) in parallel
+        var changeTask = Task.Run(
+            () => session.ChangeEntropyPasswordAsync("OldPass", "NewPass", ct),
+            ct
+        );
+        var unlockTask = Task.Run(() => session.UnlockAsync("OldPass", ct), ct);
+
+        await Task.WhenAll(changeTask, unlockTask);
+
+        // Assert — Change succeeded, and regardless of ordering, the final state in memory matches
+        // the re-encrypted credential in _storedCredentials (no stale entropy/config overwrite).
+        (await changeTask)
+            .Success.Should()
+            .BeTrue();
+        session.UsesEntropy.Should().BeTrue();
+        session.IsUnlocked.Should().BeTrue();
+        session.Unprotect(_storedCredentials[0].Ciphertext).Should().Be("secret-value");
     }
 
     [Fact]

@@ -130,7 +130,7 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
         {
             case CredentialProtectionMode.Unlock:
             {
-                if (!_credentialProtector.TryUnlock(CurrentPassword))
+                if (!await _credentialProtector.UnlockAsync(CurrentPassword))
                 {
                     ErrorMessage = _localizationService.GetString(
                         "ErrorIncorrectCredentialPassword"
@@ -161,10 +161,11 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
                     return false;
                 }
 
-                await _credentialProtector.EnableEntropyAsync(NewPassword);
+                var skippedCount = await _credentialProtector.EnableEntropyAsync(NewPassword);
                 _notificationService.ShowSuccess(
                     _localizationService.GetString("SuccessCredentialProtectionEnabled")
                 );
+                ShowSkippedCredentialsWarningIfAny(skippedCount);
                 return true;
             }
 
@@ -184,7 +185,7 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
                     return false;
                 }
 
-                var changed = await _credentialProtector.ChangeEntropyPasswordAsync(
+                var (changed, skippedCount) = await _credentialProtector.ChangeEntropyPasswordAsync(
                     CurrentPassword,
                     NewPassword
                 );
@@ -199,12 +200,15 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
                 _notificationService.ShowSuccess(
                     _localizationService.GetString("SuccessCredentialPasswordChanged")
                 );
+                ShowSkippedCredentialsWarningIfAny(skippedCount);
                 return true;
             }
 
             case CredentialProtectionMode.Disable:
             {
-                var disabled = await _credentialProtector.DisableEntropyAsync(CurrentPassword);
+                var (disabled, skippedCount) = await _credentialProtector.DisableEntropyAsync(
+                    CurrentPassword
+                );
                 if (!disabled)
                 {
                     ErrorMessage = _localizationService.GetString(
@@ -216,6 +220,7 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
                 _notificationService.ShowSuccess(
                     _localizationService.GetString("SuccessCredentialProtectionDisabled")
                 );
+                ShowSkippedCredentialsWarningIfAny(skippedCount);
                 return true;
             }
 
@@ -232,5 +237,18 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
             default:
                 return false;
         }
+    }
+
+    private void ShowSkippedCredentialsWarningIfAny(int skippedCount)
+    {
+        if (skippedCount <= 0)
+            return;
+
+        _notificationService.ShowWarning(
+            _localizationService.GetFormattedString(
+                "WarningSkippedUndecryptableCredentials",
+                skippedCount
+            )
+        );
     }
 }

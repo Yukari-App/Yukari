@@ -13,14 +13,17 @@ public interface ICredentialProtector
     byte[] Protect(string plainText);
     string Unprotect(byte[] cipherText);
 
-    bool TryUnlock(string password);
+    Task<bool> UnlockAsync(string password, CancellationToken ct = default);
 
-    Task EnableEntropyAsync(string newPassword, CancellationToken ct = default);
-    Task<bool> ChangeEntropyPasswordAsync(
+    Task<int> EnableEntropyAsync(string newPassword, CancellationToken ct = default);
+    Task<(bool Success, int SkippedCount)> ChangeEntropyPasswordAsync(
         string currentPassword,
         string newPassword,
         CancellationToken ct = default
     );
-    Task<bool> DisableEntropyAsync(string currentPassword, CancellationToken ct = default);
+    Task<(bool Success, int SkippedCount)> DisableEntropyAsync(
+        string currentPassword,
+        CancellationToken ct = default
+    );
     Task ResetAsync(CancellationToken ct = default);
 }

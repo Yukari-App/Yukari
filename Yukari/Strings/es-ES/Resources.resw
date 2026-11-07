@@ -1221,4 +1221,7 @@
   <data name="SuccessCredentialProtectionReset" xml:space="preserve">
     <value>Protección de credenciales restablecida y credenciales guardadas eliminadas.</value>
   </data>
+  <data name="WarningSkippedUndecryptableCredentials" xml:space="preserve">
+    <value>{0} credencial(es) guardada(s) no se pudo/pudieron recuperar y se eliminó/eliminaron.</value>
+  </data>
 </root>

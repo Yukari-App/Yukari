@@ -1221,4 +1221,7 @@
   <data name="SuccessCredentialProtectionReset" xml:space="preserve">
     <value>Credential protection reset and stored credentials cleared.</value>
   </data>
+  <data name="WarningSkippedUndecryptableCredentials" xml:space="preserve">
+    <value>{0} stored credential(s) could not be recovered and were removed.</value>
+  </data>
 </root>

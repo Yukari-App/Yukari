@@ -1221,4 +1221,7 @@
   <data name="SuccessCredentialProtectionReset" xml:space="preserve">
     <value>Proteção de credenciais redefinida e credenciais salvas apagadas.</value>
   </data>
+  <data name="WarningSkippedUndecryptableCredentials" xml:space="preserve">
+    <value>{0} credencial(is) salva(s) não pôde/puderam ser recuperada(s) e foi/foram removida(s).</value>
+  </data>
 </root>

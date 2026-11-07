@@ -21,12 +21,17 @@ internal class CredentialProtector : ICredentialProtector
 
     private readonly IDataService _dataService;
     private readonly ILogger<CredentialProtector> _logger;
+
+    // Serializes protector state transitions and rotations (Initialize, Unlock, Enable, Change, Disable, Reset).
+    // SourceSettingsStore.SaveSettingsAsync is invoked from a modal settings dialog that cannot overlap with the
+    // modal credential protection dialog.
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    private volatile ProtectionState _state = new(null, null);
+    // Starts null (fail-closed) until InitializeAsync loads the configuration from the database.
+    private volatile ProtectionState? _state;
 
-    public bool UsesEntropy => _state.Config != null;
-    public bool IsUnlocked => _state.Config == null || _state.Entropy != null;
+    public bool UsesEntropy => _state?.Config != null;
+    public bool IsUnlocked => _state is { } s && (s.Config == null || s.Entropy != null);
 
     public CredentialProtector(IDataService dataService, ILogger<CredentialProtector> logger)
     {
@@ -53,7 +58,7 @@ internal class CredentialProtector : ICredentialProtector
         ArgumentNullException.ThrowIfNull(plainText);
 
         var state = _state;
-        if (state.Config != null && state.Entropy == null)
+        if (state is null || (state.Config != null && state.Entropy == null))
             throw new InvalidOperationException("Credentials are locked.");
 
         var plainBytes = Encoding.UTF8.GetBytes(plainText);
@@ -69,7 +74,7 @@ internal class CredentialProtector : ICredentialProtector
         ArgumentNullException.ThrowIfNull(cipherText);
 
         var state = _state;
-        if (state.Config != null && state.Entropy == null)
+        if (state is null || (state.Config != null && state.Entropy == null))
             throw new InvalidOperationException("Credentials are locked.");
 
         var plainBytes = ProtectedData.Unprotect(
@@ -80,46 +85,26 @@ internal class CredentialProtector : ICredentialProtector
         return Encoding.UTF8.GetString(plainBytes);
     }
 
-    public bool TryUnlock(string password)
+    public async Task<bool> UnlockAsync(string password, CancellationToken ct = default)
     {
-        var state = _state;
-        if (state.Config == null)
-            return true;
-
-        if (!TryVerifyEntropy(password, state.Config, out var derivedEntropy))
-            return false;
-
-        _state = state with { Entropy = derivedEntropy };
-        return true;
-    }
-
-    public async Task EnableEntropyAsync(string newPassword, CancellationToken ct = default)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(newPassword);
-
         await _semaphore.WaitAsync(ct);
         try
         {
-            if (_state.Config != null)
-                throw new InvalidOperationException("Credential protection is already enabled.");
+            var state = _state;
+            if (state is null)
+                return false;
+            if (state.Config is null)
+                return true;
 
-            var newSalt = RandomNumberGenerator.GetBytes(SaltSize);
-            var newEntropy = DeriveEntropy(newPassword, newSalt, DefaultPbkdf2Iterations);
-            var canaryBytes = ProtectedData.Protect(
-                Encoding.UTF8.GetBytes(CanaryPlaintext),
-                newEntropy,
-                DataProtectionScope.CurrentUser
+            var entropy = await Task.Run(
+                () => TryVerifyEntropy(password, state.Config, out var e) ? e : null,
+                ct
             );
-            var newConfig = new CredentialProtectionConfig(
-                newSalt,
-                canaryBytes,
-                DefaultPbkdf2Iterations
-            );
+            if (entropy is null)
+                return false;
 
-            var reEncrypted = await ReEncryptAllCredentialsAsync(null, newEntropy, ct);
-            await _dataService.ReplaceCredentialProtectionAsync(reEncrypted, newConfig, ct);
-
-            _state = new ProtectionState(newConfig, newEntropy);
+            _state = state with { Entropy = entropy };
+            return true;
         }
         finally
         {
@@ -127,7 +112,41 @@ internal class CredentialProtector : ICredentialProtector
         }
     }
 
-    public async Task<bool> ChangeEntropyPasswordAsync(
+    public async Task<int> EnableEntropyAsync(string newPassword, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(newPassword);
+
+        await _semaphore.WaitAsync(ct);
+        try
+        {
+            var state = _state;
+            if (state is null)
+                throw new InvalidOperationException("Credential protector is not initialized.");
+            if (state.Config != null)
+                throw new InvalidOperationException("Credential protection is already enabled.");
+
+            var (newConfig, newEntropy) = await Task.Run(
+                () => CreateConfigAndEntropy(newPassword),
+                ct
+            );
+
+            var (reEncrypted, skippedCount) = await ReEncryptAllCredentialsAsync(
+                null,
+                newEntropy,
+                ct
+            );
+            await _dataService.ReplaceCredentialProtectionAsync(reEncrypted, newConfig, ct);
+
+            _state = new ProtectionState(newConfig, newEntropy);
+            return skippedCount;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
+    }
+
+    public async Task<(bool Success, int SkippedCount)> ChangeEntropyPasswordAsync(
         string currentPassword,
         string newPassword,
         CancellationToken ct = default
@@ -139,32 +158,30 @@ internal class CredentialProtector : ICredentialProtector
         try
         {
             var state = _state;
-            if (
-                state.Config == null
-                || !TryVerifyEntropy(currentPassword, state.Config, out var oldEntropy)
-            )
-            {
-                return false;
-            }
+            if (state?.Config is null)
+                return (false, 0);
 
-            var newSalt = RandomNumberGenerator.GetBytes(SaltSize);
-            var newEntropy = DeriveEntropy(newPassword, newSalt, DefaultPbkdf2Iterations);
-            var canaryBytes = ProtectedData.Protect(
-                Encoding.UTF8.GetBytes(CanaryPlaintext),
+            var oldEntropy = await Task.Run(
+                () => TryVerifyEntropy(currentPassword, state.Config, out var e) ? e : null,
+                ct
+            );
+            if (oldEntropy is null)
+                return (false, 0);
+
+            var (newConfig, newEntropy) = await Task.Run(
+                () => CreateConfigAndEntropy(newPassword),
+                ct
+            );
+
+            var (reEncrypted, skippedCount) = await ReEncryptAllCredentialsAsync(
+                oldEntropy,
                 newEntropy,
-                DataProtectionScope.CurrentUser
+                ct
             );
-            var newConfig = new CredentialProtectionConfig(
-                newSalt,
-                canaryBytes,
-                DefaultPbkdf2Iterations
-            );
-
-            var reEncrypted = await ReEncryptAllCredentialsAsync(oldEntropy, newEntropy, ct);
             await _dataService.ReplaceCredentialProtectionAsync(reEncrypted, newConfig, ct);
 
             _state = new ProtectionState(newConfig, newEntropy);
-            return true;
+            return (true, skippedCount);
         }
         finally
         {
@@ -172,7 +189,7 @@ internal class CredentialProtector : ICredentialProtector
         }
     }
 
-    public async Task<bool> DisableEntropyAsync(
+    public async Task<(bool Success, int SkippedCount)> DisableEntropyAsync(
         string currentPassword,
         CancellationToken ct = default
     )
@@ -181,19 +198,25 @@ internal class CredentialProtector : ICredentialProtector
         try
         {
             var state = _state;
-            if (
-                state.Config == null
-                || !TryVerifyEntropy(currentPassword, state.Config, out var oldEntropy)
-            )
-            {
-                return false;
-            }
+            if (state?.Config is null)
+                return (false, 0);
 
-            var reEncrypted = await ReEncryptAllCredentialsAsync(oldEntropy, null, ct);
+            var oldEntropy = await Task.Run(
+                () => TryVerifyEntropy(currentPassword, state.Config, out var e) ? e : null,
+                ct
+            );
+            if (oldEntropy is null)
+                return (false, 0);
+
+            var (reEncrypted, skippedCount) = await ReEncryptAllCredentialsAsync(
+                oldEntropy,
+                null,
+                ct
+            );
             await _dataService.ReplaceCredentialProtectionAsync(reEncrypted, null, ct);
 
             _state = new ProtectionState(null, null);
-            return true;
+            return (true, skippedCount);
         }
         finally
         {
@@ -215,14 +238,16 @@ internal class CredentialProtector : ICredentialProtector
         }
     }
 
-    private async Task<
-        List<(string SourceName, string SettingKey, byte[] Ciphertext)>
-    > ReEncryptAllCredentialsAsync(byte[]? oldEntropy, byte[]? newEntropy, CancellationToken ct)
+    private async Task<(
+        List<(string SourceName, string SettingKey, byte[] Ciphertext)> ReEncrypted,
+        int SkippedCount
+    )> ReEncryptAllCredentialsAsync(byte[]? oldEntropy, byte[]? newEntropy, CancellationToken ct)
     {
         var existing = await _dataService.GetAllComicSourceCredentialsAsync(ct);
         var reEncrypted = new List<(string SourceName, string SettingKey, byte[] Ciphertext)>(
             existing.Count
         );
+        var skippedCount = 0;
 
         foreach (var (sourceName, settingKey, ciphertext) in existing)
         {
@@ -242,6 +267,7 @@ internal class CredentialProtector : ICredentialProtector
             }
             catch (CryptographicException ex)
             {
+                skippedCount++;
                 _logger.LogWarning(
                     ex,
                     "Skipping undecryptable credential '{SettingKey}' for comic source '{SourceName}' while updating credential protection.",
@@ -251,7 +277,26 @@ internal class CredentialProtector : ICredentialProtector
             }
         }
 
-        return reEncrypted;
+        return (reEncrypted, skippedCount);
+    }
+
+    private static (CredentialProtectionConfig Config, byte[] Entropy) CreateConfigAndEntropy(
+        string password
+    )
+    {
+        var newSalt = RandomNumberGenerator.GetBytes(SaltSize);
+        var newEntropy = DeriveEntropy(password, newSalt, DefaultPbkdf2Iterations);
+        var canaryBytes = ProtectedData.Protect(
+            Encoding.UTF8.GetBytes(CanaryPlaintext),
+            newEntropy,
+            DataProtectionScope.CurrentUser
+        );
+        var newConfig = new CredentialProtectionConfig(
+            newSalt,
+            canaryBytes,
+            DefaultPbkdf2Iterations
+        );
+        return (newConfig, newEntropy);
     }
 
     private bool TryVerifyEntropy(

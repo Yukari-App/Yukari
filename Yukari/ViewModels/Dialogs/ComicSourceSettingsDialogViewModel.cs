@@ -124,7 +124,7 @@ public partial class ComicSourceSettingsDialogViewModel : ObservableObject
         if (_credentialProtector == null)
             return;
 
-        if (!_credentialProtector.TryUnlock(UnlockPassword))
+        if (!await _credentialProtector.UnlockAsync(UnlockPassword))
         {
             _notificationService.ShowError(
                 _localizationService.GetString("ErrorIncorrectCredentialPassword")

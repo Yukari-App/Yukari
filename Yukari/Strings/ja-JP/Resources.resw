@@ -1221,4 +1221,7 @@
   <data name="SuccessCredentialProtectionReset" xml:space="preserve">
     <value>資格情報の保護をリセットし、保存された資格情報を消去しました。</value>
   </data>
+  <data name="WarningSkippedUndecryptableCredentials" xml:space="preserve">
+    <value>保存された資格情報 {0} 件を復元できなかったため削除しました。</value>
+  </data>
 </root>
