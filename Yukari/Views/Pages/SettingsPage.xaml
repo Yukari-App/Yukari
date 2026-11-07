@@ -193,6 +193,12 @@
                                                 Content="{ui:FontIcon Glyph=&#xE712;}">
                                             <Button.Flyout>
                                                 <MenuFlyout>
+                                                    <MenuFlyoutItem x:Uid="ComicSourceSettingsMNItem"
+                                                                    Command="{x:Bind OpenSettingsCommand}"
+                                                                    CommandParameter="{x:Bind}"
+                                                                    Icon="Setting"
+                                                                    IsEnabled="{x:Bind IsEnabled, Mode=OneWay}"
+                                                                    Visibility="{x:Bind IsConfigurable, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
                                                     <MenuFlyoutItem x:Uid="CheckForUpdatesMNItem" Command="{x:Bind OpenReleasesPageCommand}" Icon="Sync" />
                                                     <MenuFlyoutSeparator />
                                                     <MenuFlyoutItem x:Uid="DeleteComicSourceMNItem"

@@ -14,16 +14,19 @@ public partial class ComicSourceItemViewModel : ObservableObject
 
     public IRelayCommand<ComicSourceItemViewModel> DeleteCommand { get; }
     public IRelayCommand<(string Name, bool IsEnabled)> IsEnabledChangedCommand { get; }
+    public IRelayCommand<ComicSourceItemViewModel>? OpenSettingsCommand { get; }
 
     [ObservableProperty]
     public partial bool IsEnabled { get; set; }
 
     public bool IsOutdated => ComicSource.IsCoreOutdated;
+    public bool IsConfigurable => ComicSource.IsConfigurable;
 
     public ComicSourceItemViewModel(
         ComicSourceModel comicSource,
         IRelayCommand<ComicSourceItemViewModel> deleteCommand,
-        IRelayCommand<(string Name, bool IsEnabled)> isEnabledChangedCommand
+        IRelayCommand<(string Name, bool IsEnabled)> isEnabledChangedCommand,
+        IRelayCommand<ComicSourceItemViewModel>? openSettingsCommand = null
     )
     {
         ComicSource = comicSource;
@@ -31,6 +34,7 @@ public partial class ComicSourceItemViewModel : ObservableObject
 
         DeleteCommand = deleteCommand;
         IsEnabledChangedCommand = isEnabledChangedCommand;
+        OpenSettingsCommand = openSettingsCommand;
         _isInitializing = false;
     }
 

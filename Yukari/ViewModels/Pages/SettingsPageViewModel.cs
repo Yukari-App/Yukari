@@ -188,6 +188,15 @@ public partial class SettingsPageViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task OpenComicSourceSettingsAsync(ComicSourceItemViewModel comicSourceItem)
+    {
+        if (!comicSourceItem.IsConfigurable || !comicSourceItem.IsEnabled)
+            return;
+
+        await _dialogService.ShowComicSourceSettingsDialogAsync(comicSourceItem.ComicSource.Name);
+    }
+
+    [RelayCommand]
     private async Task OpenLibraryExportDialogAsync() =>
         await _dialogService.ShowLibraryExportDialogAsync();
 
@@ -229,7 +238,8 @@ public partial class SettingsPageViewModel : ObservableObject
             .Select(cs => new ComicSourceItemViewModel(
                 cs,
                 RemoveComicSourceCommand,
-                ComicSourceIsEnabledChangedCommand
+                ComicSourceIsEnabledChangedCommand,
+                OpenComicSourceSettingsCommand
             ))
             .ToList();
     }

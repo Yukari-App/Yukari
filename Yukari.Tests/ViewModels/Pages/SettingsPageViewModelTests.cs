@@ -371,4 +371,61 @@ public class SettingsPageViewModelTests
         // Assert
         _notificationServiceMock.Verify(n => n.ShowError("DB error", "Error"), Times.Once);
     }
+
+    [Fact]
+    public async Task OpenComicSourceSettings_ShowsDialog_WhenConfigurableAndEnabled()
+    {
+        // Arrange
+        var itemVm = new ComicSourceItemViewModel(
+            new ComicSourceModel
+            {
+                Name = "MangaDex",
+                DllPath = ".dll",
+                Version = "1.0",
+                IsEnabled = true,
+                IsConfigurable = true,
+            },
+            null!,
+            null!,
+            _sut.OpenComicSourceSettingsCommand
+        );
+
+        // Act
+        await _sut.OpenComicSourceSettingsCommand.ExecuteAsync(itemVm);
+
+        // Assert
+        itemVm.IsConfigurable.Should().BeTrue();
+        _dialogServiceMock.Verify(
+            d => d.ShowComicSourceSettingsDialogAsync("MangaDex"),
+            Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task OpenComicSourceSettings_DoesNothing_WhenSourceIsDisabled()
+    {
+        // Arrange
+        var itemVm = new ComicSourceItemViewModel(
+            new ComicSourceModel
+            {
+                Name = "MangaDex",
+                DllPath = ".dll",
+                Version = "1.0",
+                IsEnabled = false,
+                IsConfigurable = true,
+            },
+            null!,
+            null!,
+            _sut.OpenComicSourceSettingsCommand
+        );
+
+        // Act
+        await _sut.OpenComicSourceSettingsCommand.ExecuteAsync(itemVm);
+
+        // Assert
+        _dialogServiceMock.Verify(
+            d => d.ShowComicSourceSettingsDialogAsync(It.IsAny<string>()),
+            Times.Never
+        );
+    }
 }
