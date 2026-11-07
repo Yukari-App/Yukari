@@ -17,7 +17,7 @@ namespace Yukari.Services.Storage;
 
 internal class DataService : IDataService
 {
-    private readonly string _connectionString = $"Data Source={AppDataHelper.GetDatabasePath()}";
+    private readonly string _connectionString;
 
     static DataService()
     {
@@ -25,6 +25,11 @@ internal class DataService : IDataService
         SqlMapper.AddTypeHandler(new JsonStringListHandler());
         SqlMapper.AddTypeHandler(new LanguageArrayHandler());
         SqlMapper.AddTypeHandler(new DateOnlyHandler());
+    }
+
+    public DataService(string? connectionString = null)
+    {
+        _connectionString = connectionString ?? $"Data Source={AppDataHelper.GetDatabasePath()}";
     }
 
     private async Task<SqliteConnection> GetOpenConnectionAsync()
@@ -460,6 +465,29 @@ internal class DataService : IDataService
         )>(new CommandDefinition(sql, cancellationToken: ct));
 
         return rows.ToList();
+    }
+
+    public async Task<CredentialProtectionConfig?> GetCredentialProtectionAsync(
+        CancellationToken ct = default
+    )
+    {
+        using var connection = await GetOpenConnectionAsync();
+
+        const string sql = """
+            SELECT Salt, Canary, Iterations
+            FROM CredentialProtection
+            WHERE Id = 1;
+            """;
+
+        var row = await connection.QuerySingleOrDefaultAsync<(
+            byte[] Salt,
+            byte[] Canary,
+            long Iterations
+        )>(new CommandDefinition(sql, cancellationToken: ct));
+
+        return row.Salt is null
+            ? null
+            : new CredentialProtectionConfig(row.Salt, row.Canary, (int)row.Iterations);
     }
 
     #endregion
@@ -968,16 +996,21 @@ internal class DataService : IDataService
         await transaction.CommitAsync();
     }
 
-    public async Task ReplaceAllComicSourceCredentialsAsync(
-        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)> credentials
+    public async Task ReplaceCredentialProtectionAsync(
+        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)> credentials,
+        CredentialProtectionConfig? config,
+        CancellationToken ct = default
     )
     {
         using var connection = await GetOpenConnectionAsync();
-        using var transaction = await connection.BeginTransactionAsync();
+        using var transaction = await connection.BeginTransactionAsync(ct);
 
         await connection.ExecuteAsync(
-            "DELETE FROM ComicSourceCredentials;",
-            transaction: transaction
+            new CommandDefinition(
+                "DELETE FROM ComicSourceCredentials;",
+                transaction: transaction,
+                cancellationToken: ct
+            )
         );
 
         if (credentials.Count > 0)
@@ -994,10 +1027,47 @@ internal class DataService : IDataService
                 Ciphertext = c.Ciphertext,
             });
 
-            await connection.ExecuteAsync(insertSql, parameters, transaction);
+            await connection.ExecuteAsync(
+                new CommandDefinition(
+                    insertSql,
+                    parameters,
+                    transaction: transaction,
+                    cancellationToken: ct
+                )
+            );
         }
 
-        await transaction.CommitAsync();
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                "DELETE FROM CredentialProtection;",
+                transaction: transaction,
+                cancellationToken: ct
+            )
+        );
+
+        if (config != null)
+        {
+            const string insertConfigSql = """
+                INSERT INTO CredentialProtection (Id, Salt, Canary, Iterations)
+                VALUES (1, @Salt, @Canary, @Iterations);
+                """;
+
+            await connection.ExecuteAsync(
+                new CommandDefinition(
+                    insertConfigSql,
+                    new
+                    {
+                        config.Salt,
+                        config.Canary,
+                        config.Iterations,
+                    },
+                    transaction: transaction,
+                    cancellationToken: ct
+                )
+            );
+        }
+
+        await transaction.CommitAsync(ct);
     }
 
     #endregion

@@ -9,7 +9,7 @@ internal class Migration_007 : IMigration
 {
     public int Version => 7;
     public string Description =>
-        "Add IsConfigurable column to ComicSources and create ComicSourceSettings and ComicSourceCredentials tables";
+        "Add IsConfigurable column to ComicSources and create ComicSourceSettings, ComicSourceCredentials, and CredentialProtection tables";
 
     public async Task UpAsync(SqliteConnection connection, DbTransaction transaction)
     {
@@ -31,6 +31,13 @@ internal class Migration_007 : IMigration
                 Ciphertext BLOB NOT NULL,
                 PRIMARY KEY (SourceName, SettingKey),
                 FOREIGN KEY (SourceName) REFERENCES ComicSources(Name) ON DELETE CASCADE
+            );
+
+            CREATE TABLE CredentialProtection (
+                Id INTEGER PRIMARY KEY CHECK (Id = 1),
+                Salt BLOB NOT NULL,
+                Canary BLOB NOT NULL,
+                Iterations INTEGER NOT NULL
             );
             """,
             transaction: transaction

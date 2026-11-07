@@ -769,6 +769,8 @@ public class LibraryBackupHelperTests : IDisposable
                 """
                 INSERT INTO ComicSourceCredentials (SourceName, SettingKey, Ciphertext)
                 VALUES ('MangaDex', 'api_token', X'DEADBEEF');
+                INSERT INTO CredentialProtection (Id, Salt, Canary, Iterations)
+                VALUES (1, X'01020304', X'05060708', 600000);
                 """
             );
         }
@@ -796,7 +798,11 @@ public class LibraryBackupHelperTests : IDisposable
         var count = await conn.ExecuteScalarAsync<int>(
             "SELECT COUNT(1) FROM ComicSourceCredentials;"
         );
+        var protectionCount = await conn.ExecuteScalarAsync<int>(
+            "SELECT COUNT(1) FROM CredentialProtection;"
+        );
         count.Should().Be(0);
+        protectionCount.Should().Be(0);
     }
 
     [Fact]

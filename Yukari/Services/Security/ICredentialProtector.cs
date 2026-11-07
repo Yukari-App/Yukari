@@ -8,6 +8,8 @@ public interface ICredentialProtector
     bool UsesEntropy { get; }
     bool IsUnlocked { get; }
 
+    Task InitializeAsync(CancellationToken ct = default);
+
     byte[] Protect(string plainText);
     string Unprotect(byte[] cipherText);
 
@@ -20,4 +22,5 @@ public interface ICredentialProtector
         CancellationToken ct = default
     );
     Task<bool> DisableEntropyAsync(string currentPassword, CancellationToken ct = default);
+    Task ResetAsync(CancellationToken ct = default);
 }

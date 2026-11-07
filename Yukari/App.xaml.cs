@@ -87,6 +87,7 @@ public partial class App : Application
         try
         {
             await InitializeDatabaseAsync();
+            await GetService<ICredentialProtector>().InitializeAsync();
             await ProcessPendingComicSourcesAsync();
 
             await Task.Delay(400); // Small delay to ensure the main window is fully ready before navigating

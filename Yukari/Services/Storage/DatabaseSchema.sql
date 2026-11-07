@@ -151,3 +151,12 @@ CREATE TABLE ComicSourceCredentials (
     PRIMARY KEY (SourceName, SettingKey),
     FOREIGN KEY (SourceName) REFERENCES ComicSources(Name) ON DELETE CASCADE
 );
+
+-- CredentialProtection definition
+
+CREATE TABLE CredentialProtection (
+    Id INTEGER PRIMARY KEY CHECK (Id = 1),
+    Salt BLOB NOT NULL,
+    Canary BLOB NOT NULL,
+    Iterations INTEGER NOT NULL
+);

@@ -104,8 +104,11 @@ public interface IDataService
     Task<
         IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>
     > GetAllComicSourceCredentialsAsync(CancellationToken ct = default);
-    Task ReplaceAllComicSourceCredentialsAsync(
-        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)> credentials
+    Task<CredentialProtectionConfig?> GetCredentialProtectionAsync(CancellationToken ct = default);
+    Task ReplaceCredentialProtectionAsync(
+        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)> credentials,
+        CredentialProtectionConfig? config,
+        CancellationToken ct = default
     );
 
     Task RemoveFavoriteComicAsync(ContentKey comicKey);

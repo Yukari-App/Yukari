@@ -24,8 +24,4 @@ public class AppSettings
     public ScalingMode ScalingMode { get; set; } = ScalingMode.FitScreen;
 
     public string? DefaultComicSourceName { get; set; }
-
-    public bool UsesCredentialEntropy { get; set; } = false;
-    public string? CredentialEntropySalt { get; set; }
-    public string? CredentialEntropyCanary { get; set; }
 }

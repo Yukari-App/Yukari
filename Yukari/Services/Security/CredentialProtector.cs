@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Yukari.Services.Settings;
+using Yukari.Models.Data;
 using Yukari.Services.Storage;
 
 namespace Yukari.Services.Security;
@@ -14,40 +14,52 @@ internal class CredentialProtector : ICredentialProtector
 {
     private const int SaltSize = 16;
     private const int KeySize = 32;
-    private const int Pbkdf2Iterations = 210_000;
+    internal const int DefaultPbkdf2Iterations = 600_000;
     private const string CanaryPlaintext = "yukari";
 
-    private readonly ISettingsService _settingsService;
+    private sealed record ProtectionState(CredentialProtectionConfig? Config, byte[]? Entropy);
+
     private readonly IDataService _dataService;
-    private readonly ILogger<CredentialProtector>? _logger;
+    private readonly ILogger<CredentialProtector> _logger;
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    private byte[]? _entropy;
+    private volatile ProtectionState _state = new(null, null);
 
-    public bool UsesEntropy => _settingsService.Current.UsesCredentialEntropy;
-    public bool IsUnlocked => !UsesEntropy || _entropy != null;
+    public bool UsesEntropy => _state.Config != null;
+    public bool IsUnlocked => _state.Config == null || _state.Entropy != null;
 
-    public CredentialProtector(
-        ISettingsService settingsService,
-        IDataService dataService,
-        ILogger<CredentialProtector>? logger = null
-    )
+    public CredentialProtector(IDataService dataService, ILogger<CredentialProtector> logger)
     {
-        _settingsService = settingsService;
         _dataService = dataService;
         _logger = logger;
+    }
+
+    public async Task InitializeAsync(CancellationToken ct = default)
+    {
+        await _semaphore.WaitAsync(ct);
+        try
+        {
+            var config = await _dataService.GetCredentialProtectionAsync(ct);
+            _state = new ProtectionState(config, null);
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     public byte[] Protect(string plainText)
     {
         ArgumentNullException.ThrowIfNull(plainText);
 
-        if (UsesEntropy && _entropy == null)
+        var state = _state;
+        if (state.Config != null && state.Entropy == null)
             throw new InvalidOperationException("Credentials are locked.");
 
         var plainBytes = Encoding.UTF8.GetBytes(plainText);
         return ProtectedData.Protect(
             plainBytes,
-            UsesEntropy ? _entropy : null,
+            state.Config != null ? state.Entropy : null,
             DataProtectionScope.CurrentUser
         );
     }
@@ -56,12 +68,13 @@ internal class CredentialProtector : ICredentialProtector
     {
         ArgumentNullException.ThrowIfNull(cipherText);
 
-        if (UsesEntropy && _entropy == null)
+        var state = _state;
+        if (state.Config != null && state.Entropy == null)
             throw new InvalidOperationException("Credentials are locked.");
 
         var plainBytes = ProtectedData.Unprotect(
             cipherText,
-            UsesEntropy ? _entropy : null,
+            state.Config != null ? state.Entropy : null,
             DataProtectionScope.CurrentUser
         );
         return Encoding.UTF8.GetString(plainBytes);
@@ -69,13 +82,14 @@ internal class CredentialProtector : ICredentialProtector
 
     public bool TryUnlock(string password)
     {
-        if (!UsesEntropy)
+        var state = _state;
+        if (state.Config == null)
             return true;
 
-        if (!TryVerifyEntropy(password, out var derivedEntropy))
+        if (!TryVerifyEntropy(password, state.Config, out var derivedEntropy))
             return false;
 
-        _entropy = derivedEntropy;
+        _state = state with { Entropy = derivedEntropy };
         return true;
     }
 
@@ -83,31 +97,34 @@ internal class CredentialProtector : ICredentialProtector
     {
         ArgumentException.ThrowIfNullOrEmpty(newPassword);
 
-        byte[]? currentEntropy = null;
-        if (UsesEntropy)
+        await _semaphore.WaitAsync(ct);
+        try
         {
-            if (_entropy == null)
-                throw new InvalidOperationException("Credentials are locked.");
-            currentEntropy = _entropy;
+            if (_state.Config != null)
+                throw new InvalidOperationException("Credential protection is already enabled.");
+
+            var newSalt = RandomNumberGenerator.GetBytes(SaltSize);
+            var newEntropy = DeriveEntropy(newPassword, newSalt, DefaultPbkdf2Iterations);
+            var canaryBytes = ProtectedData.Protect(
+                Encoding.UTF8.GetBytes(CanaryPlaintext),
+                newEntropy,
+                DataProtectionScope.CurrentUser
+            );
+            var newConfig = new CredentialProtectionConfig(
+                newSalt,
+                canaryBytes,
+                DefaultPbkdf2Iterations
+            );
+
+            var reEncrypted = await ReEncryptAllCredentialsAsync(null, newEntropy, ct);
+            await _dataService.ReplaceCredentialProtectionAsync(reEncrypted, newConfig, ct);
+
+            _state = new ProtectionState(newConfig, newEntropy);
         }
-
-        var newSalt = RandomNumberGenerator.GetBytes(SaltSize);
-        var newEntropy = DeriveEntropy(newPassword, newSalt);
-
-        await ReEncryptAllCredentialsAsync(currentEntropy, newEntropy, ct);
-
-        var canaryBytes = ProtectedData.Protect(
-            Encoding.UTF8.GetBytes(CanaryPlaintext),
-            newEntropy,
-            DataProtectionScope.CurrentUser
-        );
-
-        _settingsService.Set(s => s.UsesCredentialEntropy, true);
-        _settingsService.Set(s => s.CredentialEntropySalt, Convert.ToBase64String(newSalt));
-        _settingsService.Set(s => s.CredentialEntropyCanary, Convert.ToBase64String(canaryBytes));
-        await _settingsService.SaveAsync();
-
-        _entropy = newEntropy;
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     public async Task<bool> ChangeEntropyPasswordAsync(
@@ -118,27 +135,41 @@ internal class CredentialProtector : ICredentialProtector
     {
         ArgumentException.ThrowIfNullOrEmpty(newPassword);
 
-        if (!TryVerifyEntropy(currentPassword, out var oldEntropy))
-            return false;
+        await _semaphore.WaitAsync(ct);
+        try
+        {
+            var state = _state;
+            if (
+                state.Config == null
+                || !TryVerifyEntropy(currentPassword, state.Config, out var oldEntropy)
+            )
+            {
+                return false;
+            }
 
-        var newSalt = RandomNumberGenerator.GetBytes(SaltSize);
-        var newEntropy = DeriveEntropy(newPassword, newSalt);
+            var newSalt = RandomNumberGenerator.GetBytes(SaltSize);
+            var newEntropy = DeriveEntropy(newPassword, newSalt, DefaultPbkdf2Iterations);
+            var canaryBytes = ProtectedData.Protect(
+                Encoding.UTF8.GetBytes(CanaryPlaintext),
+                newEntropy,
+                DataProtectionScope.CurrentUser
+            );
+            var newConfig = new CredentialProtectionConfig(
+                newSalt,
+                canaryBytes,
+                DefaultPbkdf2Iterations
+            );
 
-        await ReEncryptAllCredentialsAsync(oldEntropy, newEntropy, ct);
+            var reEncrypted = await ReEncryptAllCredentialsAsync(oldEntropy, newEntropy, ct);
+            await _dataService.ReplaceCredentialProtectionAsync(reEncrypted, newConfig, ct);
 
-        var canaryBytes = ProtectedData.Protect(
-            Encoding.UTF8.GetBytes(CanaryPlaintext),
-            newEntropy,
-            DataProtectionScope.CurrentUser
-        );
-
-        _settingsService.Set(s => s.UsesCredentialEntropy, true);
-        _settingsService.Set(s => s.CredentialEntropySalt, Convert.ToBase64String(newSalt));
-        _settingsService.Set(s => s.CredentialEntropyCanary, Convert.ToBase64String(canaryBytes));
-        await _settingsService.SaveAsync();
-
-        _entropy = newEntropy;
-        return true;
+            _state = new ProtectionState(newConfig, newEntropy);
+            return true;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     public async Task<bool> DisableEntropyAsync(
@@ -146,25 +177,47 @@ internal class CredentialProtector : ICredentialProtector
         CancellationToken ct = default
     )
     {
-        if (!TryVerifyEntropy(currentPassword, out var oldEntropy))
-            return false;
+        await _semaphore.WaitAsync(ct);
+        try
+        {
+            var state = _state;
+            if (
+                state.Config == null
+                || !TryVerifyEntropy(currentPassword, state.Config, out var oldEntropy)
+            )
+            {
+                return false;
+            }
 
-        await ReEncryptAllCredentialsAsync(oldEntropy, null, ct);
+            var reEncrypted = await ReEncryptAllCredentialsAsync(oldEntropy, null, ct);
+            await _dataService.ReplaceCredentialProtectionAsync(reEncrypted, null, ct);
 
-        _settingsService.Set(s => s.UsesCredentialEntropy, false);
-        _settingsService.Set(s => s.CredentialEntropySalt, null);
-        _settingsService.Set(s => s.CredentialEntropyCanary, null);
-        await _settingsService.SaveAsync();
-
-        _entropy = null;
-        return true;
+            _state = new ProtectionState(null, null);
+            return true;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
-    private async Task ReEncryptAllCredentialsAsync(
-        byte[]? oldEntropy,
-        byte[]? newEntropy,
-        CancellationToken ct
-    )
+    public async Task ResetAsync(CancellationToken ct = default)
+    {
+        await _semaphore.WaitAsync(ct);
+        try
+        {
+            await _dataService.ReplaceCredentialProtectionAsync([], null, ct);
+            _state = new ProtectionState(null, null);
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
+    }
+
+    private async Task<
+        List<(string SourceName, string SettingKey, byte[] Ciphertext)>
+    > ReEncryptAllCredentialsAsync(byte[]? oldEntropy, byte[]? newEntropy, CancellationToken ct)
     {
         var existing = await _dataService.GetAllComicSourceCredentialsAsync(ct);
         var reEncrypted = new List<(string SourceName, string SettingKey, byte[] Ciphertext)>(
@@ -173,42 +226,57 @@ internal class CredentialProtector : ICredentialProtector
 
         foreach (var (sourceName, settingKey, ciphertext) in existing)
         {
-            var plainBytes = ProtectedData.Unprotect(
-                ciphertext,
-                oldEntropy,
-                DataProtectionScope.CurrentUser
-            );
-            var newCiphertext = ProtectedData.Protect(
-                plainBytes,
-                newEntropy,
-                DataProtectionScope.CurrentUser
-            );
-            reEncrypted.Add((sourceName, settingKey, newCiphertext));
+            try
+            {
+                var plainBytes = ProtectedData.Unprotect(
+                    ciphertext,
+                    oldEntropy,
+                    DataProtectionScope.CurrentUser
+                );
+                var newCiphertext = ProtectedData.Protect(
+                    plainBytes,
+                    newEntropy,
+                    DataProtectionScope.CurrentUser
+                );
+                reEncrypted.Add((sourceName, settingKey, newCiphertext));
+            }
+            catch (CryptographicException ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Skipping undecryptable credential '{SettingKey}' for comic source '{SourceName}' while updating credential protection.",
+                    settingKey,
+                    sourceName
+                );
+            }
         }
 
-        await _dataService.ReplaceAllComicSourceCredentialsAsync(reEncrypted);
+        return reEncrypted;
     }
 
-    private bool TryVerifyEntropy(string password, out byte[]? derivedEntropy)
+    private bool TryVerifyEntropy(
+        string password,
+        CredentialProtectionConfig config,
+        out byte[]? derivedEntropy
+    )
     {
         derivedEntropy = null;
-        if (string.IsNullOrEmpty(password))
+        if (
+            string.IsNullOrEmpty(password)
+            || config.Salt is not { Length: > 0 }
+            || config.Canary is not { Length: > 0 }
+            || config.Iterations <= 0
+        )
+        {
             return false;
-
-        var saltBase64 = _settingsService.Current.CredentialEntropySalt;
-        var canaryBase64 = _settingsService.Current.CredentialEntropyCanary;
-
-        if (string.IsNullOrEmpty(saltBase64) || string.IsNullOrEmpty(canaryBase64))
-            return false;
+        }
 
         try
         {
-            var salt = Convert.FromBase64String(saltBase64);
-            var canaryBytes = Convert.FromBase64String(canaryBase64);
-            var candidate = DeriveEntropy(password, salt);
+            var candidate = DeriveEntropy(password, config.Salt, config.Iterations);
 
             var plainBytes = ProtectedData.Unprotect(
-                canaryBytes,
+                config.Canary,
                 candidate,
                 DataProtectionScope.CurrentUser
             );
@@ -218,19 +286,13 @@ internal class CredentialProtector : ICredentialProtector
             derivedEntropy = candidate;
             return true;
         }
-        catch (Exception ex) when (ex is CryptographicException or FormatException)
+        catch (CryptographicException)
         {
-            _logger?.LogWarning("Failed to verify credential entropy password.");
+            _logger.LogWarning("Failed to verify credential entropy password.");
             return false;
         }
     }
 
-    private static byte[] DeriveEntropy(string password, byte[] salt) =>
-        Rfc2898DeriveBytes.Pbkdf2(
-            password,
-            salt,
-            Pbkdf2Iterations,
-            HashAlgorithmName.SHA256,
-            KeySize
-        );
+    private static byte[] DeriveEntropy(string password, byte[] salt, int iterations) =>
+        Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, KeySize);
 }

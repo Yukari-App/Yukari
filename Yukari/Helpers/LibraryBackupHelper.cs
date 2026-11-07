@@ -510,7 +510,7 @@ public static class LibraryBackupHelper
             }
 
             await connection.ExecuteAsync(
-                "DELETE FROM ComicSourceCredentials;",
+                "DELETE FROM ComicSourceCredentials; DELETE FROM CredentialProtection;",
                 transaction: transaction
             );
 

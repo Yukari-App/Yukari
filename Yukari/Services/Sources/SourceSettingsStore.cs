@@ -98,7 +98,25 @@ internal class SourceSettingsStore : ISourceSettingsStore
                 if (_credentialProtector.IsUnlocked && values.TryGetValue(pw.Key, out var newPlain))
                 {
                     if (!string.IsNullOrEmpty(newPlain))
-                        credentials[pw.Key] = _credentialProtector.Protect(newPlain);
+                    {
+                        try
+                        {
+                            credentials[pw.Key] = _credentialProtector.Protect(newPlain);
+                        }
+                        catch (Exception ex)
+                            when (ex
+                                    is InvalidOperationException
+                                        or System.Security.Cryptography.CryptographicException
+                            )
+                        {
+                            _logger.LogWarning(
+                                ex,
+                                "Failed to encrypt credential setting '{Key}' for comic source '{SourceName}'.",
+                                pw.Key,
+                                sourceName
+                            );
+                        }
+                    }
                 }
                 else if (
                     existingCredentials.TryGetValue(pw.Key, out var existingCipher)

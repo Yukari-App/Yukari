@@ -1,70 +1,68 @@
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
+using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using FluentAssertions;
+using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
-using Yukari.Models.Settings;
+using Yukari.Models;
+using Yukari.Models.Data;
 using Yukari.Services.Security;
-using Yukari.Services.Settings;
 using Yukari.Services.Storage;
 
 namespace Yukari.Tests.Services.Security;
 
 public class CredentialProtectorTests
 {
-    private readonly AppSettings _appSettings;
-    private readonly Mock<ISettingsService> _settingsServiceMock;
     private readonly Mock<IDataService> _dataServiceMock;
     private List<(string SourceName, string SettingKey, byte[] Ciphertext)> _storedCredentials;
+    private CredentialProtectionConfig? _storedConfig;
 
     public CredentialProtectorTests()
     {
-        _appSettings = new AppSettings();
-        _settingsServiceMock = new Mock<ISettingsService>();
         _dataServiceMock = new Mock<IDataService>();
         _storedCredentials = [];
-
-        _settingsServiceMock.Setup(s => s.Current).Returns(_appSettings);
-        _settingsServiceMock
-            .Setup(s => s.Set(It.IsAny<Expression<Func<AppSettings, bool>>>(), It.IsAny<bool>()))
-            .Callback<Expression<Func<AppSettings, bool>>, bool>(SetProperty);
-        _settingsServiceMock
-            .Setup(s =>
-                s.Set(It.IsAny<Expression<Func<AppSettings, string?>>>(), It.IsAny<string?>())
-            )
-            .Callback<Expression<Func<AppSettings, string?>>, string?>(SetProperty);
+        _storedConfig = null;
 
         _dataServiceMock
             .Setup(d => d.GetAllComicSourceCredentialsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => _storedCredentials);
 
         _dataServiceMock
+            .Setup(d => d.GetCredentialProtectionAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => _storedConfig);
+
+        _dataServiceMock
             .Setup(d =>
-                d.ReplaceAllComicSourceCredentialsAsync(
+                d.ReplaceCredentialProtectionAsync(
                     It.IsAny<
                         IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>
-                    >()
+                    >(),
+                    It.IsAny<CredentialProtectionConfig?>(),
+                    It.IsAny<CancellationToken>()
                 )
             )
-            .Callback<IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>>(
-                creds => _storedCredentials = [.. creds]
+            .Callback<
+                IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>,
+                CredentialProtectionConfig?,
+                CancellationToken
+            >(
+                (creds, config, _) =>
+                {
+                    _storedCredentials = [.. creds];
+                    _storedConfig = config;
+                }
             )
             .Returns(Task.CompletedTask);
     }
 
     private CredentialProtector CreateSut() =>
-        new(_settingsServiceMock.Object, _dataServiceMock.Object);
-
-    private void SetProperty<T>(Expression<Func<AppSettings, T>> selector, T value)
-    {
-        if (selector.Body is MemberExpression { Member: PropertyInfo prop })
-            prop.SetValue(_appSettings, value);
-    }
+        new(_dataServiceMock.Object, NullLogger<CredentialProtector>.Instance);
 
     [Fact]
     public void ProtectAndUnprotect_WithoutEntropy_RoundTripsPlaintext()
@@ -93,33 +91,13 @@ public class CredentialProtectorTests
         await sut.EnableEntropyAsync("CorrectHorseBatteryStaple", ct);
         var ciphertext = sut.Protect("secret-token-xyz");
 
-        var otherSettings = new AppSettings();
-        var otherSettingsService = new Mock<ISettingsService>();
-        otherSettingsService.Setup(s => s.Current).Returns(otherSettings);
-        otherSettingsService
-            .Setup(s => s.Set(It.IsAny<Expression<Func<AppSettings, bool>>>(), It.IsAny<bool>()))
-            .Callback<Expression<Func<AppSettings, bool>>, bool>(
-                (expr, val) =>
-                {
-                    if (expr.Body is MemberExpression { Member: PropertyInfo prop })
-                        prop.SetValue(otherSettings, val);
-                }
-            );
-        otherSettingsService
-            .Setup(s =>
-                s.Set(It.IsAny<Expression<Func<AppSettings, string?>>>(), It.IsAny<string?>())
-            )
-            .Callback<Expression<Func<AppSettings, string?>>, string?>(
-                (expr, val) =>
-                {
-                    if (expr.Body is MemberExpression { Member: PropertyInfo prop })
-                        prop.SetValue(otherSettings, val);
-                }
-            );
-
+        var otherDataService = new Mock<IDataService>();
+        otherDataService
+            .Setup(d => d.GetAllComicSourceCredentialsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         var wrongEntropyProtector = new CredentialProtector(
-            otherSettingsService.Object,
-            _dataServiceMock.Object
+            otherDataService.Object,
+            NullLogger<CredentialProtector>.Instance
         );
         await wrongEntropyProtector.EnableEntropyAsync("DifferentPassword", ct);
 
@@ -156,6 +134,7 @@ public class CredentialProtectorTests
         await initialProtector.EnableEntropyAsync("MasterPass!2026", ct);
 
         var newSessionProtector = CreateSut();
+        await newSessionProtector.InitializeAsync(ct);
 
         // Act & Assert — starts locked in a new session when UsesEntropy is true
         newSessionProtector.UsesEntropy.Should().BeTrue();
@@ -183,21 +162,16 @@ public class CredentialProtectorTests
         // Act 1: Enable entropy password
         await sut.EnableEntropyAsync("FirstPassword123", ct);
 
-        // Assert 1: All credentials re-encrypted with FirstPassword123
+        // Assert 1: All credentials re-encrypted with FirstPassword123 and 600,000 PBKDF2 iterations
         sut.UsesEntropy.Should().BeTrue();
         sut.IsUnlocked.Should().BeTrue();
+        _storedConfig.Should().NotBeNull();
+        _storedConfig!.Iterations.Should().Be(CredentialProtector.DefaultPbkdf2Iterations);
         _storedCredentials.Should().HaveCount(2);
         sut.Unprotect(_storedCredentials[0].Ciphertext).Should().Be("token-alpha");
         sut.Unprotect(_storedCredentials[1].Ciphertext).Should().Be("token-beta");
 
-        // Act 2: Change entropy password (wrong current password fails, right current password succeeds)
-        var failedChange = await sut.ChangeEntropyPasswordAsync(
-            "WrongCurrent",
-            "SecondPassword456",
-            ct
-        );
-        failedChange.Should().BeFalse();
-
+        // Act 2: Change entropy password
         var changed = await sut.ChangeEntropyPasswordAsync(
             "FirstPassword123",
             "SecondPassword456",
@@ -207,22 +181,234 @@ public class CredentialProtectorTests
 
         // Assert 2: Re-encrypted with SecondPassword456 and unlockable in a fresh session
         var freshSession = CreateSut();
+        await freshSession.InitializeAsync(ct);
         freshSession.TryUnlock("FirstPassword123").Should().BeFalse();
         freshSession.TryUnlock("SecondPassword456").Should().BeTrue();
         freshSession.Unprotect(_storedCredentials[0].Ciphertext).Should().Be("token-alpha");
         freshSession.Unprotect(_storedCredentials[1].Ciphertext).Should().Be("token-beta");
 
         // Act 3: Disable entropy password
-        var failedDisable = await freshSession.DisableEntropyAsync("WrongPassword", ct);
-        failedDisable.Should().BeFalse();
-
         var disabled = await freshSession.DisableEntropyAsync("SecondPassword456", ct);
         disabled.Should().BeTrue();
 
-        // Assert 3: Back to DPAPI without custom entropy, all values intact
+        // Assert 3: Back to DPAPI without custom entropy, all values intact, config cleared
         freshSession.UsesEntropy.Should().BeFalse();
         freshSession.IsUnlocked.Should().BeTrue();
+        _storedConfig.Should().BeNull();
         freshSession.Unprotect(_storedCredentials[0].Ciphertext).Should().Be("token-alpha");
         freshSession.Unprotect(_storedCredentials[1].Ciphertext).Should().Be("token-beta");
+    }
+
+    [Fact]
+    public async Task EnableEntropyAsync_WhenAlreadyEnabled_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sut = CreateSut();
+        await sut.EnableEntropyAsync("FirstPassword123", ct);
+
+        // Act
+        var act = async () => await sut.EnableEntropyAsync("BypassPassword", ct);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task ChangeAndDisableEntropy_WithWrongPassword_MakesZeroCallsToDataService()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sut = CreateSut();
+        await sut.EnableEntropyAsync("CorrectPassword", ct);
+        _dataServiceMock.Invocations.Clear();
+
+        // Act
+        var changeResult = await sut.ChangeEntropyPasswordAsync("WrongPassword", "NewPassword", ct);
+        var disableResult = await sut.DisableEntropyAsync("WrongPassword", ct);
+
+        // Assert
+        changeResult.Should().BeFalse();
+        disableResult.Should().BeFalse();
+        _dataServiceMock.Verify(
+            d => d.GetAllComicSourceCredentialsAsync(It.IsAny<CancellationToken>()),
+            Times.Never
+        );
+        _dataServiceMock.Verify(
+            d =>
+                d.ReplaceCredentialProtectionAsync(
+                    It.IsAny<
+                        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>
+                    >(),
+                    It.IsAny<CredentialProtectionConfig?>(),
+                    It.IsAny<CancellationToken>()
+                ),
+            Times.Never
+        );
+    }
+
+    [Fact]
+    public async Task ReplaceCredentialProtectionFailure_LeavesStateAndEntropyUnchanged()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sut = CreateSut();
+        await sut.EnableEntropyAsync("InitialPassword", ct);
+        var validCiphertext = sut.Protect("my-secret");
+        var originalConfig = _storedConfig;
+
+        _dataServiceMock
+            .Setup(d =>
+                d.ReplaceCredentialProtectionAsync(
+                    It.IsAny<
+                        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>
+                    >(),
+                    It.IsAny<CredentialProtectionConfig?>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
+            .ThrowsAsync(new InvalidOperationException("Simulated database write failure"));
+
+        // Act
+        var changeAct = async () =>
+            await sut.ChangeEntropyPasswordAsync("InitialPassword", "NewPassword", ct);
+        var disableAct = async () => await sut.DisableEntropyAsync("InitialPassword", ct);
+
+        // Assert
+        await changeAct.Should().ThrowAsync<InvalidOperationException>();
+        await disableAct.Should().ThrowAsync<InvalidOperationException>();
+
+        sut.UsesEntropy.Should().BeTrue();
+        sut.IsUnlocked.Should().BeTrue();
+        _storedConfig.Should().BeSameAs(originalConfig);
+        sut.Unprotect(validCiphertext).Should().Be("my-secret");
+    }
+
+    [Fact]
+    public async Task EnableEntropyAsync_WithUndecryptableBlob_SkipsCorruptedBlobAndSucceeds()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sut = CreateSut();
+        _storedCredentials =
+        [
+            ("MangaDex", "valid_token", sut.Protect("healthy-secret")),
+            ("BrokenSource", "corrupted_token", [0x01, 0x02, 0x03, 0x04]),
+        ];
+
+        // Act
+        await sut.EnableEntropyAsync("MasterPass123", ct);
+
+        // Assert
+        sut.UsesEntropy.Should().BeTrue();
+        sut.IsUnlocked.Should().BeTrue();
+        _storedCredentials.Should().ContainSingle();
+        _storedCredentials[0].SourceName.Should().Be("MangaDex");
+        sut.Unprotect(_storedCredentials[0].Ciphertext).Should().Be("healthy-secret");
+    }
+
+    [Fact]
+    public async Task ResetAsync_WithUndecryptableBlobs_ClearsAllCredentialsAndDisablesProtection()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var sut = CreateSut();
+        await sut.EnableEntropyAsync("MasterPass123", ct);
+
+        var lockedSession = CreateSut();
+        await lockedSession.InitializeAsync(ct);
+        _storedCredentials = [("BrokenSource", "corrupted_token", [0xDE, 0xAD, 0xBE, 0xEF])];
+
+        // Act
+        await lockedSession.ResetAsync(ct);
+
+        // Assert
+        lockedSession.UsesEntropy.Should().BeFalse();
+        lockedSession.IsUnlocked.Should().BeTrue();
+        _storedCredentials.Should().BeEmpty();
+        _storedConfig.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task DataService_ReplaceCredentialProtectionAsync_WithRealSqlite_RollsBackBothTablesOnMidTransactionFailure()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var tempDbPath = Path.Combine(
+            Path.GetTempPath(),
+            $"yukari_cred_atomic_{Guid.NewGuid():N}.db"
+        );
+        var connectionString = $"Data Source={tempDbPath};Pooling=False";
+
+        try
+        {
+            var migrator = new DatabaseMigrator(
+                NullLogger<DatabaseMigrator>.Instance,
+                connectionString
+            );
+            await migrator.MigrateAsync();
+
+            var dataService = new DataService(connectionString);
+            await dataService.UpsertComicSourceAsync(
+                new ComicSourceModel
+                {
+                    Name = "MangaDex",
+                    Version = "2.6.0",
+                    DllPath = @"C:\Plugins\MangaDex.dll",
+                    IsEnabled = true,
+                    IsConfigurable = true,
+                }
+            );
+
+            var initialConfig = new CredentialProtectionConfig([1, 2, 3, 4], [5, 6, 7, 8], 600_000);
+            var initialCredentials = new List<(
+                string SourceName,
+                string SettingKey,
+                byte[] Ciphertext
+            )>
+            {
+                ("MangaDex", "api_token", [10, 20, 30]),
+            };
+
+            await dataService.ReplaceCredentialProtectionAsync(
+                initialCredentials,
+                initialConfig,
+                ct
+            );
+
+            // Act — pass a config with a null Salt that violates NOT NULL on CredentialProtection
+            // AFTER ComicSourceCredentials has already been deleted and re-inserted inside the transaction.
+            var newCredentials = new List<(string SourceName, string SettingKey, byte[] Ciphertext)>
+            {
+                ("MangaDex", "api_token", [99, 99, 99]),
+            };
+            var invalidConfig = new CredentialProtectionConfig(null!, [9, 9, 9], 600_000);
+
+            var failingAct = async () =>
+                await dataService.ReplaceCredentialProtectionAsync(
+                    newCredentials,
+                    invalidConfig,
+                    ct
+                );
+
+            // Assert — SQLite rejects the second table write and rolls back the first table write too
+            await failingAct.Should().ThrowAsync<SqliteException>();
+
+            var persistedCreds = await dataService.GetAllComicSourceCredentialsAsync(ct);
+            var persistedConfig = await dataService.GetCredentialProtectionAsync(ct);
+
+            persistedCreds.Should().ContainSingle();
+            persistedCreds[0].Ciphertext.Should().Equal([10, 20, 30]);
+
+            persistedConfig.Should().NotBeNull();
+            persistedConfig!.Salt.Should().Equal([1, 2, 3, 4]);
+            persistedConfig.Canary.Should().Equal([5, 6, 7, 8]);
+            persistedConfig.Iterations.Should().Be(600_000);
+        }
+        finally
+        {
+            if (File.Exists(tempDbPath))
+                File.Delete(tempDbPath);
+        }
     }
 }
