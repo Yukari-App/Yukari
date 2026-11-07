@@ -1059,4 +1059,40 @@
   <data name="LibraryBackupHelp3" xml:space="preserve">
     <value>When importing a backup, choose **Merge** to combine it with your existing library or **Replace** to overwrite your online library (preserving local comics). File paths are automatically adjusted even on a new Windows user account.</value>
   </data>
+  <data name="ComicSourceSettingsMNItem.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="ComicSourceSettingsHeader" xml:space="preserve">
+    <value>{0} Settings</value>
+  </data>
+  <data name="ComicSourceSettingsDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="ComicSourceSettingsDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Restore Defaults</value>
+  </data>
+  <data name="ComicSourceSettingsDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="EmptyComicSourceSettingsInfoBar.Title" xml:space="preserve">
+    <value>No settings available</value>
+  </data>
+  <data name="EmptyComicSourceSettingsInfoBar.Message" xml:space="preserve">
+    <value>This comic source does not expose any configurable settings.</value>
+  </data>
+  <data name="PasswordValueSetTXB.Text" xml:space="preserve">
+    <value>A password is stored. Leave blank to keep the current value.</value>
+  </data>
+  <data name="ClearPasswordBT.Content" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="SuccessComicSourceSettingsSaved" xml:space="preserve">
+    <value>Comic source settings saved successfully.</value>
+  </data>
+  <data name="ErrorFetchingComicSourceSettings" xml:space="preserve">
+    <value>Error Fetching Comic Source Settings</value>
+  </data>
+  <data name="ErrorSavingComicSourceSettings" xml:space="preserve">
+    <value>Error Saving Comic Source Settings</value>
+  </data>
 </root>

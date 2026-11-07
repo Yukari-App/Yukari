@@ -1059,4 +1059,40 @@
   <data name="LibraryBackupHelp3" xml:space="preserve">
     <value>Al importar un respaldo, elige **Combinar** para unirlo con tu biblioteca actual o **Reemplazar** para sobrescribir tu biblioteca en línea (conservando los cómics locales). Las rutas de los archivos se ajustan automáticamente incluso en una nueva cuenta de usuario de Windows.</value>
   </data>
+  <data name="ComicSourceSettingsMNItem.Text" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="ComicSourceSettingsHeader" xml:space="preserve">
+    <value>Configuración de {0}</value>
+  </data>
+  <data name="ComicSourceSettingsDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="ComicSourceSettingsDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Restaurar valores predeterminados</value>
+  </data>
+  <data name="ComicSourceSettingsDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="EmptyComicSourceSettingsInfoBar.Title" xml:space="preserve">
+    <value>No hay configuraciones disponibles</value>
+  </data>
+  <data name="EmptyComicSourceSettingsInfoBar.Message" xml:space="preserve">
+    <value>Esta fuente no ofrece opciones configurables.</value>
+  </data>
+  <data name="PasswordValueSetTXB.Text" xml:space="preserve">
+    <value>Hay una contraseña guardada. Déjalo en blanco para conservar el valor actual.</value>
+  </data>
+  <data name="ClearPasswordBT.Content" xml:space="preserve">
+    <value>Borrar</value>
+  </data>
+  <data name="SuccessComicSourceSettingsSaved" xml:space="preserve">
+    <value>Configuración de la fuente guardada correctamente.</value>
+  </data>
+  <data name="ErrorFetchingComicSourceSettings" xml:space="preserve">
+    <value>Error al Obtener la Configuración de la Fuente</value>
+  </data>
+  <data name="ErrorSavingComicSourceSettings" xml:space="preserve">
+    <value>Error al Guardar la Configuración de la Fuente</value>
+  </data>
 </root>

@@ -1059,4 +1059,40 @@
   <data name="LibraryBackupHelp3" xml:space="preserve">
     <value>バックアップをインポートする際、既存のライブラリと統合する **マージ** か、オンラインライブラリを上書きする **置換**（ローカル漫画は保持されます）を選択できます。新しいWindowsユーザー環境でもファイルパスは自動的に調整されます。</value>
   </data>
+  <data name="ComicSourceSettingsMNItem.Text" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="ComicSourceSettingsHeader" xml:space="preserve">
+    <value>{0} の設定</value>
+  </data>
+  <data name="ComicSourceSettingsDialog.PrimaryButtonText" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="ComicSourceSettingsDialog.SecondaryButtonText" xml:space="preserve">
+    <value>デフォルトに戻す</value>
+  </data>
+  <data name="ComicSourceSettingsDialog.CloseButtonText" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="EmptyComicSourceSettingsInfoBar.Title" xml:space="preserve">
+    <value>利用可能な設定はありません</value>
+  </data>
+  <data name="EmptyComicSourceSettingsInfoBar.Message" xml:space="preserve">
+    <value>このコミックソースには変更可能な設定がありません。</value>
+  </data>
+  <data name="PasswordValueSetTXB.Text" xml:space="preserve">
+    <value>パスワードが保存されています。現在の値を保持するには空欄のままにしてください。</value>
+  </data>
+  <data name="ClearPasswordBT.Content" xml:space="preserve">
+    <value>クリア</value>
+  </data>
+  <data name="SuccessComicSourceSettingsSaved" xml:space="preserve">
+    <value>コミックソースの設定を保存しました。</value>
+  </data>
+  <data name="ErrorFetchingComicSourceSettings" xml:space="preserve">
+    <value>コミックソース設定取得エラー</value>
+  </data>
+  <data name="ErrorSavingComicSourceSettings" xml:space="preserve">
+    <value>コミックソース設定保存エラー</value>
+  </data>
 </root>
