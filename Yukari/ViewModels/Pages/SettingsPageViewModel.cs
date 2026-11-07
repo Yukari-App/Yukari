@@ -12,6 +12,7 @@ using Yukari.Messages;
 using Yukari.Models;
 using Yukari.Models.Settings;
 using Yukari.Services.Comics;
+using Yukari.Services.Security;
 using Yukari.Services.Settings;
 using Yukari.Services.Sources;
 using Yukari.Services.UI;
@@ -28,6 +29,7 @@ public partial class SettingsPageViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly IMessenger _messenger;
     private readonly ILocalizationService _localizationService;
+    private readonly ICredentialProtector? _credentialProtector;
 
     private bool _isInitializing = true;
 
@@ -71,6 +73,10 @@ public partial class SettingsPageViewModel : ObservableObject
 
     public bool IsAnyComicSourceEnabled => AvailableComicSources.Count > 0;
     public bool IsComicSourcesEmpty => ComicSourceItems.Count == 0;
+    public bool IsCredentialProtectionEnabled => _credentialProtector?.UsesEntropy ?? false;
+    public bool IsCredentialProtectionDisabled => !IsCredentialProtectionEnabled;
+    public bool IsCredentialProtectionLocked =>
+        IsCredentialProtectionEnabled && !(_credentialProtector?.IsUnlocked ?? true);
 
     public SettingsPageViewModel(
         ISettingsService settingsService,
@@ -79,7 +85,8 @@ public partial class SettingsPageViewModel : ObservableObject
         INotificationService notificationService,
         IDialogService dialogService,
         IMessenger messenger,
-        ILocalizationService localizationService
+        ILocalizationService localizationService,
+        ICredentialProtector? credentialProtector = null
     )
     {
         _settingsService = settingsService;
@@ -89,6 +96,7 @@ public partial class SettingsPageViewModel : ObservableObject
         _dialogService = dialogService;
         _messenger = messenger;
         _localizationService = localizationService;
+        _credentialProtector = credentialProtector;
 
         _ = LoadSettingsAsync();
     }
@@ -207,6 +215,43 @@ public partial class SettingsPageViewModel : ObservableObject
 
         await LoadComicSourcesAsync();
         UpdateDefaultComicSource();
+    }
+
+    [RelayCommand]
+    private async Task EnableCredentialProtectionAsync()
+    {
+        await _dialogService.ShowCredentialProtectionDialogAsync(CredentialProtectionMode.Enable);
+        NotifyCredentialProtectionChanged();
+    }
+
+    [RelayCommand]
+    private async Task UnlockCredentialsAsync()
+    {
+        await _dialogService.ShowCredentialProtectionDialogAsync(CredentialProtectionMode.Unlock);
+        NotifyCredentialProtectionChanged();
+    }
+
+    [RelayCommand]
+    private async Task ChangeCredentialPasswordAsync()
+    {
+        await _dialogService.ShowCredentialProtectionDialogAsync(
+            CredentialProtectionMode.ChangePassword
+        );
+        NotifyCredentialProtectionChanged();
+    }
+
+    [RelayCommand]
+    private async Task DisableCredentialProtectionAsync()
+    {
+        await _dialogService.ShowCredentialProtectionDialogAsync(CredentialProtectionMode.Disable);
+        NotifyCredentialProtectionChanged();
+    }
+
+    private void NotifyCredentialProtectionChanged()
+    {
+        OnPropertyChanged(nameof(IsCredentialProtectionEnabled));
+        OnPropertyChanged(nameof(IsCredentialProtectionDisabled));
+        OnPropertyChanged(nameof(IsCredentialProtectionLocked));
     }
 
     [RelayCommand]

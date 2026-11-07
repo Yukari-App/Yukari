@@ -244,6 +244,23 @@
                             <Button x:Uid="ImportLibraryBT" Command="{x:Bind ViewModel.OpenLibraryImportDialogCommand}" />
                         </StackPanel>
                     </toolkit:SettingsCard>
+                    <toolkit:SettingsCard x:Uid="CredentialProtectionCard" HeaderIcon="{ui:FontIcon Glyph=&#xE72E;}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button x:Uid="EnableCredentialProtectionBT"
+                                    Command="{x:Bind ViewModel.EnableCredentialProtectionCommand}"
+                                    Visibility="{x:Bind ViewModel.IsCredentialProtectionDisabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                            <Button x:Uid="UnlockCredentialsBT"
+                                    Command="{x:Bind ViewModel.UnlockCredentialsCommand}"
+                                    Visibility="{x:Bind ViewModel.IsCredentialProtectionLocked, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                            <Button x:Uid="ChangeCredentialPasswordBT"
+                                    Command="{x:Bind ViewModel.ChangeCredentialPasswordCommand}"
+                                    Visibility="{x:Bind ViewModel.IsCredentialProtectionEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                            <Button x:Uid="DisableCredentialProtectionBT"
+                                    Command="{x:Bind ViewModel.DisableCredentialProtectionCommand}"
+                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                    Visibility="{x:Bind ViewModel.IsCredentialProtectionEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                        </StackPanel>
+                    </toolkit:SettingsCard>
                     <toolkit:SettingsCard x:Uid="CleanUpCard" HeaderIcon="{ui:FontIcon Glyph=&#xE74D;}">
                         <Button x:Uid="CleanUpBT" Command="{x:Bind ViewModel.CleanUpStorageCommand}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
                     </toolkit:SettingsCard>
