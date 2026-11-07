@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Yukari.ViewModels.Components;
+using Yukari.ViewModels.Components.Settings;
 
 namespace Yukari.Helpers.UI.Selectors;
 

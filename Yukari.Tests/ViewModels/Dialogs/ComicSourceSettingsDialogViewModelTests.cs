@@ -10,7 +10,7 @@ using Yukari.Core.Models.Settings;
 using Yukari.Models.Common;
 using Yukari.Services.Sources;
 using Yukari.Services.UI;
-using Yukari.ViewModels.Components;
+using Yukari.ViewModels.Components.Settings;
 using Yukari.ViewModels.Dialogs;
 
 namespace Yukari.Tests.ViewModels.Dialogs;

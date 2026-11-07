@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Yukari.Core.Models.Settings;
 using Yukari.Services.Sources;
 using Yukari.Services.UI;
-using Yukari.ViewModels.Components;
+using Yukari.ViewModels.Components.Settings;
 
 namespace Yukari.ViewModels.Dialogs;
 

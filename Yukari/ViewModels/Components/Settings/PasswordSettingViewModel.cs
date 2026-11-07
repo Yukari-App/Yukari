@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Yukari.Core.Models.Settings;
 
-namespace Yukari.ViewModels.Components;
+namespace Yukari.ViewModels.Components.Settings;
 
 public partial class PasswordSettingViewModel : SourceSettingViewModel
 {

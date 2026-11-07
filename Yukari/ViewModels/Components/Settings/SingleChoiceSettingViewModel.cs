@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Yukari.Core.Models.Settings;
 
-namespace Yukari.ViewModels.Components;
+namespace Yukari.ViewModels.Components.Settings;
 
 public partial class SingleChoiceSettingViewModel : SourceSettingViewModel
 {

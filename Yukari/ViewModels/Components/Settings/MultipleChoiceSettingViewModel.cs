@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using Yukari.Core.Models.Settings;
 
-namespace Yukari.ViewModels.Components;
+namespace Yukari.ViewModels.Components.Settings;
 
 public partial class MultipleChoiceSettingViewModel : SourceSettingViewModel
 {
