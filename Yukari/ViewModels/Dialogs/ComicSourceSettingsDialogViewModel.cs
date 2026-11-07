@@ -19,7 +19,6 @@ public partial class ComicSourceSettingsDialogViewModel : ObservableObject
     private readonly ILogger<ComicSourceSettingsDialogViewModel> _logger;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DialogTitle))]
     public partial string SourceName { get; set; } = string.Empty;
 
     [ObservableProperty]
@@ -35,9 +34,6 @@ public partial class ComicSourceSettingsDialogViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     [NotifyCanExecuteChangedFor(nameof(RestoreDefaultsCommand))]
     public partial bool IsLoading { get; set; }
-
-    public string DialogTitle =>
-        _localizationService.GetFormattedString("ComicSourceSettingsHeader", SourceName);
 
     public bool IsEmpty => !IsLoading && Settings.Count == 0;
     public bool CanInteract => !IsLoading && Settings.Count > 0;

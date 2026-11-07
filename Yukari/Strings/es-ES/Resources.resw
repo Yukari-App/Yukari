@@ -1062,8 +1062,8 @@
   <data name="ComicSourceSettingsMNItem.Text" xml:space="preserve">
     <value>Configuración</value>
   </data>
-  <data name="ComicSourceSettingsHeader" xml:space="preserve">
-    <value>Configuración de {0}</value>
+  <data name="ComicSourceSettingsHeader.Text" xml:space="preserve">
+    <value>Configuración de la Fuente</value>
   </data>
   <data name="ComicSourceSettingsDialog.PrimaryButtonText" xml:space="preserve">
     <value>Guardar</value>
