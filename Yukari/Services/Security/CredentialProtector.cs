@@ -38,7 +38,11 @@ internal class CredentialProtector : ICredentialProtector
 
         try
         {
-            var plainBytes = ProtectedData.Unprotect(cipherText, null, DataProtectionScope.CurrentUser);
+            var plainBytes = ProtectedData.Unprotect(
+                cipherText,
+                null,
+                DataProtectionScope.CurrentUser
+            );
             return Encoding.UTF8.GetString(plainBytes);
         }
         catch (CryptographicException ex)

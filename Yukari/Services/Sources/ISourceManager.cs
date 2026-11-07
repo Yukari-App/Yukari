@@ -16,10 +16,9 @@ public interface ISourceManager
     Task<Result> UpdateComicSourceIsEnabledAsync(string sourceName, bool isEnabled);
     Task<Result> RemoveComicSourceAsync(string sourceName);
 
-    Task<Result<(IReadOnlyList<SourceSetting> Schema, IReadOnlyDictionary<string, string> Values)>> GetSourceSettingsAsync(
-        string sourceName,
-        CancellationToken ct = default
-    );
+    Task<
+        Result<(IReadOnlyList<SourceSetting> Schema, IReadOnlyDictionary<string, string> Values)>
+    > GetSourceSettingsAsync(string sourceName, CancellationToken ct = default);
     Task<Result> SaveSettingsAsync(
         string sourceName,
         IReadOnlyDictionary<string, string> values,

@@ -442,9 +442,9 @@ internal class DataService : IDataService
         return rows.ToDictionary(r => r.SettingKey, r => r.Ciphertext);
     }
 
-    public async Task<IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>> GetAllComicSourceCredentialsAsync(
-        CancellationToken ct = default
-    )
+    public async Task<
+        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>
+    > GetAllComicSourceCredentialsAsync(CancellationToken ct = default)
     {
         using var connection = await GetOpenConnectionAsync();
 
@@ -453,9 +453,11 @@ internal class DataService : IDataService
             FROM ComicSourceCredentials;
             """;
 
-        var rows = await connection.QueryAsync<(string SourceName, string SettingKey, byte[] Ciphertext)>(
-            new CommandDefinition(sql, cancellationToken: ct)
-        );
+        var rows = await connection.QueryAsync<(
+            string SourceName,
+            string SettingKey,
+            byte[] Ciphertext
+        )>(new CommandDefinition(sql, cancellationToken: ct));
 
         return rows.ToList();
     }
@@ -942,7 +944,8 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
         using var transaction = await connection.BeginTransactionAsync();
 
-        const string deleteSql = "DELETE FROM ComicSourceCredentials WHERE SourceName = @SourceName;";
+        const string deleteSql =
+            "DELETE FROM ComicSourceCredentials WHERE SourceName = @SourceName;";
         await connection.ExecuteAsync(deleteSql, new { SourceName = sourceName }, transaction);
 
         if (credentials.Count > 0)
@@ -972,7 +975,10 @@ internal class DataService : IDataService
         using var connection = await GetOpenConnectionAsync();
         using var transaction = await connection.BeginTransactionAsync();
 
-        await connection.ExecuteAsync("DELETE FROM ComicSourceCredentials;", transaction: transaction);
+        await connection.ExecuteAsync(
+            "DELETE FROM ComicSourceCredentials;",
+            transaction: transaction
+        );
 
         if (credentials.Count > 0)
         {

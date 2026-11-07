@@ -127,7 +127,10 @@ internal class SourceService : ISourceService
 
     public async Task ApplySettingsAsync(string sourceName, CancellationToken ct = default)
     {
-        if (!_sourceInstances.TryGetValue(sourceName, out var source) || source is not IConfigurableSource configurable)
+        if (
+            !_sourceInstances.TryGetValue(sourceName, out var source)
+            || source is not IConfigurableSource configurable
+        )
             return;
 
         try

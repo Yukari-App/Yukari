@@ -38,19 +38,18 @@ public class SourceSettingsStoreTests
         const string sourceName = "TestPlugin";
         var schema = new List<SourceSetting>
         {
-            new ToggleSetting { Key = "enable_cache", Header = "Enable Cache", DefaultValue = true },
+            new ToggleSetting
+            {
+                Key = "enable_cache",
+                Header = "Enable Cache",
+                DefaultValue = true,
+            },
             new PasswordSetting { Key = "api_token", Header = "API Token" },
         };
 
-        var plainSettings = new Dictionary<string, string>
-        {
-            ["enable_cache"] = "false",
-        };
+        var plainSettings = new Dictionary<string, string> { ["enable_cache"] = "false" };
         var cipherBytes = Encoding.UTF8.GetBytes("encrypted-token");
-        var credentials = new Dictionary<string, byte[]>
-        {
-            ["api_token"] = cipherBytes,
-        };
+        var credentials = new Dictionary<string, byte[]> { ["api_token"] = cipherBytes };
 
         _dataServiceMock
             .Setup(d => d.GetComicSourceSettingsAsync(sourceName, ct))
@@ -60,9 +59,7 @@ public class SourceSettingsStoreTests
             .Setup(d => d.GetComicSourceCredentialsAsync(sourceName, ct))
             .ReturnsAsync(credentials);
 
-        _credentialProtectorMock
-            .Setup(p => p.Decrypt(cipherBytes))
-            .Returns("decrypted-token-123");
+        _credentialProtectorMock.Setup(p => p.Decrypt(cipherBytes)).Returns("decrypted-token-123");
 
         // Act
         var result = await _store.LoadRawValuesAsync(sourceName, schema, ct);
@@ -92,20 +89,28 @@ public class SourceSettingsStoreTests
         };
 
         var expectedCipher = new byte[] { 1, 2, 3, 4 };
-        _credentialProtectorMock
-            .Setup(p => p.Encrypt("my_secret_key"))
-            .Returns(expectedCipher);
+        _credentialProtectorMock.Setup(p => p.Encrypt("my_secret_key")).Returns(expectedCipher);
 
         IReadOnlyDictionary<string, string>? capturedPlain = null;
         IReadOnlyDictionary<string, byte[]>? capturedCreds = null;
 
         _dataServiceMock
-            .Setup(d => d.SaveComicSourceSettingsAsync(sourceName, It.IsAny<IReadOnlyDictionary<string, string>>()))
+            .Setup(d =>
+                d.SaveComicSourceSettingsAsync(
+                    sourceName,
+                    It.IsAny<IReadOnlyDictionary<string, string>>()
+                )
+            )
             .Callback<string, IReadOnlyDictionary<string, string>>((_, p) => capturedPlain = p)
             .Returns(Task.CompletedTask);
 
         _dataServiceMock
-            .Setup(d => d.SaveComicSourceCredentialsAsync(sourceName, It.IsAny<IReadOnlyDictionary<string, byte[]>>()))
+            .Setup(d =>
+                d.SaveComicSourceCredentialsAsync(
+                    sourceName,
+                    It.IsAny<IReadOnlyDictionary<string, byte[]>>()
+                )
+            )
             .Callback<string, IReadOnlyDictionary<string, byte[]>>((_, c) => capturedCreds = c)
             .Returns(Task.CompletedTask);
 
@@ -114,12 +119,20 @@ public class SourceSettingsStoreTests
 
         // Assert
         capturedPlain.Should().NotBeNull();
-        capturedPlain.Should().ContainKey("server_url").WhoseValue.Should().Be("https://example.com");
+        capturedPlain
+            .Should()
+            .ContainKey("server_url")
+            .WhoseValue.Should()
+            .Be("https://example.com");
         capturedPlain.Should().NotContainKey("stale_key");
         capturedPlain.Should().NotContainKey("auth_key");
 
         capturedCreds.Should().NotBeNull();
-        capturedCreds.Should().ContainKey("auth_key").WhoseValue.Should().BeEquivalentTo(expectedCipher);
+        capturedCreds
+            .Should()
+            .ContainKey("auth_key")
+            .WhoseValue.Should()
+            .BeEquivalentTo(expectedCipher);
         capturedCreds.Should().NotContainKey("stale_key");
         capturedCreds.Should().NotContainKey("server_url");
     }
@@ -132,7 +145,12 @@ public class SourceSettingsStoreTests
         const string sourceName = "TestPlugin";
         var schema = new List<SourceSetting>
         {
-            new ToggleSetting { Key = "debug_mode", Header = "Debug", DefaultValue = false },
+            new ToggleSetting
+            {
+                Key = "debug_mode",
+                Header = "Debug",
+                DefaultValue = false,
+            },
         };
 
         _dataServiceMock

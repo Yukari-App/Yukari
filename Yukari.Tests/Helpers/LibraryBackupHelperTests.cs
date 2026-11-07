@@ -793,7 +793,9 @@ public class LibraryBackupHelperTests : IDisposable
 
         using var conn = new SqliteConnection($"Data Source={extractedDbPath};Pooling=False");
         await conn.OpenAsync(ct);
-        var count = await conn.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM ComicSourceCredentials;");
+        var count = await conn.ExecuteScalarAsync<int>(
+            "SELECT COUNT(1) FROM ComicSourceCredentials;"
+        );
         count.Should().Be(0);
     }
 
@@ -830,7 +832,9 @@ public class LibraryBackupHelperTests : IDisposable
         // Target has MangaDex already installed with data_saver = 'false'
         await SeedSampleAppDataAsync(targetAppData, ct);
         var targetDbPath = Path.Combine(targetAppData, "Data", "yukari.db");
-        using (var targetSetupConn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False"))
+        using (
+            var targetSetupConn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False")
+        )
         {
             await targetSetupConn.OpenAsync(ct);
             await targetSetupConn.ExecuteAsync(
@@ -891,7 +895,9 @@ public class LibraryBackupHelperTests : IDisposable
         // Target has MangaDex already installed with data_saver = 'false'
         await SeedSampleAppDataAsync(targetAppData, ct);
         var targetDbPath = Path.Combine(targetAppData, "Data", "yukari.db");
-        using (var targetSetupConn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False"))
+        using (
+            var targetSetupConn = new SqliteConnection($"Data Source={targetDbPath};Pooling=False")
+        )
         {
             await targetSetupConn.OpenAsync(ct);
             await targetSetupConn.ExecuteAsync(

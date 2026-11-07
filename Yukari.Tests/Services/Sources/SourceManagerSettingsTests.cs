@@ -58,16 +58,16 @@ public class SourceManagerSettingsTests
         const string sourceName = "MangaDex";
         var schema = new List<SourceSetting>
         {
-            new ToggleSetting { Key = "data_saver", Header = "Data Saver", DefaultValue = false },
+            new ToggleSetting
+            {
+                Key = "data_saver",
+                Header = "Data Saver",
+                DefaultValue = false,
+            },
         };
-        var values = new Dictionary<string, string>
-        {
-            ["data_saver"] = "true",
-        };
+        var values = new Dictionary<string, string> { ["data_saver"] = "true" };
 
-        _srcServiceMock
-            .Setup(s => s.GetSettingsSchemaAsync(sourceName, ct))
-            .ReturnsAsync(schema);
+        _srcServiceMock.Setup(s => s.GetSettingsSchemaAsync(sourceName, ct)).ReturnsAsync(schema);
 
         _settingsStoreMock
             .Setup(st => st.LoadRawValuesAsync(sourceName, schema, ct))
@@ -109,16 +109,16 @@ public class SourceManagerSettingsTests
         const string sourceName = "MangaDex";
         var schema = new List<SourceSetting>
         {
-            new ToggleSetting { Key = "data_saver", Header = "Data Saver", DefaultValue = false },
+            new ToggleSetting
+            {
+                Key = "data_saver",
+                Header = "Data Saver",
+                DefaultValue = false,
+            },
         };
-        var valuesToSave = new Dictionary<string, string>
-        {
-            ["data_saver"] = "true",
-        };
+        var valuesToSave = new Dictionary<string, string> { ["data_saver"] = "true" };
 
-        _srcServiceMock
-            .Setup(s => s.GetSettingsSchemaAsync(sourceName, ct))
-            .ReturnsAsync(schema);
+        _srcServiceMock.Setup(s => s.GetSettingsSchemaAsync(sourceName, ct)).ReturnsAsync(schema);
 
         _settingsStoreMock
             .Setup(st => st.SaveSettingsAsync(sourceName, schema, valuesToSave, ct))
@@ -133,7 +133,10 @@ public class SourceManagerSettingsTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _settingsStoreMock.Verify(st => st.SaveSettingsAsync(sourceName, schema, valuesToSave, ct), Times.Once);
+        _settingsStoreMock.Verify(
+            st => st.SaveSettingsAsync(sourceName, schema, valuesToSave, ct),
+            Times.Once
+        );
         _srcServiceMock.Verify(s => s.ApplySettingsAsync(sourceName, ct), Times.Once);
     }
 }

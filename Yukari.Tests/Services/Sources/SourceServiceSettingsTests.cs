@@ -48,7 +48,15 @@ public class SourceServiceSettingsTests
 
         // Assert
         await act.Should().NotThrowAsync();
-        _settingsStoreMock.Verify(s => s.LoadSettingsAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<Core.Models.Settings.SourceSetting>>(), It.IsAny<CancellationToken>()), Times.Never);
+        _settingsStoreMock.Verify(
+            s =>
+                s.LoadSettingsAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<IReadOnlyList<Core.Models.Settings.SourceSetting>>(),
+                    It.IsAny<CancellationToken>()
+                ),
+            Times.Never
+        );
     }
 
     [Fact]
@@ -59,13 +67,15 @@ public class SourceServiceSettingsTests
         const string sourceName = "DisabledPlugin";
         _dataServiceMock
             .Setup(d => d.GetComicSourceDetailsAsync(sourceName, ct))
-            .ReturnsAsync(new ComicSourceModel
-            {
-                Name = sourceName,
-                IsEnabled = false,
-                DllPath = "C:\\dummy.dll",
-                Version = "1.0.0",
-            });
+            .ReturnsAsync(
+                new ComicSourceModel
+                {
+                    Name = sourceName,
+                    IsEnabled = false,
+                    DllPath = "C:\\dummy.dll",
+                    Version = "1.0.0",
+                }
+            );
 
         // Act
         var act = async () => await _sourceService.GetSettingsSchemaAsync(sourceName, ct);

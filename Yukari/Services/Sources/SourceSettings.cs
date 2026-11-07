@@ -14,7 +14,9 @@ internal class SourceSettings : ISourceSettings
     private readonly Dictionary<string, bool> _toggles = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _strings = new(StringComparer.Ordinal);
     private readonly Dictionary<string, double> _numbers = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, IReadOnlyList<string>> _stringLists = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, IReadOnlyList<string>> _stringLists = new(
+        StringComparer.Ordinal
+    );
 
     public SourceSettings(
         IReadOnlyList<SourceSetting> schema,
@@ -29,8 +31,10 @@ internal class SourceSettings : ISourceSettings
             switch (setting)
             {
                 case ToggleSetting toggle:
-                    if (storedValues.TryGetValue(toggle.Key, out var toggleStr)
-                        && bool.TryParse(toggleStr, out var parsedBool))
+                    if (
+                        storedValues.TryGetValue(toggle.Key, out var toggleStr)
+                        && bool.TryParse(toggleStr, out var parsedBool)
+                    )
                     {
                         _toggles[toggle.Key] = parsedBool;
                     }
@@ -64,8 +68,15 @@ internal class SourceSettings : ISourceSettings
 
                 case NumberSetting number:
                     double numVal = number.DefaultValue;
-                    if (storedValues.TryGetValue(number.Key, out var numStr)
-                        && double.TryParse(numStr, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedDouble))
+                    if (
+                        storedValues.TryGetValue(number.Key, out var numStr)
+                        && double.TryParse(
+                            numStr,
+                            NumberStyles.Float,
+                            CultureInfo.InvariantCulture,
+                            out var parsedDouble
+                        )
+                    )
                     {
                         numVal = parsedDouble;
                     }
@@ -83,11 +94,18 @@ internal class SourceSettings : ISourceSettings
                     break;
 
                 case SingleChoiceSetting singleChoice:
-                    var validSingleKeys = singleChoice.Options.Select(o => o.Key).ToHashSet(StringComparer.Ordinal);
-                    var singleDefault = singleChoice.DefaultKey ?? singleChoice.Options.FirstOrDefault()?.Key ?? string.Empty;
+                    var validSingleKeys = singleChoice
+                        .Options.Select(o => o.Key)
+                        .ToHashSet(StringComparer.Ordinal);
+                    var singleDefault =
+                        singleChoice.DefaultKey
+                        ?? singleChoice.Options.FirstOrDefault()?.Key
+                        ?? string.Empty;
 
-                    if (storedValues.TryGetValue(singleChoice.Key, out var choiceStr)
-                        && validSingleKeys.Contains(choiceStr))
+                    if (
+                        storedValues.TryGetValue(singleChoice.Key, out var choiceStr)
+                        && validSingleKeys.Contains(choiceStr)
+                    )
                     {
                         _strings[singleChoice.Key] = choiceStr;
                     }
@@ -98,10 +116,13 @@ internal class SourceSettings : ISourceSettings
                     break;
 
                 case MultipleChoiceSetting multipleChoice:
-                    var validMultipleKeys = multipleChoice.Options.Select(o => o.Key).ToHashSet(StringComparer.Ordinal);
-                    var multiDefault = multipleChoice.DefaultKeys?
-                        .Where(k => validMultipleKeys.Contains(k))
-                        .ToList()
+                    var validMultipleKeys = multipleChoice
+                        .Options.Select(o => o.Key)
+                        .ToHashSet(StringComparer.Ordinal);
+                    var multiDefault =
+                        multipleChoice
+                            .DefaultKeys?.Where(k => validMultipleKeys.Contains(k))
+                            .ToList()
                         ?? (IReadOnlyList<string>)[];
 
                     if (storedValues.TryGetValue(multipleChoice.Key, out var jsonStr))
@@ -162,7 +183,10 @@ internal class SourceSettings : ISourceSettings
         return _numbers.TryGetValue(key, out var val) ? val : defaultValue;
     }
 
-    public IReadOnlyList<string> GetStringList(string key, IReadOnlyList<string>? defaultValue = null)
+    public IReadOnlyList<string> GetStringList(
+        string key,
+        IReadOnlyList<string>? defaultValue = null
+    )
     {
         return _stringLists.TryGetValue(key, out var val) ? val : defaultValue ?? [];
     }

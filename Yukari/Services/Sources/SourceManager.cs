@@ -176,17 +176,29 @@ internal class SourceManager : ResultServiceBase, ISourceManager
         );
     }
 
-    public async Task<Result<(IReadOnlyList<SourceSetting> Schema, IReadOnlyDictionary<string, string> Values)>> GetSourceSettingsAsync(
-        string sourceName,
-        CancellationToken ct = default
-    )
+    public async Task<
+        Result<(IReadOnlyList<SourceSetting> Schema, IReadOnlyDictionary<string, string> Values)>
+    > GetSourceSettingsAsync(string sourceName, CancellationToken ct = default)
     {
-        return await ExecuteAsync<(IReadOnlyList<SourceSetting> Schema, IReadOnlyDictionary<string, string> Values)>(
+        return await ExecuteAsync<(
+            IReadOnlyList<SourceSetting> Schema,
+            IReadOnlyDictionary<string, string> Values
+        )>(
             async (cancellationToken) =>
             {
-                var schema = await _srcService.GetSettingsSchemaAsync(sourceName, cancellationToken);
-                var values = await _settingsStore.LoadRawValuesAsync(sourceName, schema, cancellationToken);
-                return Result<(IReadOnlyList<SourceSetting> Schema, IReadOnlyDictionary<string, string> Values)>.Success((schema, values));
+                var schema = await _srcService.GetSettingsSchemaAsync(
+                    sourceName,
+                    cancellationToken
+                );
+                var values = await _settingsStore.LoadRawValuesAsync(
+                    sourceName,
+                    schema,
+                    cancellationToken
+                );
+                return Result<(
+                    IReadOnlyList<SourceSetting> Schema,
+                    IReadOnlyDictionary<string, string> Values
+                )>.Success((schema, values));
             },
             _localizationService.GetString("ErrorFetchingComicSources"),
             ct

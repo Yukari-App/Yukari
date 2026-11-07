@@ -101,9 +101,9 @@ public interface IDataService
         string sourceName,
         IReadOnlyDictionary<string, byte[]> credentials
     );
-    Task<IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>> GetAllComicSourceCredentialsAsync(
-        CancellationToken ct = default
-    );
+    Task<
+        IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)>
+    > GetAllComicSourceCredentialsAsync(CancellationToken ct = default);
     Task ReplaceAllComicSourceCredentialsAsync(
         IReadOnlyList<(string SourceName, string SettingKey, byte[] Ciphertext)> credentials
     );

@@ -19,14 +19,20 @@ public class SourceSettingsTests
         // Arrange
         var schema = new List<SourceSetting>
         {
-            new ToggleSetting { Key = "t1", Header = "Toggle 1", DefaultValue = false },
-            new ToggleSetting { Key = "t2", Header = "Toggle 2", DefaultValue = true },
+            new ToggleSetting
+            {
+                Key = "t1",
+                Header = "Toggle 1",
+                DefaultValue = false,
+            },
+            new ToggleSetting
+            {
+                Key = "t2",
+                Header = "Toggle 2",
+                DefaultValue = true,
+            },
         };
-        var stored = new Dictionary<string, string>
-        {
-            ["t1"] = "True",
-            ["t2"] = "false",
-        };
+        var stored = new Dictionary<string, string> { ["t1"] = "True", ["t2"] = "false" };
 
         // Act
         var settings = new SourceSettings(schema, stored);
@@ -42,13 +48,20 @@ public class SourceSettingsTests
         // Arrange
         var schema = new List<SourceSetting>
         {
-            new ToggleSetting { Key = "t_invalid", Header = "Invalid", DefaultValue = true },
-            new ToggleSetting { Key = "t_missing", Header = "Missing", DefaultValue = false },
+            new ToggleSetting
+            {
+                Key = "t_invalid",
+                Header = "Invalid",
+                DefaultValue = true,
+            },
+            new ToggleSetting
+            {
+                Key = "t_missing",
+                Header = "Missing",
+                DefaultValue = false,
+            },
         };
-        var stored = new Dictionary<string, string>
-        {
-            ["t_invalid"] = "not_a_bool",
-        };
+        var stored = new Dictionary<string, string> { ["t_invalid"] = "not_a_bool" };
 
         // Act
         var settings = new SourceSettings(schema, stored);
@@ -64,13 +77,20 @@ public class SourceSettingsTests
         // Arrange
         var schema = new List<SourceSetting>
         {
-            new TextSetting { Key = "txt1", Header = "Text 1", DefaultValue = "default" },
-            new TextSetting { Key = "txt2", Header = "Text 2", DefaultValue = "def2" },
+            new TextSetting
+            {
+                Key = "txt1",
+                Header = "Text 1",
+                DefaultValue = "default",
+            },
+            new TextSetting
+            {
+                Key = "txt2",
+                Header = "Text 2",
+                DefaultValue = "def2",
+            },
         };
-        var stored = new Dictionary<string, string>
-        {
-            ["txt1"] = "custom_value",
-        };
+        var stored = new Dictionary<string, string> { ["txt1"] = "custom_value" };
 
         // Act
         var settings = new SourceSettings(schema, stored);
@@ -89,10 +109,7 @@ public class SourceSettingsTests
             new PasswordSetting { Key = "pwd1", Header = "Password 1" },
             new PasswordSetting { Key = "pwd2", Header = "Password 2" },
         };
-        var stored = new Dictionary<string, string>
-        {
-            ["pwd1"] = "secret123",
-        };
+        var stored = new Dictionary<string, string> { ["pwd1"] = "secret123" };
 
         // Act
         var settings = new SourceSettings(schema, stored);
@@ -164,11 +181,7 @@ public class SourceSettingsTests
     public void SingleChoiceSetting_WhenValid_ReturnsStoredOption_WhenInvalidOrMissing_ReturnsDefault()
     {
         // Arrange
-        var options = new List<SettingOption>
-        {
-            new("opt1", "Option 1"),
-            new("opt2", "Option 2"),
-        };
+        var options = new List<SettingOption> { new("opt1", "Option 1"), new("opt2", "Option 2") };
         var schema = new List<SourceSetting>
         {
             new SingleChoiceSetting
@@ -272,8 +285,18 @@ public class SourceSettingsTests
         // Arrange
         var schema = new List<SourceSetting>
         {
-            new ToggleSetting { Key = "my_toggle", Header = "Toggle", DefaultValue = true },
-            new TextSetting { Key = "my_text", Header = "Text", DefaultValue = "hello" },
+            new ToggleSetting
+            {
+                Key = "my_toggle",
+                Header = "Toggle",
+                DefaultValue = true,
+            },
+            new TextSetting
+            {
+                Key = "my_text",
+                Header = "Text",
+                DefaultValue = "hello",
+            },
         };
         var stored = new Dictionary<string, string>
         {
@@ -291,7 +314,10 @@ public class SourceSettingsTests
         settings.GetString("stale_key", defaultValue: "fallback").Should().Be("fallback");
         settings.GetInt("stale_key", defaultValue: 99).Should().Be(99);
         settings.GetDouble("stale_key", defaultValue: 1.23).Should().Be(1.23);
-        settings.GetStringList("stale_key", ["fallback_list"]).Should().BeEquivalentTo(["fallback_list"]);
+        settings
+            .GetStringList("stale_key", ["fallback_list"])
+            .Should()
+            .BeEquivalentTo(["fallback_list"]);
 
         // Mismatched types return caller defaults
         settings.GetString("my_toggle", "mismatched").Should().Be("mismatched");
@@ -305,7 +331,12 @@ public class SourceSettingsTests
         var schema = new List<SourceSetting>
         {
             new CustomUnknownSetting { Key = "custom", Header = "Custom" },
-            new ToggleSetting { Key = "valid_toggle", Header = "Valid", DefaultValue = true },
+            new ToggleSetting
+            {
+                Key = "valid_toggle",
+                Header = "Valid",
+                DefaultValue = true,
+            },
         };
         var stored = new Dictionary<string, string>
         {
