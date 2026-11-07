@@ -86,19 +86,36 @@ internal class SourceSettingsStore : ISourceSettingsStore
         var plainSettings = new Dictionary<string, string>(StringComparer.Ordinal);
         var credentials = new Dictionary<string, byte[]>(StringComparer.Ordinal);
 
+        var passwordSettings = schema.OfType<PasswordSetting>().ToList();
+        if (passwordSettings.Count > 0)
+        {
+            var existingCredentials =
+                await _dataService.GetComicSourceCredentialsAsync(sourceName, ct)
+                ?? new Dictionary<string, byte[]>();
+
+            foreach (var pw in passwordSettings)
+            {
+                if (values.TryGetValue(pw.Key, out var newPlain))
+                {
+                    if (!string.IsNullOrEmpty(newPlain))
+                        credentials[pw.Key] = _credentialProtector.Encrypt(newPlain);
+                }
+                else if (
+                    existingCredentials.TryGetValue(pw.Key, out var existingCipher)
+                    && existingCipher.Length > 0
+                )
+                {
+                    credentials[pw.Key] = existingCipher;
+                }
+            }
+        }
+
         foreach (var kvp in values)
         {
-            if (!schemaByKey.TryGetValue(kvp.Key, out var setting))
+            if (!schemaByKey.TryGetValue(kvp.Key, out var setting) || setting is PasswordSetting)
                 continue;
 
-            if (setting is PasswordSetting)
-            {
-                credentials[setting.Key] = _credentialProtector.Encrypt(kvp.Value ?? string.Empty);
-            }
-            else
-            {
-                plainSettings[setting.Key] = kvp.Value ?? string.Empty;
-            }
+            plainSettings[setting.Key] = kvp.Value ?? string.Empty;
         }
 
         await _dataService.SaveComicSourceSettingsAsync(sourceName, plainSettings);

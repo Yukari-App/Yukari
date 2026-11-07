@@ -200,7 +200,7 @@ internal class SourceManager : ResultServiceBase, ISourceManager
                     IReadOnlyDictionary<string, string> Values
                 )>.Success((schema, values));
             },
-            _localizationService.GetString("ErrorFetchingComicSources"),
+            _localizationService.GetString("ErrorFetchingComicSourceSettings"),
             ct
         );
     }
@@ -219,7 +219,7 @@ internal class SourceManager : ResultServiceBase, ISourceManager
                 await _srcService.ApplySettingsAsync(sourceName, ct);
                 return Result.Success();
             },
-            _localizationService.GetString("ErrorAddingUpdatingComicSource")
+            _localizationService.GetString("ErrorSavingComicSourceSettings")
         );
     }
 }

@@ -164,4 +164,55 @@ public class SourceSettingsStoreTests
         settings.Should().NotBeNull();
         settings.GetBool("debug_mode").Should().BeTrue();
     }
+
+    [Fact]
+    public async Task SaveSettingsAsync_PreservesUntouchedPassword_AndRemovesClearedPassword()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        const string sourceName = "TestPlugin";
+        var schema = new List<SourceSetting>
+        {
+            new PasswordSetting { Key = "kept_token", Header = "Kept Token" },
+            new PasswordSetting { Key = "cleared_token", Header = "Cleared Token" },
+        };
+
+        var existingKeptCipher = new byte[] { 10, 20, 30 };
+        var existingClearedCipher = new byte[] { 40, 50, 60 };
+        _dataServiceMock
+            .Setup(d => d.GetComicSourceCredentialsAsync(sourceName, ct))
+            .ReturnsAsync(
+                new Dictionary<string, byte[]>
+                {
+                    ["kept_token"] = existingKeptCipher,
+                    ["cleared_token"] = existingClearedCipher,
+                }
+            );
+
+        // kept_token is omitted (unedited), cleared_token is empty string (cleared)
+        var valuesToSave = new Dictionary<string, string> { ["cleared_token"] = string.Empty };
+
+        IReadOnlyDictionary<string, byte[]>? capturedCreds = null;
+        _dataServiceMock
+            .Setup(d =>
+                d.SaveComicSourceCredentialsAsync(
+                    sourceName,
+                    It.IsAny<IReadOnlyDictionary<string, byte[]>>()
+                )
+            )
+            .Callback<string, IReadOnlyDictionary<string, byte[]>>((_, c) => capturedCreds = c)
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _store.SaveSettingsAsync(sourceName, schema, valuesToSave, ct);
+
+        // Assert
+        capturedCreds.Should().NotBeNull();
+        capturedCreds
+            .Should()
+            .ContainKey("kept_token")
+            .WhoseValue.Should()
+            .BeEquivalentTo(existingKeptCipher);
+        capturedCreds.Should().NotContainKey("cleared_token");
+    }
 }
