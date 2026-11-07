@@ -1003,7 +1003,7 @@
     <value>プラグイン（ComicSources）を含める</value>
   </data>
   <data name="LibraryExportLocalComicsInfoBar.Message" xml:space="preserve">
-    <value>ローカル漫画はライブラリのエクスポートに含まれません。</value>
+    <value>ローカル漫画および保存されたソースの資格情報はライブラリのエクスポートに含まれません。</value>
   </data>
   <data name="LibraryExportProgressText" xml:space="preserve">
     <value>{1}件中{0}件をエクスポート済み</value>
@@ -1054,7 +1054,7 @@
     <value>**設定 → ストレージ → ライブラリのバックアップ** から、お気に入りの漫画、読書履歴、コレクション、およびオプションで **ダウンロード済みチャプター** や **プラグイン（ComicSources）** を .zip ファイルにエクスポートできます。</value>
   </data>
   <data name="LibraryBackupHelp2" xml:space="preserve">
-    <value>**ローカル漫画はエクスポートされません。** お気に入りに登録されているオンライン漫画のみがバックアップに含まれます。</value>
+    <value>**ローカル漫画および保存された資格情報はエクスポートされません。** お気に入りのオンライン漫画と機密情報を含まないソース設定のみがバックアップに含まれます。</value>
   </data>
   <data name="LibraryBackupHelp3" xml:space="preserve">
     <value>バックアップをインポートする際、既存のライブラリと統合する **マージ** か、オンラインライブラリを上書きする **置換**（ローカル漫画は保持されます）を選択できます。新しいWindowsユーザー環境でもファイルパスは自動的に調整されます。</value>
@@ -1223,5 +1223,23 @@
   </data>
   <data name="WarningSkippedUndecryptableCredentials" xml:space="preserve">
     <value>保存された資格情報 {0} 件を復元できなかったため削除しました。</value>
+  </data>
+  <data name="ComicSourcesHelp5" xml:space="preserve">
+    <value>一部のプラグインにはカスタム設定（**データセーバー**、ミラーサーバー、アカウントトークンなど）があります。**設定 → ソース → コミックソース → ⋯ → 設定** から変更できます。</value>
+  </data>
+  <data name="CredentialProtectionHelpExpander.Header" xml:space="preserve">
+    <value>資格情報の保護</value>
+  </data>
+  <data name="CredentialProtectionHelpExpander.Description" xml:space="preserve">
+    <value>保存されたソースのパスワードやトークンの保護</value>
+  </data>
+  <data name="CredentialProtectionHelp1" xml:space="preserve">
+    <value>デフォルトでは、**コミックソース** で設定されたパスワードやトークンはローカルで暗号化され、Windowsユーザーアカウントに紐付けられます。</value>
+  </data>
+  <data name="CredentialProtectionHelp2" xml:space="preserve">
+    <value>さらにセキュリティを高めるには、**設定 → ソース → 資格情報の保護** から **マスターパスワード** を設定してください。有効にすると、セッションごとに1回パスワードの入力が求められます。</value>
+  </data>
+  <data name="CredentialProtectionHelp3" xml:space="preserve">
+    <value>マスターパスワードを忘れた場合は、ロック解除ダイアログの **パスワードをお忘れですか？保護をリセット** をクリックしてパスワードを解除し、保存されたすべての資格情報を消去できます。</value>
   </data>
 </root>

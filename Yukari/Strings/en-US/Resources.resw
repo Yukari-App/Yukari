@@ -1003,7 +1003,7 @@
     <value>Include plugins (ComicSources)</value>
   </data>
   <data name="LibraryExportLocalComicsInfoBar.Message" xml:space="preserve">
-    <value>Local comics are not included when exporting the library.</value>
+    <value>Local comics and saved source credentials are not included when exporting the library.</value>
   </data>
   <data name="LibraryExportProgressText" xml:space="preserve">
     <value>Exported {0} of {1} items</value>
@@ -1054,7 +1054,7 @@
     <value>Go to **Settings → Storage → Library Backup** to export your favorite comics, reading progress, collections, and optionally your **downloaded chapters** and **plugins (ComicSources)** into a .zip file.</value>
   </data>
   <data name="LibraryBackupHelp2" xml:space="preserve">
-    <value>**Local comics are not exported.** Only online comics in your favorites are included in the backup.</value>
+    <value>**Local comics and saved credentials are not exported.** Only online favorite comics and non-sensitive source settings are included in the backup.</value>
   </data>
   <data name="LibraryBackupHelp3" xml:space="preserve">
     <value>When importing a backup, choose **Merge** to combine it with your existing library or **Replace** to overwrite your online library (preserving local comics). File paths are automatically adjusted even on a new Windows user account.</value>
@@ -1223,5 +1223,23 @@
   </data>
   <data name="WarningSkippedUndecryptableCredentials" xml:space="preserve">
     <value>{0} stored credential(s) could not be recovered and were removed.</value>
+  </data>
+  <data name="ComicSourcesHelp5" xml:space="preserve">
+    <value>Some plugins offer custom options (such as **Data Saver**, mirrors, or account tokens). Configure them at **Settings → Sources → Comic Sources → ⋯ → Settings**.</value>
+  </data>
+  <data name="CredentialProtectionHelpExpander.Header" xml:space="preserve">
+    <value>Credential Protection</value>
+  </data>
+  <data name="CredentialProtectionHelpExpander.Description" xml:space="preserve">
+    <value>Securing saved source passwords and tokens</value>
+  </data>
+  <data name="CredentialProtectionHelp1" xml:space="preserve">
+    <value>By default, passwords and tokens configured in **Comic Sources** are encrypted locally and bound to your Windows user account.</value>
+  </data>
+  <data name="CredentialProtectionHelp2" xml:space="preserve">
+    <value>For extra security, go to **Settings → Sources → Credential Protection** to set a **master password**. When enabled, Yukari will ask for this password once per session to unlock your credentials.</value>
+  </data>
+  <data name="CredentialProtectionHelp3" xml:space="preserve">
+    <value>If you forget your master password, click **Forgot password? Reset protection** in the unlock dialog to remove the password and clear all stored credentials.</value>
   </data>
 </root>

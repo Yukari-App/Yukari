@@ -1003,7 +1003,7 @@
     <value>Incluir plugins (ComicSources)</value>
   </data>
   <data name="LibraryExportLocalComicsInfoBar.Message" xml:space="preserve">
-    <value>Quadrinhos locais não são incluídos ao exportar a biblioteca.</value>
+    <value>Quadrinhos locais e credenciais salvas das fontes não são incluídos ao exportar a biblioteca.</value>
   </data>
   <data name="LibraryExportProgressText" xml:space="preserve">
     <value>Exportados {0} de {1} itens</value>
@@ -1054,7 +1054,7 @@
     <value>Vá em **Configurações → Armazenamento → Backup da Biblioteca** para exportar seus quadrinhos favoritos, progresso de leitura, coleções e, opcionalmente, seus **capítulos baixados** e **plugins (ComicSources)** em um arquivo .zip.</value>
   </data>
   <data name="LibraryBackupHelp2" xml:space="preserve">
-    <value>**Quadrinhos locais não são exportados.** Apenas quadrinhos online salvos nos seus favoritos são incluídos no backup.</value>
+    <value>**Quadrinhos locais e credenciais salvas não são exportados.** Apenas quadrinhos online favoritos e configurações não sensíveis das fontes são incluídos no backup.</value>
   </data>
   <data name="LibraryBackupHelp3" xml:space="preserve">
     <value>Ao importar um backup, escolha **Mesclar** para combiná-lo com sua biblioteca atual ou **Substituir** para sobrescrever sua biblioteca online (preservando quadrinhos locais). Os caminhos dos arquivos são ajustados automaticamente mesmo em um novo usuário do Windows.</value>
@@ -1223,5 +1223,23 @@
   </data>
   <data name="WarningSkippedUndecryptableCredentials" xml:space="preserve">
     <value>{0} credencial(is) salva(s) não pôde/puderam ser recuperada(s) e foi/foram removida(s).</value>
+  </data>
+  <data name="ComicSourcesHelp5" xml:space="preserve">
+    <value>Alguns plugins oferecem opções personalizadas (como **Economia de Dados**, espelhos ou tokens de conta). Configure-as em **Configurações → Fontes → Comic Sources → ⋯ → Configurações**.</value>
+  </data>
+  <data name="CredentialProtectionHelpExpander.Header" xml:space="preserve">
+    <value>Proteção de Credenciais</value>
+  </data>
+  <data name="CredentialProtectionHelpExpander.Description" xml:space="preserve">
+    <value>Protegendo senhas e tokens salvos das fontes</value>
+  </data>
+  <data name="CredentialProtectionHelp1" xml:space="preserve">
+    <value>Por padrão, senhas e tokens configurados nos **Comic Sources** são criptografados localmente e vinculados à sua conta de usuário do Windows.</value>
+  </data>
+  <data name="CredentialProtectionHelp2" xml:space="preserve">
+    <value>Para segurança extra, vá em **Configurações → Fontes → Proteção de Credenciais** para definir uma **senha mestra**. Quando ativada, o Yukari solicitará essa senha uma vez por sessão para desbloquear suas credenciais.</value>
+  </data>
+  <data name="CredentialProtectionHelp3" xml:space="preserve">
+    <value>Se você esquecer sua senha mestra, clique em **Esqueceu a senha? Redefinir proteção** no diálogo de desbloqueio para remover a senha e apagar todas as credenciais salvas.</value>
   </data>
 </root>
