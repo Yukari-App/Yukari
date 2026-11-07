@@ -110,6 +110,19 @@ internal class DialogService : IDialogService
         await dialog.ShowAsync();
     }
 
+    public async Task ShowComicSourceSettingsDialogAsync(string sourceName)
+    {
+        ThrowIfXamlRootNotInitialized();
+
+        var dialog = new ComicSourceSettingsDialog(sourceName)
+        {
+            XamlRoot = _xamlRoot,
+            RequestedTheme = AppTheme,
+        };
+
+        await dialog.ShowAsync();
+    }
+
     public async Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null)
     {
         ThrowIfXamlRootNotInitialized();
