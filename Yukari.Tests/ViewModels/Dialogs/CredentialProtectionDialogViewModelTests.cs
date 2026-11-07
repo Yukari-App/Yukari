@@ -141,6 +141,58 @@ public class CredentialProtectionDialogViewModelTests
     }
 
     [Fact]
+    public async Task SubmitAsync_WhenChangePasswordSucceeds_ReAppliesSettingsToAllLoadedSources()
+    {
+        // Arrange
+        _sut.Initialize(CredentialProtectionMode.ChangePassword);
+        _sut.CurrentPassword = "old";
+        _sut.NewPassword = "new";
+        _sut.ConfirmPassword = "new";
+        _credentialProtectorMock
+            .Setup(c => c.ChangeEntropyPasswordAsync("old", "new", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, 0));
+
+        // Act
+        var result = await _sut.SubmitAsync();
+
+        // Assert
+        result.Should().BeTrue();
+        _sourceServiceMock.Verify(
+            s => s.ApplySettingsToAllLoadedSourcesAsync(It.IsAny<CancellationToken>()),
+            Times.Once
+        );
+        _notificationServiceMock.Verify(
+            n => n.ShowSuccess("SuccessCredentialPasswordChanged", It.IsAny<string>()),
+            Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task SubmitAsync_WhenDisableSucceeds_ReAppliesSettingsToAllLoadedSources()
+    {
+        // Arrange
+        _sut.Initialize(CredentialProtectionMode.Disable);
+        _sut.CurrentPassword = "secret";
+        _credentialProtectorMock
+            .Setup(c => c.DisableEntropyAsync("secret", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, 0));
+
+        // Act
+        var result = await _sut.SubmitAsync();
+
+        // Assert
+        result.Should().BeTrue();
+        _sourceServiceMock.Verify(
+            s => s.ApplySettingsToAllLoadedSourcesAsync(It.IsAny<CancellationToken>()),
+            Times.Once
+        );
+        _notificationServiceMock.Verify(
+            n => n.ShowSuccess("SuccessCredentialProtectionDisabled", It.IsAny<string>()),
+            Times.Once
+        );
+    }
+
+    [Fact]
     public async Task SwitchToResetMode_ThenSubmitAsync_ResetsProtectionAndReAppliesSettings()
     {
         // Arrange

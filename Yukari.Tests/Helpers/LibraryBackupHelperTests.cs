@@ -898,7 +898,7 @@ public class LibraryBackupHelperTests : IDisposable
             ct: ct
         );
 
-        // Target has MangaDex already installed with data_saver = 'false'
+        // Target has MangaDex already installed with data_saver = 'false' and an extra obsolete setting
         await SeedSampleAppDataAsync(targetAppData, ct);
         var targetDbPath = Path.Combine(targetAppData, "Data", "yukari.db");
         using (
@@ -909,7 +909,8 @@ public class LibraryBackupHelperTests : IDisposable
             await targetSetupConn.ExecuteAsync(
                 """
                 INSERT INTO ComicSourceSettings (SourceName, SettingKey, SettingValue)
-                VALUES ('MangaDex', 'data_saver', 'false');
+                VALUES ('MangaDex', 'data_saver', 'false'),
+                       ('MangaDex', 'obsolete_key', 'old_value');
                 """
             );
         }
@@ -929,6 +930,11 @@ public class LibraryBackupHelperTests : IDisposable
             "SELECT SettingValue FROM ComicSourceSettings WHERE SourceName = 'MangaDex' AND SettingKey = 'data_saver';"
         );
         value.Should().Be("true");
+
+        var obsoleteCount = await conn.ExecuteScalarAsync<int>(
+            "SELECT COUNT(1) FROM ComicSourceSettings WHERE SourceName = 'MangaDex' AND SettingKey = 'obsolete_key';"
+        );
+        obsoleteCount.Should().Be(0);
     }
 
     [Fact]

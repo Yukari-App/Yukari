@@ -859,6 +859,9 @@ public static class LibraryBackupHelper
                     {
                         await connection.ExecuteAsync(
                             """
+                            DELETE FROM main.ComicSourceSettings
+                            WHERE SourceName IN (SELECT Name FROM imported.ComicSources);
+
                             INSERT INTO main.ComicSourceSettings (SourceName, SettingKey, SettingValue)
                             SELECT SourceName, SettingKey, SettingValue FROM imported.ComicSourceSettings
                             WHERE SourceName IN (SELECT Name FROM imported.ComicSources)

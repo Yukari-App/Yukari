@@ -8,6 +8,7 @@ using Yukari.Helpers;
 using Yukari.Models.Common;
 using Yukari.Models.DTO;
 using Yukari.Services.Comics;
+using Yukari.Services.Sources;
 using Yukari.Services.UI;
 
 namespace Yukari.Services.Storage;
@@ -16,11 +17,17 @@ internal class ExportService : IExportService
 {
     private readonly IComicService _comicService;
     private readonly IImageCacheService _imageCacheService;
+    private readonly ISourceService? _sourceService;
 
-    public ExportService(IComicService comicService, IImageCacheService imageCacheService)
+    public ExportService(
+        IComicService comicService,
+        IImageCacheService imageCacheService,
+        ISourceService? sourceService = null
+    )
     {
         _comicService = comicService;
         _imageCacheService = imageCacheService;
+        _sourceService = sourceService;
     }
 
     public async Task<Result> ExportChapterAsync(
@@ -147,6 +154,8 @@ internal class ExportService : IExportService
             );
 
             _imageCacheService.ClearCache();
+            if (_sourceService != null)
+                await _sourceService.ApplySettingsToAllLoadedSourcesAsync(ct);
 
             return pendingRestart ? Result.PendingRestart() : Result.Success();
         }

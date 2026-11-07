@@ -6,6 +6,7 @@ using Yukari.Models;
 using Yukari.Models.Common;
 using Yukari.Models.Settings;
 using Yukari.Services.Comics;
+using Yukari.Services.Security;
 using Yukari.Services.Settings;
 using Yukari.Services.Sources;
 using Yukari.Services.UI;
@@ -373,9 +374,30 @@ public class SettingsPageViewModelTests
     }
 
     [Fact]
-    public async Task OpenComicSourceSettings_ShowsDialog_WhenConfigurableAndEnabled()
+    public async Task OpenComicSourceSettings_ShowsDialog_AndRefreshesCredentialProtectionState()
     {
         // Arrange
+        var isUnlocked = false;
+        var credentialProtectorMock = new Mock<ICredentialProtector>();
+        credentialProtectorMock.Setup(c => c.UsesEntropy).Returns(true);
+        credentialProtectorMock.Setup(c => c.IsUnlocked).Returns(() => isUnlocked);
+
+        var sut = new SettingsPageViewModel(
+            _settingsServiceMock.Object,
+            _comicServiceMock.Object,
+            _sourceManagerMock.Object,
+            _notificationServiceMock.Object,
+            _dialogServiceMock.Object,
+            _messenger,
+            _localizationServiceMock.Object,
+            credentialProtectorMock.Object
+        );
+
+        _dialogServiceMock
+            .Setup(d => d.ShowComicSourceSettingsDialogAsync("MangaDex"))
+            .Callback(() => isUnlocked = true)
+            .Returns(Task.CompletedTask);
+
         var itemVm = new ComicSourceItemViewModel(
             new ComicSourceModel
             {
@@ -387,11 +409,16 @@ public class SettingsPageViewModelTests
             },
             null!,
             null!,
-            _sut.OpenComicSourceSettingsCommand
+            sut.OpenComicSourceSettingsCommand
         );
 
+        var changedProps = new List<string?>();
+        sut.PropertyChanged += (_, e) => changedProps.Add(e.PropertyName);
+
+        sut.IsCredentialProtectionLocked.Should().BeTrue();
+
         // Act
-        await _sut.OpenComicSourceSettingsCommand.ExecuteAsync(itemVm);
+        await sut.OpenComicSourceSettingsCommand.ExecuteAsync(itemVm);
 
         // Assert
         itemVm.IsConfigurable.Should().BeTrue();
@@ -399,6 +426,8 @@ public class SettingsPageViewModelTests
             d => d.ShowComicSourceSettingsDialogAsync("MangaDex"),
             Times.Once
         );
+        changedProps.Should().Contain(nameof(SettingsPageViewModel.IsCredentialProtectionLocked));
+        sut.IsCredentialProtectionLocked.Should().BeFalse();
     }
 
     [Fact]

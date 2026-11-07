@@ -202,6 +202,7 @@ public partial class SettingsPageViewModel : ObservableObject
             return;
 
         await _dialogService.ShowComicSourceSettingsDialogAsync(comicSourceItem.ComicSource.Name);
+        NotifyCredentialProtectionChanged();
     }
 
     [RelayCommand]

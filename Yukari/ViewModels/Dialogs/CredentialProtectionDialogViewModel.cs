@@ -197,6 +197,7 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
                     return false;
                 }
 
+                await _sourceService.ApplySettingsToAllLoadedSourcesAsync();
                 _notificationService.ShowSuccess(
                     _localizationService.GetString("SuccessCredentialPasswordChanged")
                 );
@@ -217,6 +218,7 @@ public partial class CredentialProtectionDialogViewModel : ObservableObject
                     return false;
                 }
 
+                await _sourceService.ApplySettingsToAllLoadedSourcesAsync();
                 _notificationService.ShowSuccess(
                     _localizationService.GetString("SuccessCredentialProtectionDisabled")
                 );
