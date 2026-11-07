@@ -139,6 +139,7 @@ public partial class App : Application
         services.AddTransient<LibraryExportDialogViewModel>();
         services.AddTransient<LibraryImportDialogViewModel>();
         services.AddTransient<ComicSourceSettingsDialogViewModel>();
+        services.AddTransient<CredentialProtectionDialogViewModel>();
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<INotificationService, NotificationService>();

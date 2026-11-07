@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Yukari.Core.Models;
+using Yukari.Enums;
 using Yukari.Models.DTO;
 
 namespace Yukari.Services.UI;
@@ -27,6 +28,7 @@ public interface IDialogService
     Task ShowLibraryExportDialogAsync();
     Task ShowLibraryImportDialogAsync();
     Task ShowComicSourceSettingsDialogAsync(string sourceName);
+    Task ShowCredentialProtectionDialogAsync(CredentialProtectionMode mode);
     Task<string?> OpenFilePickerAsync(string[]? fileTypeFilters = null);
     Task<string?> OpenFolderPickerAsync();
     Task<string?> OpenFileSavePicker(

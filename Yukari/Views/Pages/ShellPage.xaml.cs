@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Yukari.Enums;
 using Yukari.Messages;
+using Yukari.Services.Security;
 using Yukari.Services.UI;
 using Yukari.ViewModels.Pages;
 
@@ -10,6 +11,8 @@ namespace Yukari.Views.Pages;
 
 public sealed partial class ShellPage : Page
 {
+    private static bool _hasPromptedCredentialUnlock;
+
     public ShellPageViewModel ViewModel { get; set; }
 
     public ShellPage()
@@ -18,7 +21,21 @@ public sealed partial class ShellPage : Page
         ViewModel = App.GetService<ShellPageViewModel>();
         DataContext = ViewModel;
 
-        Loaded += (_, _) => App.GetService<IDialogService>().Initialize(XamlRoot);
+        Loaded += async (_, _) =>
+        {
+            var dialogService = App.GetService<IDialogService>();
+            dialogService.Initialize(XamlRoot);
+
+            if (!_hasPromptedCredentialUnlock)
+            {
+                _hasPromptedCredentialUnlock = true;
+                var credentialProtector = App.GetService<ICredentialProtector>();
+                if (credentialProtector.UsesEntropy && !credentialProtector.IsUnlocked)
+                    await dialogService.ShowCredentialProtectionDialogAsync(
+                        CredentialProtectionMode.Unlock
+                    );
+            }
+        };
 
         var messenger = App.GetService<IMessenger>();
 

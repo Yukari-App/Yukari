@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.Storage.Pickers;
 using Yukari.Core.Models;
+using Yukari.Enums;
 using Yukari.Models.DTO;
 using Yukari.ViewModels.Dialogs;
 using Yukari.Views.Dialogs;
@@ -115,6 +116,19 @@ internal class DialogService : IDialogService
         ThrowIfXamlRootNotInitialized();
 
         var dialog = new ComicSourceSettingsDialog(sourceName)
+        {
+            XamlRoot = _xamlRoot,
+            RequestedTheme = AppTheme,
+        };
+
+        await dialog.ShowAsync();
+    }
+
+    public async Task ShowCredentialProtectionDialogAsync(CredentialProtectionMode mode)
+    {
+        ThrowIfXamlRootNotInitialized();
+
+        var dialog = new CredentialProtectionDialog(mode)
         {
             XamlRoot = _xamlRoot,
             RequestedTheme = AppTheme,
