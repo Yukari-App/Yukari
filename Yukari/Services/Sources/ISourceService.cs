@@ -17,6 +17,7 @@ public interface ISourceService
         CancellationToken ct = default
     );
     Task ApplySettingsAsync(string sourceName, CancellationToken ct = default);
+    Task ApplySettingsToAllLoadedSourcesAsync(CancellationToken ct = default);
 
     Task<IReadOnlyList<Filter>> GetFiltersAsync(string sourceName, CancellationToken ct = default);
 

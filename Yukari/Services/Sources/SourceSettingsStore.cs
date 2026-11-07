@@ -38,7 +38,7 @@ internal class SourceSettingsStore : ISourceSettingsStore
         var result = new Dictionary<string, string>(plainSettings, StringComparer.Ordinal);
 
         var passwordSettings = schema.OfType<PasswordSetting>().ToList();
-        if (passwordSettings.Count > 0)
+        if (passwordSettings.Count > 0 && _credentialProtector.IsUnlocked)
         {
             var credentials = await _dataService.GetComicSourceCredentialsAsync(sourceName, ct);
             foreach (var pw in passwordSettings)
@@ -47,7 +47,7 @@ internal class SourceSettingsStore : ISourceSettingsStore
                 {
                     try
                     {
-                        result[pw.Key] = _credentialProtector.Decrypt(cipher);
+                        result[pw.Key] = _credentialProtector.Unprotect(cipher);
                     }
                     catch (Exception ex)
                     {
@@ -95,10 +95,10 @@ internal class SourceSettingsStore : ISourceSettingsStore
 
             foreach (var pw in passwordSettings)
             {
-                if (values.TryGetValue(pw.Key, out var newPlain))
+                if (_credentialProtector.IsUnlocked && values.TryGetValue(pw.Key, out var newPlain))
                 {
                     if (!string.IsNullOrEmpty(newPlain))
-                        credentials[pw.Key] = _credentialProtector.Encrypt(newPlain);
+                        credentials[pw.Key] = _credentialProtector.Protect(newPlain);
                 }
                 else if (
                     existingCredentials.TryGetValue(pw.Key, out var existingCipher)

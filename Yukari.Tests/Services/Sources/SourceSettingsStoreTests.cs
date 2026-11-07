@@ -23,6 +23,7 @@ public class SourceSettingsStoreTests
     {
         _dataServiceMock = new Mock<IDataService>();
         _credentialProtectorMock = new Mock<ICredentialProtector>();
+        _credentialProtectorMock.Setup(p => p.IsUnlocked).Returns(true);
         _store = new SourceSettingsStore(
             _dataServiceMock.Object,
             _credentialProtectorMock.Object,
@@ -59,7 +60,9 @@ public class SourceSettingsStoreTests
             .Setup(d => d.GetComicSourceCredentialsAsync(sourceName, ct))
             .ReturnsAsync(credentials);
 
-        _credentialProtectorMock.Setup(p => p.Decrypt(cipherBytes)).Returns("decrypted-token-123");
+        _credentialProtectorMock
+            .Setup(p => p.Unprotect(cipherBytes))
+            .Returns("decrypted-token-123");
 
         // Act
         var result = await _store.LoadRawValuesAsync(sourceName, schema, ct);
@@ -89,7 +92,7 @@ public class SourceSettingsStoreTests
         };
 
         var expectedCipher = new byte[] { 1, 2, 3, 4 };
-        _credentialProtectorMock.Setup(p => p.Encrypt("my_secret_key")).Returns(expectedCipher);
+        _credentialProtectorMock.Setup(p => p.Protect("my_secret_key")).Returns(expectedCipher);
 
         IReadOnlyDictionary<string, string>? capturedPlain = null;
         IReadOnlyDictionary<string, byte[]>? capturedCreds = null;
@@ -214,5 +217,33 @@ public class SourceSettingsStoreTests
             .WhoseValue.Should()
             .BeEquivalentTo(existingKeptCipher);
         capturedCreds.Should().NotContainKey("cleared_token");
+    }
+
+    [Fact]
+    public async Task LoadSettingsAsync_WhenCredentialsAreLocked_OmitsCredentialsAndReadsEmptyDefault()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        const string sourceName = "TestPlugin";
+        var schema = new List<SourceSetting>
+        {
+            new PasswordSetting { Key = "api_token", Header = "API Token" },
+        };
+
+        _credentialProtectorMock.Setup(p => p.IsUnlocked).Returns(false);
+        _dataServiceMock
+            .Setup(d => d.GetComicSourceSettingsAsync(sourceName, ct))
+            .ReturnsAsync(new Dictionary<string, string>());
+
+        // Act
+        var settings = await _store.LoadSettingsAsync(sourceName, schema, ct);
+
+        // Assert
+        settings.GetString("api_token").Should().BeEmpty();
+        _dataServiceMock.Verify(
+            d =>
+                d.GetComicSourceCredentialsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never
+        );
     }
 }

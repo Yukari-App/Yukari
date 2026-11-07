@@ -1,7 +1,23 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Yukari.Services.Security;
 
-internal interface ICredentialProtector
+public interface ICredentialProtector
 {
-    byte[] Encrypt(string plainText);
-    string Decrypt(byte[] cipherText);
+    bool UsesEntropy { get; }
+    bool IsUnlocked { get; }
+
+    byte[] Protect(string plainText);
+    string Unprotect(byte[] cipherText);
+
+    bool TryUnlock(string password);
+
+    Task EnableEntropyAsync(string newPassword, CancellationToken ct = default);
+    Task<bool> ChangeEntropyPasswordAsync(
+        string currentPassword,
+        string newPassword,
+        CancellationToken ct = default
+    );
+    Task<bool> DisableEntropyAsync(string currentPassword, CancellationToken ct = default);
 }

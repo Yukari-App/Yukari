@@ -152,6 +152,14 @@ internal class SourceService : ISourceService
         }
     }
 
+    public async Task ApplySettingsToAllLoadedSourcesAsync(CancellationToken ct = default)
+    {
+        foreach (var sourceName in _sourceInstances.Keys.ToArray())
+        {
+            await ApplySettingsAsync(sourceName, ct);
+        }
+    }
+
     public async Task<IReadOnlyList<Filter>> GetFiltersAsync(
         string sourceName,
         CancellationToken ct = default
