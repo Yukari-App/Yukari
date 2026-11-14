@@ -16,7 +16,7 @@
 
 **Yukari** is a modern, extensible manga, webtoon and comic reader made for **Windows**.
 
-Built with **WinUI 3** and **.NET 10**, it delivers a clean Fluent Design interface, a fast local **SQLite**-backed library, and a flexible plugin system to add any source — all 100% private with no telemetry, ads, or required accounts.
+Built with **WinUI 3** and **.NET 11**, it delivers a clean Fluent Design interface, a fast local **SQLite**-backed library, and a flexible plugin system to add any source — all 100% private with no telemetry, ads, or required accounts.
 
 Enjoy **offline reading** of your downloaded/local collection, with optional online discovery and scraping via community plugins (e.g., MangaDex, etc.).
 
