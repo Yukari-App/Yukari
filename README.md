@@ -16,7 +16,7 @@
 
 **Yukari** is a modern, extensible manga, webtoon and comic reader made for **Windows**.
 
-Built with **WinUI 3** and **.NET 11**, it delivers a clean Fluent Design interface, a fast local **SQLite**-backed library, and a flexible plugin system to add any source — all 100% private with no telemetry, ads, or required accounts.
+Built with **WinUI 3** and **.NET 11**, it delivers a clean Fluent Design interface, a fast local **SQLite**-backed library, and a flexible plugin system to add any source, all 100% private with no telemetry, ads, or required accounts.
 
 Enjoy **offline reading** of your downloaded/local collection, with optional online discovery and scraping via community plugins (e.g., MangaDex, etc.).
 
@@ -30,16 +30,16 @@ Enjoy **offline reading** of your downloaded/local collection, with optional onl
     <h2>✨ Current Features</h2>
 </div>
 
-- 📚 **Local Library** — Save your favorites, with automatic progress tracking per chapter and language
-- 📥 **Offline Downloads** — Download chapters for offline reading, with full download management
-- 📂 **Local Comics** — Read comics stored on your device (folders, CBZ, or EPUB files)
-- 📋 **Collections** — Organize favorites into custom collections
-- 🔍 **Advanced Search** — Full filtering support (tags, status, etc.) in the Discover section
-- 📖 **Powerful Reader** — RTL / LTR / Vertical / Webtoon modes, Fit Width / Fit Height / Fit Screen / Original Size scaling, double-tap to zoom, and a page slider to jump anywhere in the chapter
-- ⚙️ **Dynamic Plugins** — Add as many comic/manga sources as you want (maintained by the community)
-- 🌙 **Dark / Light Theme** — Automatic system theme support (Fluent Design with WinUI 3)
-- 🛡️ **100% Local & Private** — No telemetry, no ads, no mandatory login or cloud sync
-- 🌍 **Multilingual** — interface available in English, Portuguese, Spanish, and Japanese
+- 📚 **Local Library**: Save your favorites, with automatic progress tracking per chapter and language
+- 📥 **Offline Downloads**: Download chapters for offline reading, with full download management
+- 📂 **Local Comics**: Read comics stored on your device (folders, CBZ, or EPUB files)
+- 📋 **Collections**: Organize favorites into custom collections
+- 🔍 **Advanced Search**: Full filtering support (tags, status, etc.) in the Discover section
+- 📖 **Powerful Reader**: RTL / LTR / Vertical / Webtoon modes, Fit Width / Fit Height / Fit Screen / Original Size scaling, double-tap to zoom, and a page slider to jump anywhere in the chapter
+- ⚙️ **Dynamic Plugins**: Add as many comic/manga sources as you want (maintained by the community)
+- 🌙 **Dark / Light Theme**: Automatic system theme support (Fluent Design with WinUI 3)
+- 🛡️ **100% Local & Private**: No telemetry, no ads, no mandatory login or cloud sync
+- 🌍 **Multilingual**: Interface available in English, Portuguese, Spanish, and Japanese
 
 <div align="center">
     <h2>📥 Installation</h2>
